@@ -1,2 +1,8 @@
-# SmartOrder
-Repository codice sorgente per il progetto SmartOrder, proposto dall'azienda Ergon s.r.l., capitolato C8 del corso Ingegneria del Software presso l'Università degli Studi di Padova, a.a. 2025-2026
+<h1 align="center">SmartOrder</h1>
+
+Progetto didattico svolto dal gruppo "NullPointers Group" per il corso di Ingegneria del Software a.a. 2025-26 - Università di Padova, c.d.l. triennale in Informatica.
+
+Azienda proponente: [Ergon s.r.l.](https://www.ergon.it/)
+
+Capitolato: C8 - [SmartOrder](https://www.math.unipd.it/~tullio/IS-1/2025/Progetto/C8.pdf)
+
