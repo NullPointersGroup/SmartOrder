@@ -6,3 +6,12 @@ Azienda proponente: [Ergon s.r.l.](https://www.ergon.it/)
 
 Capitolato: C8 - [SmartOrder](https://www.math.unipd.it/~tullio/IS-1/2025/Progetto/C8.pdf)
 
+# Componenti
+| Nome       | Cognome     | Numero Matricola |
+|------------|-------------|------------------|
+| Matteo     | Mazzaretto  | 2111005          |
+| Marco      | Brunello    | 2110997          |
+| Tommaso    | Ceron       | 2101045          |
+| Luca       | Marcuzzo    | 2113198          |
+| Laura      | Pieripolli  | 2048057          |
+| Lisa       | Casagrande  | 2116440          |
