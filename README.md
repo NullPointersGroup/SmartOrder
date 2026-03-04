@@ -1,5 +1,7 @@
 <h1 align="center">SmartOrder</h1>
 
+[![CI](https://github.com/NullPointersGroup/SmartOrder/actions/workflows/CI.yml/badge.svg)](https://github.com/NullPointersGroup/SmartOrder/actions/workflows/CI.yml)
+
 Progetto didattico svolto dal gruppo "NullPointers Group" per il corso di Ingegneria del Software a.a. 2025-26 - Università di Padova, c.d.l. triennale in Informatica.
 
 Azienda proponente: [Ergon s.r.l.](https://www.ergon.it/)
