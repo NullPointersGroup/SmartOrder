@@ -1,32 +1,28 @@
 {
-  "issues": [
-    {
-      "engineId": "req_checker",
-      "ruleId": "RF-OB_02",
-      "severity": "CRITICAL",
-      "type": "BUG",
-      "primaryLocation": {
-        "message": "Requisito RF-OB_02 NON soddisfatto",
-        "filePath": "src/src/add.py",
-        "textRange": {
-          "startLine": 4,
-          "endLine": 14
-        }
-      }
+  "summary": {
+    "totale_requisiti": {
+      "obbligatori": 110,
+      "desiderabili": 146,
+      "opzionali": 17,
+      "globale": 273
     },
-    {
-      "engineId": "req_checker",
-      "ruleId": "RF-OB-3",
-      "severity": "CRITICAL",
-      "type": "BUG",
-      "primaryLocation": {
-        "message": "Requisito RF-OB-3 NON soddisfatto",
-        "filePath": "src/src/add.py",
-        "textRange": {
-          "startLine": 16,
-          "endLine": 26
-        }
-      }
+    "coperti": {
+      "obbligatori": 3,
+      "desiderabili": 0,
+      "opzionali": 0,
+      "globale": 3
+    },
+    "non_coperti": {
+      "obbligatori": 0,
+      "desiderabili": 0,
+      "opzionali": 0,
+      "globale": 0
+    },
+    "per_categoria": {
+      "obbligatori": 2.7,
+      "desiderabili": 0.0,
+      "opzionali": 0.0
     }
-  ]
+  },
+  "issues": "Tutto apposto"
 }

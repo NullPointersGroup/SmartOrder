@@ -6,9 +6,9 @@ import json
 import re
 
 # --- Totale requisiti per categoria ---
-TOT_OBBLIG: int = 2
-TOT_DESID: int = 2
-TOT_OPZ: int = 2
+TOT_OBBLIG: int = 110
+TOT_DESID: int = 146
+TOT_OPZ: int = 17
 
 # --- TypedDict per le funzioni ---
 class FuncInfo(TypedDict):
@@ -72,19 +72,22 @@ def extract_funcs_and_reqs_js(file_path: Path) -> List[FuncInfo]:
         if req_match:
             reqs.append(req_match.group(1))
 
-        func_match = re.match(r"\s*(export\s+)?(function|const|let|var)\s+(\w+)", line)
+        func_match = re.match(
+            r"\s*(export\s+(default\s+)?)?(function|const|let|var)\s+(\w+)", line
+        )
         if func_match:
             if func_start is not None:
                 funcs.append(FuncInfo(name=str(func_name), start=func_start, end=i-1, reqs=reqs))
                 reqs = []
             func_start = i
-            func_name = func_match.group(3)
+            func_name = func_match.group(4)  # FIX: was group(3), should be group(4) for the name
     if func_start is not None:
         funcs.append(FuncInfo(name=str(func_name), start=func_start, end=len(lines), reqs=reqs))
     return funcs
 
 # --- Parsing coverage.xml Python ---
-def parse_coverage_xml(coverage_xml_path: Path) -> Dict[str, Set[int]]:
+# FIX: accept proj_root so we can produce keys relative to it (e.g. "src/add.py")
+def parse_coverage_xml(coverage_xml_path: Path, proj_root: Path) -> Dict[str, Set[int]]:
     file_coverage: Dict[str, Set[int]] = {}
     try:
         tree = ET.parse(coverage_xml_path)
@@ -96,10 +99,9 @@ def parse_coverage_xml(coverage_xml_path: Path) -> Dict[str, Set[int]]:
         filename_raw = cls.get("filename")
         if not filename_raw:
             continue
-        try:
-            rel_filename = Path(filename_raw).relative_to("src").as_posix()
-        except ValueError:
-            rel_filename = Path(filename_raw).as_posix()
+        # FIX: keep the path as-is from coverage.xml (already relative to proj_root,
+        # e.g. "src/add.py"). No more relative_to("src") that was stripping the prefix.
+        rel_filename = Path(filename_raw).as_posix()
         lines: Set[int] = set()
         for line in cls.findall("lines/line"):
             number_raw = line.get("number")
@@ -115,24 +117,29 @@ def parse_coverage_xml(coverage_xml_path: Path) -> Dict[str, Set[int]]:
     return file_coverage
 
 # --- Parsing lcov.info JS/TS ---
-def parse_lcov_info(lcov_path: Path) -> Dict[str, Set[int]]:
+def parse_lcov_info(lcov_path: Path, proj_root: Path) -> Dict[str, Set[int]]:
     coverage: Dict[str, Set[int]] = {}
     if not lcov_path.exists():
         return coverage
-    current_file = None
+
+    current_file: Optional[Path] = None
     lines_covered: Set[int] = set()
+
     for line in lcov_path.read_text(encoding="utf-8").splitlines():
         if line.startswith("SF:"):
-            if current_file and lines_covered:
-                coverage[current_file] = lines_covered
-            current_file = Path(line[3:]).as_posix()
+            current_file = Path(line[3:]).resolve()
             lines_covered = set()
         elif line.startswith("DA:"):
             parts = line[3:].split(",")
             if len(parts) == 2 and int(parts[1]) > 0:
                 lines_covered.add(int(parts[0]))
-    if current_file and lines_covered:
-        coverage[current_file] = lines_covered
+        elif line.startswith("end_of_record") and current_file is not None:
+            try:
+                # FIX: relative to proj_root (e.g. "frontend/") → "src/Counter.tsx"
+                rel_file = current_file.relative_to(proj_root).as_posix()
+            except ValueError:
+                rel_file = current_file.name
+            coverage[rel_file] = lines_covered
     return coverage
 
 # --- Classifica requisiti ---
@@ -154,29 +161,70 @@ def generate_sonar_issues(func_map: Dict[str, List[FuncInfo]],
                           coverage_map: Dict[str, Set[int]],
                           output_path: Path) -> None:
     issues: List[Dict] = []
+    
+    all_reqs: Set[str] = set()
+    covered_reqs: Set[str] = set()
+
     for file_rel, funcs in func_map.items():
         covered_lines: Set[int] = coverage_map.get(file_rel, set())
         for f in funcs:
             body_lines = range(f["start"] + 1, f["end"] + 1)
             is_covered: bool = any(line in covered_lines for line in body_lines)
             for req in f["reqs"]:
-                if not is_covered:
+                all_reqs.add(req)
+                if is_covered:
+                    covered_reqs.add(req)
+                else:
                     issues.append({
-                        "engineId": "req_checker",
                         "ruleId": req,
-                        "severity": "CRITICAL",
-                        "type": "BUG",
                         "primaryLocation": {
                             "message": f"Requisito {req} NON soddisfatto",
-                            "filePath": f"src/{file_rel}",
+                            "filePath": file_rel,
                             "textRange": {"startLine": f["start"], "endLine": f["end"]}
                         }
                     })
+
+    # Percentuali per categoria
+    def pct(cat: str) -> float:
+        tot = {"obblig": TOT_OBBLIG, "desid": TOT_DESID, "opz": TOT_OPZ}.get(cat, 0)
+        if tot == 0:
+            return 0.0
+        covered = sum(1 for r in covered_reqs if categorize_req(r) == cat)
+        return round(covered / tot * 100, 1)
+
+    total = len(all_reqs)
+    summary = {
+        "totale_requisiti": {
+            "obbligatori": TOT_OBBLIG,
+            "desiderabili": TOT_DESID,
+            "opzionali": TOT_OPZ,
+            "globale": TOT_OBBLIG + TOT_DESID + TOT_OPZ,
+        },
+        "coperti": {
+            "obbligatori": sum(1 for r in covered_reqs if categorize_req(r) == "obblig"),
+            "desiderabili": sum(1 for r in covered_reqs if categorize_req(r) == "desid"),
+            "opzionali": sum(1 for r in covered_reqs if categorize_req(r) == "opz"),
+            "globale": len(covered_reqs),
+        },
+        "non_coperti": {
+            "obbligatori": sum(1 for r in all_reqs - covered_reqs if categorize_req(r) == "obblig"),
+            "desiderabili": sum(1 for r in all_reqs - covered_reqs if categorize_req(r) == "desid"),
+            "opzionali": sum(1 for r in all_reqs - covered_reqs if categorize_req(r) == "opz"),
+            "globale": len(all_reqs - covered_reqs),
+        },
+        "per_categoria": {
+            "obbligatori": pct("obblig"),
+            "desiderabili": pct("desid"),
+            "opzionali":   pct("opz"),
+        }
+    }
+
     with open(output_path, "w") as f:
-        json.dump({"issues": issues}, f, indent=2)
+        json.dump({"summary": summary, "issues": issues} if issues else {"summary": summary, "issues": "Tutto apposto"}, f, indent=2)
 
 # --- Script principale ---
 def main() -> None:
+
     projects = [
         {"name": "backend", "src": Path("backend/src"), "coverage": Path("backend/coverage.xml"), "lang": "py"},
         {"name": "frontend", "src": Path("frontend/src"), "coverage": Path("frontend/coverage/lcov.info"), "lang": "js"},
@@ -186,9 +234,11 @@ def main() -> None:
     all_coverage_map: Dict[str, Set[int]] = {}
 
     for proj in projects:
-        src_path = proj["src"]
-        coverage_path = proj["coverage"]
-        lang = proj["lang"]
+        src_path: Path = proj["src"]
+        coverage_path: Path = proj["coverage"]
+        lang: str = proj["lang"]
+        # FIX: sub-project root (e.g. Path("backend") or Path("frontend"))
+        proj_root: Path = src_path.parent
 
         if not src_path.exists():
             print(f"Warning: Directory '{src_path}' does not exist!")
@@ -198,17 +248,35 @@ def main() -> None:
         func_map: Dict[str, List[FuncInfo]] = {}
         for ext in (["*.py"] if lang == "py" else ["*.ts", "*.tsx"]):
             for file_path in src_path.rglob(ext):
-                rel_path = file_path.relative_to(src_path.parent).as_posix()
-                funcs = extract_funcs_and_reqs_py(file_path) if lang=="py" else extract_funcs_and_reqs_js(file_path)
+                # FIX: key relative to proj_root → "src/add.py" or "src/Counter.tsx"
+                rel_path = file_path.relative_to(proj_root).as_posix()
+                funcs = extract_funcs_and_reqs_py(file_path) if lang == "py" else extract_funcs_and_reqs_js(file_path)
                 if funcs:
                     func_map[rel_path] = funcs
 
-        # Coverage
-        coverage_map = parse_coverage_xml(coverage_path) if lang=="py" else parse_lcov_info(coverage_path)
+        # Coverage — pass proj_root for consistent key generation
+        coverage_map = (
+            parse_coverage_xml(coverage_path, proj_root)
+            if lang == "py"
+            else parse_lcov_info(coverage_path, proj_root.resolve())
+        )
 
         # accumula globale
         all_func_map.update(func_map)
         for f, lines in coverage_map.items():
+            if f in all_coverage_map:
+                all_coverage_map[f] |= lines
+            else:
+                all_coverage_map[f] = lines
+                
+        normalized_coverage: Dict[str, Set[int]] = {}
+        for f, lines in coverage_map.items():
+            key = f if f.startswith("src/") else f"src/{f}"
+            normalized_coverage[key] = lines
+
+        # accumula globale
+        all_func_map.update(func_map)
+        for f, lines in normalized_coverage.items():
             if f in all_coverage_map:
                 all_coverage_map[f] |= lines
             else:
