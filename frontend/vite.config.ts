@@ -14,9 +14,10 @@ export default defineConfig({
     setupFiles: "./tests/setup.ts",
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     coverage: {
-      provider: 'istanbul',
+      provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
-      include: ['src/**/*.{ts,tsx}']
+      include: ['src/**/*.{ts,tsx}'],
+      reportsDirectory: './coverage',
     }
   }
 })
