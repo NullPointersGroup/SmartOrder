@@ -20,7 +20,7 @@ def subtract(x: int, y: int) -> int:
    @raise ExceptionType Condition or description
    @bug  actual problems
    @return Type Description
-   @req RF-OB-3
+   @req RF-OB_03
    """
    print("Ciao")
    return x - y

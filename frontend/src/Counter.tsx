@@ -7,7 +7,7 @@ export default function Counter() {
   @raise ExceptionType Condition or description
   @bug  actual problems
   @return Type Description
-  @req RF-OB_1
+  @req RF-OB_01
    */
   const [count, setCount] = useState(0)
 
