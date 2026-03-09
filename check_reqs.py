@@ -1,14 +1,23 @@
 import xml.etree.ElementTree as ET
 import ast
 from pathlib import Path
-from typing import List, Dict, Set, TypedDict, Optional
+from typing import List, Dict, Set, TypedDict, Optional, Literal
 import json
 import re
+from dataclasses import dataclass
 
 # --- Totale requisiti per categoria ---
 TOT_OBBLIG: int = 110
 TOT_DESID: int = 146
 TOT_OPZ: int = 17
+
+_CATEGORY_TOTALS: Dict[str, int] = {
+    "obblig": TOT_OBBLIG,
+    "desid":  TOT_DESID,
+    "opz":    TOT_OPZ,
+}
+
+_TS_EXTENSIONS = (".ts", ".tsx")
 
 # --- TypedDict per le funzioni ---
 class FuncInfo(TypedDict):
@@ -18,41 +27,60 @@ class FuncInfo(TypedDict):
     reqs: List[str]
 
 # --- Parsing funzioni/metodi Python ---
+
+def _parse_req_tags(docstring: Optional[str]) -> List[str]:
+    """Estrae i tag @req da una docstring."""
+    if not docstring:
+        return []
+    return [
+        line.split()[1]
+        for line in docstring.splitlines()
+        if line.strip().startswith("@req")
+    ]
+
+
+def _build_func_name(node_name: str, class_path: str) -> str:
+    return f"{class_path}.{node_name}" if class_path else node_name
+
+
+def _collect_nodes(
+    body: List[ast.stmt],
+    class_path: str = "",
+) -> List[FuncInfo]:
+    """
+    Visita ricorsivamente il body di un modulo o di una classe,
+    raccogliendo FuncInfo per ogni FunctionDef trovata.
+    """
+    results: List[FuncInfo] = []
+
+    for node in body:
+        if isinstance(node, ast.FunctionDef):
+            results.append(
+                FuncInfo(
+                    name=_build_func_name(node.name, class_path),
+                    start=node.lineno,
+                    end=node.end_lineno or node.lineno,
+                    reqs=_parse_req_tags(ast.get_docstring(node)),
+                )
+            )
+        elif isinstance(node, ast.ClassDef):
+            nested_path = _build_func_name(node.name, class_path)
+            results.extend(_collect_nodes(node.body, class_path=nested_path))
+
+    return results
+
+
 def extract_funcs_and_reqs_py(file_path: Path) -> List[FuncInfo]:
-    funcs: List[FuncInfo] = []
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        content = file_path.read_text(encoding="utf-8")
         if not content.strip():
-            return funcs
+            return []
         tree = ast.parse(content, filename=str(file_path))
     except (SyntaxError, UnicodeDecodeError) as e:
         print(f"Warning: Could not parse {file_path}: {e}")
-        return funcs
+        return []
 
-    def process_function(node: ast.FunctionDef, class_path: str = "") -> None:
-        docstring: Optional[str] = ast.get_docstring(node)
-        reqs: List[str] = []
-        if docstring:
-            reqs = [line.split()[1] for line in docstring.splitlines() if line.strip().startswith("@req")]
-        end_lineno: int = node.end_lineno if node.end_lineno is not None else node.lineno
-        func_name = f"{class_path}.{node.name}" if class_path else node.name
-        funcs.append(FuncInfo(name=func_name, start=node.lineno, end=end_lineno, reqs=reqs))
-
-    def process_class(node: ast.ClassDef, parent_path: str = "") -> None:
-        current_path = f"{parent_path}.{node.name}" if parent_path else node.name
-        for item in node.body:
-            if isinstance(item, ast.FunctionDef):
-                process_function(item, class_path=current_path)
-            elif isinstance(item, ast.ClassDef):
-                process_class(item, parent_path=current_path)
-
-    for node in tree.body:
-        if isinstance(node, ast.FunctionDef):
-            process_function(node)
-        elif isinstance(node, ast.ClassDef):
-            process_class(node)
-    return funcs
+    return _collect_nodes(tree.body)
 
 # --- Parsing funzioni JS/TS con @req ---
 def extract_funcs_and_reqs_js(file_path: Path) -> List[FuncInfo]:
@@ -86,35 +114,42 @@ def extract_funcs_and_reqs_js(file_path: Path) -> List[FuncInfo]:
     return funcs
 
 # --- Parsing coverage.xml Python ---
-# FIX: accept proj_root so we can produce keys relative to it (e.g. "src/add.py")
-def parse_coverage_xml(coverage_xml_path: Path, proj_root: Path) -> Dict[str, Set[int]]:
+
+def _parse_covered_lines(cls: ET.Element) -> Set[int]:
+    """Restituisce i numeri di riga con hits > 0 per un elemento <class>."""
+    return {
+        int(number)
+        for line in cls.findall("lines/line")
+        if (number := line.get("number")) is not None
+        and (hits := line.get("hits")) is not None
+        and int(hits) > 0
+    }
+
+
+def _parse_coverage_classes(root: ET.Element) -> Dict[str, Set[int]]:
+    """Aggrega le righe coperte per file, visitando tutti gli elementi <class>."""
     file_coverage: Dict[str, Set[int]] = {}
-    try:
-        tree = ET.parse(coverage_xml_path)
-    except (ET.ParseError, FileNotFoundError) as e:
-        print(f"Warning: Could not parse {coverage_xml_path}: {e}")
-        return file_coverage
-    root = tree.getroot()
+
     for cls in root.findall(".//class"):
         filename_raw = cls.get("filename")
         if not filename_raw:
             continue
-        # FIX: keep the path as-is from coverage.xml (already relative to proj_root,
-        # e.g. "src/add.py"). No more relative_to("src") that was stripping the prefix.
+
         rel_filename = Path(filename_raw).as_posix()
-        lines: Set[int] = set()
-        for line in cls.findall("lines/line"):
-            number_raw = line.get("number")
-            hits_raw = line.get("hits")
-            if number_raw is None or hits_raw is None:
-                continue
-            if int(hits_raw) > 0:
-                lines.add(int(number_raw))
-        if rel_filename in file_coverage:
-            file_coverage[rel_filename] |= lines
-        else:
-            file_coverage[rel_filename] = lines
+        covered_lines = _parse_covered_lines(cls)
+        file_coverage.setdefault(rel_filename, set()).update(covered_lines)
+
     return file_coverage
+
+
+def parse_coverage_xml(coverage_xml_path: Path) -> Dict[str, Set[int]]:
+    try:
+        root = ET.parse(coverage_xml_path).getroot()
+    except (ET.ParseError, FileNotFoundError) as e:
+        print(f"Warning: Could not parse {coverage_xml_path}: {e}")
+        return {}
+
+    return _parse_coverage_classes(root)
 
 # --- Parsing lcov.info JS/TS ---
 def parse_lcov_info(lcov_path: Path, proj_root: Path) -> Dict[str, Set[int]]:
@@ -157,135 +192,177 @@ def categorize_req(req_id: str) -> str:
     return "unknown"
 
 # --- Genera JSON Sonar ---
-def generate_sonar_issues(func_map: Dict[str, List[FuncInfo]],
-                          coverage_map: Dict[str, Set[int]],
-                          output_path: Path) -> None:
+
+def _file_prefix(file_rel: str) -> str:
+    return "frontend" if file_rel.endswith(_TS_EXTENSIONS) else "backend"
+
+
+def _engine_id(file_rel: str) -> str:
+    return "vitest" if file_rel.endswith(_TS_EXTENSIONS) else "backend-py"
+
+
+def _build_issue(file_rel: str, func: FuncInfo, req: str) -> Dict:
+    return {
+        "engineId": _engine_id(file_rel),
+        "ruleId": req,
+        "severity": "BLOCKER",
+        "type": "CODE_SMELL",
+        "primaryLocation": {
+            "message": f"Requisito {req} NON soddisfatto",
+            "filePath": f"{_file_prefix(file_rel)}/{file_rel}",
+            "textRange": {"startLine": func["start"], "endLine": func["end"]},
+        },
+    }
+
+
+def _count_by_cat(reqs: Set[str]) -> Dict[str, int]:
+    """Conta i requisiti per categoria e aggiunge il totale globale."""
+    counts = {cat: sum(1 for r in reqs if categorize_req(r) == cat) for cat in _CATEGORY_TOTALS}
+    counts["globale"] = len(reqs)
+    return counts
+
+
+def _coverage_pct(cat: str, covered_by_cat: Dict[str, int]) -> float:
+    total = _CATEGORY_TOTALS.get(cat, 0)
+    return round(covered_by_cat[cat] / total * 100, 1) if total else 0.0
+
+
+def _build_summary(all_reqs: Set[str], covered_reqs: Set[str]) -> Dict:
+    uncovered_reqs = all_reqs - covered_reqs
+    covered_by_cat   = _count_by_cat(covered_reqs)
+    uncovered_by_cat = _count_by_cat(uncovered_reqs)
+
+    return {
+        "totale_requisiti": {
+            "obbligatori": TOT_OBBLIG,
+            "desiderabili": TOT_DESID,
+            "opzionali":   TOT_OPZ,
+            "globale":     TOT_OBBLIG + TOT_DESID + TOT_OPZ,
+        },
+        "coperti": {
+            "obbligatori": covered_by_cat["obblig"],
+            "desiderabili": covered_by_cat["desid"],
+            "opzionali":   covered_by_cat["opz"],
+            "globale":     covered_by_cat["globale"],
+        },
+        "non_coperti": {
+            "obbligatori": uncovered_by_cat["obblig"],
+            "desiderabili": uncovered_by_cat["desid"],
+            "opzionali":   uncovered_by_cat["opz"],
+            "globale":     uncovered_by_cat["globale"],
+        },
+        "per_categoria": {
+            "obbligatori": _coverage_pct("obblig", covered_by_cat),
+            "desiderabili": _coverage_pct("desid", covered_by_cat),
+            "opzionali":   _coverage_pct("opz",   covered_by_cat),
+        },
+    }
+
+
+def _collect_issues_and_reqs(
+    func_map: Dict[str, List[FuncInfo]],
+    coverage_map: Dict[str, Set[int]],
+) -> tuple[List[Dict], Set[str], Set[str]]:
     issues: List[Dict] = []
-    
     all_reqs: Set[str] = set()
     covered_reqs: Set[str] = set()
 
     for file_rel, funcs in func_map.items():
-        covered_lines: Set[int] = coverage_map.get(file_rel, set())
-        for f in funcs:
-            body_lines = range(f["start"] + 1, f["end"] + 1)
-            is_covered: bool = any(line in covered_lines for line in body_lines)
-            for req in f["reqs"]:
+        covered_lines = coverage_map.get(file_rel, set())
+        for func in funcs:
+            is_covered = any(line in covered_lines for line in range(func["start"] + 1, func["end"] + 1))
+            for req in func["reqs"]:
                 all_reqs.add(req)
                 if is_covered:
                     covered_reqs.add(req)
                 else:
-                    issues.append({
-                        "ruleId": req,
-                        "primaryLocation": {
-                            "message": f"Requisito {req} NON soddisfatto",
-                            "filePath": file_rel,
-                            "textRange": {"startLine": f["start"], "endLine": f["end"]}
-                        }
-                    })
+                    issues.append(_build_issue(file_rel, func, req))
 
-    # Percentuali per categoria
-    def pct(cat: str) -> float:
-        tot = {"obblig": TOT_OBBLIG, "desid": TOT_DESID, "opz": TOT_OPZ}.get(cat, 0)
-        if tot == 0:
-            return 0.0
-        covered = sum(1 for r in covered_reqs if categorize_req(r) == cat)
-        return round(covered / tot * 100, 1)
+    return issues, all_reqs, covered_reqs
 
-    total = len(all_reqs)
-    summary = {
-        "totale_requisiti": {
-            "obbligatori": TOT_OBBLIG,
-            "desiderabili": TOT_DESID,
-            "opzionali": TOT_OPZ,
-            "globale": TOT_OBBLIG + TOT_DESID + TOT_OPZ,
-        },
-        "coperti": {
-            "obbligatori": sum(1 for r in covered_reqs if categorize_req(r) == "obblig"),
-            "desiderabili": sum(1 for r in covered_reqs if categorize_req(r) == "desid"),
-            "opzionali": sum(1 for r in covered_reqs if categorize_req(r) == "opz"),
-            "globale": len(covered_reqs),
-        },
-        "non_coperti": {
-            "obbligatori": sum(1 for r in all_reqs - covered_reqs if categorize_req(r) == "obblig"),
-            "desiderabili": sum(1 for r in all_reqs - covered_reqs if categorize_req(r) == "desid"),
-            "opzionali": sum(1 for r in all_reqs - covered_reqs if categorize_req(r) == "opz"),
-            "globale": len(all_reqs - covered_reqs),
-        },
-        "per_categoria": {
-            "obbligatori": pct("obblig"),
-            "desiderabili": pct("desid"),
-            "opzionali":   pct("opz"),
-        }
-    }
+
+def generate_sonar_issues(
+    func_map: Dict[str, List[FuncInfo]],
+    coverage_map: Dict[str, Set[int]],
+    output_path: Path,
+) -> None:
+    issues, all_reqs, covered_reqs = _collect_issues_and_reqs(func_map, coverage_map)
+    summary = _build_summary(all_reqs, covered_reqs)
 
     with open(output_path, "w") as f:
-        json.dump({"summary": summary, "issues": issues} if issues else {"summary": summary, "issues": "Tutto apposto"}, f, indent=2)
-
+        json.dump({"summary": summary, "issues": issues}, f, indent=2)
 # --- Script principale ---
+
+@dataclass(frozen=True)
+class ProjectConfig:
+    name: str
+    src: Path
+    coverage: Path
+    lang: Literal["py", "js"]
+
+    @property
+    def root(self) -> Path:
+        return self.src.parent
+
+    @property
+    def extensions(self) -> List[str]:
+        return ["*.py"] if self.lang == "py" else ["*.ts", "*.tsx"]
+
+
+_PROJECTS: List[ProjectConfig] = [
+    ProjectConfig("backend",  Path("backend/src"),  Path("backend/coverage.xml"),          "py"),
+    ProjectConfig("frontend", Path("frontend/src"), Path("frontend/coverage/lcov.info"),   "js"),
+]
+
+
+def _extract_funcs(file_path: Path, lang: str) -> List[FuncInfo]:
+    return extract_funcs_and_reqs_py(file_path) if lang == "py" else extract_funcs_and_reqs_js(file_path)
+
+
+def _build_func_map(proj: ProjectConfig) -> Dict[str, List[FuncInfo]]:
+    func_map: Dict[str, List[FuncInfo]] = {}
+    for ext in proj.extensions:
+        for file_path in proj.src.rglob(ext):
+            rel_path = file_path.relative_to(proj.root).as_posix()
+            if funcs := _extract_funcs(file_path, proj.lang):
+                func_map[rel_path] = funcs
+    return func_map
+
+
+def _build_coverage_map(proj: ProjectConfig) -> Dict[str, Set[int]]:
+    raw = (
+        parse_coverage_xml(proj.coverage)
+        if proj.lang == "py"
+        else parse_lcov_info(proj.coverage, proj.root.resolve())
+    )
+    # Normalizza le chiavi garantendo il prefisso "src/"
+    return {
+        (f if f.startswith("src/") else f"src/{f}"): lines
+        for f, lines in raw.items()
+    }
+
+
+def _merge_coverage(target: Dict[str, Set[int]], source: Dict[str, Set[int]]) -> None:
+    for path, lines in source.items():
+        target.setdefault(path, set()).update(lines)
+
+
 def main() -> None:
-
-    projects = [
-        {"name": "backend", "src": Path("backend/src"), "coverage": Path("backend/coverage.xml"), "lang": "py"},
-        {"name": "frontend", "src": Path("frontend/src"), "coverage": Path("frontend/coverage/lcov.info"), "lang": "js"},
-    ]
-
     all_func_map: Dict[str, List[FuncInfo]] = {}
     all_coverage_map: Dict[str, Set[int]] = {}
 
-    for proj in projects:
-        src_path: Path = proj["src"]
-        coverage_path: Path = proj["coverage"]
-        lang: str = proj["lang"]
-        # FIX: sub-project root (e.g. Path("backend") or Path("frontend"))
-        proj_root: Path = src_path.parent
-
-        if not src_path.exists():
-            print(f"Warning: Directory '{src_path}' does not exist!")
+    for proj in _PROJECTS:
+        if not proj.src.exists():
+            print(f"Warning: Directory '{proj.src}' does not exist!")
             continue
 
-        # Funzioni/metodi
-        func_map: Dict[str, List[FuncInfo]] = {}
-        for ext in (["*.py"] if lang == "py" else ["*.ts", "*.tsx"]):
-            for file_path in src_path.rglob(ext):
-                # FIX: key relative to proj_root → "src/add.py" or "src/Counter.tsx"
-                rel_path = file_path.relative_to(proj_root).as_posix()
-                funcs = extract_funcs_and_reqs_py(file_path) if lang == "py" else extract_funcs_and_reqs_js(file_path)
-                if funcs:
-                    func_map[rel_path] = funcs
+        all_func_map.update(_build_func_map(proj))
+        _merge_coverage(all_coverage_map, _build_coverage_map(proj))
 
-        # Coverage — pass proj_root for consistent key generation
-        coverage_map = (
-            parse_coverage_xml(coverage_path, proj_root)
-            if lang == "py"
-            else parse_lcov_info(coverage_path, proj_root.resolve())
-        )
-
-        # accumula globale
-        all_func_map.update(func_map)
-        for f, lines in coverage_map.items():
-            if f in all_coverage_map:
-                all_coverage_map[f] |= lines
-            else:
-                all_coverage_map[f] = lines
-                
-        normalized_coverage: Dict[str, Set[int]] = {}
-        for f, lines in coverage_map.items():
-            key = f if f.startswith("src/") else f"src/{f}"
-            normalized_coverage[key] = lines
-
-        # accumula globale
-        all_func_map.update(func_map)
-        for f, lines in normalized_coverage.items():
-            if f in all_coverage_map:
-                all_coverage_map[f] |= lines
-            else:
-                all_coverage_map[f] = lines
-
-    # Genera JSON Sonar unico
     output_path = Path("req_issues.json")
     generate_sonar_issues(all_func_map, all_coverage_map, output_path)
     print(f"File '{output_path}' generato per SonarQube.")
+
 
 if __name__ == "__main__":
     main()
