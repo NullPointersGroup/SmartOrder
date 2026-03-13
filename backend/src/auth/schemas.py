@@ -1,11 +1,12 @@
-from pydantic import BaseModel
-from sqlmodel import Session
-from fastapi import Depends
 from typing import Annotated
 
-from src.db.DbConnection import DbConnection
+from fastapi import Depends
+from pydantic import BaseModel
+from sqlmodel import Session
 
-SessionDep = Annotated[Session, Depends(DbConnection)]
+from ..db.dbConnection import get_conn
+
+SessionDep = Annotated[Session, Depends(get_conn)]
 
 
 class User(BaseModel):

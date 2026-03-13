@@ -1,14 +1,14 @@
-from src.db import DbConnection
-from sqlmodel import Session
 from fastapi import Depends
-
+from sqlmodel import Session
+from src.auth.CheckUserCmd import CheckUserCmd
 from src.auth.schemas import User
 from src.db.queryExecutor import QueryExecutor
-from src.auth.CheckUserCmd import CheckUserCmd
+
+from ..db.dbConnection import get_conn
 
 
 class UserService:
-    def __init__(self, db: Session = Depends(DbConnection.DbConnection)) -> None:
+    def __init__(self, db: Session = Depends(get_conn)) -> None:
         self.db = db
         self.queryExecutor = QueryExecutor(db)
 

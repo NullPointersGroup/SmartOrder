@@ -1,10 +1,8 @@
-from typing import Tuple
-from sqlalchemy import Select
 from sqlmodel import select
 from sqlmodel.sql.expression import SelectOfScalar
-from src.db.queryExecutor import Query
 from src.auth.schemas import User
 from src.db.models import Utente
+from src.db.queryExecutor import Query
 
 
 class CheckUserCmd(Query[Utente]):

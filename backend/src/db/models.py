@@ -1,7 +1,6 @@
-from sqlmodel import SQLModel, Field
-from enum import Enum
-from datetime import date, datetime, timezone
 from typing import ClassVar, Optional
+
+from sqlmodel import Field, SQLModel
 
 
 class Utente(SQLModel, table=True):
