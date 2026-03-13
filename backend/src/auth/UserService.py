@@ -1,16 +1,20 @@
-from src.db import dbConnection
+from src.db import DbConnection
+from schemas import User
 from sqlmodel import Session
 from fastapi import Depends
 
-from src.db.models import Utente
 from src.db.queryExecutor import QueryExecutor
 from src.auth.CheckUserCmd import CheckUserCmd
 
 
 class UserService:
-    def init(self, db: Session = Depends(dbConnection.get_db)):
+    def init(self, db: Session = Depends(DbConnection.DbConnection)):
         self.db = db
         self.queryExecutor = QueryExecutor(db)
 
     def check_user(self, u: User) -> bool:
-        self.queryExecutor.execute(CheckUserCmd(u))
+        res = self.queryExecutor.execute(CheckUserCmd(u))
+        if res:
+            return True
+        else:
+            return False
