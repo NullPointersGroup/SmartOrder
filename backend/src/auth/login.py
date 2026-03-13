@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from typing import Annotated
 from .schemas import AuthResponse, User
-from UserService import UserService
+from src.auth.UserService import UserService
 
 UserServiceDep = Annotated[UserService, Depends(UserService)]
 
@@ -9,8 +9,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/login", response_model=AuthResponse)
-def login(user: User, userService: UserServiceDep):
+def login(user: User, userService: UserServiceDep) -> AuthResponse:
     if userService.check_user(user):
-        print("login succesful")
+        return AuthResponse(ok=True, errors=[])
     else:
-        print("login failed")
+        return AuthResponse(ok=False, errors=["Login failed"])

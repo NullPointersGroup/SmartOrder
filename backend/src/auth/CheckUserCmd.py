@@ -12,5 +12,5 @@ class CheckUserCmd(Query[Utente]):
         super().__init__()
         self.user = u
 
-    def execute(self) -> SelectOfScalar[Tuple[Utente]]:
+    def execute(self) -> SelectOfScalar[Utente]:
         return select(Utente).where(self.user.username == Utente.username)
