@@ -10,5 +10,14 @@ class CheckUserCmd(Query[Utente]):
         super().__init__()
         self.user = u
 
+    # def __hash_pwd(self, pwd: str) -> str:
+    #     return ""
+
     def execute(self) -> SelectOfScalar[Utente]:
-        return select(Utente).where(self.user.username == Utente.username)
+        return select(Utente).where(
+            (
+                Utente.username == self.user.username
+                # Dovrebbe esserci anche la parte di hashing nel controllo
+                # & (Utente.password == self.__hash_pwd(self, self.user.password))
+            )
+        )
