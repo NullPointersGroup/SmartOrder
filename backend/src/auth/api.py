@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends
 from typing import Annotated
-from .schemas import AuthResponse, User
+
+from fastapi import APIRouter, Depends
 from src.auth.UserService import UserService
+
+from .schemas import AuthResponse, User
 
 UserServiceDep = Annotated[UserService, Depends(UserService)]
 
@@ -16,3 +18,11 @@ def login(user: User, userService: UserServiceDep) -> AuthResponse:
     else:
         # Sarebbe più corretto avere un codice di errore HTTP piuttosto che un ok=false
         return AuthResponse(ok=False, errors=["Login failed"])
+
+
+@router.post("/register", response_model=AuthResponse)
+def create_user(user: User, userService: UserServiceDep) -> AuthResponse:
+    if userService.create_user(user):
+        return AuthResponse(ok=True, errors=[])
+    else:
+        return AuthResponse(ok=False, errors=["Creazione fallita"])

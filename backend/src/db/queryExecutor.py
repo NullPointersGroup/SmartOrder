@@ -1,4 +1,4 @@
-from typing import Generic, Sequence, TypeVar, Union
+from typing import Any, Generic, Sequence, TypeVar, Union
 
 from sqlalchemy.sql.expression import Delete, Insert, Update
 from sqlmodel import Session
@@ -29,6 +29,7 @@ class QueryExecutor:
         stmt = q.execute()
         return self.db.exec(stmt).all()
 
-    def mutate(self, m: Mutation) -> None:
-        self.db.exec(m.execute())
+    def mutate(self, m: Mutation) -> Any | None:
+        result = self.db.exec(m.execute())
         self.db.commit()
+        return result.inserted_primary_key

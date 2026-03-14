@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock
+
 from fastapi.testclient import TestClient
-import pytest
-from src.main import app
 
 
 def test_login_success(client: TestClient, mock_user_service: MagicMock) -> None:
