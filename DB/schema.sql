@@ -21,8 +21,8 @@ CREATE TABLE anaart (
 CREATE TABLE utentiweb (
     username    VARCHAR(24)  PRIMARY KEY,
     descrizione VARCHAR(80),
-    email       VARCHAR(255),
-    password    VARCHAR(60)
+    email       VARCHAR(255) UNIQUE,
+    password    VARCHAR(60) NOT NULL
 );
 
 --  Ordine
