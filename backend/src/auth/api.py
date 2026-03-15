@@ -37,7 +37,7 @@ def create_user(user: UserRegistration, userService: UserServiceDep) -> AuthResp
     @param userService: dipendenza iniettata tramite FASTAPI, rappresenta una classe di servizio per le operazioni su db riguardanti gli utenti
     @return Ritorna una risposta che indica se l'utente è stato registrato correttamente \n
     @req RF-OB_02
-    @req RF-OB_3
+    @req RF-OB_03
     @req RF-OB_08
     @req RF-OB_18
     @req RF-OB_19
