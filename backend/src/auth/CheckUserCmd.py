@@ -14,6 +14,12 @@ class CheckUserCmd(Query[Utente]):
     #     return ""
 
     def execute(self) -> SelectOfScalar[Utente]:
+        """
+        @brief Funzione che ritorna una query pronta per essere eseguita, in particolare controlla che l'utente con quello username e quella password esistano nel db dove questa query verrà eseguita
+        @bug  NON CONTROLLA LA PASSWORD
+        @return Ritorna tutti gli utenti che rispettino le condizioni
+        @req TODO
+        """
         return select(Utente).where(
             (
                 Utente.username == self.user.username
