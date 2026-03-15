@@ -1,11 +1,8 @@
-import Counter from './Counter'
+import AuthPage from './AuthPage'
 
 function App() {
   return (
-    <>
-      <h1>Vite + React</h1>
-      <Counter />
-    </>
+    <AuthPage />
   )
 }
 
