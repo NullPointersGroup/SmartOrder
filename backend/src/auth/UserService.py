@@ -15,7 +15,7 @@ class UserService:
 
     def check_user(self, u: User) -> bool:
         """
-        @brief Passa al QueryExecutor la query per il controllo di esistenza dell'utente 
+        @brief Passa al QueryExecutor la query per il controllo di esistenza dell'utente
         @param u: utente da controllare
         @bug non controlla hashing password
         @return Se tutto va a buon fine la funzione ritorna True, altrimenti False
@@ -32,6 +32,7 @@ class UserService:
         @brief Passa al QueryExecutor la query per la creazione dell'utente
         @param u: utente da creare
         @return Se la creazione va a buon fine, ritorna True
-        @req RF-OB_03, RF-OB_19 
+        @req RF-OB_03
+        @req RF-OB_19
         """
         return self.queryExecutor.mutate(CreateUserCmd(u))
