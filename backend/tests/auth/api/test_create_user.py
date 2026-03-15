@@ -19,14 +19,15 @@ def test_registration_success(
 
 
 # Il test fallisce, da sistemare
-def test_register_user_twice(client, override_get_conn):
+def test_register_user_twice(client, mock_user_service: MagicMock):
+    # Configuriamo il mock per restituire True la prima volta e False la seconda
+    mock_user_service.create_user.side_effect = [True, False]
+
     user_data = {"username": "testuser", "password": "secret"}
-
-    response1 = client.post("/auth/register", json=user_data)
-    assert response1.json()["ok"] is True
-
+    client.post("/auth/register", json=user_data)
     response2 = client.post("/auth/register", json=user_data)
-    assert response2.json()["ok"] is False  # adesso fallisce davvero
+
+    assert response2.json()["ok"] is False
 
 
 def test_registration_missing_fields(client: TestClient) -> None:

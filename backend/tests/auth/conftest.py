@@ -1,11 +1,11 @@
-from typing import Generator
+from typing import Any, Generator
 from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
-from sqlmodel import Session
+from sqlmodel import Session, SQLModel
 from src.auth.schemas import User
 from src.auth.UserService import UserService
 from src.db.dbConnection import get_conn
@@ -49,11 +49,12 @@ def test_engine():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+    SQLModel.metadata.create_all(engine)
     return engine
 
 
 @pytest.fixture
-def db_session(test_engine):
+def db_session(test_engine) -> Generator[Session, Any, None]:
     connection = test_engine.connect()
     transaction = connection.begin()
 
