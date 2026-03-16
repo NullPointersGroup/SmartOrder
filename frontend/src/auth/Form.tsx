@@ -10,7 +10,26 @@ interface FormProps {
 }
 
 export default function Form({ title, submitLabel, fields, vm }: FormProps) {
-  const { values, fieldErrors, errors, loading, handleChange, handleSubmit } = vm;
+  /**
+  @brief Genera il form associato alla registrazione ed alla autenticazione
+  @param { title, submitLabel, fields, vm }: FormProps, contiene i parametri necessari alla creazione del form
+  @return ritorna il form associato
+  @req RF-OB_01
+  @req RF-OB_02
+  @req RF-OB_06
+  @req RF-OB_07
+  @req RF-OB_08
+  @req RF-OB_12
+  @req RF-OB_14
+  @req RF-OB_15
+  @req RF-OB_17
+  @req RF-OB_18
+  @req RF-OB_23
+  @req RF-OB_24
+  @req RF-OB_25
+  @req RF-OB_26
+   */
+  const { values, fieldErrors, errors, loading, handleChange, handleBlur, handleSubmit } = vm;
 
   return (
     <>
@@ -30,6 +49,7 @@ export default function Form({ title, submitLabel, fields, vm }: FormProps) {
               type={type}
               value={values[key]}
               onChange={e => handleChange(key, e.target.value)}
+              onBlur={() => handleBlur(key)}
               placeholder={placeholder}
               autoComplete={autoComplete}
               required

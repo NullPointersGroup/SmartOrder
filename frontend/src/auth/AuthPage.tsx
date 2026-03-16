@@ -5,6 +5,13 @@ import Register from './Register';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function AuthPage() {
+  /**
+  @brief crea l'estetica del form
+  @return ritorna tutta l'estetica
+  @req RF-OB_13
+  @req RF-OB_22
+  @req RF-OB_27
+   */
   const [isLogin, setIsLogin] = useState(true);
   /*const navigate = useNavigate();*/
 

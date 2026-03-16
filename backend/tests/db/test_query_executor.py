@@ -33,8 +33,8 @@ def test_query_executor_return_empty_list(mock_user: User) -> None:
     assert result == []
 
 
-def test_query_executor_create_user(mock_session: MagicMock, mock_registration: UserRegistration) -> None:
-    cmd = CreateUserCmd(mock_registration)
+def test_query_executor_create_user(mock_session: MagicMock, mock_user_registration: UserRegistration) -> None:
+    cmd = CreateUserCmd(mock_user_registration)
     executor = QueryExecutor(mock_session)
     result = executor.mutate(cmd)
     assert result is not None

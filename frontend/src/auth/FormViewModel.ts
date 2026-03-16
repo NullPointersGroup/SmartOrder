@@ -7,6 +7,7 @@ export interface FormViewModel {
   errors:       string[];
   loading:      boolean;
   handleChange: (key: string, value: string) => void;
+  handleBlur:   (key: string) => void;
   handleSubmit: (e: React.SyntheticEvent) => Promise<void>;
 }
 
@@ -14,6 +15,12 @@ export function useFormViewModel(
   model: FormModel,
   onSuccess: () => void,
 ): FormViewModel {
+  /**
+ * @brief Hook che gestisce lo stato e la logica del form.
+ * @param model FormModel Modello che definisce i campi, la validazione e il submit
+ * @param onSuccess () => void Callback invocata dopo submit avvenuto con successo
+ * @return FormViewModel Oggetto contenente stato e handler per la View
+ */
   const initialValues = Object.fromEntries(model.fields.map(f => [f.key, '']));
 
   const [values,      setValues]      = useState<Record<string, string>>(initialValues);
@@ -25,6 +32,11 @@ export function useFormViewModel(
     setValues(prev => ({ ...prev, [key]: value }));
     setFieldErrors(prev => ({ ...prev, [key]: '' }));
   }, []);
+
+  const handleBlur = useCallback((key: string) => {
+    const error = model.validateField(key, values[key]);
+    setFieldErrors(prev => ({ ...prev, [key]: error }));
+  }, [model, values]);
 
   const handleSubmit = useCallback(async (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -45,5 +57,5 @@ export function useFormViewModel(
     setLoading(false);
   }, [model, values, onSuccess]);
 
-  return { values, fieldErrors, errors, loading, handleChange, handleSubmit };
+  return { values, fieldErrors, errors, loading, handleChange, handleBlur, handleSubmit };
 }

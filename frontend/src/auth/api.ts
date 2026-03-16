@@ -11,6 +11,12 @@ export interface AuthResponse {
 }
 
 async function authFetch(endpoint: string, body: object): Promise<AuthResponse> {
+  /**
+   * @brief si collega agli endpoint di FastAPI
+   * @param endpoint: il nome dell'endpoint
+   * @param body: quello che ci si aspetta di ricevere
+   * @return la risposta di autenticazione
+   */
   const response = await fetch(`${API_BASE}${endpoint}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

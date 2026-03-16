@@ -4,6 +4,11 @@ import AuthPage from './auth/AuthPage';
 // import Storico from './storico/Storico';
 
 function App() {
+  /**
+  @brief genera la configurazione dell'app con i vari routing
+  @bug da configurare chat e storico
+  @return l'app nel complesso
+   */
   return (
     <BrowserRouter>
       <Routes>
