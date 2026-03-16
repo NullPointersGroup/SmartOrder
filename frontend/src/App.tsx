@@ -1,4 +1,4 @@
-import AuthPage from './AuthPage'
+import AuthPage from './auth/AuthPage'
 
 function App() {
   return (

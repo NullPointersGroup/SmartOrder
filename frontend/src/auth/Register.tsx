@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { register } from '../api';
+import { register } from './api';
 
-interface RegisterProps { onRegister: () => void; }
+interface RegisterProps { readonly onRegister: () => void; }
 
 export default function Register({ onRegister }: RegisterProps) {
   const [username, setUsername]     = useState('');
@@ -12,13 +12,13 @@ export default function Register({ onRegister }: RegisterProps) {
   const [loading, setLoading]       = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     const newFieldErrors: { [key: string]: string } = {};
     if (!username.trim()) newFieldErrors.username = 'Username è obbligatorio';
     if (!email.trim()) newFieldErrors.email = 'Email è obbligatoria';
-    if (!password) newFieldErrors.password = 'Password è obbligatoria';
-    if (!confirmPwd) newFieldErrors.confirmPwd = 'Conferma password è obbligatoria';
+    if (!password) newFieldErrors.password = 'Password è obbligatoria'; //NOSONAR
+    if (!confirmPwd) newFieldErrors.confirmPwd = 'Conferma password è obbligatoria'; //NOSONAR
     setFieldErrors(newFieldErrors);
     if (Object.keys(newFieldErrors).length > 0) return;
     setLoading(true); setErrors([]);
@@ -52,7 +52,9 @@ export default function Register({ onRegister }: RegisterProps) {
 
         {errors.length > 0 && (
           <div className="mb-4 pl-3 py-1">
-            {errors.map((err, i) => <p key={i} className="text-sm text-[#972020] m-0">{err}</p>)}
+            {errors.map((err) => (
+              <p key={err} className="text-sm text-[#972020] m-0">{err}</p>
+            ))}
           </div>
         )}
 

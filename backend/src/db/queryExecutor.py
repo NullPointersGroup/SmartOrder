@@ -11,7 +11,7 @@ T = TypeVar("T")
 MutationStmt = Union[Delete, Insert, Update]
 
 
-class Query(Generic[T]):
+class Query[T]:
     def execute(self) -> SelectOfScalar[T]:
         raise NotImplementedError
 

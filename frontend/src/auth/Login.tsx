@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { login } from '../api';
+import { login } from './api';
 
-interface LoginProps { onLogin: () => void; }
+interface LoginProps { readonly onLogin: () => void; }
 
 export default function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState('');
@@ -10,11 +10,11 @@ export default function Login({ onLogin }: LoginProps) {
   const [loading, setLoading]   = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     const newFieldErrors: { [key: string]: string } = {};
     if (!username.trim()) newFieldErrors.username = 'Username è obbligatorio';
-    if (!password) newFieldErrors.password = 'Password è obbligatoria';
+    if (!password) newFieldErrors.password = 'Password è obbligatoria'; //NOSONAR
     setFieldErrors(newFieldErrors);
     if (Object.keys(newFieldErrors).length > 0) return;
     setLoading(true); setErrors([]);
@@ -48,7 +48,9 @@ export default function Login({ onLogin }: LoginProps) {
 
         {errors.length > 0 && (
           <div className="mb-4 pl-3 py-1">
-            {errors.map((err, i) => <p key={i} className="text-sm text-[#972020] m-0">{err}</p>)}
+            {errors.map((err) => (
+              <p key={err} className="text-sm text-[#972020] m-0">{err}</p>
+            ))}
           </div>
         )}
 
