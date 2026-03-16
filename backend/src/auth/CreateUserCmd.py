@@ -15,7 +15,6 @@ class CreateUserCmd(Mutation):
         @brief  Funzione che ritorna una query pronta per essere eseguita, in particolare una query di inserimento dell'Utente
         @bug  Da aggiungere la mail
         @return La query pronta per essere eseguita
-        @req RF-OB_03
         @req RF-OB_19
         """
         return insert(Utente).values(

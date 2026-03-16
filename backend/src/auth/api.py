@@ -18,8 +18,6 @@ def login(user: User, userService: UserServiceDep) -> AuthResponse:
     @param userService: Dipendenza iniettata tramite FASTAPI, rappresenta una classe di servizio per le operazioni su db riguardanti gli utenti
     @bug  non controlla la password
     @return Ritorna una risposta che indica se l'utente effettivamente esiste
-    @req RF-OB_24
-    @req RF-OB_26
     """
     if userService.check_user(user):
         # AuthResponse può essere cambiata per tenere solo un messaggio, se facciamo come scritto nel commento sotto
@@ -35,11 +33,8 @@ def create_user(user: UserRegistration, userService: UserServiceDep) -> AuthResp
     @brief Endpoint per la registrazione dell'utente
     @param user: l'utente che vuole effettuare la registrazione
     @param userService: dipendenza iniettata tramite FASTAPI, rappresenta una classe di servizio per le operazioni su db riguardanti gli utenti
-    @return Ritorna una risposta che indica se l'utente è stato registrato correttamente \n
+    @return Ritorna una risposta che indica se l'utente è stato registrato correttamente
     @req RF-OB_02
-    @req RF-OB_03
-    @req RF-OB_08
-    @req RF-OB_18
     @req RF-OB_19
     """
     if userService.create_user(user):
