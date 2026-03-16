@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import Login from './Login';
 import Register from './Register';
+//import { useNavigate } from 'react-router-dom';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
+  /*const navigate = useNavigate();*/
+
+  usePageTitle(isLogin ? 'Autenticazione' : 'Registrazione');
 
   return (
     <div className="min-h-screen bg-[#fdfdfd] flex flex-col items-center justify-center px-4 py-16 font-sans">
@@ -23,13 +28,13 @@ export default function AuthPage() {
 
           <button
             onClick={() => setIsLogin(true)}
-            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-1 text-white}`}
+            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-10 ${isLogin ? 'text-white' : 'text-black'}`}
           >
             Accedi
           </button>
           <button
             onClick={() => setIsLogin(false)}
-            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-1 text-black`}
+            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-10 ${!isLogin ? 'text-white' : 'text-black'}`} //NOSONAR
           >
             Registrati
           </button>
@@ -40,6 +45,11 @@ export default function AuthPage() {
       {/* Card */}
       <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-2xl shadow-sm">
         <div className="p-8 px-9">
+          {/*
+           {isLogin
+            ? <Login    onLogin={()    => navigate('/chat')} />
+            : <Register onRegister={() => navigate('/chat')} />
+          } */}
           {isLogin
             ? <Login onLogin={() => alert('Autenticazione riuscita')} />
             : <Register onRegister={() => alert('Autenticazione riuscita')} />

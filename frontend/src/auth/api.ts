@@ -10,30 +10,20 @@ export interface AuthResponse {
   errors: string[];
 }
 
-export const login = async (user: User): Promise<AuthResponse> => {
-  const response = await fetch(`${API_BASE}/auth/login`, {
+async function authFetch(endpoint: string, body: object): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(user),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
   });
 
-  if (!response.ok) {
-    const data = await response.json().catch(() => ({ errors: [`Errore ${response.status}`] }));
-    return data;
-  }
+  return response.json().catch(() => ({ ok: false, errors: [`Errore ${response.status}`] }));
+}
 
-  return response.json();
-};
+export async function login(user: User): Promise<AuthResponse> {
+  return authFetch('/auth/login', user);
+}
 
-export const register = async (user: User & { email: string; confirmPwd: string }): Promise<AuthResponse> => {
-  const response = await fetch(`${API_BASE}/auth/register`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(user),
-  });
-  return response.json();
-};
+export async function register(user: User & { email: string; confirmPwd: string }): Promise<AuthResponse> {
+  return authFetch('/auth/register', user);
+}
