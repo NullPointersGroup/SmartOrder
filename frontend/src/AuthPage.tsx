@@ -13,24 +13,26 @@ export default function AuthPage() {
         <span className="font-serif text-[34px] font-bold tracking-[0.05em]">SmartOrder</span>
       </div>
 
-      <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-full mb-5 p-[5px]">
+      <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-full mb-5 p-5">
         <div className="relative flex">
           <div
-            className="absolute bg-[#22477b] rounded-full transition-all duration-200 top-[1px] bottom-[1px] w-[calc(50%-4px)] z-0"
+            className="absolute bg-[#22477b] rounded-full transition-all duration-200 top-1 bottom-1 w-[calc(50%-4px)] z-0"
             style={{ left: isLogin ? 3 : 'calc(50% + 1px)' }}
           />
+
           <button
             onClick={() => setIsLogin(true)}
-            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-[1] ${isLogin ? 'text-white' : 'text-black'}`}
+            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-1 text-white}`}
           >
             Accedi
           </button>
           <button
             onClick={() => setIsLogin(false)}
-            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-[1] ${!isLogin ? 'text-white' : 'text-black'}`}
+            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-1 text-black`}
           >
             Registrati
           </button>
+
         </div>
       </div>
 

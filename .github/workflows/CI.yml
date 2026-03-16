@@ -71,7 +71,8 @@ jobs:
         run: mypy src
 
       - name: Analisi Dinamica (pytest)
-        run: pytest
+        run:  export DATABASE_URL="sqlite://" 
+              pytest
 
   ci-result:
     name: CI Result
