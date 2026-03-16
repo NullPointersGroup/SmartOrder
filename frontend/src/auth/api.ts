@@ -18,6 +18,12 @@ export const login = async (user: User): Promise<AuthResponse> => {
     },
     body: JSON.stringify(user),
   });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({ errors: [`Errore ${response.status}`] }));
+    return data;
+  }
+
   return response.json();
 };
 

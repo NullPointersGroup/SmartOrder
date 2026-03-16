@@ -10,7 +10,7 @@ export default function AuthPage() {
 
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8">
-        <span className="font-serif text-[34px] font-bold tracking-[0.05em]">SmartOrder</span>
+        <span className="font-serif text-[34px] font-bold tracking-[0.05em]"><span className="auth-brand-icon">🛒</span>SmartOrder</span>
       </div>
 
       <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-full mb-5 p-5">
