@@ -12,7 +12,7 @@ describe('main.tsx bootstrap', () => {
   })
 
   it('mounts the React app without crashing', async () => {
-    await import('../src/main')  // importa il file che esegue il bootstrap
+    await import('../src/main')
 
     const { createRoot } = await import('react-dom/client')
     expect(createRoot).toHaveBeenCalled()

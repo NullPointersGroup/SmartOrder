@@ -1,38 +1,38 @@
 services:
-  # db:
-  #   image: postgres:16-alpine
-  #   container_name: postgres_db
-  # environment:
-  # Presi dal file .env
-  # POSTGRES_USER: ${POSTGRES_USER}
-  # POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  # POSTGRES_DB: ${POSTGRES_DB}
-  #   command:
-  #     - "postgres"
-  #     - "-c"
-  #     - "shared_preload_libraries=pg_stat_statements"
-  #     - "-c"
-  #     - "log_min_duration_statement=0"
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #     # Aggiungere futuri file *.sql
-  # - ./backend/DB/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-  # - ./backend/DB/data.sql:/docker-entrypoint-initdb.d/02-data.sql
-  #   healthcheck:
-  #     # test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #     start_period: 10s
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    environment:
+      #Presi dal file .env
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "log_min_duration_statement=0"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Aggiungere futuri file *.sql
+      - ./DB/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./DB/data.sql:/docker-entrypoint-initdb.d/02-data.sql
+    healthcheck:
+      # test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   backend:
     build: ./backend
     container_name: fastapi_backend
-    # environment:
-    # DATABASE_URL: ${DATABASE_URL}
-    # OPENAI_API_KEY: ${OPENAI_API_KEY}
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     ports:
       - "8000:8000"
 
@@ -42,7 +42,7 @@ services:
     # depends_on:
     #   db:
     #     condition: service_healthy
-    command: uvicorn src.api:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
     build: ./frontend
