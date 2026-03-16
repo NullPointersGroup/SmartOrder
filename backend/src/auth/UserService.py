@@ -19,7 +19,6 @@ class UserService:
         @param u: utente da controllare
         @bug non controlla hashing password
         @return Se tutto va a buon fine la funzione ritorna True, altrimenti False
-        @req TODO
         """
         res = self.queryExecutor.execute(CheckUserCmd(u))
         if res:

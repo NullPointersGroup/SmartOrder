@@ -39,9 +39,10 @@ def mock_user_service() -> MagicMock:
 
 
 @pytest.fixture
-def client(mock_user_service: MagicMock) -> Generator[TestClient, None, None]:
+def client(mock_user_service: MagicMock):
     app.dependency_overrides[UserService] = lambda: mock_user_service
-    yield TestClient(app)
+    with TestClient(app) as c:
+        yield c
     app.dependency_overrides.clear()
 
 
@@ -53,7 +54,10 @@ def test_engine():
         poolclass=StaticPool,
     )
     SQLModel.metadata.create_all(engine)
-    return engine
+
+    yield engine
+
+    engine.dispose()
 
 
 @pytest.fixture
@@ -65,19 +69,20 @@ def db_session(test_engine) -> Generator[Session, Any, None]:
 
     yield session
 
-    session.close()
-    transaction.rollback()
+    if session.is_active:
+        session.close()
+
+    if transaction.is_active:
+        transaction.rollback()
+
     connection.close()
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def override_get_conn(db_session):
-
     def _get_conn_override():
         yield db_session
 
     app.dependency_overrides[get_conn] = _get_conn_override
-
     yield
-
     app.dependency_overrides.clear()

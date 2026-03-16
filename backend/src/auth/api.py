@@ -10,7 +10,7 @@ UserServiceDep = Annotated[UserService, Depends(UserService)]
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login", response_model=AuthResponse)
+@router.post("/login")
 def login(user: User, userService: UserServiceDep) -> AuthResponse:
     """
     @brief Endpoint per la login dell'utente
@@ -29,7 +29,7 @@ def login(user: User, userService: UserServiceDep) -> AuthResponse:
         return AuthResponse(ok=False, errors=["Username o password errati"])
 
 
-@router.post("/register", response_model=AuthResponse)
+@router.post("/register")
 def create_user(user: UserRegistration, userService: UserServiceDep) -> AuthResponse:
     """
     @brief Endpoint per la registrazione dell'utente
