@@ -1,3 +1,5 @@
+import { login, type LoginDto, register, type RegisterDto } from './api';
+
 export interface FieldConfig {
   key: string;
   label: string;
@@ -10,8 +12,7 @@ export interface SubmitResult {
   ok: boolean;
   errors: string[];
 }
-
-const USERNAME_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~])[A-Za-z\d!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~]{4,24}$/;
+const USERNAME_REGEX = /^\w{4,24}$/;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~])[A-Za-z\d!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~]{8,24}$/;
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -23,7 +24,7 @@ export abstract class FormModel {
     const fieldErrors: Record<string, string> = {};
     for (const field of this.fields) {
       if (!values[field.key]?.trim()) {
-        fieldErrors[field.key] = `${field.label} è obbligatorio`;
+        fieldErrors[field.key] = `Il campo ${field.label} è obbligatorio`;
       }
     }
     return fieldErrors;
@@ -56,11 +57,11 @@ export class LoginModel extends FormModel {
   }
 
   async submit(values: Record<string, string>): Promise<SubmitResult> {
-    const { login } = await import('./api');
-    return login({
-      username:   values.username,
-      password:   values.password,
-    });
+    const dto: LoginDto = {
+      username: values.username,
+      password: values.password,
+    };
+    return login(dto);
   }
 }
 
@@ -92,12 +93,12 @@ export class RegisterModel extends FormModel {
   }
 
   async submit(values: Record<string, string>): Promise<SubmitResult> {
-    const { register } = await import('./api');
-    return register({
+    const dto: RegisterDto = {
       username:   values.username,
       email:      values.email,
       password:   values.password,
       confirmPwd: values.confirmPwd,
-    });
+    };
+    return register(dto);
   }
 }
