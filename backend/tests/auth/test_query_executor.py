@@ -32,10 +32,11 @@ def test_query_executor_return_empty_list(mock_user: User) -> None:
     assert result == []
 
 
+# TODO qui assert not null non basta: l'eccezione fa passare il test
 def test_query_executor_create_user(
-    mock_session: MagicMock, mock_user: UserRegistration
+    mock_session: MagicMock, mock_user_registration: UserRegistration
 ) -> None:
-    cmd = CreateUserCmd(mock_user)
+    cmd = CreateUserCmd(mock_user_registration)
     executor = QueryExecutor(mock_session)
     result = executor.mutate(cmd)
     assert result is not None
