@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 from src.auth.CheckUserCmd import CheckUserCmd
 from src.auth.CreateUserCmd import CreateUserCmd
-from src.auth.schemas import User
+from src.auth.schemas import User, UserRegistration
 from src.db.models import Utente
 from src.db.queryExecutor import QueryExecutor
 
@@ -32,7 +32,9 @@ def test_query_executor_return_empty_list(mock_user: User) -> None:
     assert result == []
 
 
-def test_query_executor_create_user(mock_session: MagicMock, mock_user: User) -> None:
+def test_query_executor_create_user(
+    mock_session: MagicMock, mock_user: UserRegistration
+) -> None:
     cmd = CreateUserCmd(mock_user)
     executor = QueryExecutor(mock_session)
     result = executor.mutate(cmd)
