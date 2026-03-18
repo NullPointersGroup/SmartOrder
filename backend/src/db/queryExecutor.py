@@ -34,6 +34,13 @@ class QueryExecutor:
         """
         stmt = q.execute()
         return self.db.exec(stmt).all()
+    
+    def execute_one(self, q: Query[T]) -> T | None:
+        """
+        @brief Esegue la query e ritorna un singolo risultato o None
+        """
+        stmt = q.execute()
+        return self.db.exec(stmt).first()
 
     def mutate(self, m: Mutation) -> bool:
         """

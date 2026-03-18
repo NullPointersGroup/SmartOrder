@@ -14,6 +14,7 @@ function App() {
       <Routes>
         <Route path="/"     element={<AuthPage />} />
         {/* <Route path="/chat" element={<Chat />} /> */}
+        <Route path="/chat" element={<div className = "text-9xl">Ciao</div>} />
         {/* <Route path="/storico" element={<Storico />} /> */}
       </Routes>
     </BrowserRouter>

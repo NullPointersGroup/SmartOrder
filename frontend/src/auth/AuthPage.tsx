@@ -3,8 +3,8 @@ import Login from './Login';
 import Register from './Register';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
-import { me } from './api';
 import { useAuthStore } from './authStore';
+import { getUsernameFromToken } from './api';
 
 export default function AuthPage() {
   /**
@@ -56,20 +56,20 @@ export default function AuthPage() {
       <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-2xl shadow-sm">
         <div className="p-8 px-9">
           {isLogin
-            ? <Login onLogin={async (token) => {
-            if (token) {
-              const user = await me(token);
-              setAuth(token, user.username);
-            }
-            navigate('/chat');
-          }} />
-                      : <Register onRegister={async (token) => {
-            if (token) {
-              const user = await me(token);
-              setAuth(token, user.username);
-            }
-            navigate('/chat');
-          }} />
+            ? <Login onLogin={(token) => {
+                if (token) {
+                  const username = getUsernameFromToken(token);
+                  setAuth(token, username);
+                }
+                navigate('/chat');
+              }} />
+            : <Register onRegister={(token) => {
+                if (token) {
+                  const username = getUsernameFromToken(token);
+                  setAuth(token, username);
+                }
+                navigate('/chat');
+              }} />
           }
         </div>
       </div>

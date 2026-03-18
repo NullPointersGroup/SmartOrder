@@ -20,8 +20,8 @@ class UserRepository(IUserRepository):
         @req RF-OB_24, RF-OB_26
         """
         cmd = CheckUserCmd(u)
-        db_user: Utente | None = self.queryExecutor.execute(cmd)
-        if db_user is None:
+        db_user: Utente | None = self.queryExecutor.execute_one(cmd)
+        if db_user is None or db_user.password is None:
             return False
         return cmd.verify_password(u.password, db_user.password)
 

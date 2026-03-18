@@ -48,10 +48,6 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
         raise HTTPException(status_code=401, detail="Token non valido")
     return username
 
-@router.get("/me")
-def me(username: str = Depends(get_current_user)):
-    return {"username": username}
-
 @router.post("/login",responses={400: {"model": ErrorResponse, "description": "Username o password errati (UC_03)"},})
 def login(payload: UserSchema, service: UserServiceDep) -> LoginResponse:
     """

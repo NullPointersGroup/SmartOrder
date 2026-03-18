@@ -20,13 +20,15 @@ def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def verify_password(plain: str, hashed: str) -> bool:
+def verify_password(plain: str, hashed: str | None) -> bool:
     """
     @brief Verifica che la password in chiaro corrisponda all'hash
     @param plain str La password in chiaro
     @param hashed str L'hash salvato nel database
     @return bool True se la password è corretta, False altrimenti
     """
+    if (hashed == None):
+        return False
     return pwd_context.verify(plain, hashed)
 
 
