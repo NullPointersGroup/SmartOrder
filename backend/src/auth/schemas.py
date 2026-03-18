@@ -1,22 +1,21 @@
-from typing import Annotated
 import re
 
-from fastapi import Depends
 from pydantic import BaseModel, field_validator, model_validator
-from sqlmodel import Session
 
-from ..db.dbConnection import get_conn
-
-SessionDep = Annotated[Session, Depends(get_conn)]
+USERNAME_REGEX = re.compile(
+    r'^\w{4,24}$'
+)
 
 PASSWORD_REGEX = re.compile(
     r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,24}$'
 )
 EMAIL_REGEX = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 
+
 class UserSchema(BaseModel):
     username: str
     password: str
+
 
 class AuthResponse(BaseModel):
     ok: bool
@@ -31,17 +30,15 @@ class UserRegistrationSchema(UserSchema):
     @field_validator("username")
     @classmethod
     def validate_username(cls, v: str) -> str:
-        if len(v) > 24:
-            raise ValueError("Lo username non può superare 24 caratteri")
-        if not v.strip():
-            raise ValueError("Lo username non può essere vuoto")
+        if not USERNAME_REGEX.match(v):
+            raise ValueError(
+                "Lo username non può essere più lungo di 24 caratteri"
+            )
         return v
 
     @field_validator("password")
     @classmethod
     def validate_password(cls, v: str) -> str:
-        if len(v) > 24:
-            raise ValueError("La password non può superare 24 caratteri")
         if not PASSWORD_REGEX.match(v):
             raise ValueError(
                 "La password deve avere almeno 8 caratteri, "
@@ -61,5 +58,3 @@ class UserRegistrationSchema(UserSchema):
         if self.password != self.confirmPwd:
             raise ValueError("Le password non coincidono")
         return self
-    
-

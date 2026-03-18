@@ -9,6 +9,10 @@ from src.auth.exceptions import (
 
 
 class UserService:
+    """
+    @brief Servizio applicativo: orchestra i casi d'uso di autenticazione
+    """
+
     def __init__(self, repo: IUserRepository) -> None:
         self.repo = repo
 
@@ -21,7 +25,7 @@ class UserService:
         """
         return self.repo.check_user(u)
 
-    def register_user(self, u: UserRegistration) -> bool:
+    async def register_user(self, u: UserRegistration) -> bool:
         """
         @brief Orchestra la registrazione
         @param u: dati di registrazione
@@ -33,13 +37,13 @@ class UserService:
         if self.repo.username_exists(u.username):
             raise UsernameAlreadyExistsError()
 
-        if not self.repo.email_domain_exists(u.email):
+        if not await self.repo.email_domain_exists(u.email):
             raise InvalidEmailFormatError()
 
         if self.repo.email_exists(u.email):
             raise EmailAlreadyExistsError()
 
-        if not self.repo.addUser(u):
+        if not self.repo.add_user(u):
             raise UserCreationError()
 
         return True

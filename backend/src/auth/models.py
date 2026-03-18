@@ -21,10 +21,9 @@ class UserRegistration:
         username: str,
         email: str,
         password: str,
-        confirm_pwd: str
+        confirm_pwd: str,
     ) -> None:
-        self.username   = username
-        self.email      = email
-        self.password   = password
+        self.username    = username
+        self.email       = email
+        self.password    = password
         self.confirm_pwd = confirm_pwd
-        

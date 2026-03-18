@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
+
 from src.auth.models import User, UserRegistration
 
 
 class IUserRepository(ABC):
+    """
+    @brief Porta secondaria (driven port) del dominio verso la persistenza
+    """
 
     @abstractmethod
     def check_user(self, u: User) -> bool:
@@ -24,10 +28,12 @@ class IUserRepository(ABC):
 
     @abstractmethod
     async def email_domain_exists(self, email: str) -> bool:
-        pass
+        """
+        @req RF-OB_20
+        """
 
     @abstractmethod
-    def addUser(self, u: UserRegistration) -> bool:
+    def add_user(self, u: UserRegistration) -> bool:
         """
         @brief Inserisce utente nel DB con password hashata
         @req RF-OB_02, RF-OB_03, RF-OB_08, RF-OB_18, RF-OB_19
