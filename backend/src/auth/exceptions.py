@@ -1,7 +1,8 @@
 class UsernameAlreadyExistsError(ValueError):
     """
     @brief UC_01.1.2: Username già esistente
-    @req RF-OB_03, RF-OB_04
+    @req RF-OB_03
+    @req RF-OB_04
     """
     def __init__(self) -> None:
         super().__init__("Username già esistente")
@@ -19,7 +20,8 @@ class InvalidEmailFormatError(ValueError):
 class EmailAlreadyExistsError(ValueError):
     """
     @brief UC_01.4.2: Email già presente nel sistema
-    @req RF-OB_19, RF-OB_21
+    @req RF-OB_19
+    @req RF-OB_21
     """
     def __init__(self) -> None:
         super().__init__("Email già esistente")

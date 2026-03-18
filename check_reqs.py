@@ -54,7 +54,7 @@ def _collect_nodes(
     results: List[FuncInfo] = []
 
     for node in body:
-        if isinstance(node, ast.FunctionDef):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             results.append(
                 FuncInfo(
                     name=_build_func_name(node.name, class_path),
@@ -265,7 +265,7 @@ def _collect_issues_and_reqs(
 ) -> tuple[List[Dict], Set[str], Set[str]]:
     issues: List[Dict] = []
     all_reqs: Set[str] = set()
-    covered_reqs: Set[str] = set()
+    uncovered_reqs: Set[str] = set()
 
     for file_rel, funcs in func_map.items():
         covered_lines = coverage_map.get(file_rel, set())
@@ -273,11 +273,11 @@ def _collect_issues_and_reqs(
             is_covered = any(line in covered_lines for line in range(func["start"] + 1, func["end"] + 1))
             for req in func["reqs"]:
                 all_reqs.add(req)
-                if is_covered:
-                    covered_reqs.add(req)
-                else:
+                if not is_covered:
+                    uncovered_reqs.add(req)
                     issues.append(_build_issue(file_rel, func, req))
 
+    covered_reqs = all_reqs - uncovered_reqs
     return issues, all_reqs, covered_reqs
 
 
@@ -287,7 +287,15 @@ def generate_sonar_issues(
     output_path: Path,
 ) -> None:
     issues, all_reqs, covered_reqs = _collect_issues_and_reqs(func_map, coverage_map)
+
+    print("\n=== DEBUG ===")
+    print(f"all_reqs ({len(all_reqs)}):      {sorted(all_reqs)}")
+    print(f"covered_reqs ({len(covered_reqs)}): {sorted(covered_reqs)}")
+    print(f"issues ({len(issues)}):         {[i['ruleId'] for i in issues]}")
+    print("=============\n")
+
     summary = _build_summary(all_reqs, covered_reqs)
+    ...
 
     with open(output_path, "w") as f:
         json.dump({"summary": summary, "issues": issues}, f, indent=2)

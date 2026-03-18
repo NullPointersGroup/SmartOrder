@@ -1,8 +1,8 @@
 class User:
     """
     @brief Modello per il login
-    @req RF-OB_24 - username
-    @req RF-OB_26 - password
+    @req RF-OB_24
+    @req RF-OB_26
     """
     def __init__(self, username: str, password: str) -> None:
         self.username = username
@@ -12,9 +12,9 @@ class User:
 class UserRegistration:
     """
     @brief Modello per la registrazione
-    @req RF-OB_02 - username
-    @req RF-OB_18 - email
-    @req RF-OB_08 - password
+    @req RF-OB_02
+    @req RF-OB_18
+    @req RF-OB_08
     """
     def __init__(
         self,

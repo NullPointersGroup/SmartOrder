@@ -21,7 +21,8 @@ class UserService:
         @brief Verifica le credenziali dell'utente per il login
         @param u: credenziali (username + password)
         @return True se le credenziali sono valide
-        @req RF-OB_24, RF-OB_26
+        @req RF-OB_24
+        @req RF-OB_26
         """
         return self.repo.check_user(u)
 
@@ -30,9 +31,16 @@ class UserService:
         @brief Orchestra la registrazione
         @param u: dati di registrazione
         @return True se la registrazione è avvenuta con successo
-        @req RF-OB_02, RF-OB_03, RF-OB_05, RF-OB_08
-        @req RF-OB_09, RF-OB_10, RF-OB_16, RF-OB_18
-        @req RF-OB_19, RF-OB_20
+        @req RF-OB_02
+        @req RF-OB_03
+        @req RF-OB_05
+        @req RF-OB_08
+        @req RF-OB_09
+        @req RF-OB_10
+        @req RF-OB_16
+        @req RF-OB_18
+        @req RF-OB_19
+        @req RF-OB_20
         """
         if self.repo.username_exists(u.username):
             raise UsernameAlreadyExistsError()

@@ -1,5 +1,5 @@
 import { FormModel, type FieldConfig, type SubmitResult } from './FormModel'
-import { register, type RegisterDto } from './api';
+import { register, type RegisterDto } from './AuthAPI';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 

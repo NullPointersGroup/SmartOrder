@@ -20,7 +20,8 @@ class UserRepository(IUserRepository):
     def check_user(self, u: User) -> bool:
         """
         @brief Recupera l'utente per username e verifica la password
-        @req RF-OB_24, RF-OB_26
+        @req RF-OB_24
+        @req RF-OB_26
         """
         db_user: Utente | None = self.db.exec(
             select(Utente).where(Utente.username == u.username)
@@ -34,7 +35,8 @@ class UserRepository(IUserRepository):
     def username_exists(self, username: str) -> bool:
         """
         @brief Controlla se lo username è già nel DB
-        @req RF-OB_03, RF-OB_04
+        @req RF-OB_03
+        @req RF-OB_04
         """
         return self.db.exec(
             select(Utente).where(Utente.username == username)
@@ -43,7 +45,8 @@ class UserRepository(IUserRepository):
     def email_exists(self, email: str) -> bool:
         """
         @brief Controlla se l'email è già nel DB
-        @req RF-OB_19, RF-OB_21
+        @req RF-OB_19
+        @req RF-OB_21
         """
         return self.db.exec(
             select(Utente).where(Utente.email == email)
@@ -64,7 +67,9 @@ class UserRepository(IUserRepository):
     def add_user(self, u: UserRegistration) -> bool:
         """
         @brief Inserisce l'utente nel DB con password hashata
-        @req RF-OB_02, RF-OB_08, RF-OB_18
+        @req RF-OB_02
+        @req RF-OB_08
+        @req RF-OB_18
         """
         try:
             self.db.exec(

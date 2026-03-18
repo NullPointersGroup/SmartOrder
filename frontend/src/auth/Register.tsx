@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { RegisterModel } from './RegisterModel';
 import { useFormViewModel } from './FormViewModel';
-import Form from './Form';
+import Form from './FormView';
 
 interface RegisterProps { readonly onRegister: (token?: string) => void; }
 

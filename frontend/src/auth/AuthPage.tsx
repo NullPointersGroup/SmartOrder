@@ -4,14 +4,27 @@ import Register from './Register';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useAuthStore } from './authStore';
-import { getUsernameFromToken } from './api';
+import { getUsernameFromToken } from './AuthAPI';
 
 export default function AuthPage() {
   /**
   @brief crea l'estetica del form
   @return ritorna tutta l'estetica
+  @req RF-OB_01
+  @req RF-OB_02
+  @req RF-OB_06
+  @req RF-OB_07
+  @req RF-OB_08
+  @req RF-OB_12
   @req RF-OB_13
-  @req RF-OB_22
+  @req RF-OB_14
+  @req RF-OB_15
+  @req RF-OB_17
+  @req RF-OB_18
+  @req RF-OB_23
+  @req RF-OB_24
+  @req RF-OB_25
+  @req RF-OB_26
   @req RF-OB_27
    */
   const [isLogin, setIsLogin] = useState(true);

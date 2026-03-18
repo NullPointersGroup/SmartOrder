@@ -9,7 +9,10 @@ USERNAME_REGEX = re.compile(
 PASSWORD_REGEX = re.compile(
     r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,24}$'
 )
-EMAIL_REGEX = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+
+EMAIL_REGEX = re.compile(
+    r'^[^@\s]+@[^@\s]+\.[^@\s]+$'
+)
 
 
 class UserSchema(BaseModel):
@@ -32,13 +35,19 @@ class UserRegistrationSchema(UserSchema):
     def validate_username(cls, v: str) -> str:
         if not USERNAME_REGEX.match(v):
             raise ValueError(
-                "Lo username non può essere più lungo di 24 caratteri"
+                "Lo username deve avere tra 4 e 24 caratteri e contenere solo lettere, cifre o underscore"
             )
         return v
 
     @field_validator("password")
     @classmethod
     def validate_password(cls, v: str) -> str:
+        """
+        @brief controlla se la password è valida
+        @param v: la password da validare
+        @return ritorna la stessa password se validata
+        @req RF-OB_11
+        """
         if not PASSWORD_REGEX.match(v):
             raise ValueError(
                 "La password deve avere almeno 8 caratteri, "

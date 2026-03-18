@@ -6,24 +6,35 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel
-from src.auth.schemas import User, UserRegistration
+from src.auth.schemas import UserSchema, UserRegistrationSchema
 from src.auth.UserService import UserService
 from src.db.dbConnection import get_conn
 from src.db.models import Utente
 from src.main import app
+from src.auth.api import get_user_service
 
 
 @pytest.fixture
-def mock_user() -> User:
-    return User(username="testuser", password="testpassword")
+def mock_user() -> UserSchema:
+    return UserSchema(username="testuser", password="testpassword")
 
 @pytest.fixture
-def mock_user_registration() -> UserRegistration:
-    return UserRegistration(username="testuser", password="testpassword", email="test@test", confirmPwd="testpassword")
+def mock_user_registration() -> UserRegistrationSchema:
+    return UserRegistrationSchema(
+        username="testuser",
+        password="Password1!",
+        email="test@test.com",
+        confirmPwd="Password1!",
+    )
 
 @pytest.fixture
 def mock_utente() -> Utente:
-    return Utente(username="testuser", password="testpassword", email="test@test", descrizione="test")
+    return Utente(
+        username="testuser",
+        password="testpassword",
+        email="test@gmail.com",
+        descrizione="test"
+    )
 
 
 @pytest.fixture
@@ -40,7 +51,7 @@ def mock_user_service() -> MagicMock:
 
 @pytest.fixture
 def client(mock_user_service: MagicMock):
-    app.dependency_overrides[UserService] = lambda: mock_user_service
+    app.dependency_overrides[get_user_service] = lambda: mock_user_service
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
@@ -85,4 +96,4 @@ def override_get_conn(db_session):
 
     app.dependency_overrides[get_conn] = _get_conn_override
     yield
-    app.dependency_overrides.clear()
+    app.dependency_overrides.pop(get_conn, None)

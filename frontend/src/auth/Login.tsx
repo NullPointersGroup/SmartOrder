@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { LoginModel } from './LoginModel';
 import { useFormViewModel } from './FormViewModel';
-import Form from './Form';
+import Form from './FormView';
 
 interface LoginProps { readonly onLogin: (token?: string) => void; }
 

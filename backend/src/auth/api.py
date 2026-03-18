@@ -53,7 +53,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
 def login(payload: UserSchema, service: UserServiceDep) -> LoginResponse:
     """
     @brief Login utente
-    @req RF-OB_24, RF-OB_26, RF-OB_28
+    @req RF-OB_24
+    @req RF-OB_26
+    @req RF-OB_28
     """
     u = User(username=payload.username, password=payload.password)
 
@@ -77,9 +79,17 @@ def login(payload: UserSchema, service: UserServiceDep) -> LoginResponse:
 async def register(payload: UserRegistrationSchema, service: UserServiceDep) -> AuthResponse:
     """
     @brief Registrazione utente
-    @req RF-OB_02, RF-OB_03, RF-OB_05, RF-OB_08
-    @req RF-OB_09, RF-OB_10, RF-OB_16, RF-OB_18
-    @req RF-OB_19, RF-OB_20, RF-OB_22
+    @req RF-OB_02
+    @req RF-OB_03
+    @req RF-OB_05
+    @req RF-OB_08
+    @req RF-OB_09
+    @req RF-OB_10
+    @req RF-OB_16
+    @req RF-OB_18
+    @req RF-OB_19
+    @req RF-OB_20
+    @req RF-OB_22
     """
     u = UserRegistration(
         username=payload.username,

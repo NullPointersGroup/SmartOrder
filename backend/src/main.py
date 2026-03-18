@@ -15,19 +15,3 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
-
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(
-    request: Request,
-    exc: RequestValidationError
-) -> JSONResponse:
-    errors = []
-    for error in exc.errors():
-        msg = error["msg"].replace("Value error, ", "")
-        errors.append(msg)
-
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content={"detail": {"ok": False, "errors": errors}}
-    )
