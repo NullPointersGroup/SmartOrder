@@ -21,7 +21,7 @@ app.include_router(auth_router)
 async def validation_exception_handler(
     request: Request,
     exc: RequestValidationError
-):
+) -> JSONResponse:
     errors = []
     for error in exc.errors():
         msg = error["msg"].replace("Value error, ", "")

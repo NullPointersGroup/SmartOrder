@@ -24,9 +24,7 @@ class IUserRepository(ABC):
 
     @abstractmethod
     async def email_domain_exists(self, email: str) -> bool:
-        """
-        @req RF-OB_20
-        """
+        pass
 
     @abstractmethod
     def addUser(self, u: UserRegistration) -> bool:

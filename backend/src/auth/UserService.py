@@ -1,5 +1,5 @@
 from src.auth.models import User, UserRegistration
-from src.auth.ports import IUserRepository
+from src.auth.IUserRepository import IUserRepository
 from src.auth.exceptions import (
     UsernameAlreadyExistsError,
     InvalidEmailFormatError,

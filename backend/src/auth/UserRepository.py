@@ -2,7 +2,7 @@ import dns.resolver
 from sqlmodel import Session, select
 
 from src.auth.models import User, UserRegistration
-from src.auth.ports import IUserRepository
+from src.auth.IUserRepository import IUserRepository
 from src.auth.CheckUserCmd import CheckUserCmd
 from src.auth.CreateUserCmd import CreateUserCmd
 from src.db.models import Utente
@@ -45,7 +45,7 @@ class UserRepository(IUserRepository):
         ).first()
         return result is not None
 
-    def email_domain_exists(self, email: str) -> bool:
+    async def email_domain_exists(self, email: str) -> bool:
         """
         @brief Verifica via DNS che il dominio abbia un MX record valido
         @req RF-OB_20

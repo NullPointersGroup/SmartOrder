@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import type { FieldConfig } from './FormModel';
 import type { FormViewModel } from './FormViewModel';
 import FormErrors from './FormErrors';
@@ -10,56 +12,62 @@ interface FormProps {
 }
 
 export default function Form({ title, submitLabel, fields, vm }: FormProps) {
-  /**
-  @brief Genera il form associato alla registrazione ed alla autenticazione
-  @param { title, submitLabel, fields, vm }: FormProps, contiene i parametri necessari alla creazione del form
-  @return ritorna il form associato
-  @req RF-OB_01
-  @req RF-OB_02
-  @req RF-OB_06
-  @req RF-OB_07
-  @req RF-OB_08
-  @req RF-OB_12
-  @req RF-OB_14
-  @req RF-OB_15
-  @req RF-OB_17
-  @req RF-OB_18
-  @req RF-OB_23
-  @req RF-OB_24
-  @req RF-OB_25
-  @req RF-OB_26
-   */
   const { values, fieldErrors, errors, loading, handleChange, handleBlur, handleSubmit } = vm;
+  const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>({});
+
+  const toggleVisibility = (key: string) => {
+    setVisibleFields(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
     <>
       <h2 className="font-serif text-[28px] font-normal text-center mb-7">{title}</h2>
       <form onSubmit={handleSubmit} noValidate>
 
-        {fields.map(({ key, label, type, placeholder, autoComplete }) => (
-          <div key={key} className="mb-4">
-            <label
-              htmlFor={key}
-              className="block text-xs font-semibold uppercase tracking-widest text-black/50 mb-2"
-            >
-              {label}
-            </label>
-            <input
-              id={key}
-              type={type}
-              value={values[key]}
-              onChange={e => handleChange(key, e.target.value)}
-              onBlur={() => handleBlur(key)}
-              placeholder={placeholder}
-              autoComplete={autoComplete}
-              required
-              className="w-full bg-[#fdfdfd] border border-black/20 rounded-lg px-4 text-base text-black outline-none focus:border-black/40 transition-colors h-12"
-            />
-            {fieldErrors[key] && (
-              <p className="text-sm text-[#972020] mt-1">{fieldErrors[key]}</p>
-            )}
-          </div>
-        ))}
+        {fields.map(({ key, label, type, placeholder, autoComplete }) => {
+          const isPassword = type === 'password';
+          const inputType = isPassword && visibleFields[key] ? 'text' : type;
+
+          return (
+            <div key={key} className="mb-4">
+              <label
+                htmlFor={key}
+                className="block text-xs font-semibold uppercase tracking-widest text-black mb-2"
+              >
+                {label}
+              </label>
+              <div className="relative">
+                <input
+                  id={key}
+                  type={inputType}
+                  value={values[key]}
+                  onChange={e => handleChange(key, e.target.value)}
+                  onBlur={() => handleBlur(key)}
+                  placeholder={placeholder}
+                  autoComplete={autoComplete}
+                  required
+                  className="w-full bg-[#fdfdfd] border border-black/20 rounded-lg px-4 text-base text-black outline-none focus:border-black/40 transition-colors h-12 pr-11"
+                />
+                {isPassword && (
+                  <button
+                    type="button"
+                    onClick={() => toggleVisibility(key)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 hover:text-black/70 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {visibleFields[key]
+                      ? <EyeOff size={18} />
+                      : <Eye size={18} />
+                    }
+                  </button>
+                )}
+              </div>
+              {fieldErrors[key] && (
+                <p className="text-sm text-[#972020] mt-1">{fieldErrors[key]}</p>
+              )}
+            </div>
+          );
+        })}
 
         <FormErrors errors={errors} />
 
@@ -70,7 +78,6 @@ export default function Form({ title, submitLabel, fields, vm }: FormProps) {
         >
           {loading ? 'Caricamento...' : submitLabel}
         </button>
-
       </form>
     </>
   );

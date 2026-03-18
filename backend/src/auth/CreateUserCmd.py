@@ -21,7 +21,7 @@ class CreateUserCmd(Mutation):
         """
         return insert(Utente).values(
             username=self.u.username,
-            descrizione="Cliente",
+            descrizione="CLIENTE",
             password=hash_password(self.u.password),
             email=self.u.email,
         )
