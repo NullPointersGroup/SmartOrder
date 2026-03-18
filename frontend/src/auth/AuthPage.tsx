@@ -4,6 +4,7 @@ import Register from './Register';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { me } from './api';
+import { useAuthStore } from './authStore';
 
 export default function AuthPage() {
   /**
@@ -15,6 +16,7 @@ export default function AuthPage() {
    */
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
+  const { setAuth } = useAuthStore();
 
   usePageTitle(isLogin ? 'Autenticazione' : 'Registrazione');
 
@@ -53,20 +55,21 @@ export default function AuthPage() {
       {/* Card */}
       <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-2xl shadow-sm">
         <div className="p-8 px-9">
-          {/*
-           {isLogin
-            ? <Login    onLogin={()    => navigate('/chat')} />
-            : <Register onRegister={() => navigate('/chat')} />
-          } */}
           {isLogin
             ? <Login onLogin={async (token) => {
-  if (token) {
-    const user = await me(token);
-    console.log('Token valido, utente:', user.username);
-  }
-  navigate('/chat');
-}} />
-            : <Register onRegister={() => alert('Autenticazione riuscita')} />
+            if (token) {
+              const user = await me(token);
+              setAuth(token, user.username);
+            }
+            navigate('/chat');
+          }} />
+                      : <Register onRegister={async (token) => {
+            if (token) {
+              const user = await me(token);
+              setAuth(token, user.username);
+            }
+            navigate('/chat');
+          }} />
           }
         </div>
       </div>
