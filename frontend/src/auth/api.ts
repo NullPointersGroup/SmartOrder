@@ -49,6 +49,16 @@ async function authFetch(endpoint: string, body: object): Promise<AuthResponse> 
   }
 }
 
+export async function me(token: string): Promise<{ username: string }> {
+  const response = await fetch(`${API_BASE}/auth/me`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return response.json();
+}
+
 export async function login(dto: LoginDto): Promise<AuthResponse> {
   return authFetch('/auth/login', dto);
 }

@@ -13,7 +13,7 @@ export interface FormViewModel {
 
 export function useFormViewModel(
   model: FormModel,
-  onSuccess: () => void,
+  onSuccess: (token?: string) => void,
 ): FormViewModel {
   /**
  * @brief Hook che gestisce lo stato e la logica del form.
@@ -49,7 +49,7 @@ export function useFormViewModel(
     setErrors([]);
     try {
       const res = await model.submit(values);
-      if (res.ok) onSuccess();
+      if (res.ok) onSuccess(res.token);
       else setErrors(res.errors);
     } catch {
       setErrors(['Errore di connessione']);
