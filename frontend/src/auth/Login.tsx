@@ -3,15 +3,10 @@ import { LoginModel } from './LoginModel';
 import { useFormViewModel } from './FormViewModel';
 import Form from './Form';
 
-interface LoginProps { readonly onLogin: () => void; }
+interface LoginProps { readonly onLogin: (token?: string) => void; }
 
 export default function Login({ onLogin }: LoginProps) {
-  /**
- * @brief Ritorna il form di login
- * @param onLogin () => void Callback invocata dopo login avvenuta con successo
- */
   const model = useMemo(() => new LoginModel(), []);
   const vm    = useFormViewModel(model, onLogin);
-
   return <Form title="Accedi" submitLabel="Accedi" fields={model.fields} vm={vm} />;
 }

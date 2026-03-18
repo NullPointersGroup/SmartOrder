@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import Login from './Login';
 import Register from './Register';
-//import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { me } from './api';
 
 export default function AuthPage() {
   /**
@@ -13,7 +14,7 @@ export default function AuthPage() {
   @req RF-OB_27
    */
   const [isLogin, setIsLogin] = useState(true);
-  /*const navigate = useNavigate();*/
+  const navigate = useNavigate();
 
   usePageTitle(isLogin ? 'Autenticazione' : 'Registrazione');
 
@@ -58,7 +59,13 @@ export default function AuthPage() {
             : <Register onRegister={() => navigate('/chat')} />
           } */}
           {isLogin
-            ? <Login onLogin={() => alert('Autenticazione riuscita')} />
+            ? <Login onLogin={async (token) => {
+  if (token) {
+    const user = await me(token);
+    console.log('Token valido, utente:', user.username);
+  }
+  navigate('/chat');
+}} />
             : <Register onRegister={() => alert('Autenticazione riuscita')} />
           }
         </div>

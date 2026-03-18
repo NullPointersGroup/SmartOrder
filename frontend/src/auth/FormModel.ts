@@ -9,6 +9,7 @@ export interface FieldConfig {
 export interface SubmitResult {
   ok: boolean;
   errors: string[];
+  token?: string;
 }
 
 export abstract class FormModel {
