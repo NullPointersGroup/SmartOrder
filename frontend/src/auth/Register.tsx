@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { RegisterModel } from './FormModel';
+import { RegisterModel } from './RegisterModel';
 import { useFormViewModel } from './FormViewModel';
 import Form from './Form';
 
