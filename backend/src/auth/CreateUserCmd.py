@@ -1,8 +1,9 @@
 from sqlalchemy.sql.expression import insert
-from src.auth.schemas import UserRegistration
-from src.db.models import Utente
 
-from ..db.queryExecutor import Mutation, MutationStmt
+from src.auth.models import UserRegistration
+from src.auth.authUtils import hash_password
+from src.db.models import Utente
+from src.db.queryExecutor import Mutation, MutationStmt
 
 
 class CreateUserCmd(Mutation):
@@ -12,14 +13,15 @@ class CreateUserCmd(Mutation):
 
     def execute(self) -> MutationStmt:
         """
-        @brief  Funzione che ritorna una query pronta per essere eseguita, in particolare una query di inserimento dell'Utente
-        @bug  Da aggiungere la mail
+        @brief INSERT dell'utente con password hashata tramite authUtils
         @return La query pronta per essere eseguita
-        @req RF-OB_19
+        @req RF-OB_02 - username
+        @req RF-OB_08 - password
+        @req RF-OB_18 - email
         """
         return insert(Utente).values(
             username=self.u.username,
             descrizione="Cliente",
-            password=self.u.password,
+            password=hash_password(self.u.password),
             email=self.u.email,
         )

@@ -1,6 +1,8 @@
 from sqlmodel import select
 from sqlmodel.sql.expression import SelectOfScalar
-from src.auth.schemas import User
+
+from src.auth.models import User
+from src.auth.authUtils import verify_password
 from src.db.models import Utente
 from src.db.queryExecutor import Query
 
@@ -10,19 +12,19 @@ class CheckUserCmd(Query[Utente]):
         super().__init__()
         self.user = u
 
-    # def __hash_pwd(self, pwd: str) -> str:
-    #     return ""
+    def verify_password(self, plain: str, hashed: str) -> bool:
+        """
+        @brief Confronta la password in chiaro con l'hash nel DB
+        @param plain: password inserita dall'utente
+        @param hashed: hash bcrypt salvato nel DB
+        @return True se la password è corretta
+        @req RF-OB_26
+        """
+        return verify_password(plain, hashed)
 
     def execute(self) -> SelectOfScalar[Utente]:
         """
-        @brief Funzione che ritorna una query pronta per essere eseguita, in particolare controlla che l'utente con quello username e quella password esistano nel db dove questa query verrà eseguita
-        @bug  NON CONTROLLA LA PASSWORD
-        @return Ritorna l'utente che rispetta le condizioni
+        @brief Recupera l'utente per username
+        @req RF-OB_24
         """
-        return select(Utente).where(
-            (
-                Utente.username == self.user.username
-                # Dovrebbe esserci anche la parte di hashing nel controllo
-                # & (Utente.password == self.__hash_pwd(self, self.user.password))
-            )
-        )
+        return select(Utente).where(Utente.username == self.user.username)
