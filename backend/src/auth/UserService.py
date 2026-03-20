@@ -13,7 +13,7 @@ class UserService:
     @brief Servizio applicativo: orchestra i casi d'uso di autenticazione
     """
 
-    def __init__(self, repo: IUserRepoPort):
+    def __init__(self, repo: IUserRepoPort) -> None:
         self.repo = repo
 
     def check_user(self, u: User) -> bool:
