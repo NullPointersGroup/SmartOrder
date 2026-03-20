@@ -8,7 +8,7 @@ class StubModel extends FormModel {
     { key: 'name',  label: 'Nome',  type: 'text'  as const },
     { key: 'email', label: 'Email', type: 'email' as const },
   ];
-  async submit(_v: Record<string, string>) { return { ok: true, errors: [] }; }
+  async submit() { return { ok: true, errors: [] }; }
 }
 
 describe('FormModel – validate', () => {

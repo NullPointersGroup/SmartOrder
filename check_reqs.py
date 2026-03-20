@@ -169,9 +169,10 @@ def parse_lcov_info(lcov_path: Path, proj_root: Path) -> Dict[str, Set[int]]:
             if len(parts) == 2 and int(parts[1]) > 0:
                 lines_covered.add(int(parts[0]))
         elif line.startswith("end_of_record") and current_file is not None:
+            print(f"  lcov raw path: {current_file}")
             try:
-                # FIX: relative to proj_root (e.g. "frontend/") → "src/Counter.tsx"
                 rel_file = current_file.relative_to(proj_root).as_posix()
+                print(f"  lcov rel path: {rel_file}")
             except ValueError:
                 rel_file = current_file.name
             coverage[rel_file] = lines_covered
@@ -295,7 +296,18 @@ def generate_sonar_issues(
     print("=============\n")
 
     summary = _build_summary(all_reqs, covered_reqs)
-    ...
+    
+    print("\n=== DEBUG PATHS ===")
+    print("func_map keys (frontend):")
+    for k in sorted(func_map.keys()):
+        if k.endswith(_TS_EXTENSIONS):
+            print(f"  {k}")
+
+    print("\ncoverage_map keys (frontend):")
+    for k in sorted(coverage_map.keys()):
+        if k.endswith(_TS_EXTENSIONS):
+            print(f"  {k}")
+    print("===================\n")
 
     with open(output_path, "w") as f:
         json.dump({"summary": summary, "issues": issues}, f, indent=2)
@@ -341,9 +353,8 @@ def _build_coverage_map(proj: ProjectConfig) -> Dict[str, Set[int]]:
     raw = (
         parse_coverage_xml(proj.coverage)
         if proj.lang == "py"
-        else parse_lcov_info(proj.coverage, proj.root.resolve())
+        else parse_lcov_info(proj.coverage, proj.root.resolve().parent)
     )
-    # Normalizza le chiavi garantendo il prefisso "src/"
     return {
         (f if f.startswith("src/") else f"src/{f}"): lines
         for f, lines in raw.items()
