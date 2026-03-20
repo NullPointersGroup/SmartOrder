@@ -1,10 +1,12 @@
-from typing import Annotated
+from typing import Annotated, List
 from fastapi import Depends
 from sqlmodel import Session
-from FaissMock import FaissMock
+
+from src.chat.ChatSchemas import ChatResponse, MessageRequest, Message, Sender
+from .FaissMock import FaissMock
 from src.db.dbConnection import get_conn
 from src.db.queryExecutor import QueryExecutor
-from GetAllMessagesCmd import GetAllMessagesCmd
+from .GetAllMessagesCmd import GetAllMessagesCmd
 
 
 class ChatService:
@@ -21,5 +23,5 @@ class ChatService:
         messages = [r.contenuto for r in res]
         return messages
 
-    def send_message(self, text: str):
+    def send_message(self, conv_id: int, message: MessageRequest):
         pass
