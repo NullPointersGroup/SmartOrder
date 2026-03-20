@@ -20,6 +20,9 @@ export abstract class FormModel {
   protected static readonly PASSWORD_REGEX: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~])[A-Za-z\d!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~]{8,24}$/;
 
   validate(values: Record<string, string>): Record<string, string> {
+    /**
+     * @brief se un campo è vuoto chiede l'inserimento obbligatorio
+     */
     const fieldErrors: Record<string, string> = {};
     for (const field of this.fields) {
       if (!values[field.key]?.trim()) {
@@ -30,6 +33,9 @@ export abstract class FormModel {
   }
 
   validateField(key: string, value: string): string {
+    /**
+     * @brief valida il campo singolo
+     */
     const allValues = Object.fromEntries(this.fields.map(f => [f.key, '']));
     const errors = this.validate({ ...allValues, [key]: value });
     return errors[key] ?? '';

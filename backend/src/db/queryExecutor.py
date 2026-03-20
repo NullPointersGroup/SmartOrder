@@ -42,14 +42,34 @@ class QueryExecutor:
         stmt = q.execute()
         return self.db.exec(stmt).first()
 
+    def execute_one_raw(self, stmt: SelectOfScalar[T]) -> T | None:
+        """
+        @brief Esegue uno statement diretto e ritorna un singolo risultato o None
+        """
+        return self.db.exec(stmt).first()
+ 
     def mutate(self, m: Mutation) -> bool:
         """
-        @brief Funzione che esegue solo ed esclusivamente oggetti che implementano l'interfaccia Mutation, ovvero query che eseguono operazioni di inserimento, modifica e cancellazione
-        @param m: query mutante (XD) che deve essere eseguita
-        @return Se la modifica va a buon fine ritorna True, False altrimenti
+        @brief Esegue un oggetto Mutation (INSERT, UPDATE, DELETE)
         """
         try:
             self.db.exec(m.execute())
+            self.db.commit()
+            return True
+        except IntegrityError:
+            self.db.rollback()
+            return False
+        except Exception as e:
+            self.db.rollback()
+            print(f"Errore critico durante la mutazione: {e}")
+            return False
+ 
+    def mutate_raw(self, stmt: MutationStmt) -> bool:
+        """
+        @brief Esegue uno statement di mutazione diretto
+        """
+        try:
+            self.db.exec(stmt)
             self.db.commit()
             return True
         except IntegrityError:

@@ -1,8 +1,8 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.auth.models import User, UserRegistration
+from src.auth.models import UserRegistration
 from src.auth.UserRepository import UserRepository
 from src.db.models import Utente
 
@@ -12,16 +12,22 @@ from src.db.models import Utente
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
-def db():
+def executor():
     return MagicMock()
 
 @pytest.fixture
-def repo(db):
-    return UserRepository(db)
+def repo(executor):
+    r = UserRepository.__new__(UserRepository)
+    r.executor = executor
+    return r
 
 @pytest.fixture
-def valid_user():
-    return User(username="testuser", password="Password1!")
+def mock_utente():
+    u = MagicMock(spec=Utente)
+    u.username = "testuser"
+    u.password = "hashed_password"
+    u.email    = "test@test.com"
+    return u
 
 @pytest.fixture
 def valid_registration():
@@ -32,120 +38,72 @@ def valid_registration():
         confirm_pwd="Password1!",
     )
 
-@pytest.fixture
-def mock_utente():
-    u = MagicMock(spec=Utente)
-    u.username = "testuser"
-    u.password = "hashed_password"
-    u.email    = "test@test.com"
-    return u
+
+# ---------------------------------------------------------------------------
+# find_by_username
+# ---------------------------------------------------------------------------
+
+class TestFindByUsername:
+    def test_returns_utente_when_found(self, repo, executor, mock_utente):
+        executor.execute_one_raw.return_value = mock_utente
+        result = repo.find_by_username("testuser")
+        assert result is mock_utente
+
+    def test_returns_none_when_not_found(self, repo, executor):
+        executor.execute_one_raw.return_value = None
+        result = repo.find_by_username("nonexistent")
+        assert result is None
+
+    def test_delegates_to_executor(self, repo, executor):
+        executor.execute_one_raw.return_value = None
+        repo.find_by_username("testuser")
+        executor.execute_one_raw.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
-# check_user
+# find_by_email
 # ---------------------------------------------------------------------------
 
-class TestCheckUser:
-    def test_returns_true_with_valid_credentials(self, repo, db, valid_user, mock_utente):
-        db.exec.return_value.first.return_value = mock_utente
-        with patch("src.auth.UserRepository.PasswordService.verify_password", return_value=True):
-            assert repo.check_user(valid_user) is True
+class TestFindByEmail:
+    def test_returns_utente_when_found(self, repo, executor, mock_utente):
+        executor.execute_one_raw.return_value = mock_utente
+        result = repo.find_by_email("test@test.com")
+        assert result is mock_utente
 
-    def test_returns_false_with_wrong_password(self, repo, db, valid_user, mock_utente):
-        db.exec.return_value.first.return_value = mock_utente
-        with patch("src.auth.UserRepository.PasswordService.verify_password", return_value=False):
-            assert repo.check_user(valid_user) is False
+    def test_returns_none_when_not_found(self, repo, executor):
+        executor.execute_one_raw.return_value = None
+        result = repo.find_by_email("nonexistent@test.com")
+        assert result is None
 
-    def test_returns_false_when_user_not_found(self, repo, db, valid_user):
-        db.exec.return_value.first.return_value = None
-        assert repo.check_user(valid_user) is False
-
-    def test_returns_false_when_password_is_none(self, repo, db, valid_user, mock_utente):
-        mock_utente.password = None
-        db.exec.return_value.first.return_value = mock_utente
-        assert repo.check_user(valid_user) is False
-
-    def test_does_not_call_verify_when_user_not_found(self, repo, db, valid_user):
-        db.exec.return_value.first.return_value = None
-        with patch("src.auth.UserRepository.PasswordService.verify_password") as mock_verify:
-            repo.check_user(valid_user)
-            mock_verify.assert_not_called()
+    def test_delegates_to_executor(self, repo, executor):
+        executor.execute_one_raw.return_value = None
+        repo.find_by_email("test@test.com")
+        executor.execute_one_raw.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
-# username_exists
+# save
 # ---------------------------------------------------------------------------
 
-class TestUsernameExists:
-    def test_returns_true_when_found(self, repo, db):
-        db.exec.return_value.first.return_value = MagicMock()
-        assert repo.username_exists("testuser") is True
-
-    def test_returns_false_when_not_found(self, repo, db):
-        db.exec.return_value.first.return_value = None
-        assert repo.username_exists("testuser") is False
-
-
-# ---------------------------------------------------------------------------
-# email_exists
-# ---------------------------------------------------------------------------
-
-class TestEmailExists:
-    def test_returns_true_when_found(self, repo, db):
-        db.exec.return_value.first.return_value = MagicMock()
-        assert repo.email_exists("test@test.com") is True
-
-    def test_returns_false_when_not_found(self, repo, db):
-        db.exec.return_value.first.return_value = None
-        assert repo.email_exists("test@test.com") is False
-
-
-# ---------------------------------------------------------------------------
-# email_domain_exists
-# ---------------------------------------------------------------------------
-
-class TestEmailDomainExists:
-    async def test_returns_true_when_mx_record_found(self, repo):
-        with patch("src.auth.UserRepository.dns.resolver.resolve"):
-            assert await repo.email_domain_exists("test@test.com") is True
-
-    async def test_returns_false_when_mx_record_not_found(self, repo):
-        with patch("src.auth.UserRepository.dns.resolver.resolve", side_effect=Exception()):
-            assert await repo.email_domain_exists("test@invalid-domain.xyz") is False
-
-    async def test_extracts_domain_from_email(self, repo):
-        with patch("src.auth.UserRepository.dns.resolver.resolve") as mock_resolve:
-            await repo.email_domain_exists("user@example.com")
-            mock_resolve.assert_called_once_with("example.com", "MX")
-
-
-# ---------------------------------------------------------------------------
-# add_user
-# ---------------------------------------------------------------------------
-
-class TestAddUser:
-    def test_returns_true_on_success(self, repo, db, valid_registration):
+class TestSave:
+    def test_returns_true_on_success(self, repo, executor, valid_registration):
+        executor.mutate_raw.return_value = True
         with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
-            assert repo.add_user(valid_registration) is True
+            assert repo.save(valid_registration) is True
 
-    def test_commits_on_success(self, repo, db, valid_registration):
+    def test_returns_false_on_failure(self, repo, executor, valid_registration):
+        executor.mutate_raw.return_value = False
         with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
-            repo.add_user(valid_registration)
-        db.commit.assert_called_once()
+            assert repo.save(valid_registration) is False
 
-    def test_returns_false_on_exception(self, repo, db, valid_registration):
-        db.exec.side_effect = Exception("db error")
+    def test_delegates_to_executor(self, repo, executor, valid_registration):
+        executor.mutate_raw.return_value = True
         with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
-            assert repo.add_user(valid_registration) is False
+            repo.save(valid_registration)
+        executor.mutate_raw.assert_called_once()
 
-    def test_rollback_on_exception(self, repo, db, valid_registration):
-        db.exec.side_effect = Exception("db error")
-        with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
-            repo.add_user(valid_registration)
-        db.rollback.assert_called_once()
-        db.commit.assert_not_called()
-
-    def test_password_is_hashed(self, repo, db, valid_registration):
+    def test_password_is_hashed(self, repo, executor, valid_registration):
+        executor.mutate_raw.return_value = True
         with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed") as mock_hash:
-            repo.add_user(valid_registration)
+            repo.save(valid_registration)
             mock_hash.assert_called_once_with(valid_registration.password)

@@ -1,5 +1,5 @@
 from src.auth.models import User, UserRegistration
-from src.auth.IUserRepository import IUserRepository
+from src.auth.IUserRepoPort import IUserRepoPort
 from src.auth.exceptions import (
     UsernameAlreadyExistsError,
     InvalidEmailFormatError,
@@ -13,7 +13,7 @@ class UserService:
     @brief Servizio applicativo: orchestra i casi d'uso di autenticazione
     """
 
-    def __init__(self, repo: IUserRepository) -> None:
+    def __init__(self, repo: IUserRepoPort):
         self.repo = repo
 
     def check_user(self, u: User) -> bool:
@@ -26,7 +26,7 @@ class UserService:
         """
         return self.repo.check_user(u)
 
-    async def register_user(self, u: UserRegistration) -> bool:
+    def register_user(self, u: UserRegistration) -> bool:
         """
         @brief Orchestra la registrazione
         @param u: dati di registrazione
@@ -45,7 +45,7 @@ class UserService:
         if self.repo.username_exists(u.username):
             raise UsernameAlreadyExistsError()
 
-        if not await self.repo.email_domain_exists(u.email):
+        if not self.repo.email_domain_exists(u.email):
             raise InvalidEmailFormatError()
 
         if self.repo.email_exists(u.email):

@@ -29,16 +29,25 @@ export function useFormViewModel(
   const [loading,     setLoading]     = useState(false);
 
   const handleChange = useCallback((key: string, value: string) => {
+    /**
+     * @brief ad ogni cambio fra login e registrazione ripristina
+     */
     setValues(prev => ({ ...prev, [key]: value }));
     setFieldErrors(prev => ({ ...prev, [key]: '' }));
   }, []);
 
   const handleBlur = useCallback((key: string) => {
+    /**
+     * @brief ad ogni cambio setta i campi d'errore
+     */
     const error = model.validateField(key, values[key]);
     setFieldErrors(prev => ({ ...prev, [key]: error }));
   }, [model, values]);
 
   const handleSubmit = useCallback(async (e: React.SyntheticEvent) => {
+    /**
+     * @brief mostra i campi d'errore ad ogni invio
+     */
     e.preventDefault();
 
     const newFieldErrors = model.validate(values);

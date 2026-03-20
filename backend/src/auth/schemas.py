@@ -11,7 +11,7 @@ PASSWORD_REGEX = re.compile(
 )
 
 EMAIL_REGEX = re.compile(
-    r'^[^@\s]+@[^@\s]+\.[^@\s]+$'
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 )
 
 
@@ -33,6 +33,11 @@ class UserRegistrationSchema(UserSchema):
     @field_validator("username")
     @classmethod
     def validate_username(cls, v: str) -> str:
+        """
+        @brief valida lo username
+        @raise ValueError
+        @return lo username
+        """
         if not USERNAME_REGEX.match(v):
             raise ValueError(
                 "Lo username deve avere tra 4 e 24 caratteri e contenere solo lettere, cifre o underscore"
@@ -45,6 +50,7 @@ class UserRegistrationSchema(UserSchema):
         """
         @brief controlla se la password è valida
         @param v: la password da validare
+        @raise ValueError
         @return ritorna la stessa password se validata
         @req RF-OB_11
         """
@@ -58,12 +64,22 @@ class UserRegistrationSchema(UserSchema):
     @field_validator("email")
     @classmethod
     def validate_email_format(cls, v: str) -> str:
+        """
+        @brief valida il formato della email
+        @raise ValueError
+        @return la email se è corretta
+        """
         if not EMAIL_REGEX.match(v):
             raise ValueError("L'email non è nel formato corretto")
         return v
 
     @model_validator(mode="after")
     def validate_confirm_password(self) -> "UserRegistrationSchema":
+        """
+        @brief controlla se la conferma della password è uguale alla password inserita
+        @raise ValueErrori
+        @return lo schema per registrare l'utente
+        """
         if self.password != self.confirmPwd:
             raise ValueError("Le password non coincidono")
         return self

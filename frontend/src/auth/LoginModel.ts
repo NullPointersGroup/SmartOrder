@@ -8,6 +8,10 @@ export class LoginModel extends FormModel {
   ];
 
   async submit(values: Record<string, string>): Promise<SubmitResult> {
+    /**
+     * @brief invia il form di login
+     * @return il risultato dell'invio
+     */
     const dto: LoginDto = {
       username: values.username,
       password: values.password,

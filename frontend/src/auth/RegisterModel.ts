@@ -12,6 +12,11 @@ export class RegisterModel extends FormModel {
   ];
 
   validate(values: Record<string, string>): Record<string, string> {
+    /**
+     * @brief valida i campi
+     * @param values i campi da validare
+     * @return i campi validati errati
+     */
     const fieldErrors = super.validate(values);
 
     if (!fieldErrors.username && !RegisterModel.USERNAME_REGEX.test(values.username)) {
@@ -31,6 +36,10 @@ export class RegisterModel extends FormModel {
   }
 
   async submit(values: Record<string, string>): Promise<SubmitResult> {
+    /**
+     * @brief invia il form
+     * @return promette il risultato dell'invio
+     */
     const dto: RegisterDto = {
       username:   values.username,
       email:      values.email,

@@ -1,87 +1,49 @@
-import dns.resolver
-from sqlalchemy.sql.expression import insert
 from sqlmodel import Session, select
+from sqlalchemy.sql.expression import insert
 
-from src.auth.models import User, UserRegistration
-from src.auth.IUserRepository import IUserRepository
+from src.auth.models import UserRegistration
 from src.auth.PasswordService import PasswordService
 from src.db.models import Utente
+from src.db.queryExecutor import QueryExecutor
 
 
-class UserRepository(IUserRepository):
+class UserRepository:
     """
-    @brief Adattatore secondario (driven adapter): implementa IUserRepository
-           usando SQLModel come ORM e dnspython per la verifica DNS.
+    @brief Repository che gestisce le operazioni di persistenza sugli utenti
+           tramite QueryExecutor.
     """
 
     def __init__(self, db: Session) -> None:
-        self.db = db
+        self.executor = QueryExecutor(db)
 
-    def check_user(self, u: User) -> bool:
+    def find_by_username(self, username: str) -> Utente | None:
         """
-        @brief Recupera l'utente per username e verifica la password
-        @req RF-OB_24
-        @req RF-OB_26
+        @brief Recupera un utente dal DB per username
+        @return l'Utente se esiste
         """
-        db_user: Utente | None = self.db.exec(
-            select(Utente).where(Utente.username == u.username)
-        ).first()
-
-        if db_user is None or db_user.password is None:
-            return False
-
-        return PasswordService.verify_password(u.password, db_user.password)
-
-    def username_exists(self, username: str) -> bool:
-        """
-        @brief Controlla se lo username è già nel DB
-        @req RF-OB_03
-        @req RF-OB_04
-        """
-        return self.db.exec(
+        return self.executor.execute_one_raw(
             select(Utente).where(Utente.username == username)
-        ).first() is not None
+        )
 
-    def email_exists(self, email: str) -> bool:
+    def find_by_email(self, email: str) -> Utente | None:
         """
-        @brief Controlla se l'email è già nel DB
-        @req RF-OB_19
-        @req RF-OB_21
+        @brief Recupera un utente dal DB per email
+        @return l'Utente se esiste
         """
-        return self.db.exec(
+        return self.executor.execute_one_raw(
             select(Utente).where(Utente.email == email)
-        ).first() is not None
+        )
 
-    async def email_domain_exists(self, email: str) -> bool:
+    def save(self, u: UserRegistration) -> bool:
         """
-        @brief Verifica via DNS che il dominio abbia un MX record valido
-        @req RF-OB_20
+        @brief Inserisce un nuovo utente nel DB con password hashata
+        @return restituisce true se l'operazione ha successo
         """
-        try:
-            domain = email.split("@")[1]
-            dns.resolver.resolve(domain, "MX")
-            return True
-        except Exception:
-            return False
-
-    def add_user(self, u: UserRegistration) -> bool:
-        """
-        @brief Inserisce l'utente nel DB con password hashata
-        @req RF-OB_02
-        @req RF-OB_08
-        @req RF-OB_18
-        """
-        try:
-            self.db.exec(
-                insert(Utente).values(
-                    username=u.username,
-                    descrizione="CLIENTE",
-                    password=PasswordService.hash_password(u.password),
-                    email=u.email,
-                )
+        return self.executor.mutate_raw(
+            insert(Utente).values(
+                username=u.username,
+                descrizione="CLIENTE",
+                password=PasswordService.hash_password(u.password),
+                email=u.email,
             )
-            self.db.commit()
-            return True
-        except Exception:
-            self.db.rollback()
-            return False
+        )

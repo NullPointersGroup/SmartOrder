@@ -155,6 +155,19 @@ class TestMutate:
 
         db.commit.assert_not_called()
         
+    def test_returns_false_on_integrity_error_raw(self, executor, db):
+        db.exec.side_effect = IntegrityError(None, None, Exception())
+        stmt = MagicMock()
+        result = executor.mutate_raw(stmt)
+        assert result is False
+
+    def test_rollback_on_integrity_error_raw(self, executor, db):
+        db.exec.side_effect = IntegrityError(None, None, Exception())
+        stmt = MagicMock()
+        executor.mutate_raw(stmt)
+        db.rollback.assert_called_once()
+        db.commit.assert_not_called()
+        
 class TestQueryBase:
     def test_execute_raises_not_implemented(self):
         q = Query()

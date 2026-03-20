@@ -4,7 +4,7 @@ class UsernameAlreadyExistsError(ValueError):
     @req RF-OB_03
     @req RF-OB_04
     """
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__("Username già esistente")
 
 
@@ -13,7 +13,7 @@ class InvalidEmailFormatError(ValueError):
     @brief UC_01.4.1: Email non valida (formato o dominio DNS)
     @req RF-OB_20
     """
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__("L'email non è nel formato corretto")
 
 
@@ -23,7 +23,7 @@ class EmailAlreadyExistsError(ValueError):
     @req RF-OB_19
     @req RF-OB_21
     """
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__("Email già esistente")
 
 
@@ -32,7 +32,7 @@ class InvalidCredentialsError(ValueError):
     @brief UC_03: Autenticazione non riuscita
     @req RF-OB_28
     """
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__("Username o password errati")
 
 
@@ -40,5 +40,5 @@ class UserCreationError(Exception):
     """
     @brief Errore durante la creazione dell'utente
     """
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__("Errore durante la registrazione")

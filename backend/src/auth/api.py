@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlmodel import Session
 from src.auth.TokenService import TokenService
 from src.auth.UserService import UserService
-from src.auth.UserRepository import UserRepository
+from src.auth.UserRepoAdapter import UserRepoAdapter
 from src.auth.schemas import AuthResponse, UserSchema, UserRegistrationSchema
 from src.auth.models import User, UserRegistration
 from src.auth.exceptions import (
@@ -31,7 +31,7 @@ class ErrorResponse(BaseModel):
 
 
 def get_user_service(db: Session = Depends(get_conn)) -> UserService:
-    return UserService(UserRepository(db))
+    return UserService(UserRepoAdapter(db))
 
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
@@ -99,7 +99,7 @@ async def register(payload: UserRegistrationSchema, service: UserServiceDep) -> 
     )
 
     try:
-        await service.register_user(u)
+        service.register_user(u)
         return AuthResponse(ok=True, errors=[])
 
     except UsernameAlreadyExistsError:

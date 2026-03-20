@@ -12,6 +12,9 @@ interface FormProps {
 }
 
 export default function Form({ title, submitLabel, fields, vm }: FormProps) {
+  /**
+  @brief restituisce il form (login e registrazione)
+   */
   const { values, fieldErrors, errors, loading, handleChange, handleBlur, handleSubmit } = vm;
   const [visibleFields, setVisibleFields] = useState<Record<string, boolean>>({});
 
