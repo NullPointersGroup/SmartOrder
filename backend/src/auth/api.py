@@ -1,48 +1,124 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from pydantic import BaseModel
+from sqlmodel import Session
+from src.auth.TokenService import TokenService
 from src.auth.UserService import UserService
-
-from .schemas import AuthResponse, User, UserRegistration
-
-UserServiceDep = Annotated[UserService, Depends(UserService)]
+from src.auth.UserRepoAdapter import UserRepoAdapter
+from src.auth.schemas import AuthResponse, UserSchema, UserRegistrationSchema
+from src.auth.models import User, UserRegistration
+from src.auth.exceptions import (
+    UsernameAlreadyExistsError,
+    InvalidEmailFormatError,
+    EmailAlreadyExistsError,
+    UserCreationError,
+)
+from src.db.dbConnection import get_conn
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login")
-def login(user: User, userService: UserServiceDep) -> AuthResponse:
+class LoginResponse(BaseModel):
+    ok: bool
+    errors: list[str]
+    token: str | None = None
+
+
+class ErrorResponse(BaseModel):
+    errors: list[str]
+
+
+def get_user_service(db: Session = Depends(get_conn)) -> UserService:
+    return UserService(UserRepoAdapter(db))
+
+
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
+    username = TokenService.decode_token(token)
+    if username is None:
+        raise HTTPException(status_code=401, detail="Token non valido")
+    return username
+
+
+@router.post(
+    "/login",
+    responses={400: {"model": ErrorResponse, "description": "Username o password errati"}},
+)
+def login(payload: UserSchema, service: UserServiceDep) -> LoginResponse:
     """
-    @brief Endpoint per la login dell'utente
-    @param user: L'utente che vuole effettuare il login
-    @param userService: Dipendenza iniettata tramite FASTAPI, rappresenta una classe di servizio per le operazioni su db riguardanti gli utenti
-    @bug  non controlla la password
-    @return Ritorna una risposta che indica se l'utente effettivamente esiste
+    @brief Login utente
     @req RF-OB_24
     @req RF-OB_26
+    @req RF-OB_28
     """
-    if userService.check_user(user):
-        # AuthResponse può essere cambiata per tenere solo un messaggio, se facciamo come scritto nel commento sotto
-        return AuthResponse(ok=True, errors=[])
-    else:
-        # Sarebbe più corretto avere un codice di errore HTTP piuttosto che un ok=false
-        return AuthResponse(ok=False, errors=["Username o password errati"])
+    u = User(username=payload.username, password=payload.password)
+
+    if service.check_user(u):
+        return LoginResponse(ok=True, errors=[], token=TokenService.create_token(payload.username))
+
+    raise HTTPException(
+        status_code=400,
+        detail={"ok": False, "errors": ["Username o password errati"]},
+    )
 
 
-@router.post("/register")
-def create_user(user: UserRegistration, userService: UserServiceDep) -> AuthResponse:
+@router.post(
+    "/register",
+    status_code=201,
+    responses={
+        400: {"model": ErrorResponse, "description": "Errore validazione dati"},
+        500: {"model": ErrorResponse, "description": "Errore durante la registrazione"},
+    },
+)
+async def register(payload: UserRegistrationSchema, service: UserServiceDep) -> AuthResponse:
     """
-    @brief Endpoint per la registrazione dell'utente
-    @param user: l'utente che vuole effettuare la registrazione
-    @param userService: dipendenza iniettata tramite FASTAPI, rappresenta una classe di servizio per le operazioni su db riguardanti gli utenti
-    @return Ritorna una risposta che indica se l'utente è stato registrato correttamente \n
+    @brief Registrazione utente
     @req RF-OB_02
     @req RF-OB_03
+    @req RF-OB_05
     @req RF-OB_08
+    @req RF-OB_09
+    @req RF-OB_10
+    @req RF-OB_16
     @req RF-OB_18
     @req RF-OB_19
+    @req RF-OB_20
+    @req RF-OB_22
     """
-    if userService.create_user(user):
+    u = UserRegistration(
+        username=payload.username,
+        password=payload.password,
+        confirm_pwd=payload.confirmPwd,
+        email=payload.email,
+    )
+
+    try:
+        service.register_user(u)
         return AuthResponse(ok=True, errors=[])
-    else:
-        return AuthResponse(ok=False, errors=["Creazione fallita"])
+
+    except UsernameAlreadyExistsError:
+        raise HTTPException(
+            status_code=400,
+            detail={"ok": False, "errors": ["Username già esistente"]},
+        )
+    except InvalidEmailFormatError:
+        raise HTTPException(
+            status_code=400,
+            detail={"ok": False, "errors": ["L'email non è nel formato corretto"]},
+        )
+    except EmailAlreadyExistsError:
+        raise HTTPException(
+            status_code=400,
+            detail={"ok": False, "errors": ["Email già esistente"]},
+        )
+    except UserCreationError:
+        raise HTTPException(
+            status_code=500,
+            detail={"ok": False, "errors": ["Errore durante la registrazione"]},
+        )

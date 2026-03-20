@@ -1,40 +1,57 @@
-from fastapi import Depends
-from sqlmodel import Session
-from src.auth.CheckUserCmd import CheckUserCmd
-from src.auth.schemas import User, UserRegistration
-from src.db.queryExecutor import QueryExecutor
-
-from ..db.dbConnection import get_conn
-from .CreateUserCmd import CreateUserCmd
+from src.auth.models import User, UserRegistration
+from src.auth.IUserRepoPort import IUserRepoPort
+from src.auth.exceptions import (
+    UsernameAlreadyExistsError,
+    InvalidEmailFormatError,
+    EmailAlreadyExistsError,
+    UserCreationError,
+)
 
 
 class UserService:
-    def __init__(self, db: Session = Depends(get_conn)) -> None:
-        self.db = db
-        self.queryExecutor = QueryExecutor(db)
+    """
+    @brief Servizio applicativo: orchestra i casi d'uso di autenticazione
+    """
+
+    def __init__(self, repo: IUserRepoPort) -> None:
+        self.repo = repo
 
     def check_user(self, u: User) -> bool:
         """
-        @brief Passa al QueryExecutor la query per il controllo di esistenza dell'utente
-        @param u: utente da controllare
-        @bug non controlla hashing password
-        @return Se tutto va a buon fine la funzione ritorna True, altrimenti False
+        @brief Verifica le credenziali dell'utente per il login
+        @param u: credenziali (username + password)
+        @return True se le credenziali sono valide
+        @req RF-OB_24
+        @req RF-OB_26
         """
-        res = self.queryExecutor.execute(CheckUserCmd(u))
-        if res:
-            return True
-        else:
-            return False
+        return self.repo.check_user(u)
 
-    def create_user(self, u: UserRegistration) -> bool:
+    def register_user(self, u: UserRegistration) -> bool:
         """
-        @brief Passa al QueryExecutor la query per la creazione dell'utente
-        @param u: utente da creare
-        @return Se la creazione va a buon fine, ritorna True
+        @brief Orchestra la registrazione
+        @param u: dati di registrazione
+        @return True se la registrazione è avvenuta con successo
         @req RF-OB_02
         @req RF-OB_03
+        @req RF-OB_05
         @req RF-OB_08
+        @req RF-OB_09
+        @req RF-OB_10
+        @req RF-OB_16
         @req RF-OB_18
         @req RF-OB_19
+        @req RF-OB_20
         """
-        return self.queryExecutor.mutate(CreateUserCmd(u))
+        if self.repo.username_exists(u.username):
+            raise UsernameAlreadyExistsError()
+
+        if not self.repo.email_domain_exists(u.email):
+            raise InvalidEmailFormatError()
+
+        if self.repo.email_exists(u.email):
+            raise EmailAlreadyExistsError()
+
+        if not self.repo.add_user(u):
+            raise UserCreationError()
+
+        return True
