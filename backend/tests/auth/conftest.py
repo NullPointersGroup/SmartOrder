@@ -1,3 +1,6 @@
+import os
+
+os.environ["DATABASE_URL"] = "sqlite://"
 from typing import Any, Generator
 from unittest.mock import MagicMock
 
@@ -9,7 +12,7 @@ from sqlmodel import Session, SQLModel
 from src.auth.schemas import User, UserRegistration
 from src.auth.UserService import UserService
 from src.db.dbConnection import get_conn
-from src.db.models import Utente
+from src.db.models import Conversazione, Messaggio, Utente, MittenteEnum
 from src.main import app
 
 
@@ -17,13 +20,15 @@ from src.main import app
 def mock_user() -> User:
     return User(username="testuser", password="testpassword")
 
-@pytest.fixture
-def mock_user_registration() -> UserRegistration:
-    return UserRegistration(username="testuser", password="testpassword", email="test@test", confirmPwd="testpassword")
 
 @pytest.fixture
-def mock_utente() -> Utente:
-    return Utente(username="testuser", password="testpassword", email="test@test", descrizione="test")
+def mock_user_registration() -> UserRegistration:
+    return UserRegistration(
+        username="testuser",
+        password="testpassword",
+        email="test@test",
+        confirmPwd="testpassword",
+    )
 
 
 @pytest.fixture
