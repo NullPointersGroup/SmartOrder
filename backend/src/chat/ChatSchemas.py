@@ -1,19 +1,9 @@
 from enum import Enum
+from src.chat.enums import SenderEnum, MeasureUnitEnum
 from typing import List
 
 from pydantic import BaseModel
 from sqlmodel import String
-
-
-class MeasureUnit(Enum):
-    COLLI = 1
-    CONFEZIONI = 2
-    PEZZI = 3
-
-
-class Sender(Enum):
-    CHATBOT = 1
-    USER = 2
 
 
 class Product(BaseModel):
@@ -21,19 +11,19 @@ class Product(BaseModel):
     qty: int
     name: str
     price: float
-    measure_unit: MeasureUnit
+    measure_unit: MeasureUnitEnum
 
 
 class Message(BaseModel):
     id_message: int
     content: str
-    sender: Sender
+    sender: SenderEnum
 
 
 class MessageRequest(BaseModel):
     username: str
     content: str
-    audioFile: str
+    audioFile: str | None = None
 
 
 class ChatRequest(BaseModel):
@@ -43,6 +33,11 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     messages: List[Message]
     id_conv: int
+
+
+class MessageResponse(BaseModel):
+    id_conv: int
+    message: Message
 
 
 class CartRequest(BaseModel):

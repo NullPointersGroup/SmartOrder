@@ -1,0 +1,12 @@
+from abc import ABC, abstractmethod
+from src.chat.ChatSchemas import Message
+
+
+class ChatRepoPort(ABC):
+    @abstractmethod
+    def get_messages(self, conv_id: int) -> list[Message]:
+        pass
+
+    @abstractmethod
+    def add_message(self, conv_id: int, text: str) -> bool:
+        pass

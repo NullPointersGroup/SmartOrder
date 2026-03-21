@@ -1,27 +1,19 @@
-from typing import Annotated, List
-from fastapi import Depends
-from sqlmodel import Session
-
-from src.chat.ChatSchemas import ChatResponse, MessageRequest, Message, Sender
-from .FaissMock import FaissMock
-from src.db.dbConnection import get_conn
-from src.db.queryExecutor import QueryExecutor
-from .GetAllMessagesCmd import GetAllMessagesCmd
+from src.chat.ChatSchemas import ChatResponse, MessageRequest, MessageResponse
+from src.chat.ports.ChatRepoPort import ChatRepoPort
+from src.chat.ports.LLMPort import LLMPort
 
 
 class ChatService:
-    def __init__(
-        self,
-        vec: Annotated[FaissMock, Depends(FaissMock)],
-        db: Session = Depends(get_conn),
-    ) -> None:
-        self.userCartCache = vec
-        self.queryExecutor = QueryExecutor(db)
+    def __init__(self, repo: ChatRepoPort, llm: LLMPort) -> None:
+        self.repo = repo
+        self.llm = llm
 
-    def get_all_messages(self, conv_id: int) -> list:
-        res = self.queryExecutor.execute(GetAllMessagesCmd(conv_id))
-        messages = [r.contenuto for r in res]
-        return messages
+    def get_all_messages(self, conv_id: int) -> ChatResponse:
+        messages = self.repo.get_messages(conv_id)
+        return ChatResponse(id_conv=conv_id, messages=messages)
 
-    def send_message(self, conv_id: int, message: MessageRequest):
-        pass
+    def send_message(self, conv_id: int, req: MessageRequest) -> MessageResponse:
+        self.repo.add_message(conv_id, req.content)
+        llm_response = self.llm.invoke_agent(req.content)
+        self.repo.add_message(conv_id, llm_response)
+        return MessageResponse(id_conv=conv_id, message=llm_response)
