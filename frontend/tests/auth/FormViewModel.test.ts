@@ -61,7 +61,7 @@ describe('useFormViewModel – handleBlur', () => {
 
     act(() => { result.current.handleBlur('username'); });
 
-    expect(model.validateField).toHaveBeenCalledWith('username', '');
+    expect(model.validateField).toHaveBeenCalledWith('username', '', expect.any(Object));
     expect(result.current.fieldErrors.username).toBe('Username troppo corto');
   });
 });

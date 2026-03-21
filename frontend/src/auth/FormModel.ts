@@ -32,12 +32,9 @@ export abstract class FormModel {
     return fieldErrors;
   }
 
-  validateField(key: string, value: string): string {
-    /**
-     * @brief valida il campo singolo
-     */
+  validateField(key: string, value: string, currentValues: Record<string, string> = {}): string {
     const allValues = Object.fromEntries(this.fields.map(f => [f.key, '']));
-    const errors = this.validate({ ...allValues, [key]: value });
+    const errors = this.validate({ ...allValues, ...currentValues, [key]: value });
     return errors[key] ?? '';
   }
 }

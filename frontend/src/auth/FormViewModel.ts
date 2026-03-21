@@ -40,7 +40,7 @@ export function useFormViewModel(
     /**
      * @brief ad ogni cambio setta i campi d'errore
      */
-    const error = model.validateField(key, values[key]);
+    const error = model.validateField(key, values[key], values);
     setFieldErrors(prev => ({ ...prev, [key]: error }));
   }, [model, values]);
 
