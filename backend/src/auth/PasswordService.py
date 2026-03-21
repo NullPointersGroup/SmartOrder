@@ -1,4 +1,5 @@
 import os
+import bcrypt
 
 from passlib.context import CryptContext
 
@@ -16,7 +17,7 @@ class PasswordService:
         @param password: la password in chiaro
         @return: l'hash della password
         """
-        return pwd_context.hash(password)
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
     @staticmethod
     def verify_password(plain: str, hashed: str | None) -> bool:
@@ -28,4 +29,4 @@ class PasswordService:
         """
         if hashed is None:
             return False
-        return pwd_context.verify(plain, hashed)
+        return bcrypt.checkpw(plain.encode(), hashed.encode())
