@@ -1,4 +1,4 @@
-from src.chat.ChatSchemas import ChatResponse, MessageRequest, MessageResponse
+from src.chat.ChatSchemas import ChatResponse, MessageRequest, MessageResponse, Message
 from src.chat.ports.ChatRepoPort import ChatRepoPort
 from src.chat.ports.LLMPort import LLMPort
 
@@ -16,4 +16,11 @@ class ChatService:
         self.repo.add_message(conv_id, req.content)
         llm_response = self.llm.invoke_agent(req.content)
         self.repo.add_message(conv_id, llm_response)
+        # TODO Qui bisogna passare Message al parametro message, al momento passa una stringa quindi da errore, come risolvere?
         return MessageResponse(id_conv=conv_id, message=llm_response)
+
+
+
+
+
+
