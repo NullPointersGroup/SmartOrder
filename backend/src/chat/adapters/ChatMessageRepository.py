@@ -1,5 +1,5 @@
 from typing import ClassVar, Optional
-from src.chat.enums import SenderEnum
+from src.enums import SenderEnum
 
 from sqlmodel import Field, SQLModel
 

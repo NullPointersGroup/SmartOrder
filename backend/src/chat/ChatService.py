@@ -1,5 +1,5 @@
 from src.chat.ChatSchemas import ChatResponse, MessageRequest, MessageResponse
-from src.chat.enums import SenderEnum
+from src.enums import SenderEnum
 from src.chat.ports.ChatRepoPort import ChatRepoPort
 from src.chat.ports.LLMPort import LLMPort
 

@@ -1,7 +1,7 @@
 from sqlmodel import Session, select
 
 from src.chat.adapters.ChatMessageRepository import ChatMessageRepository
-from src.chat.enums import SenderEnum
+from src.enums import SenderEnum
 
 
 class ChatRepository:

@@ -1,18 +1,7 @@
-from enum import Enum
-from src.chat.enums import SenderEnum, MeasureUnitEnum
+from src.enums import SenderEnum
 from typing import List
 
 from pydantic import BaseModel
-from sqlmodel import String
-
-
-class Product(BaseModel):
-    prod_id: int
-    qty: int
-    name: str
-    price: float
-    measure_unit: MeasureUnitEnum
-
 
 class Message(BaseModel):
     id_message: int
@@ -40,10 +29,3 @@ class MessageResponse(BaseModel):
     message: Message
 
 
-class CartRequest(BaseModel):
-    username: str
-
-
-class CartResponse(BaseModel):
-    username: str
-    products: List[Product]

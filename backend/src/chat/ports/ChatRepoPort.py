@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from src.chat.ChatSchemas import Message
-from src.chat.enums import SenderEnum
+from src.enums import SenderEnum
 
 
 class ChatRepoPort(ABC):
