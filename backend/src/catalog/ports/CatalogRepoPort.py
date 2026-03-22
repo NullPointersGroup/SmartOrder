@@ -8,7 +8,7 @@ class CatalogRepoPort(ABC):
     
     @abstractmethod
     # Siamo sicuri che una list sia abbastanza efficiente per quel mega-catalogo? Forse altre strutture dati sono da preferire
-    def get_full_catalog() -> list[Product]:
+    def get_full_catalog(self) -> list[Product]:
         pass
 
 
