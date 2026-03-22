@@ -15,5 +15,10 @@ class ChatRepoAdapter(ChatRepoPort):
             for r in rows
         ]
 
-    def add_message(self, conv_id: int, text: str) -> bool:
-        return self.repo.add_message(conv_id, text, SenderEnum.User)
+    def add_message(self, conv_id: int, text: str, sender: SenderEnum) -> Message:
+        row = self.repo.add_message(conv_id, text, sender)
+        return Message(
+            id_message=row.id_messaggio,
+            content=row.contenuto,
+            sender=row.mittente,
+        )

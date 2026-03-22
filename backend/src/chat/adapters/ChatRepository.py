@@ -1,8 +1,7 @@
 from sqlmodel import Session, select
 
-from src.chat.ChatSchemas import Sender
-from src.chat.adapters import ChatMessageRepository
-from src.chat.adapters.ChatMessageRepository import ChatMessageRepository, MittenteEnum
+from src.chat.adapters.ChatMessageRepository import ChatMessageRepository
+from src.chat.enums import SenderEnum
 
 
 class ChatRepository:
@@ -15,9 +14,9 @@ class ChatRepository:
         )
         return list(self.db.exec(stmt).all())
 
-    def add_message(self, conv_id: int, text: str, sender: MittenteEnum) -> bool:
+    def add_message(self, conv_id: int, text: str, sender: SenderEnum) -> ChatMessageRepository:
         msg = ChatMessageRepository(id_conv=conv_id, contenuto=text, mittente=sender)
         self.db.add(msg)
         self.db.commit()
-        ## TODO gestire errore nel commit
-        return True
+        self.db.refresh(msg)
+        return msg

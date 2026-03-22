@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from src.chat.ChatSchemas import Message
+from src.chat.enums import SenderEnum
 
 
 class ChatRepoPort(ABC):
@@ -8,5 +9,5 @@ class ChatRepoPort(ABC):
         pass
 
     @abstractmethod
-    def add_message(self, conv_id: int, text: str) -> bool:
+    def add_message(self, conv_id: int, text: str, sender: SenderEnum) -> Message:
         pass
