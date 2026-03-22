@@ -1,3 +1,4 @@
+from src.catalog.CatalogSchemas import CatalogProduct 
 from src.catalog.ports.CatalogRepoPort import CatalogRepoPort
 from src.catalog.CatalogSchemas import Product
 from src.enums import MeasureUnitEnum
