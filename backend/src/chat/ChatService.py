@@ -15,6 +15,6 @@ class ChatService:
 
     def send_message(self, conv_id: int, req: MessageRequest) -> MessageResponse:
         self.repo.add_message(conv_id, req.content, SenderEnum.User)
-        llm_response = self.llm.invoke_agent(req.content)
-        bot_message = self.repo.add_message(conv_id, llm_response, SenderEnum.ChatBot)
-        return MessageResponse(id_conv=conv_id, message=bot_message)
+        llm_text = self.llm.invoke_agent(req.content)
+        llm_message=self.repo.add_message(conv_id, llm_text, SenderEnum.ChatBot)
+        return MessageResponse(id_conv=conv_id, message=llm_message)
