@@ -1,37 +1,69 @@
 import os
 
+
+
 os.environ["DATABASE_URL"] = "sqlite://"
 from unittest.mock import MagicMock
 
 import pytest
 from sqlmodel import Session
-from src.db.models import Conversazione, Messaggio, Utente, MittenteEnum
+from src.db.models import Conversazione, Utente
+from src.chat.adapters.ChatMessageRepository import ChatMessageRepository 
+from src.chat.adapters.ChatRepoAdapter import ChatRepoAdapter
+from src.chat.adapters.ChatRepository import ChatRepository
+from src.chat.ChatService import ChatService
+from src.enums import SenderEnum
 
+
+
+@pytest.fixture
+def mock_repo():
+    return MagicMock()
+
+@pytest.fixture
+def mock_llm():
+    return MagicMock()
+
+@pytest.fixture
+def chat_service(mock_repo, mock_llm):
+    return ChatService(repo=mock_repo, llm=mock_llm)
 
 @pytest.fixture
 def mock_conversazione(mock_utente: Utente) -> Conversazione:
     return Conversazione(id_conv=1, username=mock_utente.username)
 
+@pytest.fixture
+def adapter(mock_repo):
+    return ChatRepoAdapter(repo=mock_repo)
 
 @pytest.fixture
-def mock_messaggi(mock_conversazione: Conversazione) -> list[Messaggio]:
+def mock_db():
+    return MagicMock()
+
+@pytest.fixture
+def chat_repository(mock_db):
+    return ChatRepository(db=mock_db)
+
+
+@pytest.fixture
+def mock_messaggi(mock_conversazione: Conversazione) -> list[ChatMessageRepository]:
     return [
-        Messaggio(
+        ChatMessageRepository(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=1,
-            mittente=MittenteEnum.utente,
+            mittente=SenderEnum.User,
             contenuto="Primo messaggio da Utente",
         ),
-        Messaggio(
+        ChatMessageRepository(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=2,
-            mittente=MittenteEnum.chatbot,
+            mittente=SenderEnum.ChatBot,
             contenuto="Secondo messaggio da Chatbot",
         ),
-        Messaggio(
+        ChatMessageRepository(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=3,
-            mittente=MittenteEnum.utente,
+            mittente=SenderEnum.User,
             contenuto="Terzo messaggio da Utente",
         ),
     ]
@@ -41,7 +73,7 @@ def mock_messaggi(mock_conversazione: Conversazione) -> list[Messaggio]:
 def mock_session_with_messages(
     mock_utente: Utente,
     mock_conversazione: Conversazione,
-    mock_messaggi: list[Messaggio],
+    mock_messaggi: list[ChatMessageRepository],
 ) -> MagicMock:
     session = MagicMock()
     session.exec.return_value.all.return_value = mock_messaggi
@@ -54,7 +86,7 @@ def db_session_with_messages(
     db_session: Session,
     mock_utente: Utente,
     mock_conversazione: Conversazione,
-    mock_messaggi: list[Messaggio],
+    mock_messaggi: list[ChatMessageRepository],
 ) -> Session:
     db_session.add(mock_utente)
     db_session.add(mock_conversazione)

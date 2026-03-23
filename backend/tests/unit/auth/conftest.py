@@ -12,7 +12,7 @@ from sqlmodel import Session, SQLModel
 from src.auth.schemas import User, UserRegistration
 from src.auth.UserService import UserService
 from src.db.dbConnection import get_conn
-from src.db.models import Conversazione, Messaggio, Utente, MittenteEnum
+from src.db.models import Utente 
 from src.main import app
 
 

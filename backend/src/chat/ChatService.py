@@ -18,3 +18,4 @@ class ChatService:
         llm_text = self.llm.invoke_agent(req.content)
         llm_message=self.repo.add_message(conv_id, llm_text, SenderEnum.ChatBot)
         return MessageResponse(id_conv=conv_id, message=llm_message)
+
