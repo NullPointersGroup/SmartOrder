@@ -8,7 +8,6 @@ from src.auth.UserService import UserService
 from src.auth.UserRepoAdapter import UserRepoAdapter
 from src.auth.api import get_user_service, get_current_user
 
-from fastapi.testclient import TestClient
 from src.auth.schemas import UserRegistrationSchema
 
 VALID_USER = {
@@ -20,7 +19,7 @@ VALID_USER = {
 
 
 def test_registration_success(
-    client: TestClient, mock_user_service: MagicMock, mock_user_registration: UserRegistrationSchema
+    client, mock_user_service: MagicMock, mock_user_registration: UserRegistrationSchema
 ) -> None:
     mock_user_service.register_user = MagicMock(return_value=True)
 
@@ -39,7 +38,7 @@ def test_registration_success(
     mock_user_service.register_user.assert_called_once()
 
 
-def test_register_user_twice(client: TestClient, mock_user_service: MagicMock) -> None:
+def test_register_user_twice(client, mock_user_service: MagicMock) -> None:
     from src.auth.exceptions import UsernameAlreadyExistsError
     mock_user_service.register_user = MagicMock(
         side_effect=[True, UsernameAlreadyExistsError()]
@@ -58,12 +57,12 @@ def test_register_user_twice(client: TestClient, mock_user_service: MagicMock) -
     assert response2.json()["detail"]["ok"] is False
 
 
-def test_registration_missing_fields(client: TestClient) -> None:
+def test_registration_missing_fields(client) -> None:
     response = client.post("/auth/register", json={})
     assert response.status_code == 422
 
 
-def test_login_success(client: TestClient, mock_user_service: MagicMock) -> None:
+def test_login_success(client, mock_user_service: MagicMock) -> None:
     mock_user_service.check_user.return_value = True
 
     response = client.post(
@@ -74,7 +73,7 @@ def test_login_success(client: TestClient, mock_user_service: MagicMock) -> None
     mock_user_service.check_user.assert_called_once()
 
 
-def test_login_failed(client: TestClient, mock_user_service: MagicMock) -> None:
+def test_login_failed(client, mock_user_service: MagicMock) -> None:
     mock_user_service.check_user.return_value = False
 
     response = client.post(
@@ -85,12 +84,12 @@ def test_login_failed(client: TestClient, mock_user_service: MagicMock) -> None:
     mock_user_service.check_user.assert_called_once()
 
 
-def test_login_missing_fields(client: TestClient) -> None:
+def test_login_missing_fields(client) -> None:
     response = client.post("/auth/login", json={})
     assert response.status_code == 422
 
 
-def test_register_invalid_email_domain(client: TestClient, mock_user_service: MagicMock) -> None:
+def test_register_invalid_email_domain(client, mock_user_service: MagicMock) -> None:
     from src.auth.exceptions import InvalidEmailFormatError
     mock_user_service.register_user = MagicMock(side_effect=InvalidEmailFormatError())
 
@@ -100,7 +99,7 @@ def test_register_invalid_email_domain(client: TestClient, mock_user_service: Ma
     assert "email" in response.json()["detail"]["errors"][0].lower()
 
 
-def test_register_email_already_exists(client: TestClient, mock_user_service: MagicMock) -> None:
+def test_register_email_already_exists(client, mock_user_service: MagicMock) -> None:
     from src.auth.exceptions import EmailAlreadyExistsError
     mock_user_service.register_user = MagicMock(side_effect=EmailAlreadyExistsError())
 
@@ -110,7 +109,7 @@ def test_register_email_already_exists(client: TestClient, mock_user_service: Ma
     assert "Email" in response.json()["detail"]["errors"][0]
 
 
-def test_register_user_creation_error(client: TestClient, mock_user_service: MagicMock) -> None:
+def test_register_user_creation_error(client, mock_user_service: MagicMock) -> None:
     from src.auth.exceptions import UserCreationError
     mock_user_service.register_user = MagicMock(side_effect=UserCreationError())
 

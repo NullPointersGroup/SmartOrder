@@ -1,7 +1,5 @@
 import os
 
-
-
 os.environ["DATABASE_URL"] = "sqlite://"
 from unittest.mock import MagicMock
 
