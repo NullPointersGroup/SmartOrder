@@ -1,11 +1,11 @@
 from unittest.mock import MagicMock
 
 from fastapi.testclient import TestClient
-from src.auth.schemas import UserRegistration
+from src.auth.schemas import UserRegistrationSchema
 
 
 def test_registration_success(
-    client: TestClient, mock_user_service: MagicMock, mock_user_registration: UserRegistration
+    client: TestClient, mock_user_service: MagicMock, mock_user_registration: UserRegistrationSchema
 ) -> None:
     # mock_user_service.check_user.return_value = True
 

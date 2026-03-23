@@ -4,18 +4,6 @@ from src.chat.ChatService import ChatService
 from src.chat.ChatSchemas import Message, MessageRequest
 from src.enums import SenderEnum
 
-@pytest.fixture
-def mock_repo():
-    return MagicMock()
-
-@pytest.fixture
-def mock_llm():
-    return MagicMock()
-
-@pytest.fixture
-def chat_service(mock_repo, mock_llm):
-    return ChatService(repo=mock_repo, llm=mock_llm)
-
 def test_send_message_returns_llm_response(chat_service, mock_repo ,mock_llm):
     mock_llm.invoke_agent.return_value= "LLM Response"
     mock_repo.add_message.return_value = Message(

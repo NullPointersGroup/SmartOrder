@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel
-from src.auth.schemas import User, UserRegistration
+from src.auth.schemas import UserSchema, UserRegistrationSchema
 from src.auth.UserService import UserService
 from src.db.dbConnection import get_conn
 from src.db.models import Utente 
@@ -17,13 +17,13 @@ from src.main import app
 
 
 @pytest.fixture
-def mock_user() -> User:
-    return User(username="testuser", password="testpassword")
+def mock_user() -> UserSchema:
+    return UserSchema(username="testuser", password="testpassword")
 
 
 @pytest.fixture
-def mock_user_registration() -> UserRegistration:
-    return UserRegistration(
+def mock_user_registration() -> UserRegistrationSchema:
+    return UserRegistrationSchema(
         username="testuser",
         password="testpassword",
         email="test@test",
