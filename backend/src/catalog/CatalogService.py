@@ -1,4 +1,4 @@
-from src.chat.ports.ChatRepoPort import ChatRepoPort 
+from src.chat.ports import ChatRepoPort, LLMPort
 
 
 class CatalogService:

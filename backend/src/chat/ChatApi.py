@@ -27,6 +27,6 @@ def get_all_messages(conv_id: int, chat_service: ChatServiceDep) -> ChatResponse
 
 
 @router.post("/{conv_id}", response_model=MessageResponse)
-def send_message(conv_id: int, message: MessageRequest, chat_service: ChatServiceDep)->MessageResponse:
+def send_message(conv_id: int, message: MessageRequest, chat_service: ChatServiceDep) -> MessageResponse:
     return chat_service.send_message(conv_id, message)
 

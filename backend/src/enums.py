@@ -8,5 +8,5 @@ class SenderEnum(str, Enum):
 
 class MeasureUnitEnum(Enum):
     Colli = 1
-    Confezini = 2
+    Confezioni = 2
     Pezzi = 3
