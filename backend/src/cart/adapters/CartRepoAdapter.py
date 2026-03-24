@@ -23,7 +23,6 @@ class CartRepoAdapter(CartRepoPort):
 
     def add_product(self, prod_id: str, username: str, qty: int) -> CartProduct:
         row = self.repo.add_product(prod_id, username, qty)
-        ## TODO gestione row vuota per prodotto non presente nel database
         return CartProduct(
             prod_id=row.id_prod,
             name=row.prod_descr,

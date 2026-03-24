@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from typing import List
 
+from backend.src.chat.exceptions import ConversationNotFoundException
 from src.chat.ChatSchemas import ChatResponse, MessageRequest, MessageResponse
 from src.chat.ChatService import ChatService
 from src.chat.adapters.LLMAdapter import LLMAdapter
@@ -24,9 +25,11 @@ ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]
 
 @router.get("/{conv_id}/all", response_model=ChatResponse)
 def get_all_messages(conv_id: int, chat_service: ChatServiceDep) -> ChatResponse:
-    ## TODO Gestione errori tramite HTTPEXception e custom exceptions
-    res = chat_service.get_all_messages(conv_id)
-    return ChatResponse(messages=res, id_conv=conv_id)
+    try:
+        res = chat_service.get_all_messages(conv_id)
+        return ChatResponse(messages=res, id_conv=conv_id)
+    except ConversationNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.post("/{conv_id}", response_model=MessageResponse)
