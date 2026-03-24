@@ -16,5 +16,7 @@ class Utente(SQLModel, table=True):
 
 class Conversazione(SQLModel, table=True):
     __tablename__: ClassVar[str] = "conversazioni"
-    id_conv: int = Field(default=None, primary_key=True)
+    id_conv: int = Field(
+        default=None, primary_key=True, sa_column_kwargs={"autoincrement": True}
+    )
     username: Optional[str] = Field(default=None, max_length=24)

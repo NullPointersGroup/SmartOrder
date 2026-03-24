@@ -1,9 +1,9 @@
 from sqlmodel import Session, col, delete, select, update
-from backend.src.cart.exceptions import (
+from src.cart.exceptions import (
     ProductNotFoundException,
     ProductNotInCartException,
 )
-from backend.src.enums import CartUpdateOperation
+from src.enums import CartUpdateOperation
 from src.cart.adapters.UserCartRepository import UserCartRepository
 from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
 from src.cart.adapters.CartProductRepository import CartProductRepository

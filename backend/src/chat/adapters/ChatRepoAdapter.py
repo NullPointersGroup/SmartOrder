@@ -22,3 +22,13 @@ class ChatRepoAdapter(ChatRepoPort):
             content=row.contenuto,
             sender=row.mittente,
         )
+
+    def conversation_exist(self, conv_id: int) -> bool:
+        row = self.repo.get_conversation(conv_id)
+        if row:
+            return True
+        else:
+            return False
+
+    def create_conversation(self, username: str) -> None:
+        self.repo.create_conversation(username)

@@ -1,4 +1,4 @@
-from src.cart.CartSchemas import CartProduct, CartResponse, CartProductResponse
+from src.cart.CartSchemas import CartProduct
 from src.cart.ports.CartRepoPort import CartRepoPort
 from src.enums import CartUpdateOperation
 
