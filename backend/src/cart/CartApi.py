@@ -32,8 +32,8 @@ CartServiceDep = Annotated[CartService, Depends(get_cart_service)]
 
 @router.get("/{username}", response_model=CartResponse)
 def get_user_cart(username: str, cart_service: CartServiceDep) -> CartResponse:
-    res = cart_service.get_cart_products(username)
-    return res
+    products = cart_service.get_cart_products(username)
+    return CartResponse(products=products, username=username)
 
 
 @router.post("/{username}", response_model=CartProductResponse)
@@ -41,7 +41,10 @@ def add_product_to_cart(
     username: str, request: AddProductRequest, cart_service: CartService
 ) -> CartProductResponse:
     try:
-        return cart_service.add_product_to_cart(username, request.prod_id, request.qty)
+        product = cart_service.add_product_to_cart(
+            username, request.prod_id, request.qty
+        )
+        return CartProductResponse(product=product, username=username)
     except ProductNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -51,7 +54,8 @@ def remove_product_from_cart(
     username: str, request: RemoveProductRequest, cart_service: CartServiceDep
 ) -> CartProductResponse:
     try:
-        return cart_service.remove_product_from_cart(username, request.prod_id)
+        product = cart_service.remove_product_from_cart(username, request.prod_id)
+        return CartProductResponse(product=product, username=username)
     except ProductNotInCartException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -61,8 +65,9 @@ def update_product_quantity(
     username: str, request: UpdateProductRequest, cart_service: CartServiceDep
 ) -> CartProductResponse:
     try:
-        return cart_service.update_cart_quantity(
+        product = cart_service.update_cart_quantity(
             username, request.prod_id, request.qty, request.operation
         )
+        return CartProductResponse(product=product, username=username)
     except ProductNotInCartException as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=str(e))
