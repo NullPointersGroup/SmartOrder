@@ -1,4 +1,4 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, col
 from sqlalchemy import insert, delete
 
 from src.auth.models import UserRegistration
@@ -54,5 +54,5 @@ class UserRepository:
         @return True se l'operazione ha successo
         """
         return self.executor.mutate_raw(
-            delete(Utente).where(Utente.username == username) #type: ignore
+            delete(Utente).where(col(Utente.username) == username)
         )
