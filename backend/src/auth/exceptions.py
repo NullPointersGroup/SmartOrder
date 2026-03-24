@@ -42,3 +42,18 @@ class UserCreationError(Exception):
     """
     def __init__(self) -> None :
         super().__init__("Errore durante la registrazione")
+
+class UserNotFoundError(ValueError):
+    """
+    @brief Utente non trovato nel sistema
+    """
+    def __init__(self) -> None:
+        super().__init__("Utente non trovato")
+        
+class UserDeletionError(ValueError):
+    """
+    @brief Errore nella cancellazione dell'utente
+    """
+    def __init__(self) -> None:
+        super().__init__("Errore nella cancellazione dell'utente")
+    

@@ -4,11 +4,13 @@ from typing import cast
 import pytest
 from fastapi import HTTPException
 
+from fastapi.testclient import TestClient
+
 from src.auth.UserService import UserService
 from src.auth.UserRepoAdapter import UserRepoAdapter
 from src.auth.api import get_user_service, get_current_user
 
-from src.auth.exceptions import InvalidCredentialsError
+from src.auth.exceptions import InvalidCredentialsError, UserDeletionError, UserNotFoundError
 
 from src.auth.schemas import UserRegistrationSchema
 
@@ -166,3 +168,44 @@ class TestGetCurrentUser:
             with pytest.raises(HTTPException) as exc:
                 get_current_user("token.non.valido")
         assert exc.value.detail == "Token non valido"
+
+# ---------------------------------------------------------------------------
+# delete_account
+# ---------------------------------------------------------------------------
+
+class TestDeleteAccount:
+    def test_delete_account_success(self, client: TestClient, mock_user_service: MagicMock):
+        # Configura il mock per la cancellazione riuscita
+        mock_user_service.delete_user.return_value = None  # delete_user non deve restituire nulla
+
+        response = client.delete("/auth/account")
+        resp_json = response.json()
+
+        # Verifica risposta e chiamata del mock
+        print(response.status_code, response.text)
+        assert response.status_code == 200
+        assert resp_json["ok"] is True
+        assert resp_json["errors"] == []
+        mock_user_service.delete_user.assert_called_once_with("testuser")
+
+    def test_delete_account_user_not_found(self, client, mock_user_service):
+        mock_user_service.delete_user.side_effect = UserNotFoundError()
+
+        response = client.delete("/auth/account")
+        resp_json = response.json()["detail"]
+
+        assert response.status_code == 404
+        assert resp_json["ok"] is False
+        assert "Utente non trovato" in resp_json["errors"]
+        mock_user_service.delete_user.assert_called_once_with("testuser")
+
+    def test_delete_account_deletion_error(self, client, mock_user_service):
+        mock_user_service.delete_user.side_effect = UserDeletionError()
+
+        response = client.delete("/auth/account")
+        resp_json = response.json()["detail"]
+
+        assert response.status_code == 500
+        assert resp_json["ok"] is False
+        assert "Errore durante la cancellazione" in resp_json["errors"]
+        mock_user_service.delete_user.assert_called_once_with("testuser")

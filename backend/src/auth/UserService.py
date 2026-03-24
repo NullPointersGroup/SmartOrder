@@ -8,6 +8,8 @@ from src.auth.exceptions import (
     EmailAlreadyExistsError,
     UserCreationError,
     InvalidCredentialsError,
+    UserNotFoundError,
+    UserDeletionError
 )
 
 
@@ -68,3 +70,16 @@ class UserService:
 
         if not self.repo.add_user(u):
             raise UserCreationError()
+        
+    def delete_user(self, username: str) -> None:
+        """
+        @brief Elimina un utente autenticato
+        @param username: username dell'utente da eliminare
+        """
+        stored = self.repo.find_by_username(username)
+
+        if stored is None:
+            raise UserNotFoundError()
+
+        if not self.repo.delete_user(username):
+            raise UserDeletionError()

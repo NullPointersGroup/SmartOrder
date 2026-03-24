@@ -23,3 +23,7 @@ class IUserRepoPort(ABC):
     @abstractmethod
     def add_user(self, u: UserRegistration) -> bool:
         """@brief Inserisce un nuovo utente"""
+        
+    @abstractmethod
+    def delete_user(self, username: str) -> bool:
+        """@brief Elimina un utente dal DB"""

@@ -9,6 +9,8 @@ from src.auth.exceptions import (
     InvalidEmailFormatError,
     EmailAlreadyExistsError,
     UserCreationError,
+    UserNotFoundError,
+    UserDeletionError
 )
 from src.db.models import Utente
 
@@ -70,7 +72,7 @@ class TestRegisterUser:
         repo.email_exists.return_value = False
         repo.add_user.return_value = True
         email_validator.domain_exists.return_value = True
-        service.register_user(valid_registration)  # nessuna eccezione
+        service.register_user(valid_registration)
 
     def test_raises_when_username_exists(self, service, repo, valid_registration):
         repo.username_exists.return_value = True
@@ -97,6 +99,23 @@ class TestRegisterUser:
         repo.add_user.return_value = False
         with pytest.raises(UserCreationError):
             service.register_user(valid_registration)
+            
+class TestDeleteUser:
+    def test_succeeds_when_user_exists(self, service, repo, mock_utente):
+        repo.find_by_username.return_value = mock_utente
+        repo.delete_user.return_value = True
+        service.delete_user("testuser")
+
+    def test_raises_when_user_not_found(self, service, repo):
+        repo.find_by_username.return_value = None
+        with pytest.raises(UserNotFoundError):
+            service.delete_user("testuser")
+
+    def test_raises_when_delete_fails(self, service, repo, mock_utente):
+        repo.find_by_username.return_value = mock_utente
+        repo.delete_user.return_value = False
+        with pytest.raises(UserDeletionError):
+            service.delete_user("testuser")
 
 
 from unittest.mock import patch

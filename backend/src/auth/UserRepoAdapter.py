@@ -42,3 +42,6 @@ class UserRepoAdapter(IUserRepoPort):
         @req RF-OB_18
         """
         return self.repo.save(u)
+    
+    def delete_user(self, username: str) -> bool:
+        return self.repo.delete(username)

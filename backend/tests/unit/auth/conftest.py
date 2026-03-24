@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
-from src.auth.api import get_user_service
+from src.auth.api import get_user_service, get_current_user
 from src.auth.schemas import UserSchema, UserRegistrationSchema
 from src.auth.UserService import UserService
 from src.db.models import Utente 
@@ -41,6 +41,7 @@ def mock_user_service() -> MagicMock:
 @pytest.fixture
 def client(mock_user_service: MagicMock):
     app.dependency_overrides[get_user_service] = lambda: mock_user_service
+    app.dependency_overrides[get_current_user] = lambda: "testuser"
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()

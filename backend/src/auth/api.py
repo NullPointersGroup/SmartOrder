@@ -14,7 +14,9 @@ from src.auth.exceptions import (
     InvalidEmailFormatError,
     EmailAlreadyExistsError,
     UserCreationError,
-    InvalidCredentialsError
+    InvalidCredentialsError,
+    UserNotFoundError,
+    UserDeletionError
 )
 from src.db.dbConnection import get_conn
 from src.auth.UserRepoAdapter import UserRepoAdapter
@@ -131,4 +133,37 @@ async def register(payload: UserRegistrationSchema, service: UserServiceDep) -> 
         raise HTTPException(
             status_code=500,
             detail={"ok": False, "errors": ["Errore durante la registrazione"]},
+        )
+        
+UserServiceCurrentUser = Annotated[str, Depends(get_current_user)]
+
+@router.delete(
+    "/account",
+    status_code=200,
+    responses={
+        401: {"model": ErrorResponse, "description": "Token non valido"},
+        404: {"model": ErrorResponse, "description": "Utente non trovato"},
+        500: {"model": ErrorResponse, "description": "Errore durante la cancellazione"},
+    },
+)
+def delete_account(
+    service: UserServiceDep,
+    current_user: UserServiceCurrentUser
+) -> AuthResponse:
+    """
+    @brief Cancellazione account utente autenticato
+    """
+    try:
+        service.delete_user(current_user)
+        return AuthResponse(ok=True, errors=[])
+
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail={"ok": False, "errors": ["Utente non trovato"]},
+        )
+    except UserDeletionError:
+        raise HTTPException(
+            status_code=500,
+            detail={"ok": False, "errors": ["Errore durante la cancellazione"]},
         )

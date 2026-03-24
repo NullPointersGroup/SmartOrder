@@ -89,3 +89,22 @@ class TestAddUser:
         with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed") as mock_hash:
             repo.add_user(valid_registration)
             mock_hash.assert_called_once_with(valid_registration.password)
+            
+class TestDeleteUser:
+    def test_returns_true_on_success(self, repo, db):
+        db.exec.return_value
+        assert repo.delete_user("testuser") is True
+
+    def test_returns_false_on_exception(self, repo, db):
+        db.exec.side_effect = Exception("db error")
+        assert repo.delete_user("testuser") is False
+
+    def test_rollback_on_exception(self, repo, db):
+        db.exec.side_effect = Exception("db error")
+        repo.delete_user("testuser")
+        db.rollback.assert_called_once()
+        db.commit.assert_not_called()
+
+    def test_commits_on_success(self, repo, db):
+        repo.delete_user("testuser")
+        db.commit.assert_called_once()
