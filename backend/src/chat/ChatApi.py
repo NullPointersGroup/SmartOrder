@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from typing import List
 
-from backend.src.chat.exceptions import ConversationNotFoundException
+from src.chat.exceptions import ConversationNotFoundException
 from src.chat.ChatSchemas import ChatResponse, MessageRequest, MessageResponse
 from src.chat.ChatService import ChatService
 from src.chat.adapters.LLMAdapter import LLMAdapter

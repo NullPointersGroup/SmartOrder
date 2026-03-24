@@ -1,6 +1,10 @@
+from unittest import mock
 from unittest.mock import MagicMock
 
+from fastapi import HTTPException
+import pytest
 from sqlmodel import Session
+from src.chat.exceptions import ConversationNotFoundException
 from src.chat.ChatApi import (
     get_all_messages,
     send_message,
@@ -40,3 +44,13 @@ def test_send_message_unit():
     )
     assert isinstance(result, MessageResponse)
     mock_service.send_message.assert_called_once_with(1, "test", "Test message", None)
+
+
+def test_get_all_messages_from_inexistent_conv():
+    mock_service = MagicMock()
+    mock_service.get_all_messages.side_effect = ConversationNotFoundException(1)
+
+    with pytest.raises(HTTPException) as info:
+        get_all_messages(conv_id=1, chat_service=mock_service)
+    assert info.value.status_code == 404
+    assert "1" in info.value.detail
