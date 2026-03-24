@@ -14,8 +14,11 @@ from src.auth.exceptions import (
     InvalidEmailFormatError,
     EmailAlreadyExistsError,
     UserCreationError,
+    InvalidCredentialsError
 )
 from src.db.dbConnection import get_conn
+from src.auth.UserRepoAdapter import UserRepoAdapter
+from src.auth.EmailValidationAdapter import EmailValidationAdapter
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -31,7 +34,10 @@ class ErrorResponse(BaseModel):
 
 
 def get_user_service(db: Session = Depends(get_conn)) -> UserService:
-    return UserService(UserRepoAdapter(db))
+    return UserService(
+        repo=UserRepoAdapter(db),
+        email_validator=EmailValidationAdapter(),
+    )
 
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
@@ -52,20 +58,24 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
 )
 def login(payload: UserSchema, service: UserServiceDep) -> LoginResponse:
     """
-    @brief Login utente
     @req RF-OB_24
     @req RF-OB_26
     @req RF-OB_28
     """
     u = User(username=payload.username, password=payload.password)
 
-    if service.check_user(u):
-        return LoginResponse(ok=True, errors=[], token=TokenService.create_token(payload.username))
-
-    raise HTTPException(
-        status_code=400,
-        detail={"ok": False, "errors": ["Username o password errati"]},
-    )
+    try:
+        username = service.check_user(u)
+        return LoginResponse(
+            ok=True,
+            errors=[],
+            token=TokenService.create_token(username),  # usa il dato dal DB
+        )
+    except InvalidCredentialsError:
+        raise HTTPException(
+            status_code=400,
+            detail={"ok": False, "errors": ["Username o password errati"]},
+        )
 
 
 @router.post(
