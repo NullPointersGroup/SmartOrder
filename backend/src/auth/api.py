@@ -69,7 +69,7 @@ def login(payload: UserSchema, service: UserServiceDep) -> LoginResponse:
         return LoginResponse(
             ok=True,
             errors=[],
-            token=TokenService.create_token(username),  # usa il dato dal DB
+            token=TokenService.create_token(username),
         )
     except InvalidCredentialsError:
         raise HTTPException(

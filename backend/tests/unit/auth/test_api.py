@@ -8,6 +8,8 @@ from src.auth.UserService import UserService
 from src.auth.UserRepoAdapter import UserRepoAdapter
 from src.auth.api import get_user_service, get_current_user
 
+from src.auth.exceptions import InvalidCredentialsError
+
 from src.auth.schemas import UserRegistrationSchema
 
 VALID_USER = {
@@ -63,18 +65,20 @@ def test_registration_missing_fields(client) -> None:
 
 
 def test_login_success(client, mock_user_service: MagicMock) -> None:
-    mock_user_service.check_user.return_value = True
+    mock_user_service.check_user.return_value = "testuser"  # ritorna lo username
 
     response = client.post(
         "/auth/login", json={"username": "testuser", "password": "testpassword"}
     )
 
     assert response.status_code == 200
+    assert response.json()["ok"] is True
+    assert response.json()["token"] is not None
     mock_user_service.check_user.assert_called_once()
 
 
 def test_login_failed(client, mock_user_service: MagicMock) -> None:
-    mock_user_service.check_user.return_value = False
+    mock_user_service.check_user.side_effect = InvalidCredentialsError()
 
     response = client.post(
         "/auth/login", json={"username": "testuser", "password": "wrongpassword"}
