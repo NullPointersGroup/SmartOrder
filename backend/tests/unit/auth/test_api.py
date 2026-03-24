@@ -153,18 +153,18 @@ class TestGetUserService:
 
 class TestGetCurrentUser:
     def test_valid_token_returns_username(self):
-        with patch("src.auth.api.TokenService.decode_token", return_value="testuser"):
+        with patch("src.auth.api.TokenUtility.decode_token", return_value="testuser"):
             result = get_current_user("valid.token.here")
         assert result == "testuser"
 
     def test_invalid_token_raises_401(self):
-        with patch("src.auth.api.TokenService.decode_token", return_value=None):
+        with patch("src.auth.api.TokenUtility.decode_token", return_value=None):
             with pytest.raises(HTTPException) as exc:
                 get_current_user("token.non.valido")
         assert exc.value.status_code == 401
 
     def test_invalid_token_detail_message(self):
-        with patch("src.auth.api.TokenService.decode_token", return_value=None):
+        with patch("src.auth.api.TokenUtility.decode_token", return_value=None):
             with pytest.raises(HTTPException) as exc:
                 get_current_user("token.non.valido")
         assert exc.value.detail == "Token non valido"

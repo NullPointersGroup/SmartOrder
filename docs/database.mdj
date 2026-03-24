@@ -1737,7 +1737,8 @@
 							},
 							"name": "email",
 							"type": "VARCHAR",
-							"length": "255"
+							"length": "255",
+							"unique": true
 						},
 						{
 							"_type": "ERDColumn",

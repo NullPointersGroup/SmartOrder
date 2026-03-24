@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from sqlmodel import Session
-from src.auth.TokenService import TokenService
+from src.auth.TokenUtility import TokenUtility
 from src.auth.UserService import UserService
 from src.auth.UserRepoAdapter import UserRepoAdapter
 from src.auth.schemas import AuthResponse, UserSchema, UserRegistrationSchema
@@ -48,10 +48,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
-    username = TokenService.decode_token(token)
+    username = TokenUtility.decode_token(token)
     if username is None:
         raise HTTPException(status_code=401, detail="Token non valido")
-    return username
+    return str(username)
 
 
 @router.post(
@@ -71,7 +71,7 @@ def login(payload: UserSchema, service: UserServiceDep) -> LoginResponse:
         return LoginResponse(
             ok=True,
             errors=[],
-            token=TokenService.create_token(username),
+            token=TokenUtility.create_token(username),
         )
     except InvalidCredentialsError:
         raise HTTPException(

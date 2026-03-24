@@ -2,7 +2,7 @@ from sqlmodel import Session, select, col
 from sqlalchemy import insert, delete
 
 from src.auth.models import UserRegistration
-from src.auth.PasswordService import PasswordService
+from src.auth.PasswordUtility import PasswordUtility
 from src.db.models import Utente
 from src.db.queryExecutor import QueryExecutor
 
@@ -43,7 +43,7 @@ class UserRepository:
             insert(Utente).values(
                 username=u.username,
                 descrizione="CLIENTE",
-                password=PasswordService.hash_password(u.password),
+                password=PasswordUtility.hash_password(u.password),
                 email=u.email,
             )
         )

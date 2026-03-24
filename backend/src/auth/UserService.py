@@ -1,7 +1,7 @@
 from src.auth.models import User, UserRegistration
 from src.auth.IUserRepoPort import IUserRepoPort
 from src.auth.IEmailValidationPort import IEmailValidationPort
-from src.auth.PasswordService import PasswordService
+from src.auth.PasswordUtility import PasswordUtility
 from src.auth.exceptions import (
     UsernameAlreadyExistsError,
     InvalidEmailFormatError,
@@ -39,7 +39,7 @@ class UserService:
         if stored is None or stored.username is None:
             raise InvalidCredentialsError()
 
-        if not PasswordService.verify_password(u.password, stored.password):
+        if not PasswordUtility.verify_password(u.password, stored.password):
             raise InvalidCredentialsError()
 
         return stored.username

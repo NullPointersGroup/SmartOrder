@@ -65,28 +65,28 @@ class TestEmailExists:
 
 class TestAddUser:
     def test_returns_true_on_success(self, repo, db, valid_registration):
-        with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
+        with patch("src.auth.UserRepository.PasswordUtility.hash_password", return_value="hashed"):
             assert repo.add_user(valid_registration) is True
 
     def test_commits_on_success(self, repo, db, valid_registration):
-        with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
+        with patch("src.auth.UserRepository.PasswordUtility.hash_password", return_value="hashed"):
             repo.add_user(valid_registration)
         db.commit.assert_called_once()
 
     def test_returns_false_on_exception(self, repo, db, valid_registration):
         db.exec.side_effect = Exception("db error")
-        with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
+        with patch("src.auth.UserRepository.PasswordUtility.hash_password", return_value="hashed"):
             assert repo.add_user(valid_registration) is False
 
     def test_rollback_on_exception(self, repo, db, valid_registration):
         db.exec.side_effect = Exception("db error")
-        with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
+        with patch("src.auth.UserRepository.PasswordUtility.hash_password", return_value="hashed"):
             repo.add_user(valid_registration)
         db.rollback.assert_called_once()
         db.commit.assert_not_called()
 
     def test_password_is_hashed(self, repo, db, valid_registration):
-        with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed") as mock_hash:
+        with patch("src.auth.UserRepository.PasswordUtility.hash_password", return_value="hashed") as mock_hash:
             repo.add_user(valid_registration)
             mock_hash.assert_called_once_with(valid_registration.password)
             

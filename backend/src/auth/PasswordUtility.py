@@ -9,7 +9,7 @@ TOKEN_EXPIRY_HOURS = 24
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-class PasswordService:
+class PasswordUtility:
     @staticmethod
     def hash_password(password: str) -> str:
         """

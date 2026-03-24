@@ -121,4 +121,4 @@ class TestDeleteUser:
 from unittest.mock import patch
 
 def patch_verify(return_value: bool):
-    return patch("src.auth.UserService.PasswordService.verify_password", return_value=return_value)
+    return patch("src.auth.UserService.PasswordUtility.verify_password", return_value=return_value)

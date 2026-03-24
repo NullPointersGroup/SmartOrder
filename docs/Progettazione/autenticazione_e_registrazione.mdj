@@ -5891,12 +5891,13 @@
 											"_parent": {
 												"$ref": "AAAAAAGdAt1ALtsBxlM="
 											},
-											"visible": false,
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": -400,
-											"top": 1008,
-											"height": 13
+											"left": 837,
+											"top": 1629,
+											"width": 262.9296875,
+											"height": 13,
+											"text": "«utility»"
 										},
 										{
 											"_type": "LabelView",
@@ -5907,10 +5908,10 @@
 											"font": "Arial;13;1",
 											"parentStyle": true,
 											"left": 837,
-											"top": 1631,
+											"top": 1644,
 											"width": 262.9296875,
 											"height": 13,
-											"text": "PasswordService"
+											"text": "PasswordUtility"
 										},
 										{
 											"_type": "LabelView",
@@ -5921,9 +5922,9 @@
 											"visible": false,
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": -400,
-											"top": 1008,
-											"width": 73.67724609375,
+											"left": 837,
+											"top": 1646,
+											"width": 262.9296875,
 											"height": 13,
 											"text": "(from Model)"
 										},
@@ -5947,7 +5948,7 @@
 									"left": 832,
 									"top": 1624,
 									"width": 272.9296875,
-									"height": 25,
+									"height": 38,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGdAt1ALtsCiaE="
 									},
@@ -5973,7 +5974,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 832,
-									"top": 1649,
+									"top": 1662,
 									"width": 272.9296875,
 									"height": 10
 								},
@@ -5999,7 +6000,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 837,
-											"top": 1664,
+											"top": 1677,
 											"width": 262.9296875,
 											"height": 13,
 											"underline": true,
@@ -6018,7 +6019,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 837,
-											"top": 1679,
+											"top": 1692,
 											"width": 262.9296875,
 											"height": 13,
 											"underline": true,
@@ -6029,7 +6030,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 832,
-									"top": 1659,
+									"top": 1672,
 									"width": 272.9296875,
 									"height": 38
 								},
@@ -6074,7 +6075,7 @@
 							"left": 832,
 							"top": 1624,
 							"width": 271.9296875,
-							"height": 73,
+							"height": 88,
 							"nameCompartment": {
 								"$ref": "AAAAAAGdAt1ALtsBxlM="
 							},
@@ -7706,15 +7707,17 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 902,
-									"top": 1573,
+									"left": 880,
+									"top": 1574,
+									"width": 37.2099609375,
 									"height": 13,
 									"alpha": 1.5707963267948966,
 									"distance": 15,
 									"hostEdge": {
 										"$ref": "AAAAAAGdBlkW4ybq0zE="
 									},
-									"edgePosition": 1
+									"edgePosition": 1,
+									"text": "+utility"
 								},
 								{
 									"_type": "EdgeLabelView",
@@ -7728,8 +7731,8 @@
 									"visible": null,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 912,
-									"top": 1562,
+									"left": 908,
+									"top": 1563,
 									"height": 13,
 									"alpha": 1.5707963267948966,
 									"distance": 30,
@@ -7750,8 +7753,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 881,
-									"top": 1596,
+									"left": 877,
+									"top": 1595,
 									"height": 13,
 									"alpha": -1.5707963267948966,
 									"distance": 15,
@@ -7770,7 +7773,7 @@
 								"$ref": "AAAAAAGdAtKK2KtfWHg="
 							},
 							"lineStyle": 1,
-							"points": "858:1559;927:1623",
+							"points": "855:1559;921:1623",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAGdBlkW4ybri6c="
@@ -10939,6 +10942,24 @@
 							"_parent": {
 								"$ref": "AAAAAAGdAtKK2KtdKxQ="
 							},
+							"ownedElements": [
+								{
+									"_type": "UMLConstraint",
+									"_id": "AAAAAAGdIZbvBvW2NIs=",
+									"_parent": {
+										"$ref": "AAAAAAGdBlkW4ybobVk="
+									},
+									"name": "Constraint1"
+								},
+								{
+									"_type": "UMLConstraint",
+									"_id": "AAAAAAGdIZb4HPYmtp0=",
+									"_parent": {
+										"$ref": "AAAAAAGdBlkW4ybobVk="
+									},
+									"name": "Constraint2"
+								}
+							],
 							"source": {
 								"$ref": "AAAAAAGdAtKK2KtdKxQ="
 							},
@@ -11159,7 +11180,8 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "PasswordService",
+					"name": "PasswordUtility",
+					"stereotype": "utility",
 					"operations": [
 						{
 							"_type": "UMLOperation",
@@ -11236,7 +11258,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "TokenService"
+					"name": "TokenUtility"
 				},
 				{
 					"_type": "UMLClass",
