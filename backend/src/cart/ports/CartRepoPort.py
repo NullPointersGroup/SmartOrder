@@ -13,7 +13,6 @@ class CartRepoPort(ABC):
         pass
 
     @abstractmethod
-    ## TODO: giusto ritornare CartProduct?
     def remove_product(self, prod_id: str, username: str) -> CartProduct:
         pass
 

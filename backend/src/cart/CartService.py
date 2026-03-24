@@ -7,7 +7,6 @@ class CartService:
     def __init__(self, repo: CartRepoPort) -> None:
         self.repo = repo
 
-    # TODO service non dovrebbe conoscere CartResponse, sono del layer HTTP, bisogna cambiare CartResponse in CartProduct normale
     def get_cart_products(self, username: str) -> list[CartProduct]:
         cart_products = self.repo.get_products(username)
         return cart_products
