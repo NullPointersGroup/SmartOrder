@@ -11171,8 +11171,8 @@
 									"fillColor": "#FFFFFF",
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1088,
-									"top": 664,
+									"left": 984,
+									"top": 656,
 									"width": 10,
 									"height": 10
 								},
@@ -11189,8 +11189,8 @@
 									"fillColor": "#FFFFFF",
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1088,
-									"top": 664,
+									"left": 984,
+									"top": 656,
 									"width": 10,
 									"height": 10
 								}
@@ -13566,7 +13566,7 @@
 											"top": 2071,
 											"width": 144.01904296875,
 											"height": 13,
-											"text": "CartProductRepository"
+											"text": "UserCartRepository"
 										},
 										{
 											"_type": "LabelView",
@@ -16576,7 +16576,7 @@
 											"fillColor": "#5597B84A",
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": 2560,
+											"left": 2544,
 											"top": 1312,
 											"height": 13
 										},
@@ -16589,7 +16589,7 @@
 											"fillColor": "#5597B84A",
 											"font": "Arial;13;1",
 											"parentStyle": true,
-											"left": 2101,
+											"left": 2093,
 											"top": 2079,
 											"width": 165.68359375,
 											"height": 13,
@@ -16605,7 +16605,7 @@
 											"fillColor": "#5597B84A",
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": 2560,
+											"left": 2544,
 											"top": 1312,
 											"width": 80.9072265625,
 											"height": 13,
@@ -16621,7 +16621,7 @@
 											"fillColor": "#5597B84A",
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": 2560,
+											"left": 2544,
 											"top": 1312,
 											"height": 13,
 											"horizontalAlignment": 1
@@ -16630,7 +16630,7 @@
 									"fillColor": "#5597B84A",
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 2096,
+									"left": 2088,
 									"top": 2072,
 									"width": 175.68359375,
 									"height": 25,
@@ -16659,7 +16659,7 @@
 									"fillColor": "#5597B84A",
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 2096,
+									"left": 2088,
 									"top": 2097,
 									"width": 175.68359375,
 									"height": 10
@@ -16676,7 +16676,7 @@
 									"fillColor": "#5597B84A",
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 2096,
+									"left": 2088,
 									"top": 2107,
 									"width": 175.68359375,
 									"height": 10
@@ -16694,7 +16694,7 @@
 									"fillColor": "#5597B84A",
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1280,
+									"left": 1272,
 									"top": 656,
 									"width": 10,
 									"height": 10
@@ -16712,7 +16712,7 @@
 									"fillColor": "#5597B84A",
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1280,
+									"left": 1272,
 									"top": 656,
 									"width": 10,
 									"height": 10
@@ -16722,7 +16722,7 @@
 							"font": "Arial;13;0",
 							"parentStyle": false,
 							"containerChangeable": true,
-							"left": 2096,
+							"left": 2088,
 							"top": 2072,
 							"width": 174.68359375,
 							"height": 45,
@@ -16764,7 +16764,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 2211,
+									"left": 2206,
 									"top": 2024,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -16786,8 +16786,8 @@
 									"visible": null,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 2226,
-									"top": 2027,
+									"left": 2221,
+									"top": 2028,
 									"height": 13,
 									"alpha": 1.5707963267948966,
 									"distance": 30,
@@ -16808,7 +16808,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 2182,
+									"left": 2177,
 									"top": 2017,
 									"height": 13,
 									"alpha": -1.5707963267948966,
@@ -16829,7 +16829,7 @@
 								"$ref": "AAAAAAGdAEA1k6uPboM="
 							},
 							"lineStyle": 1,
-							"points": "2206:1984;2188:2071",
+							"points": "2204:1984;2181:2071",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAGdAGSRSRI7aRQ="
@@ -31025,7 +31025,7 @@
 					"_parent": {
 						"$ref": "AAAAAAGdADHzCJm4xJQ="
 					},
-					"name": "CartProductRepository"
+					"name": "UserCartRepository"
 				},
 				{
 					"_type": "UMLClass",

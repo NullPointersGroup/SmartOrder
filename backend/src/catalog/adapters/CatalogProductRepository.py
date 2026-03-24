@@ -6,7 +6,7 @@ from src.enums import MeasureUnitEnum
 
 class CatalogProductRepository(SQLModel, table=True):
     __tablename__: ClassVar[str] = "anaart"
-    prod_id: str = Field(default=None, primary_key=True)
+    prod_id: str = Field(primary_key=True)
     prod_des: str = Field(default="")
     measure_unit_description: str = Field(default="")
     measure_unit_type: MeasureUnitEnum = Field(default="")

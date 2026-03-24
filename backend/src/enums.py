@@ -1,6 +1,11 @@
 from enum import Enum
 
 
+class CartUpdateOperation(Enum):
+    Add = 1
+    Remove = 2
+
+
 class SenderEnum(str, Enum):
     ChatBot = "ChatBot"
     User = "User"

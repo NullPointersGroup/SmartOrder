@@ -13,9 +13,9 @@ class ChatService:
         messages = self.repo.get_messages(conv_id)
         return ChatResponse(id_conv=conv_id, messages=messages)
 
+    # TODO service non dovrebbe conoscere MessageRequest e Response, sono del layer HTTP, bisogna cambiare MessageRequest in parametri singoli e MessageResponse in messaggio normale
     def send_message(self, conv_id: int, req: MessageRequest) -> MessageResponse:
         self.repo.add_message(conv_id, req.content, SenderEnum.User)
         llm_text = self.llm.invoke_agent(req.content)
-        llm_message=self.repo.add_message(conv_id, llm_text, SenderEnum.ChatBot)
+        llm_message = self.repo.add_message(conv_id, llm_text, SenderEnum.ChatBot)
         return MessageResponse(id_conv=conv_id, message=llm_message)
-
