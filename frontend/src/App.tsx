@@ -1,26 +1,30 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthPage from './auth/AuthPage';
-import { useAuthStore } from './auth/authStore';
-// import Chat from './chat/Chat';
-// import Storico from './storico/Storico';
+import { ChatView } from './chat/ChatView';
+import { ProtectedRoute } from './ProtectedRoute';
+import { Unauthorized } from './HTTPError/401';
+import { NotFound } from './HTTPError/404';
+import { ServerError } from './HTTPError/500';
 
-function App() {
-  /**
-  @brief genera la configurazione dell'app con i vari routing
-  @bug da configurare chat e storico
-  @return l'app nel complesso
-   */
-  const username = useAuthStore((state) => state.username);
+export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/"     element={<AuthPage />} />
-        {/* <Route path="/chat" element={<Chat />} /> */}
-        <Route path="/chat" element={<div className="text-9xl">{username}</div>} />
-        {/* <Route path="/storico" element={<Storico />} /> */}
+        <Route path="/" element={<AuthPage />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/servererror" element={<ServerError />} />
+
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <ChatView />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default App;

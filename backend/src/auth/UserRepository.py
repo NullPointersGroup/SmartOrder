@@ -42,9 +42,9 @@ class UserRepository:
         return self.executor.mutate_raw(
             insert(Utente).values(
                 username=u.username,
-                descrizione="CLIENTE",
                 password=PasswordUtility.hash_password(u.password),
                 email=u.email,
+                admin=False
             )
         )
         

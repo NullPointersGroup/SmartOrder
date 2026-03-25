@@ -2,17 +2,11 @@ import re
 
 from pydantic import BaseModel, field_validator, model_validator
 
-USERNAME_REGEX = re.compile(
-    r'^\w{4,24}$'
-)
+USERNAME_REGEX = re.compile(r"^\w{4,24}$")
 
-PASSWORD_REGEX = re.compile(
-    r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,24}$'
-)
+PASSWORD_REGEX = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,24}$")
 
-EMAIL_REGEX = re.compile(
-    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-)
+EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
 
 class UserSchema(BaseModel):
@@ -83,3 +77,7 @@ class UserRegistrationSchema(UserSchema):
         if self.password != self.confirmPwd:
             raise ValueError("Le password non coincidono")
         return self
+
+
+class LogoutResponse(BaseModel):
+    username: str
