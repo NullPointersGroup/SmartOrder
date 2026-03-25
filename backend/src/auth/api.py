@@ -7,7 +7,11 @@ from sqlmodel import Session
 from src.auth.TokenUtility import TokenUtility
 from src.auth.UserService import UserService
 from src.auth.UserRepoAdapter import UserRepoAdapter
-from src.auth.schemas import AuthResponse, UserSchema, UserRegistrationSchema
+from src.auth.schemas import (
+    AuthResponse,
+    UserSchema,
+    UserRegistrationSchema,
+)
 from src.auth.models import User, UserRegistration
 from src.auth.exceptions import (
     UsernameAlreadyExistsError,
@@ -16,7 +20,7 @@ from src.auth.exceptions import (
     UserCreationError,
     InvalidCredentialsError,
     UserNotFoundError,
-    UserDeletionError
+    UserDeletionError,
 )
 from src.db.dbConnection import get_conn
 from src.auth.UserRepoAdapter import UserRepoAdapter
@@ -44,6 +48,7 @@ def get_user_service(db: Session = Depends(get_conn)) -> UserService:
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
+
 def get_current_user(request: Request) -> str:
     token = request.cookies.get("access_token")
 
@@ -60,9 +65,13 @@ def get_current_user(request: Request) -> str:
 
 @router.post(
     "/login",
-    responses={400: {"model": ErrorResponse, "description": "Username o password errati"}},
+    responses={
+        400: {"model": ErrorResponse, "description": "Username o password errati"}
+    },
 )
-def login(payload: UserSchema, service: UserServiceDep, response: Response) -> LoginResponse:
+def login(
+    payload: UserSchema, service: UserServiceDep, response: Response
+) -> LoginResponse:
     u = User(username=payload.username, password=payload.password)
 
     try:
@@ -97,7 +106,9 @@ def login(payload: UserSchema, service: UserServiceDep, response: Response) -> L
         500: {"model": ErrorResponse, "description": "Errore durante la registrazione"},
     },
 )
-async def register(payload: UserRegistrationSchema, service: UserServiceDep) -> AuthResponse:
+async def register(
+    payload: UserRegistrationSchema, service: UserServiceDep
+) -> AuthResponse:
     """
     @brief Registrazione utente
     @req RF-OB_02
@@ -143,8 +154,10 @@ async def register(payload: UserRegistrationSchema, service: UserServiceDep) -> 
             status_code=500,
             detail={"ok": False, "errors": ["Errore durante la registrazione"]},
         )
-        
+
+
 UserServiceCurrentUser = Annotated[str, Depends(get_current_user)]
+
 
 @router.delete(
     "/account",
@@ -156,8 +169,7 @@ UserServiceCurrentUser = Annotated[str, Depends(get_current_user)]
     },
 )
 def delete_account(
-    service: UserServiceDep,
-    current_user: UserServiceCurrentUser
+    service: UserServiceDep, current_user: UserServiceCurrentUser
 ) -> AuthResponse:
     """
     @brief Cancellazione account utente autenticato
@@ -176,12 +188,16 @@ def delete_account(
             status_code=500,
             detail={"ok": False, "errors": ["Errore durante la cancellazione"]},
         )
-        
+
+
+## TODO togliere il commento type: ignore quando verrà risolta la issue 35
 @router.post("/logout")
-def logout(response: Response):
+def logout(response: Response):  # type: ignore[no-untyped-def]
     response.delete_cookie("access_token")
     return {"ok": True}
 
+
 @router.get("/me")
-def me(current_user: UserServiceCurrentUser):
+def me(current_user: UserServiceCurrentUser):  # type: ignore[no-untyped-def]
     return {"username": current_user}
+
