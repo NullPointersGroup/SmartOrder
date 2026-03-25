@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from sqlmodel import Session
@@ -44,13 +44,17 @@ def get_user_service(db: Session = Depends(get_conn)) -> UserService:
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+def get_current_user(request: Request) -> str:
+    token = request.cookies.get("access_token")
 
+    if not token:
+        raise HTTPException(status_code=401, detail="Token mancante")
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
     username = TokenUtility.decode_token(token)
+
     if username is None:
         raise HTTPException(status_code=401, detail="Token non valido")
+
     return str(username)
 
 
@@ -58,21 +62,26 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
     "/login",
     responses={400: {"model": ErrorResponse, "description": "Username o password errati"}},
 )
-def login(payload: UserSchema, service: UserServiceDep) -> LoginResponse:
-    """
-    @req RF-OB_24
-    @req RF-OB_26
-    @req RF-OB_28
-    """
+def login(payload: UserSchema, service: UserServiceDep, response: Response) -> LoginResponse:
     u = User(username=payload.username, password=payload.password)
 
     try:
         username = service.check_user(u)
-        return LoginResponse(
-            ok=True,
-            errors=[],
-            token=TokenUtility.create_token(username),
+        token = TokenUtility.create_token(username)
+
+        # set cookie compatibile localhost + cross-origin
+        response.set_cookie(
+            key="access_token",
+            value=token,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            max_age=3600,
+            path="/",
         )
+
+        return LoginResponse(ok=True, errors=[], token=None)
+
     except InvalidCredentialsError:
         raise HTTPException(
             status_code=400,
@@ -167,3 +176,12 @@ def delete_account(
             status_code=500,
             detail={"ok": False, "errors": ["Errore durante la cancellazione"]},
         )
+        
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    return {"ok": True}
+
+@router.get("/me")
+def me(current_user: UserServiceCurrentUser):
+    return {"username": current_user}

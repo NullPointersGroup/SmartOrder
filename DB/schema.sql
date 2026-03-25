@@ -22,7 +22,8 @@ CREATE TABLE utentiweb (
     username    VARCHAR(24)  PRIMARY KEY,
     descrizione VARCHAR(80),
     email       VARCHAR(255) UNIQUE,
-    password    VARCHAR(60) NOT NULL
+    password    VARCHAR(60) NOT NULL,
+    admin       BOOLEAN
 );
 
 --  Ordine
@@ -50,6 +51,7 @@ CREATE TABLE ordclidet (
 CREATE TABLE conversazioni (
     id_conv     SERIAL       PRIMARY KEY,
     username    VARCHAR(24)  NOT NULL,
+    titolo      VARCHAR(24)  NOT NULL,
     CONSTRAINT fk_conversazioni_utentiweb
         FOREIGN KEY (username) REFERENCES utentiweb(username)
 );

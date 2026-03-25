@@ -1987,9 +1987,9 @@ INSERT INTO utentiweb (
     email, 
     password
 ) VALUES
-    ('carlesso', 'CLIENTE', 'carlesso@ergon.it', '$2b$12$8rYyVQ5BZgcX0ABqLWhZMu4YRZW.NHJUYJ2G2CprVSNuLiALuvOJS'),
-    ('santinon', 'CLIENTE', 'santinon@ergon.it', '$2b$12$KvO9KbkYDjSykrfIwjNzeu0dbUeioOcZDrHm3dXVhaaP7am36561e'),
-    ('bonavigo', 'CLIENTE', 'bonavigo@ergon.it', '$2b$12$6sWMVx5aC0KaIRwbxkeP8erBp5MJbVLOHbz/WrNMxT2grAB0TkcFa');
+    ('carlesso', 'CLIENTE', 'carlesso@ergon.it', '$2b$12$8rYyVQ5BZgcX0ABqLWhZMu4YRZW.NHJUYJ2G2CprVSNuLiALuvOJS', false),
+    ('santinon', 'CLIENTE', 'santinon@ergon.it', '$2b$12$KvO9KbkYDjSykrfIwjNzeu0dbUeioOcZDrHm3dXVhaaP7am36561e', false),
+    ('bonavigo', 'CLIENTE', 'bonavigo@ergon.it', '$2b$12$6sWMVx5aC0KaIRwbxkeP8erBp5MJbVLOHbz/WrNMxT2grAB0TkcFa', false);
 
 -- Ordini
 INSERT INTO ordine (
