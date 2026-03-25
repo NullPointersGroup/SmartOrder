@@ -77,7 +77,6 @@ def test_login_success(client, mock_user_service: MagicMock) -> None:
 
     assert response.status_code == 200
     assert response.json()["ok"] is True
-    assert response.json()["token"] == "fake-token"
     mock_user_service.check_user.assert_called_once()
 
 

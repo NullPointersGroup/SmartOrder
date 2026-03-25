@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import type { ReactNode } from "react";
-import { useAuthStore } from "./auth/authStore"; // Assicurati che il percorso sia corretto
+import { useAuthStore } from "./auth/authStore";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -23,7 +23,7 @@ export function ProtectedRoute({ children }: Readonly<ProtectedRouteProps>) {
         return res.json();
       })
       .then((data) => {
-        setAuth("", data.username);
+        setAuth(data.username);
         setValid(true);
       })
       .catch(() => {

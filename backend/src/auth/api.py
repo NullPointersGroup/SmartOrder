@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, Response, Request, Cookie
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from sqlmodel import Session
@@ -48,18 +48,12 @@ def get_user_service(db: Session = Depends(get_conn)) -> UserService:
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
-
-def get_current_user(request: Request) -> str:
-    token = request.cookies.get("access_token")
-
-    if not token:
-        raise HTTPException(status_code=401, detail="Token mancante")
-
-    username = TokenUtility.decode_token(token)
-
+def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
+    if access_token is None:
+        raise HTTPException(status_code=401, detail="Non autenticato")
+    username = TokenUtility.decode_token(access_token)
     if username is None:
         raise HTTPException(status_code=401, detail="Token non valido")
-
     return str(username)
 
 
@@ -89,7 +83,7 @@ def login(
             path="/",
         )
 
-        return LoginResponse(ok=True, errors=[], token=token)
+        return LoginResponse(ok=True, errors=[])
 
     except InvalidCredentialsError:
         raise HTTPException(
