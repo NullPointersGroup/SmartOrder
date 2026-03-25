@@ -7,8 +7,8 @@ class CartUpdateOperation(Enum):
 
 
 class SenderEnum(str, Enum):
-    ChatBot = "ChatBot"
-    User = "User"
+    Chatbot = "Chatbot"
+    Utente = "Utente"
 
 
 class MeasureUnitEnum(Enum):

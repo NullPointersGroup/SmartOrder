@@ -24,7 +24,7 @@ def test_get_chat_service_unit():
 
 
 def test_get_all_messages_unit():
-    test_message = Message(id_message=1, content="Test message", sender=SenderEnum.User)
+    test_message = Message(id_message=1, content="Test message", sender=SenderEnum.Utente)
     message_list = [test_message]
     mock_service = MagicMock()
     mock_service.get_all_messages.return_value = message_list
@@ -34,7 +34,7 @@ def test_get_all_messages_unit():
 
 
 def test_send_message_unit():
-    test_message = Message(id_message=1, content="Test message", sender=SenderEnum.User)
+    test_message = Message(id_message=1, content="Test message", sender=SenderEnum.Utente)
     mock_service = MagicMock()
     mock_service.send_message.return_value = test_message
     result = send_message(

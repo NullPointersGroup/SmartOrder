@@ -54,19 +54,19 @@ def mock_messaggi(mock_conversazione: Conversazione) -> list[ChatMessageReposito
         ChatMessageRepository(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=1,
-            mittente=SenderEnum.User,
+            mittente=SenderEnum.Utente,
             contenuto="Primo messaggio da Utente",
         ),
         ChatMessageRepository(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=2,
-            mittente=SenderEnum.ChatBot,
+            mittente=SenderEnum.Chatbot,
             contenuto="Secondo messaggio da Chatbot",
         ),
         ChatMessageRepository(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=3,
-            mittente=SenderEnum.User,
+            mittente=SenderEnum.Utente,
             contenuto="Terzo messaggio da Utente",
         ),
     ]

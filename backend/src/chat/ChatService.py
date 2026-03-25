@@ -19,8 +19,8 @@ class ChatService:
         conv = self.repo.conversation_exist(conv_id)
         if not conv:
             self.repo.create_conversation(username)
-        message = self.repo.add_message(conv_id, content, SenderEnum.User)
+        message = self.repo.add_message(conv_id, content, SenderEnum.Utente)
         llm_text = self.llm.invoke_agent(content)
-        self.repo.add_message(conv_id, llm_text, SenderEnum.ChatBot)
+        self.repo.add_message(conv_id, llm_text, SenderEnum.Chatbot)
         ## TODO decidere se ritorna il messaggio originale o la risposta del chatbot
         return message

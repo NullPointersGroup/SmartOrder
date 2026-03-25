@@ -8,7 +8,7 @@ def test_send_message_returns_llm_response(chat_service, mock_repo, mock_llm):
     mock_repo.conversation_exist.return_value = True
     mock_llm.invoke_agent.return_value = "LLM Response"
     mock_repo.add_message.return_value = Message(
-        id_message=1, content="LLM Response", sender=SenderEnum.ChatBot
+        id_message=1, content="LLM Response", sender=SenderEnum.Chatbot
     )
 
     result = chat_service.send_message(
@@ -16,7 +16,7 @@ def test_send_message_returns_llm_response(chat_service, mock_repo, mock_llm):
     )
 
     assert result.content == "LLM Response"
-    assert result.sender == SenderEnum.ChatBot
+    assert result.sender == SenderEnum.Chatbot
     mock_llm.invoke_agent.assert_called_once_with("Hello")
     assert mock_repo.add_message.call_count == 2
     mock_repo.create_conversation.assert_not_called()
@@ -26,7 +26,7 @@ def test_send_message_creates_conv_if_not_exists(chat_service, mock_repo, mock_l
     mock_repo.conversation_exist.return_value = False
     mock_llm.invoke_agent.return_value = "LLM response"
     mock_repo.add_message.return_value = Message(
-        id_message=2, content="LLM response", sender=SenderEnum.ChatBot
+        id_message=2, content="LLM response", sender=SenderEnum.Chatbot
     )
     chat_service.send_message(
         conv_id=1, username="Tom", content="Hello", audio_file=None
@@ -36,8 +36,8 @@ def test_send_message_creates_conv_if_not_exists(chat_service, mock_repo, mock_l
 
 def test_get_all_messages_returns_chat_response(chat_service, mock_repo):
     mock_repo.get_messages.return_value = [
-        Message(id_message=1, content="Hello", sender=SenderEnum.User),
-        Message(id_message=2, content="Response", sender=SenderEnum.ChatBot),
+        Message(id_message=1, content="Hello", sender=SenderEnum.Utente),
+        Message(id_message=2, content="Response", sender=SenderEnum.Chatbot),
     ]
 
     result = chat_service.get_all_messages(conv_id=1)
