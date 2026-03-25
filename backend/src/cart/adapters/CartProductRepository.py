@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel
 
-from backend.src.enums import MeasureUnitEnum
+from src.enums import MeasureUnitEnum
 
 
 class CartProductRepository(SQLModel):

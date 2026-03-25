@@ -19,7 +19,7 @@ class CartRepository:
             select(UserCartRepository, CatalogProductRepository)
             .join(
                 CatalogProductRepository,
-                col(CartProductRepository.id_prod)
+                col(UserCartRepository.cod_art)
                 == col(CatalogProductRepository.prod_id),
             )
             .where(UserCartRepository.username == username)
@@ -51,6 +51,7 @@ class CartRepository:
         )
         self.db.add(new_cart_item)
         self.db.commit()
+        self.db.refresh(new_cart_item)
 
         return CartProductRepository(
             id_prod=prod_id,
@@ -107,19 +108,19 @@ class CartRepository:
         )
         result = self.db.exec(stmt).first()
         if not result:
-            ProductNotInCartException(prod_id, username)
+            raise ProductNotInCartException(prod_id, username)
         assert result is not None
         cart, catalog = result
         if operation == CartUpdateOperation.Add:
             new_qty = col(UserCartRepository.quantita) + qty
         else:
             new_qty = col(UserCartRepository.quantita) - qty
-            stmt = (
-                update(UserCartRepository)
-                .where(col(UserCartRepository.username) == username)
-                .where(col(UserCartRepository.cod_art) == prod_id)
-                .values(quantita=new_qty)
-            )
+        stmt = (
+            update(UserCartRepository)
+            .where(col(UserCartRepository.username) == username)
+            .where(col(UserCartRepository.cod_art) == prod_id)
+            .values(quantita=new_qty)
+        )
         self.db.exec(stmt)
         self.db.commit()
 

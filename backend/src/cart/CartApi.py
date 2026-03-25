@@ -3,21 +3,21 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from starlette.status import HTTP_404_NOT_FOUND
 
-from backend.src.cart.CartSchemas import (
+from src.cart.CartSchemas import (
     AddProductRequest,
     CartProductResponse,
     CartResponse,
     RemoveProductRequest,
     UpdateProductRequest,
 )
-from backend.src.cart.CartService import CartService
-from backend.src.cart.adapters.CartRepoAdapter import CartRepoAdapter
-from backend.src.cart.adapters.CartRepository import CartRepository
-from backend.src.cart.exceptions import (
+from src.cart.CartService import CartService
+from src.cart.adapters.CartRepoAdapter import CartRepoAdapter
+from src.cart.adapters.CartRepository import CartRepository
+from src.cart.exceptions import (
     ProductNotFoundException,
     ProductNotInCartException,
 )
-from backend.src.db.dbConnection import get_conn
+from src.db.dbConnection import get_conn
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 
@@ -38,7 +38,7 @@ def get_user_cart(username: str, cart_service: CartServiceDep) -> CartResponse:
 
 @router.post("/{username}", response_model=CartProductResponse)
 def add_product_to_cart(
-    username: str, request: AddProductRequest, cart_service: CartService
+    username: str, request: AddProductRequest, cart_service: CartServiceDep
 ) -> CartProductResponse:
     try:
         product = cart_service.add_product_to_cart(
