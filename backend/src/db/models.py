@@ -7,11 +7,10 @@ from sqlmodel import Field, SQLModel
 class Utente(SQLModel, table=True):
     __tablename__: ClassVar[str] = "utentiweb"
 
-    # TODO nel database username ha lunghezza massima 24, è da cambiare qui?
-    username: Optional[str] = Field(default=None, max_length=255, primary_key=True)
-    descrizione: Optional[str] = Field(default=None, max_length=80)
+    username: Optional[str] = Field(default=None, max_length=24, primary_key=True)
     email: Optional[str] = Field(default=None, max_length=255)
     password: Optional[str] = Field(default=None, max_length=60)
+    admin: bool = Field(default=False)
 
 
 class Conversazione(SQLModel, table=True):

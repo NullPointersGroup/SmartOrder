@@ -15,3 +15,4 @@ class MeasureUnitEnum(Enum):
     Colli = 1
     Confezioni = 2
     Pezzi = 3
+    Chilogrammi = 4

@@ -1,8 +1,8 @@
-from sqlmodel import Session, select
-from sqlalchemy.sql.expression import insert
+from sqlmodel import Session, select, col
+from sqlalchemy import insert, delete
 
 from src.auth.models import UserRegistration
-from src.auth.PasswordService import PasswordService
+from src.auth.PasswordUtility import PasswordUtility
 from src.db.models import Utente
 from src.db.queryExecutor import QueryExecutor
 
@@ -42,8 +42,17 @@ class UserRepository:
         return self.executor.mutate_raw(
             insert(Utente).values(
                 username=u.username,
-                descrizione="CLIENTE",
-                password=PasswordService.hash_password(u.password),
+                password=PasswordUtility.hash_password(u.password),
                 email=u.email,
+                admin=False
             )
+        )
+        
+    def delete(self, username: str) -> bool:
+        """
+        @brief Elimina un utente dal DB per username
+        @return True se l'operazione ha successo
+        """
+        return self.executor.mutate_raw(
+            delete(Utente).where(col(Utente.username) == username)
         )

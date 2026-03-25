@@ -4,9 +4,13 @@ from typing import cast
 import pytest
 from fastapi import HTTPException
 
+from fastapi.testclient import TestClient
+
 from src.auth.UserService import UserService
 from src.auth.UserRepoAdapter import UserRepoAdapter
 from src.auth.api import get_user_service, get_current_user
+
+from src.auth.exceptions import InvalidCredentialsError, UserDeletionError, UserNotFoundError
 
 from src.auth.schemas import UserRegistrationSchema
 
@@ -63,18 +67,21 @@ def test_registration_missing_fields(client) -> None:
 
 
 def test_login_success(client, mock_user_service: MagicMock) -> None:
-    mock_user_service.check_user.return_value = True
+    mock_user_service.check_user.return_value = "testuser"
 
-    response = client.post(
-        "/auth/login", json={"username": "testuser", "password": "testpassword"}
-    )
+    with patch("src.auth.api.TokenUtility.create_token", return_value="fake-token"):
+        response = client.post(
+            "/auth/login",
+            json={"username": "testuser", "password": "testpassword"},
+        )
 
     assert response.status_code == 200
+    assert response.json()["ok"] is True
     mock_user_service.check_user.assert_called_once()
 
 
 def test_login_failed(client, mock_user_service: MagicMock) -> None:
-    mock_user_service.check_user.return_value = False
+    mock_user_service.check_user.side_effect = InvalidCredentialsError()
 
     response = client.post(
         "/auth/login", json={"username": "testuser", "password": "wrongpassword"}
@@ -147,18 +154,77 @@ class TestGetUserService:
 
 class TestGetCurrentUser:
     def test_valid_token_returns_username(self):
-        with patch("src.auth.api.TokenService.decode_token", return_value="testuser"):
-            result = get_current_user("valid.token.here")
+        from unittest.mock import MagicMock
+
+        mock_request = MagicMock()
+        mock_request.cookies.get.return_value = "valid.token.here"
+
+        with patch("src.auth.api.TokenUtility.decode_token", return_value="testuser"):
+            result = get_current_user(mock_request)
+
         assert result == "testuser"
 
     def test_invalid_token_raises_401(self):
-        with patch("src.auth.api.TokenService.decode_token", return_value=None):
+        from unittest.mock import MagicMock
+
+        mock_request = MagicMock()
+        mock_request.cookies.get.return_value = "token.non.valido"
+
+        with patch("src.auth.api.TokenUtility.decode_token", return_value=None):
             with pytest.raises(HTTPException) as exc:
-                get_current_user("token.non.valido")
+                get_current_user(mock_request)
+
         assert exc.value.status_code == 401
 
     def test_invalid_token_detail_message(self):
-        with patch("src.auth.api.TokenService.decode_token", return_value=None):
+        from unittest.mock import MagicMock
+
+        mock_request = MagicMock()
+        mock_request.cookies.get.return_value = "token.non.valido"
+
+        with patch("src.auth.api.TokenUtility.decode_token", return_value=None):
             with pytest.raises(HTTPException) as exc:
-                get_current_user("token.non.valido")
+                get_current_user(mock_request)
+
         assert exc.value.detail == "Token non valido"
+
+# ---------------------------------------------------------------------------
+# delete_account
+# ---------------------------------------------------------------------------
+
+class TestDeleteAccount:
+    def test_delete_account_success(self, client: TestClient, mock_user_service: MagicMock):
+        # Configura il mock per la cancellazione riuscita
+        mock_user_service.delete_user.return_value = None  # delete_user non deve restituire nulla
+
+        response = client.delete("/auth/account")
+        resp_json = response.json()
+
+        # Verifica risposta e chiamata del mock
+        print(response.status_code, response.text)
+        assert response.status_code == 200
+        assert resp_json["ok"] is True
+        assert resp_json["errors"] == []
+        mock_user_service.delete_user.assert_called_once_with("testuser")
+
+    def test_delete_account_user_not_found(self, client, mock_user_service):
+        mock_user_service.delete_user.side_effect = UserNotFoundError()
+
+        response = client.delete("/auth/account")
+        resp_json = response.json()["detail"]
+
+        assert response.status_code == 404
+        assert resp_json["ok"] is False
+        assert "Utente non trovato" in resp_json["errors"]
+        mock_user_service.delete_user.assert_called_once_with("testuser")
+
+    def test_delete_account_deletion_error(self, client, mock_user_service):
+        mock_user_service.delete_user.side_effect = UserDeletionError()
+
+        response = client.delete("/auth/account")
+        resp_json = response.json()["detail"]
+
+        assert response.status_code == 500
+        assert resp_json["ok"] is False
+        assert "Errore durante la cancellazione" in resp_json["errors"]
+        mock_user_service.delete_user.assert_called_once_with("testuser")

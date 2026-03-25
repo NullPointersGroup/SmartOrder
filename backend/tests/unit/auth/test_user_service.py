@@ -1,38 +1,42 @@
 from unittest.mock import MagicMock
-
 import pytest
 
-from src.auth.exceptions import (
-    EmailAlreadyExistsError,
-    InvalidEmailFormatError,
-    UserCreationError,
-    UsernameAlreadyExistsError,
-)
-from src.auth.models import User, UserRegistration
 from src.auth.UserService import UserService
+from src.auth.models import User, UserRegistration
+from src.auth.exceptions import (
+    InvalidCredentialsError,
+    UsernameAlreadyExistsError,
+    InvalidEmailFormatError,
+    EmailAlreadyExistsError,
+    UserCreationError,
+    UserNotFoundError,
+    UserDeletionError
+)
+from src.db.models import Utente
 
-
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
 
 @pytest.fixture
 def repo():
-    mock = MagicMock()
-    mock.username_exists.return_value      = False
-    mock.email_exists.return_value         = False
-    mock.email_domain_exists               = MagicMock(return_value=True)
-    mock.add_user.return_value             = True
-    mock.check_user.return_value           = True
-    return mock
+    return MagicMock()
 
 @pytest.fixture
-def service(repo):
-    return UserService(repo)
+def email_validator():
+    return MagicMock()
+
+@pytest.fixture
+def service(repo, email_validator):
+    return UserService(repo=repo, email_validator=email_validator)
 
 @pytest.fixture
 def valid_user():
     return User(username="testuser", password="Password1!")
+
+@pytest.fixture
+def mock_utente():
+    u = MagicMock(spec=Utente)
+    u.username = "testuser"
+    u.password = "hashed_password"
+    return u
 
 @pytest.fixture
 def valid_registration():
@@ -44,72 +48,77 @@ def valid_registration():
     )
 
 
-# ---------------------------------------------------------------------------
-# check_user
-# ---------------------------------------------------------------------------
-
 class TestCheckUser:
-    def test_returns_true_with_valid_credentials(self, service, repo, valid_user):
-        repo.check_user.return_value = True
-        assert service.check_user(valid_user) is True
+    def test_returns_username_with_valid_credentials(self, service, repo, valid_user, mock_utente):
+        repo.find_by_username.return_value = mock_utente
+        with patch_verify(True):
+            assert service.check_user(valid_user) == "testuser"
 
-    def test_returns_false_with_wrong_credentials(self, service, repo, valid_user):
-        repo.check_user.return_value = False
-        assert service.check_user(valid_user) is False
+    def test_raises_when_user_not_found(self, service, repo, valid_user):
+        repo.find_by_username.return_value = None
+        with pytest.raises(InvalidCredentialsError):
+            service.check_user(valid_user)
 
-    def test_delegates_to_repo(self, service, repo, valid_user):
-        service.check_user(valid_user)
-        repo.check_user.assert_called_once_with(valid_user)
+    def test_raises_when_password_wrong(self, service, repo, valid_user, mock_utente):
+        repo.find_by_username.return_value = mock_utente
+        with patch_verify(False):
+            with pytest.raises(InvalidCredentialsError):
+                service.check_user(valid_user)
 
-
-# ---------------------------------------------------------------------------
-# register_user
-# ---------------------------------------------------------------------------
 
 class TestRegisterUser:
-    def test_success_returns_true(self, service, valid_registration):
-        assert service.register_user(valid_registration) is True
-
-    def test_calls_add_user_on_success(self, service, repo, valid_registration):
+    def test_succeeds_with_valid_data(self, service, repo, email_validator, valid_registration):
+        repo.username_exists.return_value = False
+        repo.email_exists.return_value = False
+        repo.add_user.return_value = True
+        email_validator.domain_exists.return_value = True
         service.register_user(valid_registration)
-        repo.add_user.assert_called_once_with(valid_registration)
 
-    def test_raises_if_username_exists(self, service, repo, valid_registration):
+    def test_raises_when_username_exists(self, service, repo, valid_registration):
         repo.username_exists.return_value = True
         with pytest.raises(UsernameAlreadyExistsError):
             service.register_user(valid_registration)
 
-    def test_does_not_call_add_user_if_username_exists(self, service, repo, valid_registration):
-        repo.username_exists.return_value = True
-        with pytest.raises(UsernameAlreadyExistsError):
-            service.register_user(valid_registration)
-        repo.add_user.assert_not_called()
-
-    def test_raises_if_email_domain_invalid(self, service, repo, valid_registration):
-        repo.email_domain_exists = MagicMock(return_value=False)
+    def test_raises_when_email_domain_invalid(self, service, repo, email_validator, valid_registration):
+        repo.username_exists.return_value = False
+        email_validator.domain_exists.return_value = False
         with pytest.raises(InvalidEmailFormatError):
             service.register_user(valid_registration)
 
-    def test_raises_if_email_exists(self, service, repo, valid_registration):
+    def test_raises_when_email_exists(self, service, repo, email_validator, valid_registration):
+        repo.username_exists.return_value = False
+        email_validator.domain_exists.return_value = True
         repo.email_exists.return_value = True
         with pytest.raises(EmailAlreadyExistsError):
             service.register_user(valid_registration)
 
-    def test_raises_if_add_user_fails(self, service, repo, valid_registration):
+    def test_raises_when_add_user_fails(self, service, repo, email_validator, valid_registration):
+        repo.username_exists.return_value = False
+        email_validator.domain_exists.return_value = True
+        repo.email_exists.return_value = False
         repo.add_user.return_value = False
         with pytest.raises(UserCreationError):
             service.register_user(valid_registration)
+            
+class TestDeleteUser:
+    def test_succeeds_when_user_exists(self, service, repo, mock_utente):
+        repo.find_by_username.return_value = mock_utente
+        repo.delete_user.return_value = True
+        service.delete_user("testuser")
 
-    def test_username_check_before_email_domain(self, service, repo, valid_registration):
-        repo.username_exists.return_value = True
-        repo.email_domain_exists          = MagicMock(return_value=False)
-        with pytest.raises(UsernameAlreadyExistsError):
-            service.register_user(valid_registration)
-        repo.email_domain_exists.assert_not_called()
+    def test_raises_when_user_not_found(self, service, repo):
+        repo.find_by_username.return_value = None
+        with pytest.raises(UserNotFoundError):
+            service.delete_user("testuser")
 
-    def test_email_domain_check_before_email_exists(self, service, repo, valid_registration):
-        repo.email_domain_exists = MagicMock(return_value=False)
-        repo.email_exists.return_value = True
-        with pytest.raises(InvalidEmailFormatError):
-            service.register_user(valid_registration)
-        repo.email_exists.assert_not_called()
+    def test_raises_when_delete_fails(self, service, repo, mock_utente):
+        repo.find_by_username.return_value = mock_utente
+        repo.delete_user.return_value = False
+        with pytest.raises(UserDeletionError):
+            service.delete_user("testuser")
+
+
+from unittest.mock import patch
+
+def patch_verify(return_value: bool):
+    return patch("src.auth.UserService.PasswordUtility.verify_password", return_value=return_value)

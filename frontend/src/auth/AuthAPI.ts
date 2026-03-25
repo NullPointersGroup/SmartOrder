@@ -35,6 +35,7 @@ async function authFetch(endpoint: string, body: object): Promise<AuthResponse> 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      credentials: "include"
     });
 
     const data = await response.json();
@@ -47,15 +48,6 @@ async function authFetch(endpoint: string, body: object): Promise<AuthResponse> 
   } catch {
     return { ok: false, errors: ['Errore di rete'] };
   }
-}
-
-export function getUsernameFromToken(token: string): string {
-  /**
-   * @brief restituisce lo username dal token di autenticazione
-   * @return lo username
-   */
-  const payload = JSON.parse(atob(token.split('.')[1]));
-  return payload.sub;
 }
 
 /* Fanno una chiamata agli endpoint */

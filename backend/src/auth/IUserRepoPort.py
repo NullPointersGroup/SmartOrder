@@ -1,39 +1,29 @@
 from abc import ABC, abstractmethod
-
 from src.auth.models import User, UserRegistration
+from src.db.models import Utente
 
 
 class IUserRepoPort(ABC):
     """
-    @brief Porta secondaria (driven port) del dominio verso la persistenza
+    @brief Porta secondaria verso la persistenza utenti
     """
 
     @abstractmethod
-    def check_user(self, u: User) -> bool:
-       """
-       @brief metodo astratto che serve a capire se uno user esiste
-       """
+    def find_by_username(self, username: str) -> Utente | None:
+        """@brief Recupera un utente per username"""
 
     @abstractmethod
     def username_exists(self, username: str) -> bool:
-        """
-       @brief metodo astratto per capire se uno username esiste già
-       """
+        """@brief Controlla se lo username è già nel DB"""
 
     @abstractmethod
     def email_exists(self, email: str) -> bool:
-        """
-       @brief metodo astratto per capire se una mail esiste già
-       """
-
-    @abstractmethod
-    def email_domain_exists(self, email: str) -> bool:
-        """
-       @brief metodo astratto per capire se il dominio della mail esiste oppure no
-       """
+        """@brief Controlla se l'email è già nel DB"""
 
     @abstractmethod
     def add_user(self, u: UserRegistration) -> bool:
-        """
-       @brief metodo astratto per aggiungere un utente
-       """
+        """@brief Inserisce un nuovo utente"""
+        
+    @abstractmethod
+    def delete_user(self, username: str) -> bool:
+        """@brief Elimina un utente dal DB"""

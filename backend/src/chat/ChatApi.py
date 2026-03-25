@@ -22,8 +22,7 @@ def get_chat_service(db: Session = Depends(get_conn)) -> ChatService:
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]
 
-
-@router.get("/{conv_id}/all", response_model=ChatResponse)
+@router.get("/{conv_id}/all")
 def get_all_messages(conv_id: int, chat_service: ChatServiceDep) -> ChatResponse:
     try:
         res = chat_service.get_all_messages(conv_id)
@@ -32,11 +31,7 @@ def get_all_messages(conv_id: int, chat_service: ChatServiceDep) -> ChatResponse
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.post("/{conv_id}", response_model=MessageResponse)
-def send_message(
-    conv_id: int, request: MessageRequest, chat_service: ChatServiceDep
-) -> MessageResponse:
-    message = chat_service.send_message(
-        conv_id, request.username, request.content, request.audioFile
-    )
-    return MessageResponse(id_conv=conv_id, message=message)
+@router.post("/{conv_id}")
+def send_message(conv_id: int, message: MessageRequest, chat_service: ChatServiceDep) -> MessageResponse:
+    return chat_service.send_message(conv_id, message)
+
