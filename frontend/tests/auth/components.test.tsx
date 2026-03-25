@@ -26,9 +26,14 @@ vi.mock('../../src/auth/authStore', () => ({
 vi.mock('../../src/hooks/usePageTitle', () => ({ usePageTitle: vi.fn() }));
 
 vi.mock('../../src/auth/AuthAPI', () => ({
-  login:                vi.fn().mockResolvedValue({ ok: true, errors: [], token: 'tok' }),
-  register:             vi.fn().mockResolvedValue({ ok: true, errors: [], token: 'tok' }),
-  getUsernameFromToken: vi.fn().mockReturnValue('mario'),
+  login:    vi.fn().mockResolvedValue({ ok: true, errors: [] }),
+  register: vi.fn().mockResolvedValue({ ok: true, errors: [] }),
+}));
+
+// Mock /auth/me
+vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve({ username: 'mario' }),
 }));
 
 function renderInRouter(ui: React.ReactElement) {
@@ -116,14 +121,14 @@ describe('FormView – rendering e interazioni', () => {
 
   it('toggle password: click cambia tipo da password a text e viceversa', () => {
     render(<Form title="T" submitLabel="S" fields={PASSWORD_FIELDS} vm={makeVM({ values: { password: '' } })} />);
-    const input = screen.getByLabelText(/password/i);
+    const passwordInput = screen.getByLabelText(/password/i);
     const toggle = screen.getAllByRole('button').find(b => b.getAttribute('type') === 'button')!;
 
-    expect(input).toHaveAttribute('type', 'password');
+    expect(passwordInput).toHaveAttribute('type', 'password');
     fireEvent.click(toggle);
-    expect(input).toHaveAttribute('type', 'text');
+    expect(passwordInput).toHaveAttribute('type', 'text');
     fireEvent.click(toggle);
-    expect(input).toHaveAttribute('type', 'password');
+    expect(passwordInput).toHaveAttribute('type', 'password');
   });
 });
 
@@ -132,20 +137,20 @@ describe('Login', () => {
     renderInRouter(<Login onLogin={vi.fn()} />);
     expect(screen.getByRole('heading', { name: /accedi/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    fireEvent.change(screen.getAllByLabelText(/password/i)[0], { target: { value: 'Password1!' } });
   });
 
-  it('ok=true: chiama onLogin con token', async () => {
+  it('ok=true: chiama onLogin', async () => {
     const onLogin = vi.fn();
     const { login: loginApi } = await import('../../src/auth/AuthAPI');
-    vi.mocked(loginApi).mockResolvedValue({ ok: true, errors: [], token: 'jwt-tok' });
+    vi.mocked(loginApi).mockResolvedValue({ ok: true, errors: [] });
 
     renderInRouter(<Login onLogin={onLogin} />);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'mario' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Password1!' } });
+    fireEvent.change(screen.getAllByLabelText(/password/i)[0], { target: { value: 'Password1!' } });
     fireEvent.click(screen.getByRole('button', { name: /accedi/i }));
 
-    await waitFor(() => expect(onLogin).toHaveBeenCalledWith('jwt-tok'));
+    await waitFor(() => expect(onLogin).toHaveBeenCalled());
   });
 
   it('ok=false: mostra errore, NON chiama onLogin (RF-OB_28)', async () => {
@@ -155,7 +160,7 @@ describe('Login', () => {
 
     renderInRouter(<Login onLogin={onLogin} />);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'x' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Sbagliata1!' } });
+    fireEvent.change(screen.getAllByLabelText(/password/i)[0], { target: { value: 'Sbagliata1!' } });
     fireEvent.click(screen.getByRole('button', { name: /accedi/i }));
 
     await waitFor(() => {
@@ -206,10 +211,10 @@ describe('Register', () => {
     await waitFor(() => expect(screen.getByText(/non coincidono/i)).toBeInTheDocument());
   });
 
-  it('ok=true: chiama onRegister con token (RF-OB_22)', async () => {
+  it('ok=true: chiama onRegister (RF-OB_22)', async () => {
     const onRegister = vi.fn();
     const { register: registerApi } = await import('../../src/auth/AuthAPI');
-    vi.mocked(registerApi).mockResolvedValue({ ok: true, errors: [], token: 'new-tok' });
+    vi.mocked(registerApi).mockResolvedValue({ ok: true, errors: [] });
 
     renderInRouter(<Register onRegister={onRegister} />);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'mario123' } });
@@ -219,7 +224,7 @@ describe('Register', () => {
     fireEvent.change(confirmField, { target: { value: 'Password1!' } });
     fireEvent.click(screen.getByRole('button', { name: /registrati/i }));
 
-    await waitFor(() => expect(onRegister).toHaveBeenCalledWith('new-tok'));
+    await waitFor(() => expect(onRegister).toHaveBeenCalled());
   });
 
   it('ok=false: mostra errore server (RF-OB_04)', async () => {
@@ -249,41 +254,24 @@ describe('AuthPage', () => {
 
   it('click Registrati: mostra Register; click Accedi: torna a Login', () => {
     renderInRouter(<AuthPage />);
-    fireEvent.click(screen.getByRole('button', { name: /^registrati$/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /^registrati$/i })[0]);
     expect(screen.getByText(/crea account/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /^accedi$/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /^accedi$/i })[0]);
     expect(screen.getByRole('heading', { name: /accedi/i })).toBeInTheDocument();
   });
 
-  it('onLogin con token: chiama setAuth e naviga a /chat', async () => {
-    const { login: loginApi, getUsernameFromToken } = await import('../../src/auth/AuthAPI');
-    vi.mocked(loginApi).mockResolvedValue({ ok: true, errors: [], token: 'jwt-tok' });
-    vi.mocked(getUsernameFromToken).mockReturnValue('mario');
-
-    renderInRouter(<AuthPage />);
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'mario' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Password1!' } });
-    const accediButtons = screen.getAllByRole('button', { name: /accedi/i });
-    fireEvent.click(accediButtons[accediButtons.length - 1]);
-
-    await waitFor(() => {
-      expect(mockSetAuth).toHaveBeenCalledWith('jwt-tok', 'mario');
-      expect(mockNavigate).toHaveBeenCalledWith('/chat');
-    });
-  });
-
-  it('onLogin senza token: NON chiama setAuth, naviga comunque', async () => {
+  it('onLogin ok: chiama /auth/me, setAuth con username e naviga a /chat', async () => {
     const { login: loginApi } = await import('../../src/auth/AuthAPI');
-    vi.mocked(loginApi).mockResolvedValue({ ok: true, errors: [], token: undefined });
+    vi.mocked(loginApi).mockResolvedValue({ ok: true, errors: [] });
 
     renderInRouter(<AuthPage />);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'mario' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Password1!' } });
+    fireEvent.change(screen.getAllByLabelText(/password/i)[0], { target: { value: 'Password1!' } });
     const accediButtons = screen.getAllByRole('button', { name: /accedi/i });
-    fireEvent.click(accediButtons[accediButtons.length - 1]);
+    fireEvent.click(accediButtons.at(-1)!);
 
     await waitFor(() => {
-      expect(mockSetAuth).not.toHaveBeenCalled();
+      expect(mockSetAuth).toHaveBeenCalledWith('mario');
       expect(mockNavigate).toHaveBeenCalledWith('/chat');
     });
   });
@@ -294,38 +282,18 @@ describe('AuthPage', () => {
 
     renderInRouter(<AuthPage />);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'mario' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Password1!' } });
+    fireEvent.change(screen.getAllByLabelText(/password/i)[0], { target: { value: 'Password1!' } });
     fireEvent.submit(document.querySelector('form')!);
 
     await waitFor(() => expect(mockNavigate).not.toHaveBeenCalled());
   });
 
-  it('onRegister con token: chiama setAuth e naviga (RF-OB_22)', async () => {
-    const { register: registerApi, getUsernameFromToken } = await import('../../src/auth/AuthAPI');
-    vi.mocked(registerApi).mockResolvedValue({ ok: true, errors: [], token: 'reg-tok' });
-    vi.mocked(getUsernameFromToken).mockReturnValue('mario');
-
-    renderInRouter(<AuthPage />);
-    fireEvent.click(screen.getByRole('button', { name: /^registrati$/i }));
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'mario123' } });
-    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'mario@example.com' } });
-    const [pwdField, confirmField] = screen.getAllByLabelText(/password/i);
-    fireEvent.change(pwdField, { target: { value: 'Password1!' } });
-    fireEvent.change(confirmField, { target: { value: 'Password1!' } });
-    fireEvent.submit(document.querySelector('form')!);
-
-    await waitFor(() => {
-      expect(mockSetAuth).toHaveBeenCalledWith('reg-tok', 'mario');
-      expect(mockNavigate).toHaveBeenCalledWith('/chat');
-    });
-  });
-
-  it('onRegister senza token: NON chiama setAuth, naviga comunque', async () => {
+  it('onRegister ok: torna al tab login (RF-OB_22)', async () => {
     const { register: registerApi } = await import('../../src/auth/AuthAPI');
-    vi.mocked(registerApi).mockResolvedValue({ ok: true, errors: [], token: undefined });
+    vi.mocked(registerApi).mockResolvedValue({ ok: true, errors: [] });
 
     renderInRouter(<AuthPage />);
-    fireEvent.click(screen.getByRole('button', { name: /^registrati$/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /^registrati$/i })[0]);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'mario123' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'mario@example.com' } });
     const [pwdField, confirmField] = screen.getAllByLabelText(/password/i);
@@ -334,8 +302,8 @@ describe('AuthPage', () => {
     fireEvent.submit(document.querySelector('form')!);
 
     await waitFor(() => {
-      expect(mockSetAuth).not.toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/chat');
+      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(screen.getByRole('heading', { name: /accedi/i })).toBeInTheDocument();
     });
   });
 });
