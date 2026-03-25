@@ -4,6 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.auth.api import router as auth_router
+from src.chat.ChatApi import router as chat_router
 
 app = FastAPI()
 
@@ -16,3 +17,4 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(chat_router)

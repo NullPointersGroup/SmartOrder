@@ -88,22 +88,22 @@ class TestFindByEmail:
 class TestSave:
     def test_returns_true_on_success(self, repo, executor, valid_registration):
         executor.mutate_raw.return_value = True
-        with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
+        with patch("src.auth.UserRepository.PasswordUtility.hash_password", return_value="hashed"):
             assert repo.save(valid_registration) is True
 
     def test_returns_false_on_failure(self, repo, executor, valid_registration):
         executor.mutate_raw.return_value = False
-        with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
+        with patch("src.auth.UserRepository.PasswordUtility.hash_password", return_value="hashed"):
             assert repo.save(valid_registration) is False
 
     def test_delegates_to_executor(self, repo, executor, valid_registration):
         executor.mutate_raw.return_value = True
-        with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed"):
+        with patch("src.auth.UserRepository.PasswordUtility.hash_password", return_value="hashed"):
             repo.save(valid_registration)
         executor.mutate_raw.assert_called_once()
 
     def test_password_is_hashed(self, repo, executor, valid_registration):
         executor.mutate_raw.return_value = True
-        with patch("src.auth.UserRepository.PasswordService.hash_password", return_value="hashed") as mock_hash:
+        with patch("src.auth.UserRepository.PasswordUtility.hash_password", return_value="hashed") as mock_hash:
             repo.save(valid_registration)
             mock_hash.assert_called_once_with(valid_registration.password)

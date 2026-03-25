@@ -10,7 +10,7 @@ TOKEN_EXPIRY_HOURS = 24
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-class TokenService:
+class TokenUtility:
     @staticmethod
     def create_token(username: str) -> str:
         """

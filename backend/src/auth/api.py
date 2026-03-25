@@ -1,21 +1,30 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from sqlmodel import Session
-from src.auth.TokenService import TokenService
+from src.auth.TokenUtility import TokenUtility
 from src.auth.UserService import UserService
 from src.auth.UserRepoAdapter import UserRepoAdapter
-from src.auth.schemas import AuthResponse, UserSchema, UserRegistrationSchema
+from src.auth.schemas import (
+    AuthResponse,
+    UserSchema,
+    UserRegistrationSchema,
+)
 from src.auth.models import User, UserRegistration
 from src.auth.exceptions import (
     UsernameAlreadyExistsError,
     InvalidEmailFormatError,
     EmailAlreadyExistsError,
     UserCreationError,
+    InvalidCredentialsError,
+    UserNotFoundError,
+    UserDeletionError,
 )
 from src.db.dbConnection import get_conn
+from src.auth.UserRepoAdapter import UserRepoAdapter
+from src.auth.EmailValidationAdapter import EmailValidationAdapter
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -31,41 +40,62 @@ class ErrorResponse(BaseModel):
 
 
 def get_user_service(db: Session = Depends(get_conn)) -> UserService:
-    return UserService(UserRepoAdapter(db))
+    return UserService(
+        repo=UserRepoAdapter(db),
+        email_validator=EmailValidationAdapter(),
+    )
 
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
+def get_current_user(request: Request) -> str:
+    token = request.cookies.get("access_token")
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
-    username = TokenService.decode_token(token)
+    if not token:
+        raise HTTPException(status_code=401, detail="Token mancante")
+
+    username = TokenUtility.decode_token(token)
+
     if username is None:
         raise HTTPException(status_code=401, detail="Token non valido")
-    return username
+
+    return str(username)
 
 
 @router.post(
     "/login",
-    responses={400: {"model": ErrorResponse, "description": "Username o password errati"}},
+    responses={
+        400: {"model": ErrorResponse, "description": "Username o password errati"}
+    },
 )
-def login(payload: UserSchema, service: UserServiceDep) -> LoginResponse:
-    """
-    @brief Login utente
-    @req RF-OB_24
-    @req RF-OB_26
-    @req RF-OB_28
-    """
+def login(
+    payload: UserSchema, service: UserServiceDep, response: Response
+) -> LoginResponse:
     u = User(username=payload.username, password=payload.password)
 
-    if service.check_user(u):
-        return LoginResponse(ok=True, errors=[], token=TokenService.create_token(payload.username))
+    try:
+        username = service.check_user(u)
+        token = TokenUtility.create_token(username)
 
-    raise HTTPException(
-        status_code=400,
-        detail={"ok": False, "errors": ["Username o password errati"]},
-    )
+        # set cookie compatibile localhost + cross-origin
+        response.set_cookie(
+            key="access_token",
+            value=token,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            max_age=3600,
+            path="/",
+        )
+
+        return LoginResponse(ok=True, errors=[], token=token)
+
+    except InvalidCredentialsError:
+        raise HTTPException(
+            status_code=400,
+            detail={"ok": False, "errors": ["Username o password errati"]},
+        )
 
 
 @router.post(
@@ -76,7 +106,9 @@ def login(payload: UserSchema, service: UserServiceDep) -> LoginResponse:
         500: {"model": ErrorResponse, "description": "Errore durante la registrazione"},
     },
 )
-async def register(payload: UserRegistrationSchema, service: UserServiceDep) -> AuthResponse:
+async def register(
+    payload: UserRegistrationSchema, service: UserServiceDep
+) -> AuthResponse:
     """
     @brief Registrazione utente
     @req RF-OB_02
@@ -122,3 +154,50 @@ async def register(payload: UserRegistrationSchema, service: UserServiceDep) -> 
             status_code=500,
             detail={"ok": False, "errors": ["Errore durante la registrazione"]},
         )
+
+
+UserServiceCurrentUser = Annotated[str, Depends(get_current_user)]
+
+
+@router.delete(
+    "/account",
+    status_code=200,
+    responses={
+        401: {"model": ErrorResponse, "description": "Token non valido"},
+        404: {"model": ErrorResponse, "description": "Utente non trovato"},
+        500: {"model": ErrorResponse, "description": "Errore durante la cancellazione"},
+    },
+)
+def delete_account(
+    service: UserServiceDep, current_user: UserServiceCurrentUser
+) -> AuthResponse:
+    """
+    @brief Cancellazione account utente autenticato
+    """
+    try:
+        service.delete_user(current_user)
+        return AuthResponse(ok=True, errors=[])
+
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail={"ok": False, "errors": ["Utente non trovato"]},
+        )
+    except UserDeletionError:
+        raise HTTPException(
+            status_code=500,
+            detail={"ok": False, "errors": ["Errore durante la cancellazione"]},
+        )
+
+
+## TODO togliere il commento type: ignore quando verrà risolta la issue 35
+@router.post("/logout")
+def logout(response: Response):  # type: ignore[no-untyped-def]
+    response.delete_cookie("access_token")
+    return {"ok": True}
+
+
+@router.get("/me")
+def me(current_user: UserServiceCurrentUser):  # type: ignore[no-untyped-def]
+    return {"username": current_user}
+
