@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { login, register, getUsernameFromToken } from '../../src/auth/AuthAPI';
-import type { LoginDto, RegisterDto } from '../../src/auth/AuthAPI';
+import type { LoginDto, RegisterDto} from '../../src/auth/AuthAPI';
+import { login, register } from '../../src/auth/AuthAPI'
 
 function makeJwt(payload: Record<string, unknown>): string {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
@@ -17,24 +17,14 @@ function mockFetch(status: number, body: unknown): ReturnType<typeof vi.spyOn> {
   );
 }
 
-function mockFetchReject(error: Error): ReturnType<typeof vi.spyOn> {
+function mockFetchReject(error: unknown): ReturnType<typeof vi.spyOn> {
   return vi.spyOn(globalThis, 'fetch').mockRejectedValue(error);
 }
-
-describe('getUsernameFromToken', () => {
-  it('estrae sub dal payload JWT', () => {
-    expect(getUsernameFromToken(makeJwt({ sub: 'mario' }))).toBe('mario');
-  });
-
-  it('lancia errore con token malformato', () => {
-    expect(() => getUsernameFromToken('tokenInvalido')).toThrow();
-  });
-});
 
 describe('login', () => {
   afterEach(() => vi.restoreAllMocks());
 
-  const dto: LoginDto = { username: 'mario', password: 'Password1!' };
+  const dto: LoginDto = { username: 'mario', password: 'Password1!' }; //NOSONAR
 
   it('response.ok=true: restituisce dati con token', async () => {
     const token = makeJwt({ sub: 'mario' });
@@ -87,7 +77,7 @@ describe('register', () => {
 
   const dto: RegisterDto = {
     username: 'mario', email: 'mario@example.com',
-    password: 'Password1!', confirmPwd: 'Password1!',
+    password: 'Password1!', confirmPwd: 'Password1!', //NOSONAR
   };
 
   it('response.ok=true: restituisce token', async () => {

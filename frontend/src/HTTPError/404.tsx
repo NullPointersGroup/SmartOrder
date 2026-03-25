@@ -1,7 +1,10 @@
 import { useNavigate } from 'react-router-dom';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export function NotFound() {
   const navigate = useNavigate();
+  
+  usePageTitle("Non trovato");
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">

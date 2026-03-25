@@ -19,14 +19,14 @@ def get_chat_service(db: Session = Depends(get_conn))-> ChatService:
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]
 
-@router.get("/{conv_id}/all", response_model=ChatResponse)
+@router.get("/{conv_id}/all")
 def get_all_messages(conv_id: int, chat_service: ChatServiceDep) -> ChatResponse:
     ## TODO Gestione errori tramite HTTPEXception e custom exceptions
     res = chat_service.get_all_messages(conv_id)
     return res
 
 
-@router.post("/{conv_id}", response_model=MessageResponse)
+@router.post("/{conv_id}")
 def send_message(conv_id: int, message: MessageRequest, chat_service: ChatServiceDep) -> MessageResponse:
     return chat_service.send_message(conv_id, message)
 

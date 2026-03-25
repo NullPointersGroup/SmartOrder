@@ -1,12 +1,15 @@
 import { useNavigate } from 'react-router-dom';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export function Unauthorized() {
   const navigate = useNavigate();
 
+  usePageTitle("Non autorizzato");
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
       {/* Icona o Numero Gigante */}
-      <h1 className="text-9xl font-extrabold text-[#22477b]tracking-tighter">
+      <h1 className="text-9xl font-extrabold text-[#22477b] tracking-tighter">
         401
       </h1>
       

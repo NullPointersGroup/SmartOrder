@@ -50,15 +50,6 @@ async function authFetch(endpoint: string, body: object): Promise<AuthResponse> 
   }
 }
 
-export function getUsernameFromToken(token: string): string {
-  /**
-   * @brief restituisce lo username dal token di autenticazione
-   * @return lo username
-   */
-  const payload = JSON.parse(atob(token.split('.')[1]));
-  return payload.sub;
-}
-
 /* Fanno una chiamata agli endpoint */
 
 export async function login(dto: LoginDto): Promise<AuthResponse> {
