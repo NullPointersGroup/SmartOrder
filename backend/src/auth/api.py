@@ -184,14 +184,11 @@ def delete_account(
         )
 
 
-## TODO togliere il commento type: ignore quando verrà risolta la issue 35
 @router.post("/logout")
-def logout(response: Response):  # type: ignore[no-untyped-def]
+def logout(response: Response) -> dict[str, bool]:
     response.delete_cookie("access_token")
     return {"ok": True}
 
-
 @router.get("/me")
-def me(current_user: UserServiceCurrentUser):  # type: ignore[no-untyped-def]
+def me(current_user: UserServiceCurrentUser) -> dict[str, str]:
     return {"username": current_user}
-

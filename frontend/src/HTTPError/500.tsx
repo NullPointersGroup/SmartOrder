@@ -1,4 +1,9 @@
+import { usePageTitle } from "../hooks/usePageTitle";
+
 export function ServerError() {
+
+  usePageTitle("Errore server");
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4 text-center">
       <div className="mb-6 text-red-500">
