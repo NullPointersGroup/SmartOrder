@@ -7,7 +7,7 @@ from src.enums import CartUpdateOperation
 from src.cart.adapters.UserCartRepository import UserCartRepository
 from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
 from src.cart.adapters.CartProductRepository import CartProductRepository
-
+from src.enums import MeasureUnitEnum
 
 class CartRepository:
     def __init__(self, db: Session) -> None:
@@ -31,7 +31,7 @@ class CartRepository:
                 qty=cart.quantita,
                 prod_descr=catalog.prod_des,
                 price=catalog.price,
-                measure_unit=catalog.measure_unit_type,
+                measure_unit=MeasureUnitEnum(catalog.measure_unit_type),
             )
             for cart, catalog in result
         ]
@@ -58,7 +58,7 @@ class CartRepository:
             qty=qty,
             prod_descr=result.prod_des,
             price=result.price,
-            measure_unit=result.measure_unit_type,
+            measure_unit=MeasureUnitEnum(result.measure_unit_type),
         )
 
     def remove_product(self, username: str, prod_id: str) -> CartProductRepository:
@@ -76,13 +76,13 @@ class CartRepository:
         if not result:
             raise ProductNotInCartException(prod_id, username)
         cart, catalog = result
-        stmt = (
+        delete_stmt = (
             delete(UserCartRepository)
             .where(col(UserCartRepository.username) == username)
             .where(col(UserCartRepository.cod_art) == prod_id)
         )
 
-        self.db.exec(stmt)
+        self.db.exec(delete_stmt)
         self.db.commit()
 
         return CartProductRepository(
@@ -90,7 +90,7 @@ class CartRepository:
             qty=cart.quantita,
             prod_descr=catalog.prod_des,
             price=catalog.price,
-            measure_unit=catalog.measure_unit_type,
+            measure_unit=MeasureUnitEnum(catalog.measure_unit_type),
         )
 
     def update_quantity(
@@ -115,13 +115,13 @@ class CartRepository:
             new_qty = col(UserCartRepository.quantita) + qty
         else:
             new_qty = col(UserCartRepository.quantita) - qty
-        stmt = (
+        update_stmt = (
             update(UserCartRepository)
             .where(col(UserCartRepository.username) == username)
             .where(col(UserCartRepository.cod_art) == prod_id)
             .values(quantita=new_qty)
         )
-        self.db.exec(stmt)
+        self.db.exec(update_stmt)
         self.db.commit()
 
         return CartProductRepository(
@@ -133,5 +133,5 @@ class CartRepository:
             ),
             prod_descr=catalog.prod_des,
             price=catalog.price,
-            measure_unit=catalog.measure_unit_type,
+            measure_unit=MeasureUnitEnum(catalog.measure_unit_type),
         )

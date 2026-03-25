@@ -39,8 +39,9 @@ def test_send_message_unit():
     mock_service.send_message.return_value = test_message
     result = send_message(
         conv_id=1,
-        request=MessageRequest(username="test", content="Test message", audioFile=None),
+        message=MessageRequest(username="test", content="Test message", audioFile=None),
         chat_service=mock_service,
+        current_user="test",
     )
     assert isinstance(result, MessageResponse)
     mock_service.send_message.assert_called_once_with(1, "test", "Test message", None)

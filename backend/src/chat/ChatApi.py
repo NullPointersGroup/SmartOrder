@@ -10,6 +10,7 @@ from src.chat.adapters.LLMAdapter import LLMAdapter
 from src.chat.adapters.ChatRepoAdapter import ChatRepoAdapter
 from src.chat.adapters.ChatRepository import ChatRepository
 from src.db.dbConnection import get_conn
+from src.auth.api import get_current_user
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -30,8 +31,14 @@ def get_all_messages(conv_id: int, chat_service: ChatServiceDep) -> ChatResponse
     except ConversationNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
+UserServiceCurrentUser = Annotated[str, Depends(get_current_user)]
 
 @router.post("/{conv_id}")
-def send_message(conv_id: int, message: MessageRequest, chat_service: ChatServiceDep) -> MessageResponse:
-    return chat_service.send_message(conv_id, message)
-
+def send_message(
+    conv_id: int,
+    message: MessageRequest,
+    chat_service: ChatServiceDep,
+    current_user: UserServiceCurrentUser
+) -> MessageResponse:
+    msg = chat_service.send_message(conv_id, current_user, message.content, None)
+    return MessageResponse(id_conv=conv_id, message=msg)

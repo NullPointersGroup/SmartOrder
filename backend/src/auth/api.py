@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response, Request, Cookie
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
 from pydantic import BaseModel
 from sqlmodel import Session
 from src.auth.TokenUtility import TokenUtility
