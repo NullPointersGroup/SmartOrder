@@ -1,4 +1,5 @@
 from src.chat.ChatSchemas import Message
+from src.db.models import Conversazione
 from src.enums import SenderEnum
 from src.chat.adapters.ChatRepository import ChatRepository
 from src.chat.ports.ChatRepoPort import ChatRepoPort
@@ -22,3 +23,13 @@ class ChatRepoAdapter(ChatRepoPort):
             content=row.contenuto,
             sender=row.mittente,
         )
+
+    def conversation_exist(self, conv_id: int) -> bool:
+        row = self.repo.get_conversation(conv_id)
+        if row:
+            return True
+        else:
+            return False
+
+    def create_conversation(self, username: str) -> Conversazione:
+        return self.repo.create_conversation(username)

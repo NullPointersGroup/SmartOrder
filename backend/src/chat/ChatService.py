@@ -1,4 +1,4 @@
-from src.chat.ChatSchemas import ChatResponse, MessageRequest, MessageResponse
+from src.chat.ChatSchemas import Message, MessageRequest
 from src.enums import SenderEnum
 from src.chat.ports.ChatRepoPort import ChatRepoPort
 from src.chat.ports.LLMPort import LLMPort
@@ -9,13 +9,18 @@ class ChatService:
         self.repo = repo
         self.llm = llm
 
-    def get_all_messages(self, conv_id: int) -> ChatResponse:
+    def get_all_messages(self, conv_id: int) -> list[Message]:
         messages = self.repo.get_messages(conv_id)
-        return ChatResponse(id_conv=conv_id, messages=messages)
+        return messages
 
-    def send_message(self, conv_id: int, req: MessageRequest) -> MessageResponse:
-        self.repo.add_message(conv_id, req.content, SenderEnum.User)
-        llm_text = self.llm.invoke_agent(req.content)
-        llm_message=self.repo.add_message(conv_id, llm_text, SenderEnum.ChatBot)
-        return MessageResponse(id_conv=conv_id, message=llm_message)
-
+    def send_message(
+        self, conv_id: int, username: str, content: str, audio_file: str | None
+    ) -> Message:
+        conv = self.repo.conversation_exist(conv_id)
+        if not conv:
+            self.repo.create_conversation(username)
+        message = self.repo.add_message(conv_id, content, SenderEnum.Utente)
+        llm_text = self.llm.invoke_agent(content)
+        self.repo.add_message(conv_id, llm_text, SenderEnum.Chatbot)
+        ## TODO decidere se ritorna il messaggio originale o la risposta del chatbot
+        return message

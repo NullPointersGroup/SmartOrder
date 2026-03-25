@@ -3,7 +3,6 @@ npm run test
 cd ../backend
 source .venv/bin/activate
 mypy src
-export DATABASE_URL="sqlite://"
 pytest
 cd ..
 python check_reqs.py

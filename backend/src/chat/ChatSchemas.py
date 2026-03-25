@@ -28,4 +28,7 @@ class MessageResponse(BaseModel):
     id_conv: int
     message: Message
 
-
+class Conversation(BaseModel):
+    id_conv: int
+    username: str
+    titolo: str

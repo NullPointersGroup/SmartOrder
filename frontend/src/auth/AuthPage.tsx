@@ -4,7 +4,8 @@ import Register from './Register';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useAuthStore } from './authStore';
-import { getUsernameFromToken } from './AuthAPI';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function AuthPage() {
   /**
@@ -57,7 +58,7 @@ export default function AuthPage() {
           </button>
           <button
             onClick={() => setIsLogin(false)}
-            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-10 ${!isLogin ? 'text-white' : 'text-black'}`} //NOSONAR
+            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-10 ${isLogin ? 'text-black' : 'text-white'}`} 
           >
             Registrati
           </button>
@@ -68,22 +69,14 @@ export default function AuthPage() {
       {/* Card */}
       <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-2xl shadow-sm">
         <div className="p-8 px-9">
-          {isLogin
-            ? <Login onLogin={(token) => {
-                if (token) {
-                  const username = getUsernameFromToken(token);
-                  setAuth(token, username);
-                }
-                navigate('/chat');
-              }} />
-            : <Register onRegister={(token) => {
-                if (token) {
-                  const username = getUsernameFromToken(token);
-                  setAuth(token, username);
-                }
-                navigate('/chat');
-              }} />
-          }
+          <Login onLogin={async () => {
+            const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+            const data = await res.json();
+            setAuth(data.username);
+            navigate('/chat');
+          }} />
+
+          <Register onRegister={() => setIsLogin(true)} />
         </div>
       </div>
 

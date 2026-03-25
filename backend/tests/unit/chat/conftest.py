@@ -6,37 +6,42 @@ from unittest.mock import MagicMock
 import pytest
 from sqlmodel import Session
 from src.db.models import Conversazione, Utente
-from src.chat.adapters.ChatMessageRepository import ChatMessageRepository 
+from src.chat.adapters.ChatMessageRepository import ChatMessageRepository
 from src.chat.adapters.ChatRepoAdapter import ChatRepoAdapter
 from src.chat.adapters.ChatRepository import ChatRepository
 from src.chat.ChatService import ChatService
 from src.enums import SenderEnum
 
 
-
 @pytest.fixture
 def mock_repo():
     return MagicMock()
+
 
 @pytest.fixture
 def mock_llm():
     return MagicMock()
 
+
 @pytest.fixture
 def chat_service(mock_repo, mock_llm):
     return ChatService(repo=mock_repo, llm=mock_llm)
+
 
 @pytest.fixture
 def mock_conversazione(mock_utente: Utente) -> Conversazione:
     return Conversazione(id_conv=1, username=mock_utente.username)
 
+
 @pytest.fixture
 def adapter(mock_repo):
     return ChatRepoAdapter(repo=mock_repo)
 
+
 @pytest.fixture
 def mock_db():
     return MagicMock()
+
 
 @pytest.fixture
 def chat_repository(mock_db):
@@ -49,19 +54,19 @@ def mock_messaggi(mock_conversazione: Conversazione) -> list[ChatMessageReposito
         ChatMessageRepository(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=1,
-            mittente=SenderEnum.User,
+            mittente=SenderEnum.Utente,
             contenuto="Primo messaggio da Utente",
         ),
         ChatMessageRepository(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=2,
-            mittente=SenderEnum.ChatBot,
+            mittente=SenderEnum.Chatbot,
             contenuto="Secondo messaggio da Chatbot",
         ),
         ChatMessageRepository(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=3,
-            mittente=SenderEnum.User,
+            mittente=SenderEnum.Utente,
             contenuto="Terzo messaggio da Utente",
         ),
     ]

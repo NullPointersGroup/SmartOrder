@@ -1,0 +1,73 @@
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlmodel import Session
+from starlette.status import HTTP_404_NOT_FOUND
+
+from src.cart.CartSchemas import (
+    AddProductRequest,
+    CartProductResponse,
+    CartResponse,
+    RemoveProductRequest,
+    UpdateProductRequest,
+)
+from src.cart.CartService import CartService
+from src.cart.adapters.CartRepoAdapter import CartRepoAdapter
+from src.cart.adapters.CartRepository import CartRepository
+from src.cart.exceptions import (
+    ProductNotFoundException,
+    ProductNotInCartException,
+)
+from src.db.dbConnection import get_conn
+
+router = APIRouter(prefix="/cart", tags=["cart"])
+
+
+def get_cart_service(db: Session = Depends(get_conn)) -> CartService:
+    repo = CartRepoAdapter(CartRepository(db))
+    return CartService(repo=repo)
+
+
+CartServiceDep = Annotated[CartService, Depends(get_cart_service)]
+
+
+@router.get("/{username}", response_model=CartResponse)
+def get_user_cart(username: str, cart_service: CartServiceDep) -> CartResponse:
+    products = cart_service.get_cart_products(username)
+    return CartResponse(products=products, username=username)
+
+
+@router.post("/{username}", response_model=CartProductResponse)
+def add_product_to_cart(
+    username: str, request: AddProductRequest, cart_service: CartServiceDep
+) -> CartProductResponse:
+    try:
+        product = cart_service.add_product_to_cart(
+            username, request.prod_id, request.qty
+        )
+        return CartProductResponse(product=product, username=username)
+    except ProductNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.delete("/{username}", response_model=CartProductResponse)
+def remove_product_from_cart(
+    username: str, request: RemoveProductRequest, cart_service: CartServiceDep
+) -> CartProductResponse:
+    try:
+        product = cart_service.remove_product_from_cart(username, request.prod_id)
+        return CartProductResponse(product=product, username=username)
+    except ProductNotInCartException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.patch("/{username}", response_model=CartProductResponse)
+def update_product_quantity(
+    username: str, request: UpdateProductRequest, cart_service: CartServiceDep
+) -> CartProductResponse:
+    try:
+        product = cart_service.update_cart_quantity(
+            username, request.prod_id, request.qty, request.operation
+        )
+        return CartProductResponse(product=product, username=username)
+    except ProductNotInCartException as e:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=str(e))
