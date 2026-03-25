@@ -67,15 +67,17 @@ def test_registration_missing_fields(client) -> None:
 
 
 def test_login_success(client, mock_user_service: MagicMock) -> None:
-    mock_user_service.check_user.return_value = "testuser"  # ritorna lo username
+    mock_user_service.check_user.return_value = "testuser"
 
-    response = client.post(
-        "/auth/login", json={"username": "testuser", "password": "testpassword"}
-    )
+    with patch("src.auth.api.TokenUtility.create_token", return_value="fake-token"):
+        response = client.post(
+            "/auth/login",
+            json={"username": "testuser", "password": "testpassword"},
+        )
 
     assert response.status_code == 200
     assert response.json()["ok"] is True
-    assert response.json()["token"] is not None
+    assert response.json()["token"] == "fake-token"
     mock_user_service.check_user.assert_called_once()
 
 
@@ -153,20 +155,38 @@ class TestGetUserService:
 
 class TestGetCurrentUser:
     def test_valid_token_returns_username(self):
+        from unittest.mock import MagicMock
+
+        mock_request = MagicMock()
+        mock_request.cookies.get.return_value = "valid.token.here"
+
         with patch("src.auth.api.TokenUtility.decode_token", return_value="testuser"):
-            result = get_current_user("valid.token.here")
+            result = get_current_user(mock_request)
+
         assert result == "testuser"
 
     def test_invalid_token_raises_401(self):
+        from unittest.mock import MagicMock
+
+        mock_request = MagicMock()
+        mock_request.cookies.get.return_value = "token.non.valido"
+
         with patch("src.auth.api.TokenUtility.decode_token", return_value=None):
             with pytest.raises(HTTPException) as exc:
-                get_current_user("token.non.valido")
+                get_current_user(mock_request)
+
         assert exc.value.status_code == 401
 
     def test_invalid_token_detail_message(self):
+        from unittest.mock import MagicMock
+
+        mock_request = MagicMock()
+        mock_request.cookies.get.return_value = "token.non.valido"
+
         with patch("src.auth.api.TokenUtility.decode_token", return_value=None):
             with pytest.raises(HTTPException) as exc:
-                get_current_user("token.non.valido")
+                get_current_user(mock_request)
+
         assert exc.value.detail == "Token non valido"
 
 # ---------------------------------------------------------------------------

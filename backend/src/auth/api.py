@@ -80,7 +80,7 @@ def login(payload: UserSchema, service: UserServiceDep, response: Response) -> L
             path="/",
         )
 
-        return LoginResponse(ok=True, errors=[], token=None)
+        return LoginResponse(ok=True, errors=[], token=token)
 
     except InvalidCredentialsError:
         raise HTTPException(
