@@ -17,34 +17,44 @@ export const ChatView: React.FC = () => {
   }, [error, setError]);
 
   return (
-    <div
-      className="flex h-screen w-screen overflow-hidden bg-stone-50"
-      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-    >
-    {/* ── Toggle sinistra ── */}
-    <button
-      onClick={() => setIsLeftOpen(prev => !prev)}
-      className="absolute top-4 left-0 z-50 w-6 h-6 bg-emerald-500 text-white rounded focus:outline-none"
-    >
-      {isLeftOpen ? '<' : '>'}
-    </button>
+    <div className="flex h-screen w-screen overflow-hidden bg-white text-stone-900">
+      
+      {/* sidebar sinistra */}
+      <div 
+        className={`relative h-full transition-all duration-500 ease-in-out flex-shrink-0 flex border-r border-stone-200 bg-[#fcfcfc]
+          ${isLeftOpen ? 'w-72' : 'w-14'}`}
+      >
+        <div className="absolute top-6 right-3 z-50">
+          <button
+            onClick={() => setIsLeftOpen(!isLeftOpen)}
+            className="p-2 text-stone-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+          >
+            {isLeftOpen ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            )}
+          </button>
+        </div>
 
-    {/* ── Sidebar sinistra ── */}
-    <div className={`transition-all duration-300 ${isLeftOpen ? 'w-80 min-w-[20rem] pl-8' : 'w-0 min-w-0 overflow-hidden'}`}>
-      <ConversationSidebar
-        conversations={vm.conversations}
-        activeConvId={vm.activeConvId}
-        username={vm.username}
-        onSelect={vm.selectConversation}
-        onCreate={vm.createConversation}
-        onRename={vm.renameConversation}
-        onDelete={vm.deleteConversation}
-        onLogout={vm.logout}
-      />
-    </div>
+        <div className={`flex-1 h-full overflow-hidden transition-opacity duration-300 ${isLeftOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <ConversationSidebar
+            {...vm}
+            onSelect={vm.selectConversation}
+            onCreate={vm.createConversation}
+            onRename={vm.renameConversation}
+            onDelete={vm.deleteConversation}
+            onLogout={vm.logout}
+          />
+        </div>
+      </div>
 
-      {/* ── Area chat centrale ── */}
-      <div className="flex-1 transition-all duration-300">
+      {/* ── AREA CHAT CENTRALE ── */}
+      <main className="relative flex-1 h-full min-w-0 flex flex-col overflow-hidden bg-white">
         <ChatArea
           messages={vm.messages}
           isLoading={vm.isLoadingMsgs}
@@ -55,44 +65,42 @@ export const ChatView: React.FC = () => {
           onInputChange={vm.setInputText}
           onSend={vm.sendMessage}
         />
-      </div>
+      </main>
 
-      {/* ── Toggle destra ── */}
-      <button
-        onClick={() => setIsRightOpen(prev => !prev)}
-        className="absolute top-4 right-2 z-50 w-6 h-6 bg-emerald-500 text-white rounded focus:outline-none"
+      {/* sidebar destra */}
+      <div 
+        className={`relative h-full transition-all duration-500 ease-in-out flex-shrink-0 flex border-l border-stone-200 bg-white
+          ${isRightOpen ? 'w-80' : 'w-14'}`}
       >
-        {isRightOpen ? '>' : '<'}
-      </button>
+        {/* Pulsante Toggle Unificato (Sempre a sinistra della sidebar) */}
+        <div className="absolute top-6 left-3 z-50">
+          <button
+            onClick={() => setIsRightOpen(!isRightOpen)}
+            className="p-2 text-stone-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+          >
+            {isRightOpen ? (
+              /* Icona Freccia per CHIUDERE */
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            ) : (
+              /* Icona CARRELLO per APRIRE */
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+            )}
+          </button>
+        </div>
 
-      {/* ── Sidebar destra ── */}
-      <div className={`transition-all duration-300 ${isRightOpen ? 'w-80 min-w-[20rem]' : 'w-0 min-w-0 overflow-hidden'}`}>
-        <CartSidebar
-          products={vm.cartProducts}
-        />
+        <div className={`flex-1 h-full overflow-hidden transition-opacity duration-300 ${isRightOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <CartSidebar products={vm.cartProducts} />
+        </div>
       </div>
 
-      {/* ── Toast errore ── */}
+      {/* error */}
       {vm.error && (
-        <div
-          role="alert"
-          aria-live="assertive"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 px-4 py-3 bg-red-600 text-white text-sm rounded-xl shadow-lg z-50 animate-in fade-in slide-in-from-bottom-2 duration-200"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <circle cx="8" cy="8" r="7" stroke="white" strokeWidth="1.5" />
-            <path d="M8 5v4M8 11v.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-red-600 text-white rounded-lg shadow-xl z-[100]">
           {vm.error}
-          <button
-            onClick={() => vm.setError(null)}
-            aria-label="Chiudi avviso"
-            className="ml-1 hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M2 2l10 10M12 2L2 12" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
         </div>
       )}
     </div>

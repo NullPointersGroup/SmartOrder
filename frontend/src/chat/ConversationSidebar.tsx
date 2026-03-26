@@ -65,7 +65,9 @@ export const ConversationSidebar: React.FC<Props> = ({
   }
 
   function commitRename(convId: number) {
-    onRename(convId, rename.value);
+    if (rename.value.trim()) {
+      onRename(convId, rename.value.trim());
+    }
     setRename({ convId: null, value: '' });
   }
 
@@ -81,139 +83,159 @@ export const ConversationSidebar: React.FC<Props> = ({
 
   return (
     <aside
-      className="flex flex-col w-64 min-w-[16rem] h-full bg-white border-r border-stone-200"
+      className="flex flex-col w-72 min-w-[18rem] h-full bg-[#fcfcfc] border-r border-stone-200 shadow-[inset_-1px_0_0_0_rgba(0,0,0,0.05)]"
       aria-label="Conversazioni"
     >
-      <div className="flex items-center justify-between px-4 py-4 border-b border-stone-100">
-        <span className="text-xs font-semibold tracking-widest text-stone-400 uppercase">
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-6">
+        <h2 className="text-[11px] font-bold tracking-[0.15em] text-stone-400 uppercase">
           Conversazioni
-        </span>
+        </h2>
         <button
           onClick={onCreate}
-          aria-label="Nuova conversazione"
-          className="flex items-center justify-center w-7 h-7 rounded-lg text-stone-500 hover:bg-emerald-50 hover:text-emerald-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+          className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 hover:scale-105 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          title="Nuova conversazione"
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+            <path d="M8 3.5v9M3.5 8h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>
       </div>
 
-      <nav className="flex-1 overflow-y-auto py-2" aria-label="Elenco conversazioni">
-        {conversations.length === 0 && (
-          <p className="px-4 py-6 text-sm text-stone-400 text-center">
-            Nessuna conversazione.<br />Inizia con +
-          </p>
-        )}
+      {/* List */}
+      <nav className="flex-1 overflow-y-auto px-3 space-y-0.5" aria-label="Elenco conversazioni">
+        {conversations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4 opacity-40">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mb-2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            <p className="text-xs text-center leading-relaxed">
+              Nessuna conversazione.<br />Clicca su + per iniziare.
+            </p>
+          </div>
+        ) : (
+          conversations.map(conv => {
+            const isActive = conv.id_conv === activeConvId;
+            const isEditing = rename.convId === conv.id_conv;
+            const menuOpen = menu.convId === conv.id_conv;
 
-        {conversations.map(conv => {
-          const isActive = conv.id_conv === activeConvId;
-          const isEditing = rename.convId === conv.id_conv;
-          const menuOpen = menu.convId === conv.id_conv;
-
-          return (
-            <div key={conv.id_conv} className="relative px-2 group">
-              <button
-                type="button"
-                className={`
-                  flex items-center gap-2 w-full rounded-lg px-3 py-2
-                  transition-colors text-sm text-left
-                  ${isActive
-                    ? 'bg-emerald-50 text-emerald-800 font-medium'
-                    : 'text-stone-700 hover:bg-stone-50'}
-                `}
-                onClick={() => !isEditing && onSelect(conv.id_conv)}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <svg
-                  width="14" height="14" viewBox="0 0 14 14" fill="none"
-                  className="shrink-0 text-stone-400"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M1 1h12v9H8l-3 3V10H1V1z"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-
-                {isEditing ? (
-                  <input
-                    ref={renameInputRef}
-                    className="flex-1 min-w-0 bg-white border border-emerald-400 rounded px-1 py-0.5 text-sm text-stone-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                    value={rename.value}
-                    onChange={e => setRename(r => ({ ...r, value: e.target.value }))}
-                    onKeyDown={e => handleRenameKey(e, conv.id_conv)}
-                    onBlur={() => commitRename(conv.id_conv)}
-                    maxLength={24}
-                  />
-                ) : (
-                  <span className="flex-1 min-w-0 truncate">{conv.titolo}</span>
+            return (
+              <div key={conv.id_conv} className="relative group">
+                {/* Indicatore attivo verticale */}
+                {isActive && (
+                    <div className="absolute left-0 top-2 bottom-2 w-1 bg-emerald-500 rounded-r-full z-10" />
                 )}
-              </button>
 
-              {/* ── Menu a tre puntini sempre disponibile ── */}
-              <button
-                className={`
-                  absolute right-3 top-1/2 -translate-y-1/2
-                  w-6 h-6 flex items-center justify-center rounded
-                  text-stone-400 hover:text-stone-700 hover:bg-stone-200
-                  transition-opacity
-                  ${menuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
-                `}
-                onClick={e => openMenu(e, conv.id_conv)}
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-                  <circle cx="2" cy="7" r="1.3" />
-                  <circle cx="7" cy="7" r="1.3" />
-                  <circle cx="12" cy="7" r="1.3" />
-                </svg>
-              </button>
-
-              {menuOpen && (
-                <div
-                  ref={menuRef}
-                  className="absolute right-2 top-full mt-1 z-50 w-40 bg-white border border-stone-200 rounded-lg shadow-lg py-1 text-sm"
+                <button
+                  type="button"
+                  className={`
+                    relative flex items-center gap-3 w-full rounded-xl px-4 py-3
+                    transition-all duration-200 text-sm text-left
+                    ${isActive
+                      ? 'bg-white shadow-sm ring-1 ring-stone-200 text-stone-900 font-semibold'
+                      : 'text-stone-500 hover:bg-stone-100 hover:text-stone-700'}
+                  `}
+                  onClick={() => !isEditing && onSelect(conv.id_conv)}
                 >
-                  <button
-                    className="flex items-center gap-2 w-full px-3 py-2 text-stone-700 hover:bg-stone-50"
-                    onClick={() => startRename(conv)}
+                  <svg
+                    width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    className={`shrink-0 ${isActive ? 'text-emerald-500' : 'text-stone-300'}`}
                   >
-                    Rinomina
-                  </button>
-                  <button
-                    className="flex items-center gap-2 w-full px-3 py-2 text-red-600 hover:bg-red-50"
-                    onClick={() => handleDelete(conv.id_conv)}
+                    <path
+                      d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+
+                  {isEditing ? (
+                    <input
+                      ref={renameInputRef}
+                      className="flex-1 min-w-0 bg-stone-50 border-none rounded px-1 py-0 font-normal text-stone-800 focus:ring-0 outline-none"
+                      value={rename.value}
+                      onChange={e => setRename(r => ({ ...r, value: e.target.value }))}
+                      onKeyDown={e => handleRenameKey(e, conv.id_conv)}
+                      onBlur={() => commitRename(conv.id_conv)}
+                      maxLength={24}
+                    />
+                  ) : (
+                    <span className="flex-1 min-w-0 truncate pr-4">{conv.titolo}</span>
+                  )}
+                </button>
+
+                {/* Opzioni */}
+                {!isEditing && (
+                    <button
+                        className={`
+                        absolute right-3 top-1/2 -translate-y-1/2
+                        w-7 h-7 flex items-center justify-center rounded-lg
+                        text-stone-400 hover:text-stone-900 hover:bg-stone-100
+                        transition-all z-20
+                        ${menuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                        `}
+                        onClick={e => openMenu(e, conv.id_conv)}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <circle cx="12" cy="12" r="1" />
+                            <circle cx="12" cy="5" r="1" />
+                            <circle cx="12" cy="19" r="1" />
+                        </svg>
+                    </button>
+                )}
+
+                {menuOpen && (
+                  <div
+                    ref={menuRef}
+                    className="absolute right-2 top-10 z-[100] w-44 bg-white border border-stone-200 rounded-xl shadow-xl py-1.5 animate-in fade-in zoom-in-95 duration-100"
                   >
-                    Elimina
-                  </button>
-                </div>
-              )}
-            </div>
-          );
-        })}
+                    <button
+                      className="flex items-center gap-2 w-full px-4 py-2 text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                      onClick={() => startRename(conv)}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                      Rinomina
+                    </button>
+                    <div className="h-px bg-stone-100 my-1 mx-2" />
+                    <button
+                      className="flex items-center gap-2 w-full px-4 py-2 text-red-500 hover:bg-red-50 transition-colors"
+                      onClick={() => handleDelete(conv.id_conv)}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      Elimina
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </nav>
 
-      <div className="border-t border-stone-100 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-            <span className="text-xs font-semibold text-emerald-700 uppercase">
+      {/* User Footer */}
+      <div className="mt-auto border-t border-stone-200 bg-white/50 backdrop-blur-sm px-4 py-4">
+        <div className="flex items-center gap-3 p-2 rounded-2xl bg-stone-50/50 border border-stone-100">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center shrink-0 shadow-sm shadow-emerald-200">
+            <span className="text-sm font-bold text-white uppercase leading-none">
               {username?.[0] ?? '?'}
             </span>
           </div>
-          <span className="text-sm text-stone-600 truncate">{username}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-stone-900 truncate tracking-tight">{username}</p>
+            <p className="text-[10px] text-stone-400 font-medium">Account Online</p>
+          </div>
+          <button
+            onClick={onLogout}
+            title="Esci dall'account"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-stone-400 hover:bg-red-50 hover:text-red-500 transition-all focus:outline-none"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
         </div>
-        <button
-          onClick={onLogout}
-          aria-label="Esci"
-          title="Esci"
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-        >
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-            <path d="M6 2H2v11h4M10 5l3 2.5L10 10M13 7.5H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
       </div>
     </aside>
   );
