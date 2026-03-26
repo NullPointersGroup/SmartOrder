@@ -40,6 +40,7 @@ function TypingIndicator() {
 
 function MessageBubble({ msg }: { readonly msg: Message }) {
   const isUser = msg.mittente === 'Utente';
+  console.log(msg.mittente); // singolo messaggio
   return (
     <div
       className={`flex items-end gap-2 mb-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}

@@ -13,14 +13,16 @@ class ChatService:
         messages = self.repo.get_messages(conv_id)
         return messages
 
-    def send_message(
-        self, conv_id: int, username: str, content: str, audio_file: str | None
-    ) -> Message:
+    def send_message(self, conv_id: int, username: str, content: str, audio_file) -> Message:
         conv = self.repo.conversation_exist(conv_id)
+
         if not conv:
-            self.repo.create_conversation(username)
+            conv = self.repo.create_conversation(username)
+            conv_id = conv.id_conv
+
         message = self.repo.add_message(conv_id, content, SenderEnum.Utente)
+
         llm_text = self.llm.invoke_agent(content)
         self.repo.add_message(conv_id, llm_text, SenderEnum.Chatbot)
-        ## TODO decidere se ritorna il messaggio originale o la risposta del chatbot
+
         return message

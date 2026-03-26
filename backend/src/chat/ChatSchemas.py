@@ -1,16 +1,14 @@
-from src.enums import SenderEnum
 from typing import List
 
 from pydantic import BaseModel
 
 class Message(BaseModel):
-    id_message: int
+    id_message: int | None = None
     content: str
-    sender: SenderEnum
+    sender: str
 
 
 class MessageRequest(BaseModel):
-    username: str
     content: str
     audioFile: str | None = None
 
