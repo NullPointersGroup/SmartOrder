@@ -3,26 +3,38 @@ import type { CartProduct } from './ChatModel';
 
 interface Props {
   products: CartProduct[];
+  onToggleSelf: () => void;
 }
 
-export const CartSidebar: React.FC<Props> = ({ products }) => {
+export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf }) => {
   const fmt = (n: number) =>
     n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 
   const total = products.reduce((sum, p) => sum + (p.price ?? 0) * (p.qty ?? 0), 0);
 
   return (
-    <aside className="flex flex-col w-72 min-w-[18rem] h-full bg-white border-l border-stone-200" aria-label="Carrello">
-      {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-4 border-b border-stone-100">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="text-stone-400">
-          <path d="M1 1h2l2 8h8l1-5H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <circle cx="7" cy="13" r="1" fill="currentColor"/>
-          <circle cx="12" cy="13" r="1" fill="currentColor"/>
-        </svg>
-        <span className="text-xs font-semibold tracking-widest text-stone-400 uppercase">Carrello</span>
+    <aside className="flex flex-col w-80 min-w-[20rem] h-full bg-white border-l border-stone-200" aria-label="Carrello">
+      {/* Header: [ > chiudi ] [ icona carrello ] [ CARRELLO ] [ badge ] */}
+      <div className="flex items-center gap-2 px-4 py-6 border-b border-stone-100">
+        {/* Chiudi sidebar destra */}
+        <button
+          onClick={onToggleSelf}
+          className="flex items-center justify-center w-8 h-8 rounded-xl text-stone-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none"
+          title="Chiudi carrello"
+        >
+          <svg width="18" height="18" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M0 0.5 L1.5 0.5 L3.5 9.5 L11.5 9.5 L13 4 L3 4"/>
+            <circle cx="5" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+            <circle cx="10.5" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
+
+        <span className="text-[11px] font-bold tracking-[0.15em] text-stone-400 uppercase flex-1">
+          Carrello
+        </span>
+
         {products.length > 0 && (
-          <span className="ml-auto flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
             {products.length}
           </span>
         )}
