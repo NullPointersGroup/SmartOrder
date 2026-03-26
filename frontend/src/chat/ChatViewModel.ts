@@ -153,18 +153,20 @@ export function useChatViewModel() {
     setInputText('');
     setIsSending(true);
 
-    // Ottimistica: mostra subito il messaggio utente
     const tempId = -Date.now();
     const userMsg: Message = { id_messaggio: tempId, mittente: 'Utente', contenuto: content };
     setMessages(prev => [...prev, userMsg]);
 
     try {
-      const { message: botMsg } = await ChatModel.sendMessage(activeConvId, content);
-      setMessages(prev => [...prev, botMsg]);
-      // Il bot potrebbe aver modificato il carrello
-      await refreshCart();
+      // invia messaggio utente
+      await ChatModel.sendMessage(activeConvId, content);
+
+      // fetch dei messaggi aggiornati subito dopo
+      const { messages: latest } = await ChatModel.getMessages(activeConvId);
+      setMessages(latest);
+
+      refreshCart();
     } catch {
-      setError("Errore nell'invio del messaggio");
       setMessages(prev => prev.filter(m => m.id_messaggio !== tempId));
     } finally {
       setIsSending(false);
