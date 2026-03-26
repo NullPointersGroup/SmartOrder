@@ -23,21 +23,32 @@ export function useChatViewModel() {
 
   // ── Bootstrap: carica utente e sue conversazioni ──────────────────────────
   useEffect(() => {
-    ChatModel.getMe()
-      .then(({ username }) => {
+    (async () => {
+      try {
+        const { username } = await ChatModel.getMe();
         setUsername(username);
-        return Promise.all([
+
+        const [convs, cart] = await Promise.all([
           ChatModel.getConversations(username),
           ChatModel.getCart(username),
         ]);
-      })
-      .then(([convs, cart]) => {
-        setConversations(convs);
+
         setCartProducts(cart.products);
-      })
-      .catch(() => {
-       globalThis.location.href = '/unauthorized';
-      });
+
+        if (convs.length > 0) {
+          // Seleziona automaticamente la conversazione più recente
+          setConversations(convs);
+          setActiveConvId(convs[0].id_conv);
+        } else {
+          // Nessuna conversazione: creane una silenziosamente
+          const newConv = await ChatModel.createConversation(username, 'Nuova conversazione');
+          setConversations([newConv]);
+          setActiveConvId(newConv.id_conv);
+        }
+      } catch {
+        globalThis.location.href = '/unauthorized';
+      }
+    })();
   }, []);
 
   // ── Carica messaggi al cambio conversazione ───────────────────────────────
