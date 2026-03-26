@@ -1,4 +1,4 @@
-// ── Tipi di dominio ──────────────────────────────────────────────────────────
+// ── Tipi di dominio (nomi italiani, usati nel resto dell'app) ─────────────────
 
 export type Mittente = 'Utente' | 'Chatbot';
 
@@ -14,10 +14,6 @@ export interface Conversation {
   titolo: string;
 }
 
-/** Un prodotto nel carrello.
- *  I nomi dei campi rispecchiano la risposta di CartApi.
- *  Se il backend restituisce `des_art` invece di `name`, aggiusta qui.
- */
 export interface CartProduct {
   prod_id: string;
   name: string;
@@ -41,7 +37,35 @@ export interface MessageApiResponse {
   message: Message;
 }
 
-// ── Costanti ─────────────────────────────────────────────────────────────────
+// ── Tipi raw del backend (privati a questo file) ──────────────────────────────
+
+interface RawMessage {
+  id_message: number;
+  sender: Mittente;
+  content: string;
+}
+
+interface RawChatApiResponse {
+  id_conv: number;
+  messages: RawMessage[];
+}
+
+interface RawMessageApiResponse {
+  id_conv: number;
+  message: RawMessage;
+}
+
+// ── Mapper ────────────────────────────────────────────────────────────────────
+
+function toMessage(m: RawMessage): Message {
+  return {
+    id_messaggio: m.id_message,
+    mittente:     m.sender,
+    contenuto:    m.content,
+  };
+}
+
+// ── Costanti ──────────────────────────────────────────────────────────────────
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -59,7 +83,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-// ── ChatModel — layer di accesso ai dati ─────────────────────────────────────
+// ── ChatModel — layer di accesso ai dati ──────────────────────────────────────
 
 export const ChatModel = {
   // Auth
@@ -112,31 +136,33 @@ export const ChatModel = {
 
   // Messaggi
   async getMessages(conv_id: number): Promise<ChatApiResponse> {
-    const res = await fetch(`${BASE}/chat/${conv_id}/all`, {
-      credentials: 'include',
-    });
-    return handleResponse(res);
+    const res = await fetch(`${BASE}/chat/${conv_id}/all`, { credentials: 'include' });
+    const data = await handleResponse<RawChatApiResponse>(res);
+
+    return {
+      id_conv:  data.id_conv,
+      messages: data.messages.map(toMessage),
+    };
   },
 
-  /**
-   * Invia un messaggio e riceve la risposta del chatbot.
-   * Il backend salva anche il messaggio utente: non occorre inviarlo separatamente.
-   */
   async sendMessage(conv_id: number, content: string): Promise<MessageApiResponse> {
     const res = await fetch(`${BASE}/chat/${conv_id}`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }), // solo content
+      body: JSON.stringify({ content }),
     });
-    return handleResponse(res);
+    const data = await handleResponse<RawMessageApiResponse>(res);
+
+    return {
+      id_conv: data.id_conv,
+      message: toMessage(data.message),
+    };
   },
 
   // Carrello
   async getCart(username: string): Promise<CartApiResponse> {
-    const res = await fetch(`${BASE}/cart/${username}`, {
-      credentials: 'include',
-    });
+    const res = await fetch(`${BASE}/cart/${username}`, { credentials: 'include' });
     return handleResponse(res);
   },
 

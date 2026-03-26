@@ -39,7 +39,7 @@ function TypingIndicator() {
 }
 
 function MessageBubble({ msg }: { readonly msg: Message }) {
-  const isUser = msg.mittente === 'Utente';
+  const isUser = msg.mittente.toLowerCase() === 'utente';
   console.log(msg.mittente); // singolo messaggio
   return (
     <div
