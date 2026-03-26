@@ -34,13 +34,16 @@ export function useChatViewModel() {
         ]);
 
         setCartProducts(cart.products);
+        setConversations(convs);
 
-        if (convs.length > 0) {
-          // Seleziona automaticamente la conversazione più recente
-          setConversations(convs);
+        const savedConvId = localStorage.getItem('activeConvId');
+        const savedIdNum = savedConvId ? Number.parseInt(savedConvId, 10) : null;
+
+        if (savedIdNum && convs.some(c => c.id_conv === savedIdNum)) {
+          setActiveConvId(savedIdNum);
+        } else if (convs.length > 0) {
           setActiveConvId(convs[0].id_conv);
         } else {
-          // Nessuna conversazione: creane una silenziosamente
           const newConv = await ChatModel.createConversation(username, 'Nuova conversazione');
           setConversations([newConv]);
           setActiveConvId(newConv.id_conv);
@@ -50,6 +53,13 @@ export function useChatViewModel() {
       }
     })();
   }, []);
+
+  // Salva l'ID nel localStorage ogni volta che cambia la chat attiva
+  useEffect(() => {
+    if (activeConvId !== null) {
+      localStorage.setItem('activeConvId', activeConvId.toString());
+    }
+  }, [activeConvId]);
 
   // ── Carica messaggi al cambio conversazione ───────────────────────────────
   useEffect(() => {
@@ -104,19 +114,36 @@ export function useChatViewModel() {
     }
   }, []);
 
-  // ── Elimina conversazione ─────────────────────────────────────────────────
+  // ── Elimina conversazione ────────────────────────────────────────────────
   const deleteConversation = useCallback(async (conv_id: number) => {
     try {
       await ChatModel.deleteConversation(conv_id);
-      setConversations(prev => prev.filter(c => c.id_conv !== conv_id));
-      if (activeConvId === conv_id) {
-        setActiveConvId(null);
-        setMessages([]);
-      }
+
+      setConversations(prev => {
+        const updatedConvs = prev.filter(c => c.id_conv !== conv_id);
+
+        if (activeConvId === conv_id || updatedConvs.length === 0) {
+          
+          if (updatedConvs.length === 0 && username) {
+            ChatModel.createConversation(username, 'Nuova conversazione')
+              .then(newConv => {
+                setConversations([newConv]);
+                setActiveConvId(newConv.id_conv);
+                setMessages([]);
+              })
+              .catch(() => setError('Errore nella creazione automatica'));
+          } else if (updatedConvs.length > 0) {
+            setActiveConvId(updatedConvs[0].id_conv);
+          }
+        }
+
+        return updatedConvs;
+      });
+
     } catch {
       setError("Errore nell'eliminazione");
     }
-  }, [activeConvId]);
+  }, [activeConvId, username]);
 
   // ── Invia messaggio ───────────────────────────────────────────────────────
   const sendMessage = useCallback(async () => {
