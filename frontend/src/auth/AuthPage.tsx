@@ -46,7 +46,7 @@ export default function AuthPage() {
       <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-full mb-3 p-3">
         <div className="relative flex">
           <div
-            className="absolute bg-[#22477b] rounded-full transition-all duration-200 top-1 bottom-1 w-[calc(50%-4px)] z-0"
+            className="absolute bg-[#22477b] rounded-full transition-all duration-200 top-0 bottom-0 w-[calc(50%-4px)] z-0"
             style={{ left: isLogin ? 3 : 'calc(50% + 1px)' }}
           />
 
@@ -69,14 +69,16 @@ export default function AuthPage() {
       {/* Card */}
       <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-2xl shadow-sm">
         <div className="p-8 px-9">
-          <Login onLogin={async () => {
-            const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
-            const data = await res.json();
-            setAuth(data.username);
-            navigate('/chat');
-          }} />
-
-          <Register onRegister={() => setIsLogin(true)} />
+          {isLogin ? (
+            <Login onLogin={async () => {
+              const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+              const data = await res.json();
+              setAuth(data.username);
+              navigate('/chat');
+            }} />
+          ) : (
+            <Register onRegister={() => setIsLogin(true)} />
+          )}
         </div>
       </div>
 
