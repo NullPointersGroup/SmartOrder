@@ -55,7 +55,8 @@ export default function Form({ title, submitLabel, fields, vm }: FormProps) {
                   <button
                     type="button"
                     onClick={() => toggleVisibility(key)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 hover:text-black/70 transition-colors"
+                    aria-label={visibleFields[key] ? 'Nascondi password' : 'Mostra password'}
+                    className="..."
                     tabIndex={-1}
                   >
                     {visibleFields[key]
@@ -76,6 +77,7 @@ export default function Form({ title, submitLabel, fields, vm }: FormProps) {
 
         <button
           type="submit"
+          data-testid="submit-btn"
           disabled={loading}
           className="w-full font-semibold text-base rounded-lg bg-[#22477b] text-white hover:bg-[#8da3c3] hover:text-black hover:border hover:border-[#22477b] transition-all duration-150 disabled:opacity-50 mt-2 h-12"
         >
