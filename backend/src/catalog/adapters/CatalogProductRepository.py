@@ -1,7 +1,7 @@
 from typing import ClassVar
-from sqlalchemy import Column, Float, String
+from sqlalchemy import Column, Float, String, Enum
 from sqlmodel import SQLModel, Field
-
+from src.enums import MeasureUnitEnum
 
 class CatalogProductRepository(SQLModel, table=True):
     __tablename__: ClassVar[str] = "anaart"
@@ -17,9 +17,8 @@ class CatalogProductRepository(SQLModel, table=True):
         default="",
         sa_column=Column("des_um", String(40)),
     )
-    measure_unit_type: str = Field(
-        default="",
-        sa_column=Column("tipo_um", String(1)),
+    measure_unit_type: MeasureUnitEnum = Field(
+        sa_column=Column("tipo_um", Enum(MeasureUnitEnum)),
     )
     measure_unit_type_description: str = Field(
         default="",

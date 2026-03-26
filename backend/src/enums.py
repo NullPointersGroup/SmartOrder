@@ -12,7 +12,7 @@ class SenderEnum(str, Enum):
 
 
 class MeasureUnitEnum(Enum):
-    Colli = 1
-    Confezioni = 2
-    Pezzi = 3
-    Chilogrammi = 4
+    L = 1
+    C = 2
+    P = 3
+    K = 4

@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-
+import pytest
 from src.catalog.CatalogSchemas import CatalogProduct
 from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
 from src.catalog.adapters.CatalogRepoAdapter import CatalogRepoAdapter
@@ -10,7 +10,7 @@ def make_catalog_row(
     prod_id: str,
     prod_des: str,
     price: float,
-    measure_unit_type: str,
+    measure_unit_type: MeasureUnitEnum,
     measure_unit_type_description: str,
 ) -> CatalogProductRepository:
     return CatalogProductRepository(
@@ -28,7 +28,7 @@ def test_get_product_returns_mapped_catalog_product():
         prod_id="AC002",
         prod_des="ACQUA FERRARELLE 100 VAR",
         price=0.42,
-        measure_unit_type="L",
+        measure_unit_type=MeasureUnitEnum.L,
         measure_unit_type_description="COLLI",
     )
     adapter = CatalogRepoAdapter(mock_repo)
@@ -39,8 +39,8 @@ def test_get_product_returns_mapped_catalog_product():
     assert result is not None
     assert result.prod_id == "AC002"
     assert result.name == "ACQUA FERRARELLE 100 VAR"
-    assert result.price == 0.42
-    assert result.measure_unit == MeasureUnitEnum.Colli
+    assert result.price == pytest.approx(0.42)
+    assert result.measure_unit == MeasureUnitEnum.L
     mock_repo.get_product.assert_called_once_with("AC002")
 
 
@@ -58,14 +58,14 @@ def test_get_product_returns_none_when_missing():
 def test_get_full_catalog_returns_mapped_products():
     mock_repo = MagicMock()
     mock_repo.get_full_catalog.return_value = [
-        make_catalog_row("P001", "Prodotto 1", 1.5, "P", "PEZZI"),
-        make_catalog_row("P002", "Prodotto 2", 2.5, "C", "CONFEZIONI"),
+        make_catalog_row("P001", "Prodotto 1", 1.5, MeasureUnitEnum.P, "PEZZI"),
+        make_catalog_row("P002", "Prodotto 2", 2.5, MeasureUnitEnum.C, "CONFEZIONI"),
     ]
     adapter = CatalogRepoAdapter(mock_repo)
 
     result = adapter.get_full_catalog()
 
     assert len(result) == 2
-    assert result[0].measure_unit == MeasureUnitEnum.Pezzi
-    assert result[1].measure_unit == MeasureUnitEnum.Confezioni
+    assert result[0].measure_unit == MeasureUnitEnum.P
+    assert result[1].measure_unit == MeasureUnitEnum.C
     mock_repo.get_full_catalog.assert_called_once_with()

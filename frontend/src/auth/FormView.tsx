@@ -56,7 +56,7 @@ export default function Form({ title, submitLabel, fields, vm }: FormProps) {
                     type="button"
                     onClick={() => toggleVisibility(key)}
                     aria-label={visibleFields[key] ? 'Nascondi password' : 'Mostra password'}
-                    className="..."
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 transition-colors"
                     tabIndex={-1}
                   >
                     {visibleFields[key]

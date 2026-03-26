@@ -17,5 +17,5 @@ class Conversazione(SQLModel, table=True):
     id_conv: int = Field(
         default=None, primary_key=True, sa_column_kwargs={"autoincrement": True}
     )
-    username: Optional[str] = Field(default=None, max_length=24)
+    username: str = Field(..., max_length=24)
     titolo: str = Field(..., max_length=24)
