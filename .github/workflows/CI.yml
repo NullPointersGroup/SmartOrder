@@ -94,6 +94,7 @@ jobs:
       - name: Analisi Dinamica (pytest)
         env:
           TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartorder_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartorder_test
         run: pytest
 
   ci-result:
