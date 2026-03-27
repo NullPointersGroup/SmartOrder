@@ -96,7 +96,7 @@ export const ConversationSidebar: React.FC<Props> = ({
           {/* Nuova conversazione */}
           <button
             onClick={onCreate}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 hover:scale-105 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-600 text-white shadow-sm active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
             title="Nuova conversazione"
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">

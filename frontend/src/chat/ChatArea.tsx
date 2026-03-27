@@ -40,12 +40,8 @@ function TypingIndicator() {
 
 function MessageBubble({ msg }: { readonly msg: Message }) {
   const isUser = msg.mittente.toLowerCase() === 'utente';
-  console.log(msg.mittente); // singolo messaggio
   return (
-    <div
-      className={`flex items-end gap-2 mb-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
-    >
-      {/* Avatar */}
+    <div className={`flex items-end gap-2 mb-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       <div
         className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-semibold ${
           isUser ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-700'
@@ -55,7 +51,6 @@ function MessageBubble({ msg }: { readonly msg: Message }) {
         {isUser ? 'Tu' : 'AI'}
       </div>
 
-      {/* Bubble */}
       <article
         className={`
           max-w-[65%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
@@ -81,6 +76,17 @@ export const ChatArea: React.FC<Props> = ({
   onInputChange,
   onSend,
 }) => {
+  const MAX_CHARS = 4096;
+  const isOverLimit = inputText.length > MAX_CHARS;
+
+  const getCounterColorClass = () => {
+      if (isOverLimit) return 'text-red-500 font-semibold';
+      return 'text-stone-700';
+    };
+
+  const counterColorClass = getCounterColorClass();
+  const formattedCharCount = `${inputText.length.toLocaleString('it-IT')} / 4096`;
+
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -88,7 +94,6 @@ export const ChatArea: React.FC<Props> = ({
     }
   }
 
-  // Auto-resize textarea
   function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const el = e.target;
     el.style.height = 'auto';
@@ -97,10 +102,7 @@ export const ChatArea: React.FC<Props> = ({
   }
 
   return (
-    <main
-      className="flex flex-col flex-1 min-w-0 h-full bg-stone-50"
-      aria-label="Area chat"
-    >
+    <main className="flex flex-col flex-1 min-w-0 h-full bg-stone-50" aria-label="Area chat">
       {/* Messaggi */}
       <div
         className="flex-1 overflow-y-auto px-6 py-6"
@@ -118,9 +120,7 @@ export const ChatArea: React.FC<Props> = ({
                 />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-stone-700 mb-1">
-              Inizia una conversazione
-            </h2>
+            <h2 className="text-lg font-semibold text-stone-700 mb-1">Inizia una conversazione</h2>
             <p className="text-sm text-stone-400 max-w-xs">
               Seleziona una conversazione dalla sidebar o creane una nuova.
             </p>
@@ -135,9 +135,7 @@ export const ChatArea: React.FC<Props> = ({
 
         {hasActiveConv && !isLoading && messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <p className="text-sm text-stone-400">
-              Nessun messaggio ancora. Scrivi qualcosa!
-            </p>
+            <p className="text-sm text-stone-400">Nessun messaggio ancora. Scrivi qualcosa!</p>
           </div>
         )}
 
@@ -146,7 +144,6 @@ export const ChatArea: React.FC<Props> = ({
         ))}
 
         {isSending && <TypingIndicator />}
-
         <div ref={messagesEndRef} aria-hidden="true" />
       </div>
 
@@ -172,7 +169,7 @@ export const ChatArea: React.FC<Props> = ({
           />
           <button
             onClick={onSend}
-            disabled={!hasActiveConv || !inputText.trim() || isSending}
+            disabled={!hasActiveConv || !inputText.trim() || isSending || isOverLimit}
             aria-label="Invia messaggio"
             className="
               w-9 h-9 shrink-0 flex items-center justify-center rounded-lg
@@ -183,16 +180,16 @@ export const ChatArea: React.FC<Props> = ({
             "
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path
-                d="M2 8l12-6-6 12V8H2z"
-                stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"
-              />
+              <path d="M2 8l12-6-6 12V8H2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
-        <p className="text-xs text-stone-400 mt-1.5 px-1">
-          Invio per inviare · Shift+Invio per andare a capo
-        </p>
+        <div className="flex items-center justify-between mt-1.5 px-1">
+          <p className="text-xs text-stone-400">Invio per inviare · Shift+Invio per andare a capo</p>
+          <p className={`text-xs tabular-nums transition-colors ${counterColorClass}`}>
+            {formattedCharCount}
+          </p>
+        </div>
       </div>
     </main>
   );
