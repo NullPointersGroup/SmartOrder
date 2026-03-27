@@ -9,19 +9,6 @@ from src.chat.adapters.ChatRepository import ChatRepository
 from src.chat.adapters.ChatRepository import Conversazione
 
 
-@pytest.fixture(scope="session")
-def chat_engine():
-    engine = create_engine("sqlite:///:memory:")
-    SQLModel.metadata.create_all(engine)  # crea tabelle in memoria
-    return engine
-
-
-@pytest.fixture
-def db_session(chat_engine):
-    with Session(chat_engine) as session:
-        yield session
-
-
 @pytest.fixture
 def chat_repository(seeded_db):
     return ChatRepository(db=seeded_db)
