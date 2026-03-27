@@ -11,3 +11,11 @@ class VecDbPortIn(ABC):
     def get_catalog(self) -> None:
         """Ricarica/aggiorna l'indice FAISS del catalogo dal database di prodotti"""
         pass
+
+    @abstractmethod
+    def search_catalog(self, query: str) -> list[int]:
+        pass
+
+    @abstractmethod
+    def search_cart(self, username: str, query: str) -> list[int]:
+        pass

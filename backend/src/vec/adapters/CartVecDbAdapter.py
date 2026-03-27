@@ -9,5 +9,8 @@ class CartVecDbAdapter(VecDbPortOut):
         self.faiss_db = faiss_db
         self.username = username
 
-    def search(self, v: np.ndarray, n: int, threshold: float) -> list[int]:
+    def search(self, v: np.ndarray, n: int, threshold: float) -> list[str]:
         return self.faiss_db.search(v, n, threshold, self.username)
+
+    def add(self, prod_id: str, vector: np.ndarray) -> None:
+        self.faiss_db.add(prod_id, self.username, vector)

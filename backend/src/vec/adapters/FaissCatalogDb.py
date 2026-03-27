@@ -7,19 +7,15 @@ class FaissCatalogDb:
         self.index = faiss.IndexFlatL2(dimension)
         self.prod_ids: list[str] = []
 
-    def add(self, prod_id: str, vector: np.ndarray):
-        vector_f32 = np.ndarray(vector, dtype=np.float32).reshape(1, -1)
-        self.index.add(1, vector_f32)
+    def add(self, prod_id: str, vector: np.ndarray) -> None:
+        vector_f32 = np.array(vector, dtype=np.float32).reshape(1, -1)
+        self.index.add(vector_f32)  # type: ignore
         self.prod_ids.append(prod_id)
 
-    def search(self, vector: np.ndarray, n: int, threshold: float) -> list[int]:
+    def search(self, vector: np.ndarray, n: int, threshold: float) -> list[str]:
         vector_f32 = np.array(vector, dtype=np.float32).reshape(1, -1)
 
-        distances = np.empty((1, n), dtype=np.float32)
-        labels = np.empty((1, n), dtype=np.int64)
-
-        self.index.search(1, vector_f32, n, distances, labels)
-
+        distances, labels = self.index.search(vector_f32, n)  # type: ignore
         return [
             self.prod_ids[i]
             for i, d in zip(labels[0], distances[0])
