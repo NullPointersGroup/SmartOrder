@@ -40,8 +40,10 @@ def test_search_catalog_returns_closest(
         make_product("ABC2", "Acqua", 0.5),
     ]
     service.load_catalog()
-    result = service.search_catalog("acqua")
-    assert result[0] == "ABC2"
+    result_pasta = service.search_catalog("Pasta 1.2")
+    result_acqua = service.search_catalog("Acqua 0.5")
+    assert result_pasta[0] == "ABC1"
+    assert result_acqua[0] == "ABC2"
 
 
 def test_load_and_search_cart(service: VecDbService, mock_cart_service: MagicMock):

@@ -11,7 +11,7 @@ class FaissCartDb:
 
     def add(self, prod_id: str, username: str, vector: np.ndarray) -> None:
         vector_f32 = np.array(vector, dtype=np.float32).reshape(1, -1)
-        self.index.add(vector_f32)  # type: ignore
+        self.index.add(vector_f32)  # pyright: ignore
         pos = len(self.prod_ids)
         self.prod_ids.append(prod_id)
         self.user_map.setdefault(username, []).append(pos)
@@ -21,7 +21,7 @@ class FaissCartDb:
     ) -> list[str]:
         vector_f32 = np.array(vector, dtype=np.float32).reshape(1, -1)
         user_positions = set(self.user_map.get(username, []))
-        distances, labels = self.index.search(vector_f32, n)  # type: ignore
+        distances, labels = self.index.search(vector_f32, n)  # pyright: ignore
         return [
             self.prod_ids[i]
             for i, d in zip(labels[0], distances[0])
