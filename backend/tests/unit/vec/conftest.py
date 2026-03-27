@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 import pytest
 import numpy as np
 
+from src.vec.adapters.VecDbAdapter import VecDbAdapter
 from src.vec.VecDbService import VecDbService
 
 DIMENSION = 4
@@ -47,6 +48,16 @@ def mock_catalog_repo() -> MagicMock:
 
 @pytest.fixture
 def mock_embedder() -> MagicMock:
+    return MagicMock()
+
+
+@pytest.fixture
+def adapter(mock_service: MagicMock) -> VecDbAdapter:
+    return VecDbAdapter(vec_db_service=mock_service)
+
+
+@pytest.fixture
+def mock_service() -> MagicMock:
     return MagicMock()
 
 
