@@ -41,30 +41,3 @@ def db_session(test_engine) -> Generator[Session, Any, None]:
     with Session(test_engine) as session:
         yield session
         session.rollback()
-
-
-@pytest.fixture
-def seeded_db(db_session: Session) -> Generator[Session, Any, None]:
-    utente = Utente(
-        username="mario", email="mario@test.it", password="secret"
-    )  # NOSONAR
-    db_session.add(utente)
-    db_session.commit()
-    conv = Conversazione(username="mario", titolo="test")
-    db_session.add(conv)
-    db_session.commit()
-    yield db_session
-    db_session.execute(
-        text(
-            "TRUNCATE TABLE messaggi, conversazioni, utentiweb RESTART IDENTITY CASCADE"
-        )
-    )
-    db_session.commit()
-
-
-@pytest.fixture
-def client(seeded_db: Session):
-    app.dependency_overrides[get_conn] = lambda: seeded_db
-    yield TestClient(app)
-    app.dependency_overrides.pop(get_conn, None)
-
