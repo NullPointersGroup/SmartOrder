@@ -14,8 +14,8 @@ from src.db.models import Utente, Conversazione
 from src.db.dbConnection import get_conn
 from src.main import app
 
-TEST_DATABASE_URL = (
-    "postgresql://postgres:postgres@localhost:5433/smartorder_test"  # NOSONAR
+TEST_DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://postgres:postgres@localhost:5433/smartorder_test"
 )
 
 
