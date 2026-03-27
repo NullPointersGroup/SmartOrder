@@ -51,6 +51,20 @@ jobs:
     needs: changes
     if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: smartorder_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+
     defaults:
       run:
         working-directory: backend
@@ -67,12 +81,20 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Attendi PostrgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432; do
+            echo 'Waiting for postgres'
+            sleep 2
+          done
+
       - name: Analisi statica
         run: mypy src
 
       - name: Analisi Dinamica (pytest)
-        run:  export DATABASE_URL="sqlite://" 
-              pytest
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smartorder_test
+        run: pytest
 
   ci-result:
     name: CI Result
