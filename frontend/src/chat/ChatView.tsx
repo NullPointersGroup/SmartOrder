@@ -3,12 +3,15 @@ import { useChatViewModel } from './ChatViewModel';
 import { ConversationSidebar } from './ConversationSidebar';
 import { CartSidebar } from './CartSidebar';
 import { ChatArea } from './ChatArea';
+import { NavBar } from './NavBar'
+import { Profile } from './Profile'
 
 export const ChatView: React.FC = () => {
   const vm = useChatViewModel();
   const { error, setError } = vm;
   const [isLeftOpen, setIsLeftOpen] = useState(true);
   const [isRightOpen, setIsRightOpen] = useState(true);
+  const [profileOpen, setProfileOpen] = useState(false)
 
   useEffect(() => {
     if (!error) return;
@@ -17,11 +20,31 @@ export const ChatView: React.FC = () => {
   }, [error, setError]);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-white text-stone-900">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-white text-stone-900">
+      {/* NAVBAR IN ALTO */}
+    <div className="border-b border-stone-200 relative z-50 overflow-visible">
+      <NavBar
+        username={vm.username}
+        onLogout={vm.logout}
+        onProfile={() => setProfileOpen(true)}
+        onDelete={() => {}}
+      />
+    </div>
 
+    {/* PROFILE PANEL */}
+    {profileOpen && (
+      <Profile 
+        onClose={() => setProfileOpen(false)}
+        username={vm.username}
+        onLogout={vm.logout} />
+    )}
+
+    {/* CONTENUTO SOTTO */}
+    <div className="flex flex-1 overflow-hidden">
+      
       {/* Sidebar sinistra */}
       <div
-        className={`relative h-full transition-all duration-500 ease-in-out flex-shrink-0 flex border-r border-stone-200 bg-[#fcfcfc]
+        className={`relative h-full transition-all duration-500 ease-in-out shrink-0 flex border-r border-stone-200 bg-[#fcfcfc]
           ${isLeftOpen ? 'w-72' : 'w-14'}`}
       >
         <div className={`flex-1 h-full overflow-hidden transition-opacity duration-300 ${isLeftOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
@@ -31,7 +54,6 @@ export const ChatView: React.FC = () => {
             onCreate={vm.createConversation}
             onRename={vm.renameConversation}
             onDelete={vm.deleteConversation}
-            onLogout={vm.logout}
             onToggleSelf={() => setIsLeftOpen(false)}
           />
         </div>
@@ -69,7 +91,7 @@ export const ChatView: React.FC = () => {
 
       {/* Sidebar destra */}
       <div
-        className={`relative h-full transition-all duration-500 ease-in-out flex-shrink-0 flex border-l border-stone-200 bg-white
+        className={`relative h-full transition-all duration-500 ease-in-out shrink-0 flex border-l border-stone-200 bg-white
           ${isRightOpen ? 'w-80' : 'w-14'}`}
       >
         {/* Sidebar aperta*/}
@@ -100,10 +122,11 @@ export const ChatView: React.FC = () => {
 
       {/* Error toast */}
       {vm.error && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-red-600 text-white rounded-lg shadow-xl z-[100]">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-red-600 text-white rounded-lg shadow-xl z-100">
           {vm.error}
         </div>
       )}
+    </div>
     </div>
   );
 };

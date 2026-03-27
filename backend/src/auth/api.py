@@ -153,7 +153,7 @@ UserServiceCurrentUser = Annotated[str, Depends(get_current_user)]
 
 
 @router.delete(
-    "/account",
+    "/delete",
     status_code=200,
     responses={
         401: {"model": ErrorResponse, "description": "Token non valido"},
@@ -182,6 +182,27 @@ def delete_account(
             detail={"ok": False, "errors": ["Errore durante la cancellazione"]},
         )
 
+@router.get(
+    "/retrieve",
+    responses={
+        401: {"model": ErrorResponse, "description": "Non autenticato"},
+        404: {"model": ErrorResponse, "description": "Utente non trovato"},
+    },
+)
+def retrieve(
+    service: UserServiceDep, current_user: UserServiceCurrentUser
+) -> dict:
+    try:
+        user = service.get_user(current_user)
+        return {
+            "username": user.username,
+            "email": user.email,
+        }
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail={"ok": False, "errors": ["Utente non trovato"]},
+        )
 
 @router.post("/logout")
 def logout(response: Response) -> dict[str, bool]:

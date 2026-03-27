@@ -67,8 +67,6 @@ function toMessage(m: RawMessage): Message {
 
 // ── Costanti ──────────────────────────────────────────────────────────────────
 
-const BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
-
 const json = (body: unknown) => ({
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
@@ -88,12 +86,12 @@ async function handleResponse<T>(res: Response): Promise<T> {
 export const ChatModel = {
   // Auth
   async getMe(): Promise<{ username: string }> {
-    const res = await fetch(`${BASE}/auth/me`, { credentials: 'include' });
+    const res = await fetch(`/auth/me`, { credentials: 'include' });
     return handleResponse(res);
   },
 
   async logout(): Promise<void> {
-    const res = await fetch(`${BASE}/auth/logout`, {
+    const res = await fetch(`/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -102,14 +100,14 @@ export const ChatModel = {
 
   // Conversazioni
   async getConversations(username: string): Promise<Conversation[]> {
-    const res = await fetch(`${BASE}/conversations/${username}`, {
+    const res = await fetch(`/conversations/${username}`, {
       credentials: 'include',
     });
     return handleResponse(res);
   },
 
   async createConversation(username: string, titolo: string): Promise<Conversation> {
-    const res = await fetch(`${BASE}/conversations/${username}`, {
+    const res = await fetch(`/conversations/${username}`, {
       method: 'POST',
       credentials: 'include',
       ...json({ titolo }),
@@ -118,7 +116,7 @@ export const ChatModel = {
   },
 
   async renameConversation(conv_id: number, titolo: string): Promise<Conversation> {
-    const res = await fetch(`${BASE}/conversations/${conv_id}`, {
+    const res = await fetch(`/conversations/${conv_id}`, {
       method: 'PATCH',
       credentials: 'include',
       ...json({ titolo }),
@@ -127,7 +125,7 @@ export const ChatModel = {
   },
 
   async deleteConversation(conv_id: number): Promise<void> {
-    const res = await fetch(`${BASE}/conversations/${conv_id}`, {
+    const res = await fetch(`/conversations/${conv_id}`, {
       method: 'DELETE',
       credentials: 'include',
     });
@@ -136,7 +134,7 @@ export const ChatModel = {
 
   // Messaggi
   async getMessages(conv_id: number): Promise<ChatApiResponse> {
-    const res = await fetch(`${BASE}/chat/${conv_id}/all`, { credentials: 'include' });
+    const res = await fetch(`/chat/${conv_id}/all`, { credentials: 'include' });
     const data = await handleResponse<RawChatApiResponse>(res);
 
     return {
@@ -146,7 +144,7 @@ export const ChatModel = {
   },
 
   async sendMessage(conv_id: number, content: string): Promise<MessageApiResponse> {
-    const res = await fetch(`${BASE}/chat/${conv_id}`, {
+    const res = await fetch(`/chat/${conv_id}`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -162,12 +160,12 @@ export const ChatModel = {
 
   // Carrello
   async getCart(username: string): Promise<CartApiResponse> {
-    const res = await fetch(`${BASE}/cart/${username}`, { credentials: 'include' });
+    const res = await fetch(`/cart/${username}`, { credentials: 'include' });
     return handleResponse(res);
   },
 
   async removeFromCart(username: string, prod_id: string): Promise<void> {
-    const res = await fetch(`${BASE}/cart/${username}`, {
+    const res = await fetch(`/cart/${username}`, {
       method: 'DELETE',
       credentials: 'include',
       ...json({ prod_id }),

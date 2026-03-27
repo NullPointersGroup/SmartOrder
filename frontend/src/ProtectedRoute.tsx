@@ -15,7 +15,7 @@ export function ProtectedRoute({ children }: Readonly<ProtectedRouteProps>) {
   const [valid, setValid] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:8000/auth/me", {
+    fetch("/auth/me", {
       credentials: "include",
     })
       .then((res) => {

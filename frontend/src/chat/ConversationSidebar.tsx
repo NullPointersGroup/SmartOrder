@@ -5,12 +5,10 @@ import type { Conversation } from './ChatModel';
 interface Props {
   conversations: Conversation[];
   activeConvId: number | null;
-  username: string | null;
   onSelect: (id: number) => void;
   onCreate: () => void;
   onRename: (id: number, titolo: string) => void;
   onDelete: (id: number) => void;
-  onLogout: () => void;
   onToggleSelf: () => void;
 }
 
@@ -26,18 +24,18 @@ interface RenameState {
 export const ConversationSidebar: React.FC<Props> = ({
   conversations,
   activeConvId,
-  username,
   onSelect,
   onCreate,
   onRename,
   onDelete,
-  onLogout,
   onToggleSelf,
 }) => {
   const [menu, setMenu] = useState<MenuState>({ convId: null });
   const [rename, setRename] = useState<RenameState>({ convId: null, value: '' });
   const menuRef = useRef<HTMLDivElement>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
+
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -80,7 +78,14 @@ export const ConversationSidebar: React.FC<Props> = ({
 
   function handleDelete(convId: number) {
     setMenu({ convId: null });
-    onDelete(convId);
+    setConfirmDeleteId(convId);  // apre il dialog invece di cancellare subito
+  }
+
+  function confirmDeleteConv() {
+    if (confirmDeleteId !== null) {
+      onDelete(confirmDeleteId);
+      setConfirmDeleteId(null);
+    }
   }
 
   return (
@@ -200,7 +205,7 @@ export const ConversationSidebar: React.FC<Props> = ({
                 {menuOpen && (
                   <div
                     ref={menuRef}
-                    className="absolute right-2 top-10 z-[100] w-44 bg-white border border-stone-200 rounded-xl shadow-xl py-1.5 animate-in fade-in zoom-in-95 duration-100"
+                    className="absolute right-2 top-10 z-100 w-44 bg-white border border-stone-200 rounded-xl shadow-xl py-1.5 animate-in fade-in zoom-in-95 duration-100"
                   >
                     <button
                       className="flex items-center gap-2 w-full px-4 py-2 text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors"
@@ -228,32 +233,29 @@ export const ConversationSidebar: React.FC<Props> = ({
           })
         )}
       </nav>
-
-      {/* User Footer */}
-      <div className="mt-auto border-t border-stone-200 bg-white/50 backdrop-blur-sm px-4 py-4">
-        <div className="flex items-center gap-3 p-2 rounded-2xl bg-stone-50/50 border border-stone-100">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center shrink-0 shadow-sm shadow-emerald-200">
-            <span className="text-sm font-bold text-white uppercase leading-none">
-              {username?.[0] ?? '?'}
-            </span>
+      {confirmDeleteId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <button className="absolute inset-0 bg-black/30" onClick={() => setConfirmDeleteId(null)} />
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-72 flex flex-col gap-4">
+            <h3 className="text-base font-semibold text-stone-800">Elimina conversazione</h3>
+            <p className="text-sm text-stone-500">Sei sicuro? Tutti i messaggi verranno eliminati.</p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="flex-1 py-2 rounded-xl border border-stone-200 text-sm text-stone-600 hover:bg-stone-50 transition-all"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={confirmDeleteConv}
+                className="flex-1 py-2 rounded-xl bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-all"
+              >
+                Elimina
+              </button>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-stone-900 truncate tracking-tight">{username}</p>
-            <p className="text-[10px] text-stone-400 font-medium">Account Online</p>
-          </div>
-          <button
-            onClick={onLogout}
-            title="Esci dall'account"
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-stone-400 hover:bg-red-50 hover:text-red-500 transition-all focus:outline-none"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-          </button>
         </div>
-      </div>
+      )}
     </aside>
   );
 };

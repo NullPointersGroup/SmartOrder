@@ -5,8 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useAuthStore } from './authStore';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
 export default function AuthPage() {
   /**
   @brief crea l'estetica del form
@@ -71,10 +69,10 @@ export default function AuthPage() {
         <div className="p-8 px-9">
           {isLogin ? (
             <Login onLogin={async () => {
-              const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+              const res = await fetch(`/auth/me`, { credentials: 'include' });
               const data = await res.json();
               setAuth(data.username);
-              navigate('/chat');
+              navigate('/home');
             }} />
           ) : (
             <Register onRegister={() => setIsLogin(true)} />
