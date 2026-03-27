@@ -3,8 +3,8 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv(override=False)
-
+dotenv_path = Path(".env.test")
+load_dotenv(dotenv_path=dotenv_path, override=False)
 from typing import Any, Generator
 import pytest
 from fastapi.testclient import TestClient
@@ -15,7 +15,7 @@ from src.db.dbConnection import get_conn
 from src.main import app
 
 TEST_DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://postgres:postgres@localhost:5433/smartorder_test"
+    "TEST_DATABASE_URL", "postgresql://postgres:postgres@localhost:5433/smartorder_test"
 )
 
 
