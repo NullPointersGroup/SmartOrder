@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from fastapi import HTTPException
 import pytest
 from sqlmodel import Session
-from src.chat.exceptions import ConversationNotFoundException
+from src.chat.exceptions import ConversationNotFoundException, ToolNotFoundException
 from src.chat.ChatApi import (
     get_all_messages,
     send_message,
@@ -55,3 +55,19 @@ def test_get_all_messages_from_inexistent_conv():
         get_all_messages(conv_id=1, chat_service=mock_service)
     assert info.value.status_code == 404
     assert "1" in info.value.detail
+
+
+def test_send_message_returns_500_when_tool_is_missing():
+    mock_service = MagicMock()
+    mock_service.send_message.side_effect = ToolNotFoundException("search")
+
+    with pytest.raises(HTTPException) as info:
+        send_message(
+            conv_id=1,
+            message=MessageRequest(username="test", content="Test message", audioFile=None),
+            chat_service=mock_service,
+            current_user="test",
+        )
+
+    assert info.value.status_code == 500
+    assert "search" in info.value.detail

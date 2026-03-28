@@ -24,14 +24,18 @@ def mock_session():
 
 class TestGetConn:
     def test_yields_session(self, mock_session):
-        with patch("src.db.dbConnection.Session", return_value=mock_session):
+        with patch("src.db.dbConnection.Session", return_value=mock_session), patch(
+            "src.db.dbConnection.get_engine", return_value=object()
+        ):
             from src.db.dbConnection import get_conn
             gen = get_conn()
             session = next(gen)
             assert session is mock_session
 
     def test_closes_session_after_use(self, mock_session):
-        with patch("src.db.dbConnection.Session", return_value=mock_session):
+        with patch("src.db.dbConnection.Session", return_value=mock_session), patch(
+            "src.db.dbConnection.get_engine", return_value=object()
+        ):
             from src.db.dbConnection import get_conn
             gen = get_conn()
             next(gen)
@@ -41,19 +45,28 @@ class TestGetConn:
 
 
 # ---------------------------------------------------------------------------
-# DATABASE_URL mancante (il modulo viene ricaricato per simulare l'import)
+# get_engine
 # ---------------------------------------------------------------------------
 
-class TestDatabaseUrlMissing:
+class TestGetEngine:
     def test_raises_runtime_error_if_missing(self):
-        with patch.dict(os.environ, {}, clear=True):
-            os.environ.pop("DATABASE_URL", None)
-            import src.db.dbConnection as db_module
-            with pytest.raises(RuntimeError, match="DATABASE_URL non impostata"):
-                importlib.reload(db_module)
+        import src.db.dbConnection as db_module
+        importlib.reload(db_module)
+        db_module.get_engine.cache_clear()
 
-    def test_no_error_if_present(self):
-        with patch.dict(os.environ, {"DATABASE_URL": "sqlite://"}):
-            with patch("src.db.dbConnection.create_engine"):
-                import src.db.dbConnection as db_module
-                importlib.reload(db_module)
+        with patch.dict(os.environ, {}, clear=True):
+            with pytest.raises(RuntimeError, match="DATABASE_URL non impostata"):
+                db_module.get_engine()
+
+    def test_returns_engine_if_present(self):
+        import src.db.dbConnection as db_module
+        importlib.reload(db_module)
+        db_module.get_engine.cache_clear()
+
+        with patch.dict(os.environ, {"DATABASE_URL": "sqlite://"}), patch(
+            "src.db.dbConnection.create_engine", return_value="engine"
+        ) as create_engine_mock:
+            engine = db_module.get_engine()
+
+        assert engine == "engine"
+        create_engine_mock.assert_called_once_with("sqlite://", echo=True)

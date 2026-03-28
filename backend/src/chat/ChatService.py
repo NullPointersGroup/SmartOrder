@@ -36,9 +36,9 @@ class ChatService:
             message_id=user_message.id_message,
             chat_history=llm_history,
         )
- 
-        llm_response = self.llm.invoke_agent(request)
- 
+
+        llm_response = self.llm.invoke(request)
+
         self.repo.add_message(conv_id, llm_response.content, SenderEnum.Chatbot)
- 
+
         return user_message
