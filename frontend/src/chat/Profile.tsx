@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import PasswordResetForm from './PasswordResetForm'
 
 type Props = {
   onClose: () => void;
@@ -17,6 +18,8 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [resetPassword, setResetPassword] = useState(false)
+  const [resetSuccess, setResetSuccess] = useState(false)
 
   useEffect(() => {
     if (!username) return
@@ -33,6 +36,24 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
   const handleDelete = async () => {
     await fetch('/auth/delete', { method: 'DELETE', credentials: 'include' })
     onLogout()
+  }
+
+  const handleReset = async (oldPassword: string, newPassword: string): Promise<string | null> => {
+    const res = await fetch('/auth/reset', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+    })
+
+    if (res.ok) {
+      setResetPassword(false);
+      setResetSuccess(true);
+      return null;
+    }
+
+    const data = await res.json();
+    return data.detail.errors[0];
   }
 
   return (
@@ -64,6 +85,12 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
 
             <div className="mt-auto flex flex-col gap-2">
               <button
+                onClick={() => setResetPassword(true)}
+                className="w-full py-2 rounded-xl bg-orange-500 text-white text-sm font-medium hover:bg-red-600 transition-all"
+              >
+                Reimposta password
+              </button>
+              <button
                 onClick={() => setConfirmDelete(true)}
                 className="w-full py-2 rounded-xl bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-all"
               >
@@ -74,6 +101,31 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
         )}
       </div>
 
+      {resetPassword && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
+          <button className="absolute inset-0 bg-black/20" onClick={() => setResetPassword(false)} />
+          <div className="relative bg-white rounded-2xl shadow-xl p-6">
+            <PasswordResetForm handleReset={handleReset} />
+          </div>
+        </div>
+      )}
+
+      {resetSuccess && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
+          <button className="absolute inset-0 bg-black/20" onClick={() => setResetSuccess(false)} />
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-72 flex flex-col gap-4">
+            <h3 className="text-base font-semibold text-stone-800">Password reimpostata</h3>
+            <p className="text-sm text-stone-500">La tua password è stata aggiornata con successo.</p>
+            <button
+              onClick={() => setResetSuccess(false)}
+              className="w-full py-2 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+          
       {/* Dialog di conferma */}
       {confirmDelete && (
         <div className="absolute inset-0 z-10 flex items-center justify-center">

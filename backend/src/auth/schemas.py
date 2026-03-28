@@ -18,6 +18,10 @@ class AuthResponse(BaseModel):
     ok: bool
     errors: list[str]
     token: str | None = None
+    
+class ResetPasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
 
 
 class UserRegistrationSchema(UserSchema):

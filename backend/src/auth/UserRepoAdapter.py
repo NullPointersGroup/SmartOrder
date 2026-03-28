@@ -2,7 +2,7 @@ from sqlmodel import Session
 
 from src.auth.IUserRepoPort import IUserRepoPort
 from src.auth.UserRepository import UserRepository
-from src.auth.models import UserRegistration
+from src.auth.models import UserRegistration, UserReset
 from src.db.models import Utente
 
 
@@ -45,3 +45,7 @@ class UserRepoAdapter(IUserRepoPort):
     
     def delete_user(self, username: str) -> bool:
         return self.repo.delete(username)
+    
+    def reset_password(self, u: UserReset) -> bool:
+        return self.repo.reset_password(u)
+    
