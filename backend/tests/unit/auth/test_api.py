@@ -197,7 +197,7 @@ class TestDeleteAccount:
         # Configura il mock per la cancellazione riuscita
         mock_user_service.delete_user.return_value = None  # delete_user non deve restituire nulla
 
-        response = client.delete("/auth/account")
+        response = client.delete("/auth/delete")
         resp_json = response.json()
 
         # Verifica risposta e chiamata del mock
@@ -210,7 +210,7 @@ class TestDeleteAccount:
     def test_delete_account_user_not_found(self, client, mock_user_service):
         mock_user_service.delete_user.side_effect = UserNotFoundError()
 
-        response = client.delete("/auth/account")
+        response = client.delete("/auth/delete")
         resp_json = response.json()["detail"]
 
         assert response.status_code == 404
@@ -221,7 +221,7 @@ class TestDeleteAccount:
     def test_delete_account_deletion_error(self, client, mock_user_service):
         mock_user_service.delete_user.side_effect = UserDeletionError()
 
-        response = client.delete("/auth/account")
+        response = client.delete("/auth/delete")
         resp_json = response.json()["detail"]
 
         assert response.status_code == 500

@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Dict
 
 from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
 from pydantic import BaseModel
@@ -241,7 +241,7 @@ def delete_account(
 )
 def retrieve(
     service: UserServiceDep, current_user: UserServiceCurrentUser
-) -> dict:
+) -> Dict[str, str | None]:
     try:
         user = service.get_user(current_user)
         return {

@@ -50,7 +50,7 @@ describe('AuthPage', () => {
     expect(screen.getByRole('heading', { name: /accedi/i })).toBeInTheDocument();
   });
 
-  it('onLogin ok: chiama /auth/me, setAuth con username e naviga a /chat', async () => {
+  it('onLogin ok: chiama /auth/me, setAuth con username e naviga a /home', async () => {
     const { login: loginApi } = await import('../../src/auth/AuthAPI');
     vi.mocked(loginApi).mockResolvedValue({ ok: true, errors: [] });
 
@@ -61,7 +61,7 @@ describe('AuthPage', () => {
 
     await waitFor(() => {
       expect(mockSetAuth).toHaveBeenCalledWith('mario');
-      expect(mockNavigate).toHaveBeenCalledWith('/chat');
+      expect(mockNavigate).toHaveBeenCalledWith('/home');
   });
   });
 
