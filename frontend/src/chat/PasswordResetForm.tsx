@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import type { ComponentProps } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -7,14 +8,13 @@ import { Eye, EyeOff } from "lucide-react";
 const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,24}$/;
 
-
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function getBorderClass(value: string, isValid: boolean, hasError: boolean) {
-  if (hasError)               return "border-red-400";
-  if (value && isValid)       return "border-green-400";
-  if (value && !isValid)      return "border-red-300";
-  return "border-gray-300";
+function getBorderClass(value: string, isValid: boolean, hasError: boolean): string {
+  if (hasError)          return "border-[var(--error)]";
+  if (value && isValid)  return "border-[var(--color-2)]";
+  if (value && !isValid) return "border-[var(--error)]";
+  return "border-[var(--border)]";
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -46,26 +46,24 @@ function PasswordField({
 }: PasswordFieldProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-gray-600">
+      <label htmlFor={id} className="text-sm font-medium text-[var(--text-2)]">
         {label}
       </label>
 
-      <div
-        className={`relative flex items-center rounded-lg border bg-white transition-all duration-200 focus-within:ring-2 focus-within:ring-indigo-500/20 ${borderClass}`}
-      >
+      <div className={`relative flex items-center rounded-lg border bg-[var(--bg-3)] transition-all duration-200 focus-within:border-[var(--color-2)] focus-within:ring-2 focus-within:ring-[var(--color-1)] ${borderClass}`}>
         <input
           id={id}
           type={show ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           autoComplete={autoComplete}
-          className="w-full bg-transparent py-2.5 pl-3 pr-10 text-sm text-gray-900 outline-none placeholder:text-gray-400"
+          className="w-full bg-transparent py-2.5 pl-3 pr-10 text-sm text-[var(--text-1)] outline-none"
         />
         <button
           type="button"
           tabIndex={-1}
           onClick={onToggleShow}
-          className="absolute right-3 text-gray-400 transition-colors hover:text-indigo-500"
+          className="absolute right-3 text-[var(--text-4)] hover:text-[var(--color-2)] transition-colors"
         >
           {show ? <EyeOff size={17} /> : <Eye size={17} />}
         </button>
@@ -74,7 +72,7 @@ function PasswordField({
       {children}
 
       {error && (
-        <p className="flex items-center gap-1 text-xs text-red-500">
+        <p className="flex items-center gap-1 text-xs text-[var(--error)]">
           {error}
         </p>
       )}
@@ -100,9 +98,8 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
   const [showNew,     setShowNew]     = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const [submitted, setSubmitted] = useState(false);
-
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [submitted,    setSubmitted]    = useState(false);
+  const [serverError,  setServerError]  = useState<string | null>(null);
 
   // ── Validation ──────────────────────────────────────────────────────────
 
@@ -122,11 +119,9 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
 
   let confirmPwdError: string | undefined;
   if (submitted && !confirmPwdValid) {
-    if (confirmPwd == newPwd) {
-      confirmPwdError = "La password non rispetta i requisiti."; //NOSONAR
-    } else {
-      confirmPwdError = "Le password non coincidono."; //NOSONAR
-    }
+    confirmPwdError = confirmPwd === newPwd
+      ? "La password non rispetta i requisiti." //NOSONAR
+      : "Le password non coincidono."; //NOSONAR
   }
 
   // ── Submit ──────────────────────────────────────────────────────────────
@@ -138,9 +133,7 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
     setSubmitted(true);
     if (oldPwd && newPwdValid && newPwdDifferent && confirmPwdValid) {
       const error = await handleReset(oldPwd, newPwd);
-      if (error !== null) {
-        setServerError(error);
-      }
+      if (error !== null) setServerError(error);
     }
   }
 
@@ -148,7 +141,9 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex w-full max-w-sm flex-col gap-5">
-      <h2 className="text-lg font-semibold text-gray-800">Reimposta password</h2>
+      <h2 className="text-lg font-semibold text-[var(--text-1)]">
+        Reimposta password
+      </h2>
 
       {/* Vecchia password */}
       <PasswordField
@@ -157,19 +152,20 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
         value={oldPwd}
         onChange={(v) => { setOldPwd(v); setServerError(null); }}
         show={showOld}
-        onToggleShow={() => setShowOld((s) => !s)}
+        onToggleShow={() => setShowOld(s => !s)}
         borderClass={getBorderClass(oldPwd, !!oldPwd, !!oldPwdError)}
         error={oldPwdError}
+        autoComplete="off"
       />
 
-      {/* Nuova password + live rules */}
+      {/* Nuova password */}
       <PasswordField
         id="new-password"
         label="Nuova password"
         value={newPwd}
         onChange={(v) => { setNewPwd(v); setServerError(null); }}
         show={showNew}
-        onToggleShow={() => setShowNew((s) => !s)}
+        onToggleShow={() => setShowNew(s => !s)}
         borderClass={getBorderClass(newPwd, newPwdValid, !!newPwdError)}
         error={newPwdError}
         autoComplete="new-password"
@@ -182,34 +178,29 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
         value={confirmPwd}
         onChange={(v) => { setConfirmPwd(v); setServerError(null); }}
         show={showConfirm}
-        onToggleShow={() => setShowConfirm((s) => !s)}
+        onToggleShow={() => setShowConfirm(s => !s)}
         borderClass={getBorderClass(confirmPwd, confirmPwdValid, !!confirmPwdError)}
         error={confirmPwdError}
         autoComplete="new-password"
       >
         {confirmPwd && (
-          <p
-            className={`flex items-center gap-1 text-xs transition-colors duration-200 ${
-              confirmPwdValid ? "text-green-500" : "text-red-400"
-            }`}
-          >
-            {confirmPwdValid
-              ? <>Le password coincidono</>
-              : <>Le password non coincidono</>
-            }
+          <p className={`flex items-center gap-1 text-xs transition-colors duration-200 ${
+            confirmPwdValid ? "text-[var(--color-2)]" : "text-[var(--error)]"
+          }`}>
+            {confirmPwdValid ? "Le password coincidono" : "Le password non coincidono"}
           </p>
         )}
       </PasswordField>
 
       {serverError && (
-        <p className="flex items-center gap-1 text-xs text-red-500">
+        <p className="flex items-center gap-1 text-xs text-[var(--error)]">
           {serverError}
         </p>
       )}
 
       <button
         type="submit"
-        className="mt-1 rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 active:scale-[0.98]"
+        className="mt-1 rounded-lg py-2.5 text-sm font-semibold bg-[var(--color-3)] hover:bg-[var(--color-3)] text-[var(--bg-3)] transition-colors active:scale-[0.98]"
       >
         Reimposta password
       </button>

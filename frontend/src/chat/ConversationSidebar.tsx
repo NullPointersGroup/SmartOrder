@@ -34,8 +34,7 @@ export const ConversationSidebar: React.FC<Props> = ({
   const [rename, setRename] = useState<RenameState>({ convId: null, value: '' });
   const menuRef = useRef<HTMLDivElement>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
-
-  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -78,7 +77,7 @@ export const ConversationSidebar: React.FC<Props> = ({
 
   function handleDelete(convId: number) {
     setMenu({ convId: null });
-    setConfirmDeleteId(convId);  // apre il dialog invece di cancellare subito
+    setConfirmDeleteId(convId);
   }
 
   function confirmDeleteConv() {
@@ -90,18 +89,18 @@ export const ConversationSidebar: React.FC<Props> = ({
 
   return (
     <aside
-      className="flex flex-col w-72 min-w-[18rem] h-full bg-[#fcfcfc] border-r border-stone-200 shadow-[inset_-1px_0_0_0_rgba(0,0,0,0.05)]"
+      className="flex flex-col w-72 min-w-[18rem] h-full bg-[var(--bg-1)] border-r border-[var(--border)] shadow-[inset_-1px_0_0_0_rgba(0,0,0,0.05)]"
       aria-label="Conversazioni"
     >
       <div className="flex items-center justify-between px-5 py-6">
-        <h2 className="text-[11px] font-bold tracking-[0.15em] text-stone-400 uppercase flex-1">
+        <h2 className="text-[11px] font-bold tracking-[0.15em] text-[var(--text-4)] uppercase flex-1">
           Conversazioni
         </h2>
         <div className="flex items-center gap-1">
           {/* Nuova conversazione */}
           <button
             onClick={onCreate}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-600 text-white shadow-sm active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--color-2)] text-[var(--bg-3)] shadow-sm active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-2)] focus-visible:ring-offset-2"
             title="Nuova conversazione"
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
@@ -112,7 +111,7 @@ export const ConversationSidebar: React.FC<Props> = ({
           {/* Bottone chiusura sidebar */}
           <button
             onClick={onToggleSelf}
-            className="flex items-center justify-center w-8 h-8 rounded-xl text-stone-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all focus:outline-none"
+            className="flex items-center justify-center w-8 h-8 rounded-xl text-[var(--text-4)] hover:text-[var(--color-2)] hover:bg-[var(--color-1)] transition-all focus:outline-none"
             title="Chiudi pannello conversazioni"
           >
             <svg width="18" height="18" viewBox="-1 -1 24 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -142,7 +141,7 @@ export const ConversationSidebar: React.FC<Props> = ({
             return (
               <div key={conv.id_conv} className="relative group">
                 {isActive && (
-                  <div className="absolute left-0 top-2 bottom-2 w-1 bg-emerald-500 rounded-r-full z-10" />
+                  <div className="absolute left-0 top-2 bottom-2 w-1 bg-[var(--color-2)] rounded-r-full z-10" />
                 )}
 
                 <button
@@ -151,14 +150,14 @@ export const ConversationSidebar: React.FC<Props> = ({
                     relative flex items-center gap-3 w-full rounded-xl px-4 py-3
                     transition-all duration-200 text-sm text-left
                     ${isActive
-                      ? 'bg-white shadow-sm ring-1 ring-stone-200 text-stone-900 font-semibold'
-                      : 'text-stone-500 hover:bg-stone-100 hover:text-stone-700'}
+                      ? 'bg-[var(--bg-3)] shadow-sm ring-1 ring-[var(--border)] text-[var(--text-1)] font-semibold'
+                      : 'text-[var(--text-3)] hover:bg-[var(--bg-2)] hover:text-[var(--text-2)]'}
                   `}
                   onClick={() => !isEditing && onSelect(conv.id_conv)}
                 >
                   <svg
                     width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    className={`shrink-0 ${isActive ? 'text-emerald-500' : 'text-stone-300'}`}
+                    className={`shrink-0 ${isActive ? 'text-[var(--color-2)]' : 'text-[var(--text-4)]'}`}
                   >
                     <path
                       d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
@@ -171,7 +170,7 @@ export const ConversationSidebar: React.FC<Props> = ({
                   {isEditing ? (
                     <input
                       ref={renameInputRef}
-                      className="flex-1 min-w-0 bg-stone-50 border-none rounded px-1 py-0 font-normal text-stone-800 focus:ring-0 outline-none"
+                      className="flex-1 min-w-0 bg-[var(--bg-2)] border-none rounded px-1 py-0 font-normal text-[var(--text-1)] focus:ring-0 outline-none"
                       value={rename.value}
                       onChange={e => setRename(r => ({ ...r, value: e.target.value }))}
                       onKeyDown={e => handleRenameKey(e, conv.id_conv)}
@@ -188,7 +187,7 @@ export const ConversationSidebar: React.FC<Props> = ({
                     className={`
                       absolute right-3 top-1/2 -translate-y-1/2
                       w-7 h-7 flex items-center justify-center rounded-lg
-                      text-stone-400 hover:text-stone-900 hover:bg-stone-100
+                      text-[var(--text-4)] hover:text-[var(--text-1)] hover:bg-[var(--bg-2)]
                       transition-all z-20
                       ${menuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
                     `}
@@ -205,10 +204,10 @@ export const ConversationSidebar: React.FC<Props> = ({
                 {menuOpen && (
                   <div
                     ref={menuRef}
-                    className="absolute right-2 top-10 z-100 w-44 bg-white border border-stone-200 rounded-xl shadow-xl py-1.5 animate-in fade-in zoom-in-95 duration-100"
+                    className="absolute right-2 top-10 z-100 w-44 bg-[var(--bg-3)] border border-[var(--border)] rounded-xl shadow-xl py-1.5 animate-in fade-in zoom-in-95 duration-100"
                   >
                     <button
-                      className="flex items-center gap-2 w-full px-4 py-2 text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+                      className="flex items-center gap-2 w-full px-4 py-2 text-[var(--text-2)] hover:bg-[var(--bg-2)] hover:text-[var(--text-1)] transition-colors"
                       onClick={() => startRename(conv)}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -216,9 +215,9 @@ export const ConversationSidebar: React.FC<Props> = ({
                       </svg>
                       Rinomina
                     </button>
-                    <div className="h-px bg-stone-100 my-1 mx-2" />
+                    <div className="h-px bg-[var(--bg-2)] my-1 mx-2" />
                     <button
-                      className="flex items-center gap-2 w-full px-4 py-2 text-red-500 hover:bg-red-50 transition-colors"
+                      className="flex items-center gap-2 w-full px-4 py-2 text-[var(--error)] hover:bg-[var(--bg-2)] transition-colors"
                       onClick={() => handleDelete(conv.id_conv)}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -233,22 +232,23 @@ export const ConversationSidebar: React.FC<Props> = ({
           })
         )}
       </nav>
+
       {confirmDeleteId !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <button className="absolute inset-0 bg-black/30" onClick={() => setConfirmDeleteId(null)} />
-          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-72 flex flex-col gap-4">
-            <h3 className="text-base font-semibold text-stone-800">Elimina conversazione</h3>
-            <p className="text-sm text-stone-500">Sei sicuro? Tutti i messaggi verranno eliminati.</p>
+          <div className="relative bg-[var(--bg-3)] rounded-2xl shadow-xl p-6 w-72 flex flex-col gap-4">
+            <h3 className="text-base font-semibold text-[var(--text-1)]">Elimina conversazione</h3>
+            <p className="text-sm text-[var(--text-3)]">Sei sicuro? Tutti i messaggi verranno eliminati.</p>
             <div className="flex gap-2">
               <button
                 onClick={() => setConfirmDeleteId(null)}
-                className="flex-1 py-2 rounded-xl border border-stone-200 text-sm text-stone-600 hover:bg-stone-50 transition-all"
+                className="flex-1 py-2 rounded-xl border border-[var(--border)] text-sm text-[var(--text-2)] hover:bg-[var(--bg-2)] transition-colors"
               >
                 Annulla
               </button>
               <button
                 onClick={confirmDeleteConv}
-                className="flex-1 py-2 rounded-xl bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-all"
+                className="flex-1 py-2 rounded-xl bg-[var(--error)] hover:opacity-90 text-[var(--bg-3)] text-sm font-medium transition-all"
               >
                 Elimina
               </button>

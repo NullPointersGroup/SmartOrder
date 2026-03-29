@@ -33,30 +33,35 @@ export default function AuthPage() {
   usePageTitle(isLogin ? 'Autenticazione' : 'Registrazione');
 
   return (
-    <div className="min-h-screen bg-[#fdfdfd] flex flex-col items-center justify-center px-4 py-16 font-sans">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 font-sans" style={{ backgroundColor: 'var(--bg-3)' }}>
 
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8">
         <span className="auth-brand-icon text-4xl">🛒</span>
-        <span className="font-serif text-2xl font-bold tracking-[0.05em]">SmartOrder</span>
+        <span className="font-serif text-2xl font-bold tracking-[0.05em]" style={{ color: 'var(--text-1)' }}>SmartOrder</span>
       </div>
 
-      <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-full mb-3 p-3">
+      <div className="w-full max-w-md rounded-full mb-3 p-3" style={{ backgroundColor: 'var(--bg-2)', border: '1px solid var(--border)' }}>
         <div className="relative flex">
           <div
-            className="absolute bg-[#22477b] rounded-full transition-all duration-200 top-0 bottom-0 w-[calc(50%-4px)] z-0"
-            style={{ left: isLogin ? 3 : 'calc(50% + 1px)' }}
+            className="absolute rounded-full transition-all duration-200 top-0 bottom-0 w-[calc(50%-4px)] z-0"
+            style={{
+              backgroundColor: 'var(--color-2)',
+              left: isLogin ? 3 : 'calc(50% + 1px)',
+            }}
           />
 
           <button
             onClick={() => setIsLogin(true)}
-            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-10 ${isLogin ? 'text-white' : 'text-black'}`}
+            className="flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-10"
+            style={{ color: isLogin ? 'var(--bg-3)' : 'var(--text-1)' }}
           >
             Accedi
           </button>
           <button
             onClick={() => setIsLogin(false)}
-            className={`flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-10 ${isLogin ? 'text-black' : 'text-white'}`} 
+            className="flex-1 py-3 text-sm font-medium rounded-full relative transition-all duration-150 z-10"
+            style={{ color: isLogin ? 'var(--text-1)' : 'var(--bg-3)' }}
           >
             Registrati
           </button>
@@ -65,7 +70,7 @@ export default function AuthPage() {
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-md bg-[#f4f5f7] border border-black/10 rounded-2xl shadow-sm">
+      <div className="w-full max-w-md rounded-2xl shadow-sm" style={{ backgroundColor: 'var(--bg-2)', border: '1px solid var(--border)' }}>
         <div className="p-8 px-9">
           {isLogin ? (
             <Login onLogin={async () => {
