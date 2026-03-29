@@ -148,22 +148,31 @@ export function useChatViewModel() {
   // ── Invia messaggio ───────────────────────────────────────────────────────
   const sendMessage = useCallback(async () => {
     if (!activeConvId || !inputText.trim() || isSending) return;
-
     const content = inputText.trim();
+    const tempId = -Date.now();
+    const optimisticMessage: Message = {
+      id_messaggio: tempId,
+      mittente: 'Utente',
+      contenuto: content,
+    };
+    setMessages(prev => [...prev, optimisticMessage]);
     setInputText('');
     setIsSending(true);
-
-    const tempId = -Date.now();
-    const userMsg: Message = { id_messaggio: tempId, mittente: 'Utente', contenuto: content };
-    setMessages(prev => [...prev, userMsg]);
-
     try {
-      // invia messaggio utente
-      await ChatModel.sendMessage(activeConvId, content);
-
-      // fetch dei messaggi aggiornati subito dopo
+      const { message: sentMessage } = await ChatModel.sendMessage(activeConvId, content);
       const { messages: latest } = await ChatModel.getMessages(activeConvId);
-      setMessages(latest);
+      setMessages(prev => {
+        const withoutTemp = prev.filter(m => m.id_messaggio !== tempId);
+        // Rimuovi dal server i messaggi già presenti (evita duplicati)
+        const existingIds = new Set(withoutTemp.map(m => m.id_messaggio));
+        // Includi il messaggio utente reale se non già presente
+        const realUserMsg: Message = { ...sentMessage, mittente: 'Utente', contenuto: content };
+        if (!existingIds.has(realUserMsg.id_messaggio)) {
+          existingIds.add(realUserMsg.id_messaggio);
+        }
+        const newFromServer = latest.filter(m => !existingIds.has(m.id_messaggio));
+        return [...withoutTemp, realUserMsg, ...newFromServer];
+      });
 
       refreshCart();
     } catch {

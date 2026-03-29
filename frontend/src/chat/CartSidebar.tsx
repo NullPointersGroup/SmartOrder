@@ -7,15 +7,15 @@ interface Props {
 }
 
 export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf }) => {
-  const fmt = (n: number) =>
-    n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+  const fmt = (n?: number) =>
+  (n ?? 0).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 
   const total = products.reduce((sum, p) => sum + (p.price ?? 0) * (p.qty ?? 0), 0);
 
   return (
-    <aside className="flex flex-col w-80 min-w-[20rem] h-full bg-[var(--bg-3)] border-l]" aria-label="Carrello">
+    <aside className="flex flex-col w-80 min-w-[20rem] h-full bg-[var(--bg-3)] border-l border-[var(--border)]" aria-label="Carrello">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-6 border-b border-[var(--bg-2)]">
+      <div className="flex items-center gap-2 px-4 py-6 border-1 border-[var(--border)]">
         <button
           onClick={onToggleSelf}
           className="flex items-center justify-center w-8 h-8 rounded-xl text-[var(--text-4)] hover:text-[var(--color-2)] hover:bg-[var(--color-1)] transition-all focus:outline-none"
@@ -33,7 +33,10 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf }) => {
         </span>
 
         {products.length > 0 && (
-          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[var(--color-1)] text-[var(--color-3)] text-xs font-semibold">
+          <span
+            data-testid="cart-badge"
+            className="flex items-center justify-center w-5 h-5 rounded-full bg-[var(--color-1)] text-[var(--color-3)] text-xs font-semibold"
+          >
             {products.length}
           </span>
         )}
@@ -74,7 +77,7 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf }) => {
 
       {/* Footer con totale */}
       {products.length > 0 && (
-        <div className="border-t border-[var(--bg-2)] px-4 py-4">
+        <div className="border-t border-[var(--border)] px-4 py-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-[var(--text-3)]">Totale</span>
             <span className="text-base font-bold text-[var(--text-1)]">{fmt(total)}</span>

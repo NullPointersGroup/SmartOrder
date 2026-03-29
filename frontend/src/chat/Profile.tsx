@@ -109,7 +109,7 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
       {/* Reset password dialog */}
       {resetPassword && (
         <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <button className="absolute inset-0 bg-black/20" onClick={() => setResetPassword(false)} />
+          <button data-testid="reset-overlay" className="absolute inset-0 bg-black/20" onClick={() => setResetPassword(false)} />
           <div className="relative bg-[var(--bg-3)] rounded-2xl shadow-xl p-6">
             <PasswordResetForm handleReset={handleReset} />
           </div>

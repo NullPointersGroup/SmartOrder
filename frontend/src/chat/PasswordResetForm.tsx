@@ -1,5 +1,4 @@
 import { useState } from "react";
-import React from "react";
 import type { ComponentProps } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -166,7 +165,7 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
         onChange={(v) => { setNewPwd(v); setServerError(null); }}
         show={showNew}
         onToggleShow={() => setShowNew(s => !s)}
-        borderClass={getBorderClass(newPwd, newPwdValid, !!newPwdError)}
+        borderClass={getBorderClass(newPwd, newPwdValid && newPwdDifferent, !!newPwdError)}
         error={newPwdError}
         autoComplete="new-password"
       />
@@ -174,20 +173,24 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
       {/* Conferma nuova password */}
       <PasswordField
         id="confirm-password"
-        label="Conferma nuova password"
+        label="Conferma password"
         value={confirmPwd}
         onChange={(v) => { setConfirmPwd(v); setServerError(null); }}
         show={showConfirm}
         onToggleShow={() => setShowConfirm(s => !s)}
         borderClass={getBorderClass(confirmPwd, confirmPwdValid, !!confirmPwdError)}
-        error={confirmPwdError}
+        error={confirmPwd ? undefined : confirmPwdError}
         autoComplete="new-password"
       >
         {confirmPwd && (
-          <p className={`flex items-center gap-1 text-xs transition-colors duration-200 ${
-            confirmPwdValid ? "text-[var(--color-2)]" : "text-[var(--error)]"
-          }`}>
-            {confirmPwdValid ? "Le password coincidono" : "Le password non coincidono"}
+          <p
+            className={`flex items-center gap-1 text-xs transition-colors duration-200 ${
+              confirmPwdValid ? "text-[var(--color-2)]" : "text-[var(--error)]"
+            }`}
+          >
+            {confirmPwdValid
+              ? "Le password coincidono"
+              : "Le password non coincidono"}
           </p>
         )}
       </PasswordField>
