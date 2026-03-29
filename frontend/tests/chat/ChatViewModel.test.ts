@@ -138,6 +138,37 @@ describe('useChatViewModel – messaggi', () => {
   });
 });
 
+// refreshCart
+describe('useChatViewModel – refreshCart', () => {
+  it('non fa nulla se username è null – guard riga 77', async () => {
+    vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('fail'));
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(globalThis.location.href).toBe('/unauthorized'));
+    const callsBefore = vi.mocked(ChatModel.getCart).mock.calls.length;
+    // refreshCart non è esposta direttamente, ma viene chiamata da sendMessage;
+    // qui la testiamo indirettamente: username=null, sendMessage è no-op,
+    // quindi getCart non viene chiamata oltre le chiamate già avvenute
+    await act(async () => {
+      result.current.setInputText('test');
+      await result.current.sendMessage();
+    });
+    expect(vi.mocked(ChatModel.getCart).mock.calls.length).toBe(callsBefore);
+  });
+
+  it('aggiorna il carrello dopo invio di un messaggio (refreshCart chiamata)', async () => {
+    const cartAfterSend = { username: 'mario', products: [{ prod_id: 'P001', name: 'Latte', price: 1.5, measure_unit: 1, qty: 1 }] };
+    vi.mocked(ChatModel.sendMessage).mockResolvedValue({ id_conv: 1, message: { id_messaggio: 10, mittente: 'Chatbot', contenuto: 'ok' } });
+    vi.mocked(ChatModel.getMessages).mockResolvedValue({ id_conv: 1, messages: mockMessages });
+    // Dopo il send, refreshCart chiama getCart e aggiorna i prodotti
+    vi.mocked(ChatModel.getCart).mockResolvedValueOnce(mockCart).mockResolvedValue(cartAfterSend);
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+    act(() => result.current.setInputText('Ciao'));
+    await act(async () => { await result.current.sendMessage(); });
+    await waitFor(() => expect(result.current.cartProducts).toHaveLength(1));
+  });
+});
+
 // selectConversation
 describe('useChatViewModel – selectConversation', () => {
   it('aggiorna activeConvId', async () => {
@@ -166,6 +197,15 @@ describe('useChatViewModel – createConversation', () => {
     vi.mocked(ChatModel.createConversation).mockRejectedValue(new Error('fail'));
     await act(async () => { await result.current.createConversation(); });
     expect(result.current.error).toMatch(/creazione della conversazione/i);
+  });
+
+  it('non fa nulla se username è null – guard riga 93', async () => {
+    vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('fail'));
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(globalThis.location.href).toBe('/unauthorized'));
+    const callsBefore = vi.mocked(ChatModel.createConversation).mock.calls.length;
+    await act(async () => { await result.current.createConversation(); });
+    expect(vi.mocked(ChatModel.createConversation).mock.calls.length).toBe(callsBefore);
   });
 });
 
@@ -205,6 +245,18 @@ describe('useChatViewModel – deleteConversation', () => {
     expect(result.current.conversations.find(c => c.id_conv === 2)).toBeUndefined();
   });
 
+  it('non cambia activeConvId se si elimina una conversazione non attiva (branch riga 135)', async () => {
+    // activeConvId parte a 1; eliminiamo la conv 2 (non attiva) con altre conv rimaste
+    // → il ramo else-if (updatedConvs.length > 0) NON deve essere eseguito
+    // → activeConvId resta 1
+    vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.activeConvId).toBe(1));
+    await act(async () => { await result.current.deleteConversation(2); });
+    expect(result.current.activeConvId).toBe(1);
+    expect(result.current.conversations.map(c => c.id_conv)).toEqual([1]);
+  });
+
   it('seleziona la prima conversazione rimanente se si elimina quella attiva', async () => {
     vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
     const { result } = renderHook(() => useChatViewModel());
@@ -228,6 +280,25 @@ describe('useChatViewModel – deleteConversation', () => {
     await waitFor(() => expect(result.current.username).toBe('mario'));
     await act(async () => { await result.current.deleteConversation(1); });
     expect(result.current.error).toMatch(/eliminazione/i);
+  });
+
+  it('imposta errore se createConversation fallisce dopo aver eliminato l\'ultima conversazione (riga 134)', async () => {
+    // Setup: una sola conversazione
+    vi.mocked(ChatModel.getConversations).mockResolvedValue([{ id_conv: 1, username: 'mario', titolo: 'Unica' }]);
+    vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
+    // Il bootstrap usa createConversation con successo (non viene invocato perché c'è già 1 conv);
+    // la chiamata automatica post-delete deve fallire
+    vi.mocked(ChatModel.createConversation).mockRejectedValue(new Error('fail'));
+
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.conversations).toHaveLength(1));
+
+    await act(async () => { await result.current.deleteConversation(1); });
+
+    // Il .catch della riga 134 deve aver impostato l'errore
+    await waitFor(() =>
+      expect(result.current.error).toMatch(/creazione automatica/i),
+    );
   });
 });
 
@@ -304,6 +375,15 @@ describe('useChatViewModel – removeFromCart', () => {
     await waitFor(() => expect(result.current.username).toBe('mario'));
     await act(async () => { await result.current.removeFromCart('P001'); });
     expect(result.current.error).toMatch(/rimozione dal carrello/i);
+  });
+
+  it('non fa nulla se username è null – guard riga 187', async () => {
+    vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('fail'));
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(globalThis.location.href).toBe('/unauthorized'));
+    const callsBefore = vi.mocked(ChatModel.removeFromCart).mock.calls.length;
+    await act(async () => { await result.current.removeFromCart('P001'); });
+    expect(vi.mocked(ChatModel.removeFromCart).mock.calls.length).toBe(callsBefore);
   });
 });
 
