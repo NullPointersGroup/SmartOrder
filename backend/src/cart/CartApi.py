@@ -30,13 +30,13 @@ def get_cart_service(db: Session = Depends(get_conn)) -> CartService:
 CartServiceDep = Annotated[CartService, Depends(get_cart_service)]
 
 
-@router.get("/{username}", response_model=CartResponse)
+@router.get("/{username}")
 def get_user_cart(username: str, cart_service: CartServiceDep) -> CartResponse:
     products = cart_service.get_cart_products(username)
     return CartResponse(products=products, username=username)
 
 
-@router.post("/{username}", response_model=CartProductResponse)
+@router.post("/{username}")
 def add_product_to_cart(
     username: str, request: AddProductRequest, cart_service: CartServiceDep
 ) -> CartProductResponse:
@@ -49,7 +49,7 @@ def add_product_to_cart(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.delete("/{username}", response_model=CartProductResponse)
+@router.delete("/{username}")
 def remove_product_from_cart(
     username: str, request: RemoveProductRequest, cart_service: CartServiceDep
 ) -> CartProductResponse:
@@ -60,7 +60,7 @@ def remove_product_from_cart(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.patch("/{username}", response_model=CartProductResponse)
+@router.patch("/{username}")
 def update_product_quantity(
     username: str, request: UpdateProductRequest, cart_service: CartServiceDep
 ) -> CartProductResponse:

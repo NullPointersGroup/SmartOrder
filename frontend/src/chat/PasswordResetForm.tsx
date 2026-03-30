@@ -10,10 +10,10 @@ const PASSWORD_REGEX =
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function getBorderClass(value: string, isValid: boolean, hasError: boolean): string {
-  if (hasError)          return "border-[var(--error)]";
-  if (value && isValid)  return "border-[var(--color-2)]";
-  if (value && !isValid) return "border-[var(--error)]";
-  return "border-[var(--border)]";
+  if (hasError)          return "border-(--error)";
+  if (value && isValid)  return "border-(--color-2)";
+  if (value && !isValid) return "border-(--error)";
+  return "border-(--border)";
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -45,24 +45,24 @@ function PasswordField({
 }: PasswordFieldProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-[var(--text-2)]">
+      <label htmlFor={id} className="text-sm font-medium text-(--text-2)">
         {label}
       </label>
 
-      <div className={`relative flex items-center rounded-lg border bg-[var(--bg-3)] transition-all duration-200 focus-within:border-[var(--color-2)] focus-within:ring-2 focus-within:ring-[var(--color-1)] ${borderClass}`}>
+      <div className={`relative flex items-center rounded-lg border bg-(--bg-3) transition-all duration-200 focus-within:border-(--color-2) focus-within:ring-2 focus-within:ring-(--color-1) ${borderClass}`}>
         <input
           id={id}
           type={show ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           autoComplete={autoComplete}
-          className="w-full bg-transparent py-2.5 pl-3 pr-10 text-sm text-[var(--text-1)] outline-none"
+          className="w-full bg-transparent py-2.5 pl-3 pr-10 text-sm text-(--text-1) outline-none"
         />
         <button
           type="button"
           tabIndex={-1}
           onClick={onToggleShow}
-          className="absolute right-3 text-[var(--text-4)] hover:text-[var(--color-2)] transition-colors"
+          className="absolute right-3 text-(--text-4) hover:text-(--color-2) transition-colors"
         >
           {show ? <EyeOff size={17} /> : <Eye size={17} />}
         </button>
@@ -71,7 +71,7 @@ function PasswordField({
       {children}
 
       {error && (
-        <p className="flex items-center gap-1 text-xs text-[var(--error)]">
+        <p className="flex items-center gap-1 text-xs text-(--error)">
           {error}
         </p>
       )}
@@ -140,7 +140,7 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex w-full max-w-sm flex-col gap-5">
-      <h2 className="text-lg font-semibold text-[var(--text-1)]">
+      <h2 className="text-lg font-semibold text-(--text-1)">
         Reimposta password
       </h2>
 
@@ -185,7 +185,7 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
         {confirmPwd && (
           <p
             className={`flex items-center gap-1 text-xs transition-colors duration-200 ${
-              confirmPwdValid ? "text-[var(--color-2)]" : "text-[var(--error)]"
+              confirmPwdValid ? "text-(--color-2)" : "text-(--error)"
             }`}
           >
             {confirmPwdValid
@@ -196,14 +196,14 @@ export default function PasswordResetForm({ handleReset }: Readonly<PasswordRese
       </PasswordField>
 
       {serverError && (
-        <p className="flex items-center gap-1 text-xs text-[var(--error)]">
+        <p className="flex items-center gap-1 text-xs text-(--error)">
           {serverError}
         </p>
       )}
 
       <button
         type="submit"
-        className="mt-1 rounded-lg py-2.5 text-sm font-semibold bg-[var(--color-3)] hover:bg-[var(--color-3)] text-[var(--bg-3)] transition-colors active:scale-[0.98]"
+        className="mt-1 rounded-lg py-2.5 text-sm font-semibold bg-(--color-3) hover:bg-(--color-3) text-(--bg-3) transition-colors active:scale-[0.98]"
       >
         Reimposta password
       </button>

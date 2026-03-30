@@ -18,17 +18,17 @@ interface Props {
 function TypingIndicator() {
   return (
     <output className="flex items-end gap-2 mb-4" aria-label="Il chatbot sta scrivendo">
-      <div className="w-7 h-7 rounded-full bg-[var(--color-1)] flex items-center justify-center shrink-0">
+      <div className="w-7 h-7 rounded-full bg-(--color-1) flex items-center justify-center shrink-0">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <circle cx="7" cy="7" r="6" stroke="var(--color-2)" strokeWidth="1.5" />
           <path d="M4 7h6M7 4v6" stroke="var(--color-2)" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </div>
-      <div className="flex items-center gap-1 bg-[var(--bg-3)] border border-[var(--border)] rounded-2xl rounded-bl-sm px-4 py-3">
+      <div className="flex items-center gap-1 bg-(--bg-3) border border-(--border) rounded-2xl rounded-bl-sm px-4 py-3">
         {[0, 1, 2].map(i => (
           <span
             key={i}
-            className="w-1.5 h-1.5 rounded-full bg-[var(--text-3)] animate-bounce"
+            className="w-1.5 h-1.5 rounded-full bg-(--text-3) animate-bounce"
             style={{ animationDelay: `${i * 150}ms` }}
           />
         ))}
@@ -44,8 +44,8 @@ function MessageBubble({ msg }: { readonly msg: Message }) {
       <div
         className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-semibold ${
           isUser
-            ? 'bg-[var(--color-3)] text-[var(--bg-3)]'
-            : 'bg-[var(--color-1)] text-[var(--color-3)]'
+            ? 'bg-(--color-3) text-(--bg-3)'
+            : 'bg-(--color-1) text-(--color-3)'
         }`}
         aria-hidden="true"
       >
@@ -55,8 +55,8 @@ function MessageBubble({ msg }: { readonly msg: Message }) {
         className={`
           max-w-[65%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
           ${isUser
-            ? 'bg-[var(--color-3)] text-[var(--bg-3)] rounded-2xl rounded-br-sm'
-            : 'bg-[var(--bg-3)] border border-[var(--border)] text-[var(--text-1)] rounded-2xl rounded-bl-sm shadow-sm'}
+            ? 'bg-(--color-3) text-(--bg-3) rounded-2xl rounded-br-sm'
+            : 'bg-(--bg-3) border border-(--border) text-(--text-1) rounded-2xl rounded-bl-sm shadow-sm'}
         `}
         aria-label={`Messaggio di ${isUser ? 'te' : 'chatbot'}`}
       >
@@ -89,8 +89,8 @@ export const ChatArea: React.FC<Props> = ({
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const counterColorClass = isOverLimit
-    ? 'text-[var(--oth-1)] font-semibold'
-    : 'text-[var(--text-2)]';
+    ? 'text-(--oth-1) font-semibold'
+    : 'text-(--text-2)';
 
   const formattedCharCount = `${inputText.length.toLocaleString('it-IT')} / 4096`;
 
@@ -180,12 +180,12 @@ export const ChatArea: React.FC<Props> = ({
   const iconBtnBase = `
     w-8 h-8 shrink-0 flex items-center justify-center rounded-lg
     transition-colors focus-visible:outline-none
-    focus-visible:ring-2 focus-visible:ring-[var(--color-2)] focus-visible:ring-offset-2
+    focus-visible:ring-2 focus-visible:ring-(--color-2) focus-visible:ring-offset-2
     disabled:opacity-40 disabled:cursor-not-allowed
   `;
 
   return (
-    <main className="flex flex-col flex-1 min-w-0 h-full bg-[var(--bg-1)]" aria-label="Area chat">
+    <main className="flex flex-col flex-1 min-w-0 h-full bg-(--bg-1)" aria-label="Area chat">
       {/* Messaggi */}
       <div
         className="flex-1 overflow-y-auto px-6 py-6"
@@ -195,7 +195,7 @@ export const ChatArea: React.FC<Props> = ({
       >
         {!hasActiveConv && (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[var(--color-1)] flex items-center justify-center mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-(--color-1) flex items-center justify-center mb-4">
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
                 <path
                   d="M4 4h24v18H18l-6 6V22H4V4z"
@@ -203,8 +203,8 @@ export const ChatArea: React.FC<Props> = ({
                 />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-[var(--text-2)] mb-1">Inizia una conversazione</h2>
-            <p className="text-sm text-[var(--text-4)] max-w-xs">
+            <h2 className="text-lg font-semibold text-(--text-2) mb-1">Inizia una conversazione</h2>
+            <p className="text-sm text-(--text-4) max-w-xs">
               Seleziona una conversazione dalla sidebar o creane una nuova.
             </p>
           </div>
@@ -212,13 +212,13 @@ export const ChatArea: React.FC<Props> = ({
 
         {hasActiveConv && isLoading && (
           <output className="flex justify-center py-12" aria-label="Caricamento messaggi">
-            <div className="w-6 h-6 border-2 border-[var(--border)] border-t-[var(--color-2)] rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-(--border) border-t-(--color-2) rounded-full animate-spin" />
           </output>
         )}
 
         {hasActiveConv && !isLoading && messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <p className="text-sm text-[var(--text-4)]">Nessun messaggio ancora. Scrivi qualcosa!</p>
+            <p className="text-sm text-(--text-4)">Nessun messaggio ancora. Scrivi qualcosa!</p>
           </div>
         )}
 
@@ -231,22 +231,22 @@ export const ChatArea: React.FC<Props> = ({
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-[var(--border)] bg-[var(--bg-3)] px-4 py-3">
+      <div className="border-t border-(--border) bg-(--bg-3) px-4 py-3">
         {/* Indicatore registrazione attiva */}
         {isRecording && (
-          <div className="flex items-center gap-2 mb-2 px-1" role="status" aria-live="assertive">
+          <output className="flex items-center gap-2 mb-2 px-1" aria-live="assertive">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" aria-hidden="true" />
-            <span className="text-xs text-[var(--error)] font-medium">
+            <span className="text-xs text-(--error) font-medium">
               Registrazione in corso…
             </span>
-          </div>
+          </output>
         )}
 
         <div
           className={`flex items-end gap-2 rounded-xl border transition-colors px-3 py-2 ${
             hasActiveConv
-              ? 'border-[var(--border)] focus-within:border-[var(--color-2)] bg-[var(--bg-3)]'
-              : 'border-[var(--border)] bg-[var(--bg-1)]'
+              ? 'border-(--border) focus-within:border-(--color-2) bg-(--bg-3)'
+              : 'border-(--border) bg-(--bg-1)'
           }`}
         >
           {/* Clip */}
@@ -256,7 +256,7 @@ export const ChatArea: React.FC<Props> = ({
             disabled={!hasActiveConv || isSending}
             aria-label="Allega file audio (mp3, m4a, m4p, wav — max 10 MB, 120 min)"
             title="Allega file audio"
-            className={`${iconBtnBase} text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--bg-2)]`}
+            className={`${iconBtnBase} text-(--text-3) hover:text-(--text-1) hover:bg-(--bg-2)`}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path
@@ -268,7 +268,7 @@ export const ChatArea: React.FC<Props> = ({
           
           {/* Textarea */}
           <textarea
-            className="flex-1 resize-none bg-transparent text-sm text-[var(--text-1)] placeholder:text-[var(--text-4)] focus:outline-none min-h-9 max-h-40 leading-relaxed disabled:cursor-not-allowed"
+            className="flex-1 resize-none bg-transparent text-sm text-(--text-1) placeholder:text-(--text-4) focus:outline-none min-h-9 max-h-40 leading-relaxed disabled:cursor-not-allowed"
             placeholder={hasActiveConv ? 'Scrivi un messaggio… (Invio per inviare)' : 'Seleziona una conversazione'}
             value={inputText}
             onChange={handleInput}
@@ -289,7 +289,7 @@ export const ChatArea: React.FC<Props> = ({
             className={`${iconBtnBase} ${
               isRecording
                 ? 'text-red-500 hover:text-red-600 hover:bg-red-50'
-                : 'text-[var(--text-3)] hover:text-[var(--text-1)] hover:bg-[var(--bg-2)]'
+                : 'text-(--text-3) hover:text-(--text-1) hover:bg-(--bg-2)'
             }`}
           >
             {isRecording ? (
@@ -314,11 +314,11 @@ export const ChatArea: React.FC<Props> = ({
             aria-label="Invia messaggio"
             className="
               w-9 h-9 shrink-0 flex items-center justify-center rounded-lg
-              bg-[var(--color-3)] text-[var(--bg-3)]
-              hover:bg-[var(--color-4)] active:bg-[var(--color-5)]
+              bg-(--color-3) text-(--bg-3)
+              hover:bg-(--color-4) active:bg-(--color-5)
               disabled:opacity-40 disabled:cursor-not-allowed
               transition-colors focus-visible:outline-none
-              focus-visible:ring-2 focus-visible:ring-[var(--color-2)] focus-visible:ring-offset-2
+              focus-visible:ring-2 focus-visible:ring-(--color-2) focus-visible:ring-offset-2
             "
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -337,7 +337,7 @@ export const ChatArea: React.FC<Props> = ({
         />
 
         <div className="flex items-center justify-between mt-1.5 px-1">
-          <p className="text-xs text-[var(--text-4)]">Invio per inviare · Shift+Invio per andare a capo</p>
+          <p className="text-xs text-(--text-4)">Invio per inviare · Shift+Invio per andare a capo</p>
           <p className={`text-xs tabular-nums transition-colors ${counterColorClass}`}>
             {formattedCharCount}
           </p>
