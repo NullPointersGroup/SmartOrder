@@ -29,6 +29,7 @@ def valid_registration():
         email="test@test.com",
         password="Password1!",
         confirm_pwd="Password1!",
+        admin=False,
     )
 
 

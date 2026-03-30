@@ -73,7 +73,7 @@ def login(
     u = User(username=payload.username, password=payload.password, admin = None)
 
     try:
-        username, _ = service.check_user(u)
+        username = service.check_user(u)
         token = TokenUtility.create_token(username)
 
         # set cookie compatibile localhost + cross-origin

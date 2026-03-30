@@ -29,7 +29,7 @@ class UserService:
         self.repo = repo
         self.email_validator = email_validator
 
-    def check_user(self, u: User) -> tuple[str, bool]:
+    def check_user(self, u: User) -> str:
         """
         @brief Verifica le credenziali e ritorna lo username autenticato e se è admin
         @param u: credenziali (username + password)
@@ -42,7 +42,7 @@ class UserService:
             raise InvalidCredentialsError()
         if not PasswordUtility.verify_password(u.password, stored.password):
             raise InvalidCredentialsError()
-        return stored.username, stored.admin
+        return stored.username
 
     def register_user(self, u: UserRegistration) -> None:
         """
