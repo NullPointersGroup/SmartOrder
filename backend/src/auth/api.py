@@ -273,6 +273,7 @@ def me(
 ) -> dict[str, str | bool]:
     try:
         user = service.get_user(current_user)
+        print(bool(user.admin))
         return {
             "username": user.username or "",
             "admin": bool(user.admin),

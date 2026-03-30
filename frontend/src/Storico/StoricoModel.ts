@@ -17,5 +17,3 @@ export interface StoricoPage {
   pagina_corrente: number
   totale_pagine: number
 }
-
-export type UserRole = 'admin' | 'cliente'

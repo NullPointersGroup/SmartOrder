@@ -1,17 +1,23 @@
-import React from 'react'
-import { useStoricoViewModel } from './StoricoViewModel'
-import type { UserRole } from './StoricoModel'
-import { usePageTitle } from '../hooks/usePageTitle'
-import { OrdineRow } from './OrdineRow'
-import { DettaglioModal } from './DettaglioModal'
-import { Paginazione } from './Paginazione'
+import React, { useState } from 'react';
+import { useAuthStore } from '../auth/authStore';
+import { useStoricoViewModel } from './StoricoViewModel';
+import { usePageTitle } from '../hooks/usePageTitle';
+import { OrdineRow } from './OrdineRow';
+import { DettaglioModal } from './DettaglioModal';
+import { Paginazione } from './Paginazione';
+import { NavBar } from '../chat/NavBar';
+import { Profile } from '../chat/Profile';
 
-interface StoricoViewProps {
-  readonly role: UserRole
-}
+export const StoricoView: React.FC = () => {
+  const username = useAuthStore((state) => state.username);
+  const admin = useAuthStore((state) => state.admin);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
 
-export const StoricoView: React.FC<StoricoViewProps> = ({ role }) => {
-  usePageTitle("Storico")
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  const title = admin === 'admin' ? 'Storico Ordini (Admin)' : 'Storico Ordini';
+  usePageTitle(title);
+
   const {
     ordini,
     pagina,
@@ -25,27 +31,36 @@ export const StoricoView: React.FC<StoricoViewProps> = ({ role }) => {
     apriDettaglio,
     chiudiDettaglio,
     duplicaOrdine,
-  } = useStoricoViewModel(role)
+  } = useStoricoViewModel(admin as 'admin' | 'cliente');
 
-  let contenutoTabella: React.ReactNode
+  const handleLogout = () => {
+    clearAuth();
+    globalThis.location.href = '/';
+  };
+
+  const handleProfile = () => {
+    setProfileOpen(true);
+  };
+
+  let contenutoTabella: React.ReactNode;
   if (loading) {
     contenutoTabella = (
       <div className="flex items-center justify-center py-20 text-(--text-4) text-sm">
         Caricamento…
       </div>
-    )
+    );
   } else if (errore) {
     contenutoTabella = (
       <div className="flex items-center justify-center py-20 text-(--error) text-sm">
         {errore}
       </div>
-    )
+    );
   } else if (ordini.length === 0) {
     contenutoTabella = (
       <div className="flex items-center justify-center py-20 text-(--text-4) text-sm">
         Nessun ordine trovato.
       </div>
-    )
+    );
   } else {
     contenutoTabella = (
       <>
@@ -71,7 +86,7 @@ export const StoricoView: React.FC<StoricoViewProps> = ({ role }) => {
                   Prodotti
                 </th>
                 <th />
-              </tr>
+               </tr>
             </thead>
             <tbody>
               {ordini.map((ordine) => (
@@ -92,11 +107,23 @@ export const StoricoView: React.FC<StoricoViewProps> = ({ role }) => {
           onCambia={caricaPagina}
         />
       </>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-(--bg-1)">
+      <NavBar
+        username={username ?? ''}
+        onLogout={handleLogout}
+        onProfile={handleProfile}
+      />
+      {profileOpen && (
+        <Profile
+          onClose={() => setProfileOpen(false)}
+          username={username ?? ''}
+          onLogout={handleLogout}
+        />
+      )}
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="mb-8">
           <p className="text-xs font-mono uppercase tracking-widest text-(--text-4) mb-1">
@@ -127,5 +154,5 @@ export const StoricoView: React.FC<StoricoViewProps> = ({ role }) => {
         />
       )}
     </div>
-  )
-}
+  );
+};

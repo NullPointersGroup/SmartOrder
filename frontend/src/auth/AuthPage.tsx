@@ -76,8 +76,8 @@ export default function AuthPage() {
             <Login onLogin={async () => {
               const res = await fetch(`/auth/me`, { credentials: 'include' });
               const data = await res.json();
-              setAuth(data.username);
-              navigate('/home');
+              setAuth(data.username, data.admin);
+              navigate(data.admin? '/history' : '/home')
             }} />
           ) : (
             <Register onRegister={() => setIsLogin(true)} />

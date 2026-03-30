@@ -7,10 +7,6 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { Unauthorized } from './HTTPError/401';
 import { NotFound } from './HTTPError/404';
 import { ServerError } from './HTTPError/500';
-import type { UserRole } from './Storico/StoricoModel';
-
-// Esempio: ottieni ruolo dall'utente loggato o contesto
-const currentUserRole: UserRole = 'cliente'; // oppure 'admin'
 
 export default function App() {
   return (
@@ -33,7 +29,7 @@ export default function App() {
           path="/history"
           element={
             <ProtectedRoute>
-              <StoricoView role={currentUserRole} />
+              <StoricoView />
             </ProtectedRoute>
           }
         />
