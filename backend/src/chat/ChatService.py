@@ -1,8 +1,8 @@
-from src.chat.ChatSchemas import Message, MessageRequest
+from src.chat.ChatSchemas import Message
+from src.chat.LLMModels import LLMRequest, Message as LLMMessage
 from src.enums import SenderEnum
 from src.chat.ports.ChatRepoPort import ChatRepoPort
 from src.chat.ports.LLMPort import LLMPort
-
 
 class ChatService:
     def __init__(self, repo: ChatRepoPort, llm: LLMPort) -> None:
@@ -13,16 +13,31 @@ class ChatService:
         messages = self.repo.get_messages(conv_id)
         return messages
 
-    def send_message(self, conv_id: int, username: str, content: str, audio_file: None) -> Message:
+    def send_message(
+        self,
+        conv_id: int,
+        username: str,
+        content: str,
+        audio_file: None | str = None
+    ) -> Message:
+        # controlla se la conversazione esiste
         exists = self.repo.conversation_exist(conv_id)
-
         if not exists:
             conv = self.repo.create_conversation(username)
             conv_id = conv.id_conv
 
-        message = self.repo.add_message(conv_id, content, SenderEnum.Utente)
+        # aggiunge il messaggio utente
+        message: Message = self.repo.add_message(conv_id, content, SenderEnum.Utente)
 
-        llm_text = self.llm.invoke_agent(content)
-        self.repo.add_message(conv_id, llm_text, SenderEnum.Chatbot)
+        request = LLMRequest(
+            conversation_id=conv_id,
+            message_id=message.id_message or 0,
+            chat_history=[LLMMessage(role="user", content=message.content)]
+        )
+
+        llm_response = self.llm.invoke_agent(request)
+
+        # aggiunge risposta dell'LLM
+        self.repo.add_message(conv_id, llm_response.content, SenderEnum.Chatbot)
 
         return message

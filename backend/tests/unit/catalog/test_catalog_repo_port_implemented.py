@@ -9,7 +9,7 @@ class ConcreteCatalogRepo(CatalogRepoPort):
             prod_id="ABC1",
             name="Test Prodotto",
             price=2.0,
-            measure_unit=MeasureUnitEnum.Confezioni,
+            measure_unit=MeasureUnitEnum.C,
         )
 
     def get_full_catalog(self) -> list[CatalogProduct]:
