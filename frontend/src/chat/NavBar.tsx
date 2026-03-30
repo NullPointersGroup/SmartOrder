@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   username: string | null;
@@ -9,6 +10,7 @@ interface Props {
 export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
   const [open, setOpen] = useState<boolean>(false)
   const ref = useRef<HTMLDivElement | null>(null)
+  const navigate=useNavigate()
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -69,6 +71,15 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
               <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
             </svg>
             Profilo
+          </button>
+
+          <div className="h-px bg-(--bg-2) mx-3 my-1" />
+
+          <button
+            onClick={() => navigate("/history")}
+            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-(--text-2) hover:bg-(--bg-2) hover:text-(--text-1) transition-colors"
+          >
+            Storico
           </button>
 
           <div className="h-px bg-(--bg-2) mx-3 my-1" />

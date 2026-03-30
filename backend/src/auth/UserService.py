@@ -29,23 +29,20 @@ class UserService:
         self.repo = repo
         self.email_validator = email_validator
 
-    def check_user(self, u: User) -> str:
+    def check_user(self, u: User) -> tuple[str, bool]:
         """
-        @brief Verifica le credenziali e ritorna lo username autenticato
+        @brief Verifica le credenziali e ritorna lo username autenticato e se è admin
         @param u: credenziali (username + password)
-        @return username se le credenziali sono valide
+        @return tuple(username, admin) se le credenziali sono valide
         @req RF-OB_24
         @req RF-OB_26
         """
         stored = self.repo.find_by_username(u.username)
-
         if stored is None or stored.username is None:
             raise InvalidCredentialsError()
-
         if not PasswordUtility.verify_password(u.password, stored.password):
             raise InvalidCredentialsError()
-
-        return stored.username
+        return stored.username, stored.admin
 
     def register_user(self, u: UserRegistration) -> None:
         """

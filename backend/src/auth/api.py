@@ -70,10 +70,10 @@ def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
 def login(
     payload: UserSchema, service: UserServiceDep, response: Response
 ) -> LoginResponse:
-    u = User(username=payload.username, password=payload.password)
+    u = User(username=payload.username, password=payload.password, admin = None)
 
     try:
-        username = service.check_user(u)
+        username, _ = service.check_user(u)
         token = TokenUtility.create_token(username)
 
         # set cookie compatibile localhost + cross-origin
@@ -124,6 +124,7 @@ async def register(
     u = UserRegistration(
         username=payload.username,
         password=payload.password,
+        admin = None,
         confirm_pwd=payload.confirmPwd,
         email=payload.email,
     )
@@ -174,6 +175,7 @@ def reset_password(
     u = UserReset(
         username=current_user,
         password=body.old_password,
+        admin = None,
         new_pwd=body.new_password,
     )
     try:
@@ -259,6 +261,24 @@ def logout(response: Response) -> dict[str, bool]:
     response.delete_cookie("access_token")
     return {"ok": True}
 
-@router.get("/me")
-def me(current_user: UserServiceCurrentUser) -> dict[str, str]:
-    return {"username": current_user}
+@router.get(
+    "/me",
+    responses={
+        404: {"model": ErrorResponse, "description": "Utente non trovato"},
+    },
+)
+def me(
+    current_user: UserServiceCurrentUser,
+    service: UserServiceDep
+) -> dict[str, str | bool]:
+    try:
+        user = service.get_user(current_user)
+        return {
+            "username": user.username or "",
+            "admin": bool(user.admin),
+        }
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail={"ok": False, "errors": [user_not_found]},
+        )

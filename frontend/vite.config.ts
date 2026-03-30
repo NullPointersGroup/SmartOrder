@@ -14,6 +14,7 @@ export default defineConfig({
       '/chat': backendUrl,
       '/conversations': backendUrl,
       '/cart': backendUrl,
+      '/storico': backendUrl,
     }
   },
   test: {
