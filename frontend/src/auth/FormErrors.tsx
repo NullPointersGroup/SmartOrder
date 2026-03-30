@@ -16,7 +16,7 @@ export default function FormErrors({ errors }: FormErrorsProps) {
    return (
       <div className="mb-4 pl-3 py-1">
          {errors.map(err => (
-         <p key={err} className="text-sm text-[#972020] m-0">{err}</p>
+         <p key={err} className="text-sm m-0" style={{ color: 'var(--error)' }}>{err}</p>
          ))}
       </div>
    );

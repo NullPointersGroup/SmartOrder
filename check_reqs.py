@@ -7,9 +7,9 @@ import re
 from dataclasses import dataclass
 
 # --- Totale requisiti per categoria ---
-TOT_OBBLIG: int = 110
-TOT_DESID: int = 146
-TOT_OPZ: int = 17
+TOT_OBBLIG: int = 106
+TOT_DESID: int = 142
+TOT_OPZ: int = 14
 
 _CATEGORY_TOTALS: Dict[str, int] = {
     "obblig": TOT_OBBLIG,

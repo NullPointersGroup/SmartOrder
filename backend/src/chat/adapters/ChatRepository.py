@@ -15,7 +15,10 @@ class ChatRepository:
         return self.db.get(Conversazione, conv_id)
 
     def create_conversation(self, username: str) -> Conversazione:
-        conv = Conversazione(username=username)
+        conv = Conversazione(
+            username=username,
+            titolo="Nuova conversazione"
+        )
         self.db.add(conv)
         self.db.commit()
         self.db.refresh(conv)
@@ -29,12 +32,12 @@ class ChatRepository:
         )
         return list(self.db.exec(stmt).all())
 
-    def add_message(
-        self, conv_id: int, text: str, sender: SenderEnum
-    ) -> ChatMessageRepository:
-        if not self.get_conversation(conv_id):
-            raise ConversationNotFoundException(conv_id)
-        msg = ChatMessageRepository(id_conv=conv_id, contenuto=text, mittente=sender)
+    def add_message(self, conv_id: int, text: str, sender: SenderEnum) -> ChatMessageRepository:
+        msg = ChatMessageRepository(
+            id_conv=conv_id,
+            contenuto=text,
+            mittente=sender
+        )
         self.db.add(msg)
         self.db.commit()
         self.db.refresh(msg)

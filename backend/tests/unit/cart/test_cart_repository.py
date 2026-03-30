@@ -15,7 +15,7 @@ def make_catalog(prod_id="ABC2", prod_des="Prodotto 2", price=2.0):
         prod_id=prod_id,
         prod_des=prod_des,
         price=price,
-        measure_unit_type=MeasureUnitEnum.Confezioni,
+        measure_unit_type=MeasureUnitEnum.C,
     )
 
 
@@ -36,7 +36,7 @@ def test_get_products_returns_list(cart_repository, mock_db):
         prod_id="ABC1",
         prod_des="Prodotto 1",
         price=1.0,
-        measure_unit_type=MeasureUnitEnum.Confezioni,
+        measure_unit_type=MeasureUnitEnum.C,
     )
 
     cart2 = UserCartRepository(username="Tom", cod_art="ABC2", quantita=1)
@@ -44,7 +44,7 @@ def test_get_products_returns_list(cart_repository, mock_db):
         prod_id="ABC2",
         prod_des="Prodotto 2",
         price=5.0,
-        measure_unit_type=MeasureUnitEnum.Confezioni,
+        measure_unit_type=MeasureUnitEnum.C,
     )
 
     mock_db.exec.return_value.all.return_value = [
@@ -88,7 +88,7 @@ def test_add_product_correct_fields(cart_repository, mock_db):
     assert result.id_prod == "ABC2"
     assert result.qty == 4
     assert result.prod_descr == "Prodotto 2"
-    assert result.price == 2.0
+    assert result.price == 2
 
 
 def test_add_product_not_existing(cart_repository, mock_db):

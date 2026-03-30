@@ -1,4 +1,5 @@
-from src.auth.models import User, UserRegistration
+from src.auth.models import User, UserRegistration, UserReset
+from src.db.models import Utente
 from src.auth.IUserRepoPort import IUserRepoPort
 from src.auth.IEmailValidationPort import IEmailValidationPort
 from src.auth.PasswordUtility import PasswordUtility
@@ -9,7 +10,9 @@ from src.auth.exceptions import (
     UserCreationError,
     InvalidCredentialsError,
     UserNotFoundError,
-    UserDeletionError
+    UserDeletionError,
+    UserResetError,
+    UserSamePasswordError,
 )
 
 
@@ -71,6 +74,21 @@ class UserService:
         if not self.repo.add_user(u):
             raise UserCreationError()
         
+    def reset_password(self, u: UserReset) -> None:
+        stored = self.repo.find_by_username(u.username)
+
+        if stored is None:
+            raise UserNotFoundError()
+
+        if not PasswordUtility.verify_password(u.password, stored.password):
+            raise InvalidCredentialsError()
+
+        if PasswordUtility.verify_password(u.new_pwd, stored.password):
+            raise UserSamePasswordError()
+
+        if not self.repo.reset_password(u):
+            raise UserResetError()
+            
     def delete_user(self, username: str) -> None:
         """
         @brief Elimina un utente autenticato
@@ -83,3 +101,9 @@ class UserService:
 
         if not self.repo.delete_user(username):
             raise UserDeletionError()
+        
+    def get_user(self, username: str) -> Utente:
+        user = self.repo.find_by_username(username)
+        if user is None:
+            raise UserNotFoundError()
+        return user

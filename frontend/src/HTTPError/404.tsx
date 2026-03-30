@@ -20,7 +20,7 @@ export function NotFound() {
       <div className="flex flex-row items-center justify-center gap-4 mt-8">
         {/* Bottone 1: Chat */}
         <button
-          onClick={() => navigate('/chat')}
+          onClick={() => navigate('/home')}
           className="px-6 py-3 bg-[#22477b] text-white font-semibold rounded-lg shadow-md hover:bg-[#1a365d] transition-all active:scale-95 whitespace-nowrap"
         >
           Torna alla Chat
