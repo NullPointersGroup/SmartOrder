@@ -10,80 +10,80 @@ from src.auth.exceptions import (
 
 
 class TestUsernameAlreadyExistsError:
-    #TU_22
+    #TU-B_22
     def test_is_value_error(self):
         assert isinstance(UsernameAlreadyExistsError(), ValueError)
 
-    #TU_23
+    #TU-B_23
     def test_message(self):
         assert str(UsernameAlreadyExistsError()) == "Username già esistente"
 
-    #TU_24
+    #TU-B_24
     def test_can_be_raised_and_caught(self):
         with pytest.raises(UsernameAlreadyExistsError):
             raise UsernameAlreadyExistsError()
 
 
 class TestInvalidEmailFormatError:
-    #TU_25
+    #TU-B_25
     def test_is_value_error(self):
         assert isinstance(InvalidEmailFormatError(), ValueError)
 
-    #TU_26
+    #TU-B_26
     def test_message(self):
         assert str(InvalidEmailFormatError()) == "L'email non è nel formato corretto"
 
-    #TU_27
+    #TU-B_27
     def test_can_be_raised_and_caught(self):
         with pytest.raises(InvalidEmailFormatError):
             raise InvalidEmailFormatError()
 
 
 class TestEmailAlreadyExistsError:
-    #TU_28
+    #TU-B_28
     def test_is_value_error(self):
         assert isinstance(EmailAlreadyExistsError(), ValueError)
 
-    #TU_29
+    #TU-B_29
     def test_message(self):
         assert str(EmailAlreadyExistsError()) == "Email già esistente"
 
-    #TU_30
+    #TU-B_30
     def test_can_be_raised_and_caught(self):
         with pytest.raises(EmailAlreadyExistsError):
             raise EmailAlreadyExistsError()
 
 
 class TestInvalidCredentialsError:
-    #TU_31
+    #TU-B_31
     def test_is_value_error(self):
         assert isinstance(InvalidCredentialsError(), ValueError)
 
-    #TU_32
+    #TU-B_32
     def test_message(self):
         assert str(InvalidCredentialsError()) == "Username o password errati"
 
-    #TU_33
+    #TU-B_33
     def test_can_be_raised_and_caught(self):
         with pytest.raises(InvalidCredentialsError):
             raise InvalidCredentialsError()
 
 
 class TestUserCreationError:
-    #TU_34
+    #TU-B_34
     def test_is_exception(self):
         assert isinstance(UserCreationError(), Exception)
 
-    #TU_35
+    #TU-B_35
     def test_is_not_value_error(self):
         # UserCreationError è un errore di sistema, non di validazione
         assert not isinstance(UserCreationError(), ValueError)
 
-    #TU_36
+    #TU-B_36
     def test_message(self):
         assert str(UserCreationError()) == "Errore durante la registrazione"
 
-    #TU_37
+    #TU-B_37
     def test_can_be_raised_and_caught(self):
         with pytest.raises(UserCreationError):
             raise UserCreationError()

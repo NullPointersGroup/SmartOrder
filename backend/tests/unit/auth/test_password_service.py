@@ -18,37 +18,37 @@ def mock_bcrypt():
 
 
 class TestHashPassword:
-    #TU_38
+    #TU-B_38
     def test_returns_string(self, mock_bcrypt):
         assert isinstance(PasswordUtility.hash_password(PLAIN), str)
 
-    #TU_39
+    #TU-B_39
     def test_hash_is_different_from_plain(self, mock_bcrypt):
         assert PasswordUtility.hash_password(PLAIN) != PLAIN
 
-    #TU_40
+    #TU-B_40
     def test_delegates_to_bcrypt(self, mock_bcrypt):
         PasswordUtility.hash_password(PLAIN)
         mock_bcrypt.hashpw.assert_called_once_with(PLAIN.encode(), mock_bcrypt.gensalt())
 
 
 class TestVerifyPassword:
-    #TU_41
+    #TU-B_41
     def test_correct_password_returns_true(self, mock_bcrypt):
         mock_bcrypt.checkpw.return_value = True
         assert PasswordUtility.verify_password(PLAIN, HASHED) is True
 
-    #TU_42
+    #TU-B_42
     def test_wrong_password_returns_false(self, mock_bcrypt):
         mock_bcrypt.checkpw.return_value = False
         assert PasswordUtility.verify_password("WrongPass1!", HASHED) is False
 
-    #TU_43
+    #TU-B_43
     def test_none_hash_returns_false_without_calling_bcrypt(self, mock_bcrypt):
         assert PasswordUtility.verify_password(PLAIN, None) is False
         mock_bcrypt.checkpw.assert_not_called()
 
-    #TU_44
+    #TU-B_44
     def test_empty_password_delegates_to_bcrypt(self, mock_bcrypt):
         mock_bcrypt.checkpw.return_value = False
         assert PasswordUtility.verify_password("", HASHED) is False
