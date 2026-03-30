@@ -24,11 +24,11 @@ class LLMAgent:
         self.runnable = self.model.bind_tools(self.tool_executor.tools)
 
     @staticmethod
-    def _normalize_content(content: str | list[str | dict[str, Any]] | None) -> str:
-        if isinstance(content, str):
-            return content
-        if not content:
-            return ""
+    # def _normalize_content(content: str | list[str | dict[str, Any]] | None) -> str:
+        # if isinstance(content, str):
+        #    return content
+        # if not content:
+        #    return ""
         # parts: list[str] = []
         # for item in content:
         #     if isinstance(item, str):
@@ -37,7 +37,20 @@ class LLMAgent:
         #         text = item.get("text")
         #         if isinstance(text, str):
         #             parts.append(text)
-        return str(content[-1]).strip()
+    #    return str(content[-1]).strip()
+    def _normalize_content(content: str | list[str | dict[str, Any]] | None) -> str:
+        if isinstance(content, str):
+            return content.strip()
+        if not content:
+            return ""
+
+        for item in reversed(content):
+            if isinstance(item, dict) and item.get("type") == "text":
+                text = item.get("text")
+                if isinstance(text, str):
+                    return text.strip()
+
+        return ""
 
     def invoke(self, request: LLMRequest) -> LLMResponse:
         langchain_messages: list[BaseMessage] = [SystemMessage(content=cart_prompt)]
