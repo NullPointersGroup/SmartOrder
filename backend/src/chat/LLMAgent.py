@@ -1,4 +1,5 @@
 import os
+import re
 from typing import Any
 
 from langchain_core.messages import (
@@ -25,32 +26,45 @@ class LLMAgent:
 
     @staticmethod
     # def _normalize_content(content: str | list[str | dict[str, Any]] | None) -> str:
-        # if isinstance(content, str):
-        #    return content
-        # if not content:
-        #    return ""
-        # parts: list[str] = []
-        # for item in content:
-        #     if isinstance(item, str):
-        #         parts.append(item)
-        #     elif isinstance(item, dict) and item.get("type") == "text":
-        #         text = item.get("text")
-        #         if isinstance(text, str):
-        #             parts.append(text)
+    # if isinstance(content, str):
+    #    return content
+    # if not content:
+    #    return ""
+    # parts: list[str] = []
+    # for item in content:
+    #     if isinstance(item, str):
+    #         parts.append(item)
+    #     elif isinstance(item, dict) and item.get("type") == "text":
+    #         text = item.get("text")
+    #         if isinstance(text, str):
+    #             parts.append(text)
     #    return str(content[-1]).strip()
     def _normalize_content(content: str | list[str | dict[str, Any]] | None) -> str:
+        # if isinstance(content, str):
+        #     return content.strip()
+        # if not content:
+        #     return ""
+
         if isinstance(content, str):
-            return content.strip()
+            # Rimuove eventuali strutture JSON all'inizio o nel testo
+            text = re.sub(r"\{.*?\}.*?\n?", "", content, flags=re.DOTALL)
+            return text.strip()
+
         if not content:
             return ""
 
-        for item in reversed(content):
-            if isinstance(item, dict) and item.get("type") == "text":
-                text = item.get("text")
-                if isinstance(text, str):
-                    return text.strip()
+        text = str(content)
+        # Rimuove blocchi JSON tipo {"chiave":"valore"}
+        clean_text = re.sub(r"\{.*?\}.*?\n?", "", text).strip()
+        return clean_text
 
-        return ""
+        # for item in reversed(content):
+        #     if isinstance(item, dict) and item.get("type") == "text":
+        #         text = item.get("text")
+        #         if isinstance(text, str):
+        #             return text.strip()
+
+        # return ""
 
     def invoke(self, request: LLMRequest) -> LLMResponse:
         langchain_messages: list[BaseMessage] = [SystemMessage(content=cart_prompt)]
