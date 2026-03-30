@@ -56,4 +56,18 @@ class UserDeletionError(ValueError):
     """
     def __init__(self) -> None:
         super().__init__("Errore nella cancellazione dell'utente")
+        
+class UserResetError(ValueError):
+    """
+    @brief Errore nella reimpostazione delle password dell'utente
+    """
+    def __init__(self) -> None:
+        super().__init__("Errore nella cancellazione dell'utente")
+        
+class UserSamePasswordError(ValueError):
+    """
+    @brief Utilizzata la stessa password nella reimpostazione
+    """
+    def __init__(self) -> None:
+        super().__init__("Non puoi utilizzare la stessa password iniziale")
     

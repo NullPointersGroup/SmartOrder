@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.auth.models import User, UserRegistration
+from src.auth.models import UserRegistration, UserReset
 from src.db.models import Utente
 
 
@@ -27,3 +27,7 @@ class IUserRepoPort(ABC):
     @abstractmethod
     def delete_user(self, username: str) -> bool:
         """@brief Elimina un utente dal DB"""
+        
+    @abstractmethod
+    def reset_password(self, u: UserReset) -> bool:
+        """@brief Reimposta la password di un utente"""

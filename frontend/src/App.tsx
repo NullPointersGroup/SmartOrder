@@ -15,7 +15,7 @@ export default function App() {
         <Route path="/servererror" element={<ServerError />} />
 
         <Route
-          path="/chat"
+          path="/home"
           element={
             <ProtectedRoute>
               <ChatView />

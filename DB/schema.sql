@@ -31,7 +31,7 @@ CREATE TABLE ordine (
     username    VARCHAR(24)  NOT NULL,
     data        DATE,
     CONSTRAINT fk_ordine_utentiweb
-        FOREIGN KEY (username) REFERENCES utentiweb(username)
+        FOREIGN KEY (username) REFERENCES utentiweb(username) ON DELETE CASCADE
 );
 
 --  OrdCliDet
@@ -41,7 +41,7 @@ CREATE TABLE ordclidet (
     qta_ordinata FLOAT,
     PRIMARY KEY (id_ord, cod_art),
     CONSTRAINT fk_ordclidet_ordine
-        FOREIGN KEY (id_ord) REFERENCES ordine(id_ord),
+        FOREIGN KEY (id_ord) REFERENCES ordine(id_ord) ON DELETE CASCADE,
     CONSTRAINT fk_ordclidet_anaart
         FOREIGN KEY (cod_art) REFERENCES anaart(cod_art)
 );
@@ -52,7 +52,7 @@ CREATE TABLE conversazioni (
     username    VARCHAR(24)  NOT NULL,
     titolo      VARCHAR(24)  NOT NULL,
     CONSTRAINT fk_conversazioni_utentiweb
-        FOREIGN KEY (username) REFERENCES utentiweb(username)
+        FOREIGN KEY (username) REFERENCES utentiweb(username) ON DELETE CASCADE
 );
 
 --  Messaggi
@@ -73,7 +73,7 @@ CREATE TABLE carrello (
     quantita    INTEGER,
     PRIMARY KEY (username, cod_art),
     CONSTRAINT fk_carrello_utentiweb
-        FOREIGN KEY (username) REFERENCES utentiweb(username),
+        FOREIGN KEY (username) REFERENCES utentiweb(username) ON DELETE CASCADE,
     CONSTRAINT fk_carrello_anaart
         FOREIGN KEY (cod_art) REFERENCES anaart(cod_art)
 );

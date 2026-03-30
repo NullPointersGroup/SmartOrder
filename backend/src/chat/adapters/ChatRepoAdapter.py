@@ -21,7 +21,7 @@ class ChatRepoAdapter(ChatRepoPort):
         return Message(
             id_message=row.id_messaggio,
             content=row.contenuto,
-            sender=row.mittente,
+            sender=row.mittente.value,
         )
 
     def conversation_exist(self, conv_id: int) -> bool:

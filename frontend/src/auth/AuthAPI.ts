@@ -1,5 +1,3 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
 export interface User {
   username: string;
   email: string;
@@ -31,7 +29,7 @@ async function authFetch(endpoint: string, body: object): Promise<AuthResponse> 
    * @return Promise~AuthResponse~ La risposta di autenticazione
    */
   try {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+    const response = await fetch(`${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

@@ -9,16 +9,16 @@ class CatalogRepoAdapter(CatalogRepoPort):
         self.repo = repo
 
     def _map_measure_unit(self, row: CatalogProductRepository) -> MeasureUnitEnum:
-        unit_code = (row.measure_unit_type or "").upper()
+        unit_code = (row.measure_unit_type.name if row.measure_unit_type else "").upper()
         unit_description = (row.measure_unit_type_description or "").upper()
 
         if unit_code == "C" or unit_description == "CONFEZIONI":
-            return MeasureUnitEnum.Confezioni
+            return MeasureUnitEnum.C
         if unit_code == "P" or unit_description == "PEZZI":
-            return MeasureUnitEnum.Pezzi
+            return MeasureUnitEnum.P
         if unit_code == "L" or unit_description == "COLLI":
-            return MeasureUnitEnum.Colli
-        return MeasureUnitEnum.Chilogrammi
+            return MeasureUnitEnum.L
+        return MeasureUnitEnum.K
 
     def _map_product(self, row: CatalogProductRepository) -> CatalogProduct:
         return CatalogProduct(

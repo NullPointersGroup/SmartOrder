@@ -8,7 +8,7 @@ def make_cart_product(prod_id="ABC1", name="Prodotto 1", price=1.0, qty=1):
         name=name,
         price=price,
         qty=qty,
-        measure_unit=MeasureUnitEnum.Confezioni,
+        measure_unit=MeasureUnitEnum.C,
     )
 
 
@@ -49,7 +49,7 @@ def test_add_product_returns_correct_product(cart_service, mock_repo):
 
     assert result.prod_id == "ABC1"
     assert result.name == "Prodotto 1"
-    assert result.price == 3.0
+    assert result.price == 3
     assert result.qty == 2
 
 

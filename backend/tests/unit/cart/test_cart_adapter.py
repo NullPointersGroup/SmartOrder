@@ -9,7 +9,7 @@ def make_db_row(prod_id="ABC1", prod_descr="Prodotto 1", price=1.0, qty=1):
         qty=qty,
         prod_descr=prod_descr,
         price=price,
-        measure_unit=MeasureUnitEnum.Confezioni,
+        measure_unit=MeasureUnitEnum.C,
     )
 
 
@@ -33,7 +33,7 @@ def test_get_products_returns_mapped_products(adapter, mock_repo):
     assert isinstance(result[0], CartProduct)
     assert result[0].prod_id == "ABC1"
     assert result[0].name == "Prodotto 1"
-    assert result[0].price == 1.0
+    assert result[0].price == 1
     assert result[0].qty == 2
     assert result[1].prod_id == "ABC2"
 
@@ -62,9 +62,9 @@ def test_add_product_returns_mapped_product(adapter, mock_repo):
 
     assert result.prod_id == "ABC1"
     assert result.name == "Prodotto 1"
-    assert result.price == 3.0
+    assert result.price == 3
     assert result.qty == 2
-    assert result.measure_unit == MeasureUnitEnum.Confezioni
+    assert result.measure_unit == MeasureUnitEnum.C
 
 
 def test_remove_product_returns_cart_product(adapter, mock_repo):
@@ -84,7 +84,7 @@ def test_remove_product_returnrs_mapped_product(adapter, mock_repo):
 
     assert result.prod_id == "ABC1"
     assert result.name == "Prodotto 1"
-    assert result.price == 2.0
+    assert result.price == 2
     assert result.qty == 1
 
 
@@ -110,7 +110,7 @@ def test_update_quantity_returns_mapped_products(adapter, mock_repo):
     assert result.prod_id == "ABC1"
     assert result.name == "Prodotto 1"
     assert result.qty == 5
-    assert result.measure_unit == MeasureUnitEnum.Confezioni
+    assert result.measure_unit == MeasureUnitEnum.C
 
 
 def test_update_quantity_subtract_calls_repo(adapter, mock_repo):
