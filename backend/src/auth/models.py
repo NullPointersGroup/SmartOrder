@@ -9,7 +9,7 @@ class User:
         self.password = password
 
 
-class UserRegistration:
+class UserRegistration(User):
     """
     @brief Modello per la registrazione
     @req RF-OB_02
@@ -23,7 +23,19 @@ class UserRegistration:
         password: str,
         confirm_pwd: str,
     ) -> None:
-        self.username    = username
+        super().__init__(username, password)
         self.email       = email
-        self.password    = password
         self.confirm_pwd = confirm_pwd
+
+class UserReset(User):
+    """
+    @brief Modello per la reimpostazione delle password
+    """
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        new_pwd: str,
+    ) -> None:
+        super().__init__(username, password)
+        self.new_pwd = new_pwd

@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Dict
 
 from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
 from pydantic import BaseModel
@@ -10,8 +10,9 @@ from src.auth.schemas import (
     AuthResponse,
     UserSchema,
     UserRegistrationSchema,
+    ResetPasswordRequest,
 )
-from src.auth.models import User, UserRegistration
+from src.auth.models import User, UserRegistration, UserReset
 from src.auth.exceptions import (
     UsernameAlreadyExistsError,
     InvalidEmailFormatError,
@@ -20,12 +21,16 @@ from src.auth.exceptions import (
     InvalidCredentialsError,
     UserNotFoundError,
     UserDeletionError,
+    UserResetError,
+    UserSamePasswordError
 )
 from src.db.dbConnection import get_conn
 from src.auth.UserRepoAdapter import UserRepoAdapter
 from src.auth.EmailValidationAdapter import EmailValidationAdapter
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+user_not_found: str = "Utente non trovato"
 
 
 class LoginResponse(BaseModel):
@@ -151,9 +156,54 @@ async def register(
 
 UserServiceCurrentUser = Annotated[str, Depends(get_current_user)]
 
+@router.post(
+    "/reset",
+    status_code=200,
+    responses={
+        400: {"model": ErrorResponse, "description": "Stessa password"},
+        401: {"model": ErrorResponse, "description": "Token non valido"},
+        404: {"model": ErrorResponse, "description": "Utente non trovato"},
+        500: {"model": ErrorResponse, "description": "Errore durante la reimpostazione"},
+    }
+)
+def reset_password(
+    body: ResetPasswordRequest,
+    service: UserServiceDep,
+    current_user: UserServiceCurrentUser,
+) -> AuthResponse:
+    u = UserReset(
+        username=current_user,
+        password=body.old_password,
+        new_pwd=body.new_password,
+    )
+    try:
+        service.check_user(u)
+        service.reset_password(u)
+        return AuthResponse(ok=True, errors=[])
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail={"ok": False, "errors": [user_not_found]},
+        )
+    except InvalidCredentialsError:
+        raise HTTPException(
+            status_code=401,
+            detail={"ok": False, "errors": ["Password attuale non corretta"]},
+        )
+    except UserSamePasswordError:
+        raise HTTPException(
+            status_code=400,
+            detail={"ok": False, "errors": ["La nuova password deve essere diversa da quella attuale"]},
+        )
+    except UserResetError:
+        raise HTTPException(
+            status_code=500,
+            detail={"ok": False, "errors": ["Errore durante la reimpostazione"]},
+        )
+    
 
 @router.delete(
-    "/account",
+    "/delete",
     status_code=200,
     responses={
         401: {"model": ErrorResponse, "description": "Token non valido"},
@@ -174,7 +224,7 @@ def delete_account(
     except UserNotFoundError:
         raise HTTPException(
             status_code=404,
-            detail={"ok": False, "errors": ["Utente non trovato"]},
+            detail={"ok": False, "errors": [user_not_found]},
         )
     except UserDeletionError:
         raise HTTPException(
@@ -182,6 +232,27 @@ def delete_account(
             detail={"ok": False, "errors": ["Errore durante la cancellazione"]},
         )
 
+@router.get(
+    "/retrieve",
+    responses={
+        401: {"model": ErrorResponse, "description": "Non autenticato"},
+        404: {"model": ErrorResponse, "description": "Utente non trovato"},
+    },
+)
+def retrieve(
+    service: UserServiceDep, current_user: UserServiceCurrentUser
+) -> Dict[str, str | None]:
+    try:
+        user = service.get_user(current_user)
+        return {
+            "username": user.username,
+            "email": user.email,
+        }
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail={"ok": False, "errors": [user_not_found]},
+        )
 
 @router.post("/logout")
 def logout(response: Response) -> dict[str, bool]:

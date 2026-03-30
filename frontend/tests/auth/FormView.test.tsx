@@ -82,4 +82,53 @@ describe('FormView – rendering e interazioni', () => {
     fireEvent.click(toggle);
     expect(passwordInput).toHaveAttribute('type', 'password');
   });
+
+  it('passa placeholder e autoComplete agli input', () => {
+    const fieldsWithAttrs: FieldConfig[] = [
+      { key: 'username', label: 'Username', type: 'text', placeholder: 'Inserisci username', autoComplete: 'username' },
+    ];
+    render(<Form title="T" submitLabel="S" fields={fieldsWithAttrs} vm={makeVM()} />);
+    const input = screen.getByLabelText(/username/i);
+    expect(input).toHaveAttribute('placeholder', 'Inserisci username');
+    expect(input).toHaveAttribute('autocomplete', 'username');
+  });
+
+  it('cambia borderColor al focus e blurCapture', () => {
+    render(<Form title="T" submitLabel="S" fields={BASE_FIELDS} vm={makeVM()} />);
+    const input = screen.getByLabelText(/username/i);
+
+    fireEvent.focus(input);
+    expect(input.style.borderColor).toBe('var(--color-2)');
+
+    fireEvent.blur(input); // blur normale non cambia colore, blurCapture sì
+    fireEvent.blur(input); // trigger onBlurCapture
+    expect(input.style.borderColor).toBe('var(--border)');
+  });
+
+  it('cambia colore del toggle password al mouse enter/leave', () => {
+    render(<Form title="T" submitLabel="S" fields={PASSWORD_FIELDS} vm={makeVM()} />);
+    const toggle = screen.getByRole('button', { name: /mostra password/i });
+
+    fireEvent.mouseEnter(toggle);
+    expect(toggle.style.color).toBe('var(--text-2)');
+
+    fireEvent.mouseLeave(toggle);
+    expect(toggle.style.color).toBe('var(--text-4)');
+  });
+
+  it('cambia colore e border del submit al mouse enter/leave', () => {
+    render(<Form title="T" submitLabel="Invia" fields={BASE_FIELDS} vm={makeVM()} />);
+    const btn = screen.getByRole('button', { name: /invia/i });
+
+    fireEvent.mouseEnter(btn);
+    expect(btn.style.backgroundColor).toBe('var(--color-1)');
+    expect(btn.style.color).toBe('var(--text-1)');
+    expect(btn.style.borderColor).toBe('var(--color-3)');
+
+    fireEvent.mouseLeave(btn);
+    expect(btn.style.backgroundColor).toBe('var(--color-2)');
+    expect(btn.style.color).toBe('var(--bg-3)');
+    expect(btn.style.borderColor).toBe('transparent');
+  });
+
 });

@@ -32,10 +32,10 @@ describe('NotFound', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
-  it('il bottone torna alla chat naviga verso /chat', () => {
+  it('il bottone torna alla chat naviga verso /home', () => {
     render(<MemoryRouter><NotFound /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /torna alla chat/i }));
-    expect(mockNavigate).toHaveBeenCalledWith('/chat');
+    expect(mockNavigate).toHaveBeenCalledWith('/home');
   });
 
   it('mostra il bottone per riprovare', () => {

@@ -13,7 +13,7 @@ class ConcreteCartRepo(CartRepoPort):
             name="Test",
             price=1.0,
             qty=qty,
-            measure_unit=MeasureUnitEnum.Confezioni,
+            measure_unit=MeasureUnitEnum.C,
         )
 
     def remove_product(self, prod_id, username) -> CartProduct:
@@ -22,16 +22,16 @@ class ConcreteCartRepo(CartRepoPort):
             name="Test",
             price=1.0,
             qty=1,
-            measure_unit=MeasureUnitEnum.Confezioni,
+            measure_unit=MeasureUnitEnum.C,
         )
 
     def update_quantity(self, prod_id, username, qty, operation) -> CartProduct:
         return CartProduct(
             prod_id=prod_id,
             name="Test",
-            price=1.0,
+            price=1,
             qty=qty,
-            measure_unit=MeasureUnitEnum.Confezioni,
+            measure_unit=MeasureUnitEnum.C,
         )
 
 

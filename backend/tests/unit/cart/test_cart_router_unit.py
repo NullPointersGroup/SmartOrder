@@ -37,7 +37,7 @@ def test_get_user_cart():
             qty=2,
             name="Prodotto",
             price=10.0,
-            measure_unit=MeasureUnitEnum.Confezioni,
+            measure_unit=MeasureUnitEnum.C,
         )
     ]
     mock_service.get_cart_products.return_value = mock_products
@@ -56,7 +56,7 @@ def test_add_product_to_cart():
         qty=2,
         name="Prodotto",
         price=10.0,
-        measure_unit=MeasureUnitEnum.Confezioni,
+        measure_unit=MeasureUnitEnum.C,
     )
 
     mock_service.add_product_to_cart.return_value = mock_products
@@ -95,7 +95,7 @@ def test_remove_product_from_cart():
         qty=2,
         name="Prodotto",
         price=10.0,
-        measure_unit=MeasureUnitEnum.Confezioni,
+        measure_unit=MeasureUnitEnum.C,
     )
 
     mock_service.remove_product_from_cart.return_value = mock_products
@@ -139,7 +139,7 @@ def test_update_product_quantity():
         qty=2,
         name="Prodotto",
         price=10.0,
-        measure_unit=MeasureUnitEnum.Confezioni,
+        measure_unit=MeasureUnitEnum.C,
     )
 
     mock_service.update_cart_quantity.return_value = mock_products
