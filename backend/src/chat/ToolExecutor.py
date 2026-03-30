@@ -1,5 +1,6 @@
 from langchain.tools import BaseTool
 from src.chat.exceptions import ToolNotFoundException
+from typing import Any
 
 
 class ToolExecutor:
@@ -12,6 +13,6 @@ class ToolExecutor:
                 return tool
         raise ToolNotFoundException(tool_name)
 
-    def execute(self, tool_name: str, args: dict) -> str:
+    def execute(self, tool_name: str, args: dict[str, BaseTool]) -> Any:
         tool = self.get_tool_by_name(tool_name)
         return tool.invoke(args)

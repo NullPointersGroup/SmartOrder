@@ -1,24 +1,30 @@
 import os
 
+from typing import Any
+
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_openai import ChatOpenAI
 
 from src.chat.LLMModels import LLMRequest, LLMResponse, MetaData
 from src.chat.ToolExecutor import ToolExecutor
 from src.chat.prompt import cart_prompt
+from pydantic import SecretStr
 
+from langchain_core.messages import BaseMessage
 
 class LLMAgent:
     def __init__(self, tool_executor: ToolExecutor) -> None:
         self.tool_executor: ToolExecutor = tool_executor
         self.model: ChatOpenAI = ChatOpenAI(
             model="gpt-5.4-mini",
-            api_key=os.getenv("OPENAI_API_KEY"),
+            api_key=SecretStr(os.getenv("OPENAI_API_KEY") or "")
         )
         self.runnable = self.model.bind_tools(self.tool_executor.tools)
 
     @staticmethod
-    def _normalize_content(content: str | list[dict] | None) -> str:
+    def _normalize_content(
+        content: str | list[str | dict[str, Any]] | None
+    ) -> str:
         if isinstance(content, str):
             return content
         if not content:
@@ -26,14 +32,18 @@ class LLMAgent:
 
         parts: list[str] = []
         for item in content:
-            if isinstance(item, dict) and item.get("type") == "text":
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict) and item.get("type") == "text":
                 text = item.get("text")
                 if isinstance(text, str):
                     parts.append(text)
         return "\n".join(parts)
 
     def invoke(self, request: LLMRequest) -> LLMResponse:
-        langchain_messages = [SystemMessage(content=cart_prompt)]
+        langchain_messages: list[BaseMessage] = [
+            SystemMessage(content=cart_prompt)
+        ]
 
         for msg in request.chat_history:
             if msg.role == "user":
@@ -53,7 +63,7 @@ class LLMAgent:
 
             for tc in response.tool_calls:
                 tool_name: str = tc["name"]
-                tool_args: dict = tc["args"]
+                tool_args: dict[str, Any] = tc["args"]
                 tool_call_names.append(tool_name)
 
                 tool_result = self.tool_executor.execute(tool_name, tool_args)

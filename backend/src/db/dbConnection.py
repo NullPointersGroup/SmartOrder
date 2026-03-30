@@ -3,10 +3,10 @@ from functools import lru_cache
 from typing import Any, Generator
 
 from sqlmodel import Session, create_engine
-
+from sqlalchemy.engine import Engine
 
 @lru_cache(maxsize=1)
-def get_engine():
+def get_engine() -> Engine:
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         raise RuntimeError("DATABASE_URL non impostata")
