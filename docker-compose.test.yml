@@ -1,0 +1,15 @@
+services:
+  db_test:
+    image: postgres:16-alpine
+    container_name: postgres_test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: smartorder_test
+    ports:
+      - "5433:5432"  # porta diversa per non confliggersi con il db di produzione
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d smartorder_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
