@@ -26,7 +26,7 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
       className="relative flex items-center justify-between px-5 py-2.5 bg-(--color-3)"
     >
       {/* Logo / color */}
-      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-(--color-1) opacity-80 select-none">
+      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-(--bg-3) opacity-80 select-none">
         SmartOrder
       </span>
 

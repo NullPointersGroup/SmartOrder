@@ -5,8 +5,10 @@ import { CartSidebar } from './CartSidebar';
 import { ChatArea } from './ChatArea';
 import { NavBar } from './NavBar'
 import { Profile } from './Profile'
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export const ChatView: React.FC = () => {
+  usePageTitle("Chat");
   const vm = useChatViewModel();
   const { error, setError } = vm;
   const [isLeftOpen, setIsLeftOpen] = useState(true);
@@ -27,7 +29,6 @@ export const ChatView: React.FC = () => {
           username={vm.username}
           onLogout={vm.logout}
           onProfile={() => setProfileOpen(true)}
-          onDelete={() => {}}
         />
       </div>
 
@@ -92,7 +93,7 @@ export const ChatView: React.FC = () => {
 
         {/* Sidebar destra */}
         <div
-          className={`relative h-full transition-all duration-500 ease-in-out shrink-0 flex border-1 border-(--border) bg-(--bg-3)
+          className={`relative h-full transition-all duration-500 ease-in-out shrink-0 flex border border-(--border) bg-(--bg-3)
             ${isRightOpen ? 'w-80' : 'w-14'}`}
         >
           {/* Sidebar aperta */}
