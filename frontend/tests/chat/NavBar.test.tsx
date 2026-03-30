@@ -1,23 +1,57 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-
+import { MemoryRouter } from 'react-router-dom';
 import { NavBar } from '../../src/chat/NavBar';
+import { useAuthStore } from '../../src/auth/authStore';
+
+// Mock dello store di autenticazione
+vi.mock('../../src/auth/authStore', () => ({
+  useAuthStore: vi.fn((selector) => {
+    const state = { admin: null };
+    return selector ? selector(state) : state;
+  }),
+}));
+
+const mockNavigate = vi.fn();
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
 const defaultProps = {
   username: 'mario',
   onLogout: vi.fn(),
-  onDelete: vi.fn(),
   onProfile: vi.fn(),
 };
 
 function renderNavBar(overrides: Partial<typeof defaultProps> = {}) {
-  return render(<NavBar {...defaultProps} {...overrides} />);
+  return render(
+    <MemoryRouter>
+      <NavBar {...defaultProps} {...overrides} />
+    </MemoryRouter>
+  );
 }
 
+// variabile condivisa tra mock e test
+let mockAdmin: string | null = null;
+
+vi.mock('../../src/auth/authStore', () => ({
+  useAuthStore: vi.fn((selector) => {
+    const state = { admin: mockAdmin };
+    return selector ? selector(state) : state;
+  }),
+}));
+
 beforeEach(() => {
+  mockNavigate.mockClear();
+  mockAdmin = null; // reset prima di ogni test
   defaultProps.onLogout  = vi.fn();
-  defaultProps.onDelete  = vi.fn();
   defaultProps.onProfile = vi.fn();
+  vi.mocked(useAuthStore).mockClear();
 });
 
 describe('NavBar – render base', () => {
@@ -48,7 +82,6 @@ describe('NavBar – render base', () => {
   });
 });
 
-// Apertura dropdown
 describe('NavBar – dropdown', () => {
   it('apre il dropdown al click sul bottone utente', async () => {
     renderNavBar();
@@ -68,7 +101,6 @@ describe('NavBar – dropdown', () => {
     await waitFor(() => expect(screen.queryByText('Profilo')).not.toBeInTheDocument());
   });
 
-  // Copre riga 17: handleClick con target fuori da ref.current → setOpen(false)
   it('chiude il dropdown cliccando fuori', async () => {
     renderNavBar();
     fireEvent.click(screen.getByText('mario'));
@@ -77,12 +109,10 @@ describe('NavBar – dropdown', () => {
     await waitFor(() => expect(screen.queryByText('Profilo')).not.toBeInTheDocument());
   });
 
-  // Copre riga 17 branch falso: mouseDown dentro il componente non chiude il dropdown
   it('NON chiude il dropdown cliccando dentro la navbar', async () => {
     renderNavBar();
     fireEvent.click(screen.getByText('mario'));
     await waitFor(() => expect(screen.getByText('Profilo')).toBeInTheDocument());
-    // Click dentro il componente (sul brand) → il dropdown rimane aperto
     fireEvent.mouseDown(screen.getByText(/smartorder/i));
     await waitFor(() => expect(screen.getByText('Profilo')).toBeInTheDocument());
   });
@@ -95,18 +125,15 @@ describe('NavBar – dropdown', () => {
     });
   });
 
-  // Copre riga 62: branch `username || '?'` nel dropdown con username null
   it('mostra "?" nell\'header del dropdown quando username è null', async () => {
     renderNavBar({ username: undefined });
     fireEvent.click(screen.getAllByText('?')[0]);
     await waitFor(() => expect(screen.getByText('Account')).toBeInTheDocument());
-    // Nel dropdown ci sono due "?": avatar header + testo header
     const qMarks = screen.getAllByText('?');
     expect(qMarks.length).toBeGreaterThanOrEqual(2);
   });
 });
 
-// Azioni
 describe('NavBar – azioni', () => {
   it('chiama onProfile e chiude il dropdown al click su "Profilo"', async () => {
     const onProfile = vi.fn();
@@ -129,11 +156,36 @@ describe('NavBar – azioni', () => {
   });
 });
 
-// Username edge case
 describe('NavBar – edge case username', () => {
   it('mostra correttamente username con caratteri non ASCII', () => {
     renderNavBar({ username: 'àlex' });
     expect(screen.getAllByText('àlex').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('À')).toBeInTheDocument();
   });
+});
+
+describe('NavBar – visibilità Storico per ruolo cliente', () => {
+  it('mostra il pulsante Storico se il ruolo è "cliente"', async () => {
+  mockAdmin = 'cliente'; // nessun mockImplementation, solo la variabile
+  renderNavBar();
+  fireEvent.click(screen.getByText('mario'));
+  await waitFor(() => expect(screen.getByText('Storico')).toBeInTheDocument());
+});
+
+it('NON mostra il pulsante Storico se il ruolo non è "cliente"', async () => {
+  // mockAdmin è già null grazie al beforeEach
+  renderNavBar();
+  fireEvent.click(screen.getByText('mario'));
+  await waitFor(() => expect(screen.getByText('Logout')).toBeInTheDocument());
+  expect(screen.queryByText('Storico')).not.toBeInTheDocument();
+});
+
+it('naviga verso /history al click su Storico', async () => {
+  mockAdmin = 'cliente';
+  renderNavBar();
+  fireEvent.click(screen.getByText('mario'));
+  await waitFor(() => expect(screen.getByText('Storico')).toBeInTheDocument());
+  fireEvent.click(screen.getByText('Storico'));
+  expect(mockNavigate).toHaveBeenCalledWith('/history');
+});
 });
