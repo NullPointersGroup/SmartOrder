@@ -30,18 +30,12 @@ def service(repo):
     return StoricoService(repo)
 
 
-# ---------------------------------------------------------------------------
-# get_ordini_cliente
-# ---------------------------------------------------------------------------
-
 class TestGetOrdiniCliente:
-    # TU-S_12
     def test_returns_storico_response_schema(self, service, repo):
         repo.get_ordini_by_username.return_value = [make_ordine(1, "mario")]
         result = service.get_ordini_cliente("mario")
         assert isinstance(result, StoricoResponseSchema)
 
-    # TU-S_13
     def test_totale_ordini_matches_list_length(self, service, repo):
         repo.get_ordini_by_username.return_value = [
             make_ordine(1, "mario"),
@@ -50,39 +44,33 @@ class TestGetOrdiniCliente:
         result = service.get_ordini_cliente("mario")
         assert result.totale_ordini == 2
 
-    # TU-S_14
     def test_ordini_are_ordine_schema_instances(self, service, repo):
         repo.get_ordini_by_username.return_value = [make_ordine(1, "mario")]
         result = service.get_ordini_cliente("mario")
         assert all(isinstance(o, OrdineSchema) for o in result.ordini)
 
-    # TU-S_15
     def test_single_ordine_data_is_correct(self, service, repo):
         repo.get_ordini_by_username.return_value = [make_ordine(1, "mario", totale=99.9)]
         result = service.get_ordini_cliente("mario")
         assert result.ordini[0].totale == pytest.approx(99.9)
         assert result.ordini[0].username == "mario"
 
-    # TU-S_16
     def test_raises_ordini_not_found_when_empty(self, service, repo):
         repo.get_ordini_by_username.return_value = []
         with pytest.raises(OrdiniNotFoundException):
             service.get_ordini_cliente("mario")
 
-    # TU-S_17
     def test_exception_message_contains_username(self, service, repo):
         repo.get_ordini_by_username.return_value = []
         with pytest.raises(OrdiniNotFoundException) as exc_info:
             service.get_ordini_cliente("mario")
         assert "mario" in exc_info.value.message
 
-    # TU-S_18
     def test_calls_repo_with_correct_username(self, service, repo):
         repo.get_ordini_by_username.return_value = [make_ordine(1, "mario")]
         service.get_ordini_cliente("mario")
         repo.get_ordini_by_username.assert_called_once_with("mario")
 
-    # TU-S_19
     def test_multiple_ordini_all_included(self, service, repo):
         ordini = [make_ordine(i, "mario") for i in range(5)]
         repo.get_ordini_by_username.return_value = ordini
@@ -90,25 +78,18 @@ class TestGetOrdiniCliente:
         assert len(result.ordini) == 5
 
 
-# ---------------------------------------------------------------------------
-# get_ordini_admin
-# ---------------------------------------------------------------------------
-
 class TestGetOrdiniAdmin:
-    # TU-S_20
     def test_returns_storico_response_schema(self, service, repo):
         repo.get_all_ordini.return_value = [make_ordine(1, "mario")]
         result = service.get_ordini_admin()
         assert isinstance(result, StoricoResponseSchema)
 
-    # TU-S_21
     def test_empty_list_does_not_raise(self, service, repo):
         repo.get_all_ordini.return_value = []
         result = service.get_ordini_admin()
         assert result.totale_ordini == 0
         assert result.ordini == []
 
-    # TU-S_22
     def test_totale_ordini_matches_list_length(self, service, repo):
         repo.get_all_ordini.return_value = [
             make_ordine(1, "mario"),
@@ -118,25 +99,21 @@ class TestGetOrdiniAdmin:
         result = service.get_ordini_admin()
         assert result.totale_ordini == 3
 
-    # TU-S_23
     def test_ordini_are_ordine_schema_instances(self, service, repo):
         repo.get_all_ordini.return_value = [make_ordine(1, "mario"), make_ordine(2, "luigi")]
         result = service.get_ordini_admin()
         assert all(isinstance(o, OrdineSchema) for o in result.ordini)
 
-    # TU-S_24
     def test_calls_get_all_ordini_once(self, service, repo):
         repo.get_all_ordini.return_value = []
         service.get_ordini_admin()
         repo.get_all_ordini.assert_called_once()
 
-    # TU-S_25
     def test_does_not_call_get_by_username(self, service, repo):
         repo.get_all_ordini.return_value = []
         service.get_ordini_admin()
         repo.get_ordini_by_username.assert_not_called()
 
-    # TU-S_26
     def test_ordini_data_preserved(self, service, repo):
         repo.get_all_ordini.return_value = [make_ordine(42, "luigi", totale=55.5)]
         result = service.get_ordini_admin()
