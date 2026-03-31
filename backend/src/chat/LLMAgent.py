@@ -20,7 +20,7 @@ class LLMAgent:
     def __init__(self, tool_executor: ToolExecutor) -> None:
         self.tool_executor: ToolExecutor = tool_executor
         self.model: ChatOpenAI = ChatOpenAI(
-            model="gpt-5.4-mini", api_key=SecretStr(os.getenv("OPENAI_API_KEY") or "")
+            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"), api_key=SecretStr(os.getenv("OPENAI_API_KEY") or "")
         )
         self.runnable = self.model.bind_tools(self.tool_executor.tools)
 
