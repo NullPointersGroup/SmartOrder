@@ -93,7 +93,7 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
                 <div className="flex items-start gap-3 flex-1">
                   <div>
                     <p className="text-sm font-semibold text-(--text-1)">{p.nome}</p>
-                    {p.descrizione && (
+                    {p.descrizione?.trim() && (
                       <p className="text-xs text-(--text-4) mt-0.5 leading-relaxed">
                         {p.descrizione}
                       </p>

@@ -166,7 +166,7 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
                       className={`
                         flex items-center gap-2.5 w-full px-4 py-2.5 text-sm transition-colors
                         ${isCurrent
-                          ? 'text-(--visited) font-semibold cursor-default pointer-events-none'
+                          ? 'text-(--text-1) font-semibold cursor-default pointer-events-none'
                           : 'text-(--text-2) hover:bg-(--bg-2) hover:text-(--text-1)'}
                       `}
                     >
