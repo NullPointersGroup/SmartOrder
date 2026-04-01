@@ -49,20 +49,26 @@ export const StoricoView: React.FC = () => {
   let contenutoTabella: React.ReactNode;
   if (loading) {
     contenutoTabella = (
-      <div className="flex items-center justify-center py-20 text-(--text-4) text-sm">
-        Caricamento…
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
+        <div className="w-5 h-5 border-2 border-(--border) border-t-(--color-2) rounded-full animate-spin" />
+        <span className="text-xs text-(--text-4) font-mono tracking-widest uppercase">Caricamento</span>
       </div>
     );
   } else if (errore) {
     contenutoTabella = (
-      <div className="flex items-center justify-center py-20 text-(--error) text-sm">
-        {errore}
+      <div className="flex flex-col items-center justify-center py-24 gap-2">
+        <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center mb-1">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--error)" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <span className="text-sm text-(--error)">{errore}</span>
       </div>
     );
   } else if (ordini.length === 0) {
     contenutoTabella = (
-      <div className="flex items-center justify-center py-20 text-(--text-4) text-sm">
-        Nessun ordine trovato.
+      <div className="flex items-center justify-center py-24">
+        <span className="text-sm text-(--text-1)">Nessun ordine effettuato</span>
       </div>
     );
   } else {
@@ -71,19 +77,19 @@ export const StoricoView: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-(--border) bg-(--bg-2)">
-                <th className="py-2.5 px-4 text-xs font-semibold uppercase tracking-widest text-(--text-4)">
+              <tr className="border-b border-(--color-3) bg-(--color-3)">
+                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-[0.15em] text-white">
                   Codice
                 </th>
-                <th className="py-2.5 px-4 text-xs font-semibold uppercase tracking-widest text-(--text-4)">
+                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-[0.15em] text-white">
                   Data
                 </th>
                 {isAdmin && (
-                  <th className="py-2.5 px-4 text-xs font-semibold uppercase tracking-widest text-(--text-4)">
+                  <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-[0.15em] text-white">
                     Cliente
                   </th>
                 )}
-                <th className="py-2.5 px-4 text-xs font-semibold uppercase tracking-widest text-(--text-4)">
+                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-[0.15em] text-white">
                   Prodotti
                 </th>
                 <th />
@@ -125,22 +131,34 @@ export const StoricoView: React.FC = () => {
           onLogout={handleLogout}
         />
       )}
+
       <div className="max-w-4xl mx-auto px-4 py-10">
-        <div className="mb-8">
-          <p className="text-xs font-mono uppercase tracking-widest text-(--text-4) mb-1">
-            {isAdmin ? 'Pannello Admin' : 'Area Cliente'}
-          </p>
-          <h1 className="text-2xl font-semibold text-(--text-1) tracking-tight">
-            Storico Ordini
-          </h1>
-          {isAdmin && (
-            <p className="text-sm text-(--text-4) mt-1">
-              Visualizzazione completa — tutti i clienti
+        {/* Header */}
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <p className="text-[10px] font-bold font-mono uppercase tracking-[0.15em] text-(--color-2) mb-1.5">
+              {isAdmin ? 'Pannello Admin' : 'Area Cliente'}
             </p>
+            <h1 className="text-2xl font-semibold text-(--text-1) tracking-tight">
+              Storico Ordini
+            </h1>
+            {isAdmin && (
+              <p className="text-sm text-(--text-4) mt-1">
+                Visualizzazione completa — tutti i clienti
+              </p>
+            )}
+          </div>
+
+          {/* Badge totale pagine */}
+          {!loading && ordini.length > 0 && (
+            <span className="text-xs font-mono text-(--text-2) bg-(--bg-2) border border-(--border) px-3 py-1.5 rounded-full">
+              pag. {pagina} / {totalePagine}
+            </span>
           )}
         </div>
 
-        <div className="bg-(--bg-3) border border-(--border) rounded-sm shadow-sm overflow-hidden">
+        {/* Tabella */}
+        <div className="bg-(--bg-3) border border-(--border) rounded-xl shadow-sm overflow-hidden">
           {contenutoTabella}
         </div>
       </div>
