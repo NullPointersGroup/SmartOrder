@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import React from 'react';
 
-import { DettaglioModal } from '../../src/storico/DettaglioModal';
-import type { Ordine } from '../../src/storico/StoricoModel';
+import { DettaglioModal } from '../../src/Storico/DettaglioModal';
+import type { Ordine } from '../../src/Storico/StoricoModel';
 
 // ─── Mock <dialog> per jsdom ─────────────────────────────────────────────────
 // jsdom non implementa showModal() né close() nativamente.
@@ -93,13 +92,17 @@ describe('DettaglioModal – render base', () => {
 
   it('NON mostra la descrizione vuota', () => {
     renderModal();
-    // "Pane" ha descrizione: '' — il branch {p.descrizione && ...} non deve renderizzare nulla
-    // Verifichiamo che ci siano esattamente 2 elementi descrizione (Intero, Greco) e non 3
-    const descriptions = document.querySelectorAll('.text-xs.text-\\(--text-4\\)');
-    // Solo Latte e Yogurt hanno descrizione, Pane no
-    const descTexts = Array.from(descriptions).map(el => el.textContent?.trim());
-    expect(descTexts).not.toContain('');
-    expect(descTexts.filter(Boolean)).toHaveLength(2);
+    // "Pane" ha descrizione: '' — il branch {p.descrizione?.trim() && ...} non deve renderizzare nulla.
+    // Recuperiamo il container diretto di <p>Pane</p> (il div che contiene nome + eventuale descrizione)
+    // e verifichiamo che contenga un solo <p> (solo il nome, senza descrizione).
+    const paneNameEl = screen.getByText('Pane');
+    const paneContainer = paneNameEl.closest('div');
+    const paragraphs = paneContainer?.querySelectorAll('p') ?? [];
+    expect(paragraphs).toHaveLength(1);
+
+    // Latte e Yogurt hanno descrizione non vuota: devono essere visibili
+    expect(screen.getByText('Intero')).toBeInTheDocument();
+    expect(screen.getByText('Greco')).toBeInTheDocument();
   });
 
   it('mostra la quantità di ogni prodotto con "× N"', () => {
@@ -200,7 +203,8 @@ describe('DettaglioModal – chiusura', () => {
     const onChiudi = vi.fn();
     renderModal({ onChiudi });
 
-    const dialog = document.querySelector('dialog')!;
+    const dialog = document.querySelector('dialog');
+    if (!dialog) throw new Error('dialog non trovato nel DOM');
     fireEvent(dialog, new Event('close'));
 
     await waitFor(() => expect(onChiudi).toHaveBeenCalledTimes(1));

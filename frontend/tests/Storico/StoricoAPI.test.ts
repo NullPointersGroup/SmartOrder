@@ -4,7 +4,7 @@ import {
   getStoricoCliente,
   getStoricoAdmin,
   duplicaOrdine,
-} from '../../src/storico/StoricoAPI';
+} from '../../src/Storico/StoricoAPI';
 
 // ─── Mock fetch globale ───────────────────────────────────────────────────────
 
@@ -63,7 +63,7 @@ describe('getStoricoCliente', () => {
     mockFetchOk(mockPageResponse);
     await getStoricoCliente();
 
-    const [url, options] = mockFetch.mock.calls[0];
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
     expect(url).toContain('/storico/miei');
     expect(url).toContain('pagina=1');
     expect(url).toContain('per_pagina=10');
@@ -75,7 +75,7 @@ describe('getStoricoCliente', () => {
     mockFetchOk(mockPageResponse);
     await getStoricoCliente(3, 5);
 
-    const [url] = mockFetch.mock.calls[0];
+    const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
     expect(url).toContain('pagina=3');
     expect(url).toContain('per_pagina=5');
   });
@@ -109,7 +109,7 @@ describe('getStoricoAdmin', () => {
     mockFetchOk(mockPageResponse);
     await getStoricoAdmin();
 
-    const [url, options] = mockFetch.mock.calls[0];
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
     expect(url).toContain('/storico/tutti');
     expect(url).toContain('pagina=1');
     expect(url).toContain('per_pagina=10');
@@ -121,7 +121,7 @@ describe('getStoricoAdmin', () => {
     mockFetchOk(mockPageResponse);
     await getStoricoAdmin(2, 20);
 
-    const [url] = mockFetch.mock.calls[0];
+    const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
     expect(url).toContain('pagina=2');
     expect(url).toContain('per_pagina=20');
   });
@@ -155,7 +155,7 @@ describe('duplicaOrdine', () => {
     mockFetchOk({});
     await duplicaOrdine('ORD-001');
 
-    const [url, options] = mockFetch.mock.calls[0];
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
     expect(url).toContain('/storico/duplica/ORD-001');
     expect(options.method).toBe('POST');
     expect(options.credentials).toBe('include');
@@ -165,7 +165,7 @@ describe('duplicaOrdine', () => {
     mockFetchOk({});
     await duplicaOrdine('ORD 001/speciale');
 
-    const [url] = mockFetch.mock.calls[0];
+    const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
     expect(url).toContain(encodeURIComponent('ORD 001/speciale'));
   });
 

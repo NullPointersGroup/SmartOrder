@@ -6,7 +6,7 @@ import { ChatView } from '../../src/chat/ChatView';
 // ─── Mock window.matchMedia (non esiste in jsdom) ─────────────────────────────
 
 function mockMatchMedia(matches: boolean) {
-  Object.defineProperty(window, 'matchMedia', {
+  Object.defineProperty(globalThis, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation((query: string) => ({
       matches,
@@ -96,6 +96,21 @@ vi.mock('../../src/chat/Profile', () => ({
     <div data-testid="profile-panel">
       <button onClick={onClose} title="Chiudi profilo">chiudi profilo</button>
       <button onClick={onLogout} title="Logout profilo">logout profilo</button>
+    </div>
+  ),
+}));
+
+vi.mock('../../src/chat/ConversationSidebar', () => ({
+  ConversationSidebar: ({
+    onToggleSelf,
+    onSelect,
+  }: {
+    onToggleSelf: () => void;
+    onSelect: (id: number) => void;
+  }) => (
+    <div data-testid="conv-sidebar">
+      <button onClick={() => onSelect(1)}>select conv</button>
+      <button onClick={onToggleSelf} title="Chiudi conversazioni">chiudi sx</button>
     </div>
   ),
 }));
@@ -300,7 +315,7 @@ it('chiude overlay sinistro cliccando backdrop', () => {
 
   fireEvent.click(screen.getByTitle('Apri conversazioni'));
 
-  const backdrop = document.querySelector('.bg-black\\/30');
+  const backdrop = document.querySelector(String.raw`.bg-black\/30`);
   fireEvent.click(backdrop!);
 
   expect(screen.queryByTestId('conv-sidebar')).not.toBeInTheDocument();
@@ -326,4 +341,69 @@ it('apre overlay carrello in modalità narrow', () => {
   fireEvent.click(screen.getByTitle('Apri carrello'));
 
   expect(screen.getByTestId('cart-sidebar')).toBeInTheDocument();
+});
+
+it('selectConversation chiude overlay e chiama VM', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  fireEvent.click(screen.getByTitle('Apri conversazioni'));
+  fireEvent.click(screen.getByText('select conv'));
+
+  expect(mockSelectConversation).toHaveBeenCalledWith(1);
+  expect(screen.queryByTestId('conv-sidebar')).not.toBeInTheDocument();
+});
+
+it('onToggleSelf chiude overlay sinistro', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  fireEvent.click(screen.getByTitle('Apri conversazioni'));
+  fireEvent.click(screen.getByTitle('Chiudi conversazioni'));
+
+  expect(screen.queryByTestId('conv-sidebar')).not.toBeInTheDocument();
+});
+
+it('renderizza overlay carrello in modalità narrow quando aperto', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  fireEvent.click(screen.getByTitle('Apri carrello'));
+
+  expect(screen.getByTestId('cart-sidebar')).toBeInTheDocument();
+});
+
+it('click sul backdrop chiude overlay carrello', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  fireEvent.click(screen.getByTitle('Apri carrello'));
+
+  const backdrop = document.querySelector(String.raw`.bg-black\/30`);
+  fireEvent.click(backdrop!);
+
+  expect(screen.queryByTestId('cart-sidebar')).not.toBeInTheDocument();
+});
+
+it('onToggleSelf chiude overlay carrello', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  fireEvent.click(screen.getByTitle('Apri carrello'));
+  fireEvent.click(screen.getByTitle('Chiudi carrello'));
+
+  expect(screen.queryByTestId('cart-sidebar')).not.toBeInTheDocument();
+});
+
+it('apre carrello e chiude sidebar sinistra in modalità narrow', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  fireEvent.click(screen.getByTitle('Apri conversazioni'));
+  expect(screen.getByTestId('conv-sidebar')).toBeInTheDocument();
+
+  fireEvent.click(screen.getByTitle('Apri carrello'));
+
+  expect(screen.getByTestId('cart-sidebar')).toBeInTheDocument();
+  expect(screen.queryByTestId('conv-sidebar')).not.toBeInTheDocument();
 });

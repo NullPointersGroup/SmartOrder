@@ -18,7 +18,7 @@ export const ChatView: React.FC = () => {
 
   // Detect viewport width below 960px
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 959px)');
+    const mq = globalThis.matchMedia('(max-width: 959px)');
     const handler = (e: MediaQueryListEvent | MediaQueryList) => {
       setIsNarrow(e.matches);
       if (e.matches) {

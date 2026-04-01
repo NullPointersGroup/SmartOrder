@@ -1,17 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
-import { StoricoView } from '../../src/storico/StoricoView';
+import { StoricoView } from '../../src/Storico/StoricoView';
 
 // ─── Mock authStore ───────────────────────────────────────────────────────────
 
 const mockClearAuth = vi.fn();
 vi.mock('../../src/auth/authStore', () => ({
-  useAuthStore: vi.fn((selector: (s: any) => any) =>
+  useAuthStore: vi.fn((selector: (s: AuthState) => unknown) =>
     selector({
-      username:  'mario',
-      admin:     null,
+      username: 'mario',
+      admin: null,
       clearAuth: mockClearAuth,
     })
   ),
@@ -25,30 +24,58 @@ vi.mock('../../src/hooks/usePageTitle', () => ({
 
 // ─── Mock ViewModel ───────────────────────────────────────────────────────────
 
-const mockCapricaPagina  = vi.fn();
+const mockCaricaPagina   = vi.fn();
 const mockApriDettaglio  = vi.fn();
 const mockChiudiDettaglio = vi.fn();
 const mockDuplicaOrdine  = vi.fn();
 
-const baseVm = {
-  ordini:         [] as any[],
-  pagina:         1,
-  totalePagine:   1,
-  ordineScelto:   null as any,
-  loading:        false,
-  errore:         null as string | null,
-  erroreDuplica:  null as string | null,
-  isAdmin:        false,
-  caricaPagina:   mockCapricaPagina,
-  apriDettaglio:  mockApriDettaglio,
-  chiudiDettaglio: mockChiudiDettaglio,
-  duplicaOrdine:  mockDuplicaOrdine,
+type Ordine = {
+  codice_ordine: string;
+  numero_ordine: number;
+  data: string;
+  prodotti: unknown[];
 };
 
-let vmOverrides: Partial<typeof baseVm> = {};
+type AuthState = {
+  username: string;
+  admin: boolean | null;
+  clearAuth: () => void;
+};
 
-vi.mock('../../src/storico/StoricoViewModel', () => ({
-  useStoricoViewModel: () => ({ ...baseVm, ...vmOverrides }),
+type StoricoVm = {
+  ordini: Ordine[];
+  pagina: number;
+  totalePagine: number;
+  ordineScelto: Ordine | null;
+  loading: boolean;
+  errore: string | null;
+  erroreDuplica: string | null;
+  isAdmin: boolean;
+  caricaPagina: (pagina: number) => void;
+  apriDettaglio: (ordine: Ordine) => void;
+  chiudiDettaglio: () => void;
+  duplicaOrdine: (codiceOrdine: string) => void;
+};
+
+const baseVm: StoricoVm = {
+  ordini: [],
+  pagina: 1,
+  totalePagine: 1,
+  ordineScelto: null,
+  loading: false,
+  errore: null,
+  erroreDuplica: null,
+  isAdmin: false,
+  caricaPagina: mockCaricaPagina,
+  apriDettaglio: mockApriDettaglio,
+  chiudiDettaglio: mockChiudiDettaglio,
+  duplicaOrdine: mockDuplicaOrdine,
+};
+
+let vmOverrides: Partial<StoricoVm> = {};
+
+vi.mock('../../src/Storico/StoricoViewModel', () => ({
+  useStoricoViewModel: (): StoricoVm => ({ ...baseVm, ...vmOverrides }),
 }));
 
 // ─── Mock componenti figli ────────────────────────────────────────────────────
@@ -71,8 +98,14 @@ vi.mock('../../src/chat/Profile', () => ({
   ),
 }));
 
-vi.mock('../../src/storico/OrdineRow', () => ({
-  OrdineRow: ({ ordine, onApriDettaglio }: { ordine: any; onApriDettaglio: (o: any) => void }) => (
+vi.mock('../../src/Storico/OrdineRow', () => ({
+  OrdineRow: ({
+    ordine,
+    onApriDettaglio,
+  }: {
+    ordine: Ordine;
+    onApriDettaglio: (o: Ordine) => void;
+  }) => (
     <tr data-testid={`ordine-row-${ordine.codice_ordine}`}>
       <td>
         <button onClick={() => onApriDettaglio(ordine)}>
@@ -83,8 +116,16 @@ vi.mock('../../src/storico/OrdineRow', () => ({
   ),
 }));
 
-vi.mock('../../src/storico/Paginazione', () => ({
-  Paginazione: ({ pagina, totalePagine, onCambia }: any) => (
+vi.mock('../../src/Storico/Paginazione', () => ({
+  Paginazione: ({
+    pagina,
+    totalePagine,
+    onCambia,
+  }: {
+    pagina: number;
+    totalePagine: number;
+    onCambia: (pagina: number) => void;
+  }) => (
     <div data-testid="paginazione">
       <button onClick={() => onCambia(pagina + 1)}>pagina successiva</button>
       <span>{pagina}/{totalePagine}</span>
@@ -92,8 +133,18 @@ vi.mock('../../src/storico/Paginazione', () => ({
   ),
 }));
 
-vi.mock('../../src/storico/DettaglioModal', () => ({
-  DettaglioModal: ({ ordine, onChiudi, onDuplica, erroreDuplica }: any) => (
+vi.mock('../../src/Storico/DettaglioModal', () => ({
+  DettaglioModal: ({
+    ordine,
+    onChiudi,
+    onDuplica,
+    erroreDuplica,
+  }: {
+    ordine: Ordine;
+    onChiudi: () => void;
+    onDuplica: (codiceOrdine: string) => void;
+    erroreDuplica: string | null;
+  }) => (
     <div data-testid="dettaglio-modal">
       <span>{ordine.codice_ordine}</span>
       <button onClick={onChiudi}>chiudi modal</button>
@@ -113,12 +164,11 @@ function renderView() {
 
 beforeEach(() => {
   vmOverrides = {};
-  mockCapricaPagina.mockReset();
+  mockCaricaPagina.mockReset();
   mockApriDettaglio.mockReset();
   mockChiudiDettaglio.mockReset();
   mockDuplicaOrdine.mockReset();
   mockClearAuth.mockReset();
-  vi.clearAllMocks();
 });
 
 afterEach(() => vi.clearAllMocks());
@@ -133,7 +183,7 @@ describe('StoricoView – render base', () => {
 
   it('chiama caricaPagina(1) all\'avvio (useEffect)', () => {
     renderView();
-    expect(mockCapricaPagina).toHaveBeenCalledWith(1);
+    expect(mockCaricaPagina).toHaveBeenCalledWith(1);
   });
 
   it('NON mostra il pannello profilo di default', () => {
@@ -264,7 +314,6 @@ describe('StoricoView – tabella con ordini', () => {
   it('mostra la colonna "Cliente" nell\'header per admin', () => {
     vmOverrides = { ...vmOverrides, isAdmin: true };
     renderView();
-    // Cerca specificamente l'intestazione th con testo "Cliente"
     const ths = document.querySelectorAll('th');
     const clienteTh = Array.from(ths).find(th => /cliente/i.test(th.textContent ?? ''));
     expect(clienteTh).toBeTruthy();
@@ -273,7 +322,6 @@ describe('StoricoView – tabella con ordini', () => {
   it('NON mostra la colonna "Cliente" per utente normale', () => {
     vmOverrides = { ...vmOverrides, isAdmin: false };
     renderView();
-    // Verifica che nessun <th> contenga "Cliente"
     const ths = document.querySelectorAll('th');
     const clienteTh = Array.from(ths).find(th => /cliente/i.test(th.textContent ?? ''));
     expect(clienteTh).toBeUndefined();
@@ -294,7 +342,7 @@ describe('StoricoView – tabella con ordini', () => {
   it('la paginazione chiama caricaPagina con il numero corretto', () => {
     renderView();
     fireEvent.click(screen.getByText('pagina successiva'));
-    expect(mockCapricaPagina).toHaveBeenCalledWith(2); // pagina(1) + 1
+    expect(mockCaricaPagina).toHaveBeenCalledWith(2); // pagina(1) + 1
   });
 
   it('click su "Dettaglio" chiama apriDettaglio con l\'ordine', () => {
