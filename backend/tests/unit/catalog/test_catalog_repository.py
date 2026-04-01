@@ -13,8 +13,11 @@ def make_catalog_row(prod_id: str, prod_des: str) -> CatalogProductRepository:
     )
 
 
+# TU-B_184
 def test_catalog_product_repository_maps_real_db_column_names():
-    column_names = [column.name for column in CatalogProductRepository.__table__.columns]
+    column_names = [
+        column.name for column in CatalogProductRepository.__table__.columns
+    ]
 
     assert "cod_art" in column_names
     assert "des_art" in column_names
@@ -28,6 +31,7 @@ def test_catalog_product_repository_maps_real_db_column_names():
     assert "prezzo" in column_names
 
 
+# TU-B_185
 def test_get_product_calls_db_and_returns_first_row():
     mock_db = __import__("unittest.mock").mock.MagicMock()
     row = make_catalog_row("A0063", "DETERGENTE")
@@ -40,6 +44,7 @@ def test_get_product_calls_db_and_returns_first_row():
     mock_db.exec.assert_called_once()
 
 
+# TU-B_186
 def test_get_full_catalog_calls_db_and_returns_all_rows():
     mock_db = __import__("unittest.mock").mock.MagicMock()
     rows = [
