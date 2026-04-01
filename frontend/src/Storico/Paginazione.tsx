@@ -13,10 +13,12 @@ export const Paginazione: React.FC<PaginazioneProps> = ({
 }) => {
   if (totalePagine <= 1) return null
 
+  console.log(pagina / totalePagine)
+
   return (
     <div className="flex items-center justify-between px-4 py-3 border-t border-(--border) text-sm">
       <span className="text-(--text-4) text-xs font-mono">
-        pag. {pagina} / {totalePagine}
+        Pagina {pagina} / {totalePagine}
       </span>
       <div className="flex gap-1">
         <button
@@ -24,14 +26,14 @@ export const Paginazione: React.FC<PaginazioneProps> = ({
           onClick={() => onCambia(pagina - 1)}
           className="px-3 py-1 border border-(--border) text-(--text-3) disabled:opacity-30 hover:bg-(--bg-2) transition-colors rounded-sm text-xs"
         >
-          ← Prec.
+          <span aria-hidden="true">←</span> Precedente
         </button>
         <button
           disabled={pagina === totalePagine}
           onClick={() => onCambia(pagina + 1)}
           className="px-3 py-1 border border-(--border) text-(--text-3) disabled:opacity-30 hover:bg-(--bg-2) transition-colors rounded-sm text-xs"
         >
-          Succ. →
+          Successivo <span aria-hidden="true">→</span>
         </button>
       </div>
     </div>

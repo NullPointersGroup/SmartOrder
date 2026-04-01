@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
-import type { Ordine, StoricoPage } from './StoricoModel'
+import type { Ordine } from './StoricoModel'
 import { useAuthStore } from '../auth/authStore'
+import { getStoricoCliente, getStoricoAdmin, duplicaOrdine as apiDuplicaOrdine } from './StoricoAPI'
 
 export function useStoricoViewModel() {
   const [pagina, setPagina] = useState(1)
@@ -10,30 +11,31 @@ export function useStoricoViewModel() {
   const [loading, setLoading] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const [erroreDuplica, setErroreDuplica] = useState<string | null>(null)
-  const role = useAuthStore((s) => s.admin);
+  const role = useAuthStore((s) => s.admin)
 
-  // RF-OB_89 / RF-OB_90 — endpoint diverso per ruolo
-  const endpoint = role === 'admin'
-    ? '/storico/tutti'
-    : '/storico/miei'
+  const isAdmin = role === 'admin'
 
   // RF-OB_91 / RF-OB_92 — lazy loading, max 10 per pagina
   const caricaPagina = useCallback(async (n: number) => {
     setLoading(true)
     setErrore(null)
     try {
-      const res = await fetch(`${endpoint}?pagina=${n}&per_pagina=10`)
-      if (!res.ok) throw new Error()
-      const data: StoricoPage = await res.json()
-      setOrdini(data.ordini)
+      // RF-OB_89 / RF-OB_90 — endpoint diverso per ruolo
+      const data = isAdmin
+        ? await getStoricoAdmin(n, 10)
+        : await getStoricoCliente(n, 10)
+
+      console.log(data)
+
+      setOrdini(data.ordini as Ordine[])
       setTotalePagine(data.totale_pagine)
       setPagina(n)
-    } catch {
-      setErrore('Errore nel caricamento dello storico')
+    } catch (e) {
+      setErrore(e instanceof Error ? e.message : 'Errore nel caricamento dello storico')
     } finally {
       setLoading(false)
     }
-  }, [endpoint])
+  }, [isAdmin])
 
   // RF-OB_93 / RF-OB_97
   const apriDettaglio = (ordine: Ordine) => setOrdineScelto(ordine)
@@ -43,10 +45,9 @@ export function useStoricoViewModel() {
   const duplicaOrdine = async (codice: string) => {
     setErroreDuplica(null)
     try {
-      const res = await fetch(`/storico/duplica/${codice}`, { method: 'POST' })
-      if (!res.ok) throw new Error()
-    } catch {
-      setErroreDuplica('Errore nella duplicazione dell\'ordine') // RF-OB_106
+      await apiDuplicaOrdine(codice)
+    } catch (e) {
+      setErroreDuplica(e instanceof Error ? e.message : "Errore nella duplicazione dell'ordine") // RF-OB_106
     }
   }
 
@@ -58,7 +59,7 @@ export function useStoricoViewModel() {
     loading,
     errore,
     erroreDuplica,
-    isAdmin: role === 'admin',
+    isAdmin,
     caricaPagina,
     apriDettaglio,
     chiudiDettaglio,

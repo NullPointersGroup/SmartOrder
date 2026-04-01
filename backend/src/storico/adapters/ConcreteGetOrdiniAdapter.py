@@ -2,7 +2,7 @@ from typing import List, Tuple
 from sqlmodel import Session
 from src.storico.ports.StoricoRepoPort import StoricoRepoPort
 from src.storico.adapters.StoricoRepository import StoricoRepository
-from src.storico.StoricoModels import Ordine, OrdineProdotto
+from src.storico.StoricoModels import Ordine
 
 
 class ConcreteGetOrdiniAdapter(StoricoRepoPort):
@@ -20,7 +20,7 @@ class ConcreteGetOrdiniAdapter(StoricoRepoPort):
     ) -> Tuple[List[Ordine], int]:
         return self.repository.get_all_ordini(pagina, per_pagina)
 
-    def get_prodotti_by_ordine_ids(self, ordine_ids: List[int]) -> List[OrdineProdotto]:
+    def get_prodotti_by_ordine_ids(self, ordine_ids: List[int]) -> List[tuple]:
         return self.repository.get_prodotti_by_ordine_ids(ordine_ids)
 
     def duplica_ordine(self, codice_ordine: str, username: str) -> Ordine:

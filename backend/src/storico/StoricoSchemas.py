@@ -4,20 +4,13 @@ from pydantic import BaseModel
 
 class ProdottoSchema(BaseModel):
     nome: str
-    descrizione: str
-    quantita: int
-
-    model_config = {"from_attributes": True}
-
+    quantita: float
 
 class OrdineSchema(BaseModel):
     codice_ordine: str
-    numero_ordine: int
-    data: str
+    data: Optional[str] = None
     username: Optional[str] = None
     prodotti: List[ProdottoSchema] = []
-
-    model_config = {"from_attributes": True}
 
 
 class StoricoPageSchema(BaseModel):

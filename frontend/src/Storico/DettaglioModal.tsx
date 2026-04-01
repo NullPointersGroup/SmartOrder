@@ -45,9 +45,6 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
         {/* Intestazione */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-(--border) bg-(--bg-2)">
           <div>
-            <p className="text-xs font-mono text-(--text-4) mb-0.5">
-              Ordine #{String(ordine.numero_ordine).padStart(4, '0')}
-            </p>
             <h2 id="modal-title" className="text-base font-semibold font-mono text-(--text-1) tracking-tight">
               {ordine.codice_ordine}
             </h2>

@@ -16,9 +16,6 @@ export const OrdineRow: React.FC<OrdineRowProps> = ({
     <tr
       className="relative border-b border-(--border) hover:bg-(--bg-2) transition-colors"
     >
-      <td className="py-3 px-4 font-mono text-sm text-(--text-4)">
-        #{String(ordine.numero_ordine).padStart(4, '0')}
-      </td>
       <td className="py-3 px-4 font-mono text-sm font-medium text-(--text-1)">
         {ordine.codice_ordine}
       </td>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../auth/authStore';
 import { useStoricoViewModel } from './StoricoViewModel';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -31,7 +31,11 @@ export const StoricoView: React.FC = () => {
     apriDettaglio,
     chiudiDettaglio,
     duplicaOrdine,
-  } = useStoricoViewModel();  // rimosso parametro inutile
+  } = useStoricoViewModel();
+
+  useEffect(() => {
+    caricaPagina(1);
+  }, [caricaPagina]);
 
   const handleLogout = () => {
     clearAuth();
@@ -68,9 +72,6 @@ export const StoricoView: React.FC = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-(--border) bg-(--bg-2)">
-                <th className="py-2.5 px-4 text-xs font-semibold uppercase tracking-widest text-(--text-4)">
-                  N°
-                </th>
                 <th className="py-2.5 px-4 text-xs font-semibold uppercase tracking-widest text-(--text-4)">
                   Codice
                 </th>

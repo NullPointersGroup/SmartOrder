@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Cookie
 from sqlmodel import Session, select
 
 from src.db.dbConnection import get_conn
@@ -15,28 +14,15 @@ from src.storico.exceptions import (
     StoricoAccessDeniedException,
 )
 from src.db.models import Utente
+from src.auth.api import get_current_user
+
+Username = Annotated[str, Depends(get_current_user)]
 
 router = APIRouter(prefix="/storico", tags=["Storico Ordini"])
 
-_bearer = HTTPBearer()
-
 DBSession = Annotated[Session, Depends(get_conn)]
-Credentials = Annotated[HTTPAuthorizationCredentials, Depends(_bearer)]
 Pagina = Annotated[int, Query(ge=1)]
 PerPagina = Annotated[int, Query(ge=1, le=50)]
-
-
-def _get_username(credentials: Credentials) -> str:
-    username = TokenUtility.decode_token(credentials.credentials)
-    if username is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token non valido o scaduto",
-        )
-    return username
-
-
-Username = Annotated[str, Depends(_get_username)]
 
 
 def _get_service(db: DBSession) -> StoricoService:
@@ -57,9 +43,6 @@ def _require_admin(username: Username, db: DBSession) -> str:
     return username
 
 
-AdminUsername = Annotated[str, Depends(_require_admin)]
-
-
 @router.get("/miei")
 def get_storico_cliente(
     username: Username,
@@ -73,9 +56,8 @@ def get_storico_cliente(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
 
 
-@router.get("/tutti")
+@router.get("/tutti", dependencies=[Depends(_require_admin)])
 def get_storico_admin(
-    username: AdminUsername,
     service: ServiceDep,
     pagina: Pagina = 1,
     per_pagina: PerPagina = 10,

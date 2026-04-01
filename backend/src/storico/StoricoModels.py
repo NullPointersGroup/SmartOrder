@@ -1,30 +1,15 @@
-from typing import ClassVar, Optional
-from datetime import datetime
-from sqlmodel import Field, SQLModel
-
+from typing import Optional, ClassVar
+from datetime import date
+from sqlmodel import SQLModel, Field
 
 class Ordine(SQLModel, table=True):
-    __tablename__: ClassVar[str] = "ordini"
+    __tablename__: ClassVar[str] = "ordine"
+    id_ord:   int            = Field(primary_key=True)
+    username: str            = Field(foreign_key="utentiweb.username")
+    data:     Optional[date] = Field(default=None)
 
-    id: Optional[int] = Field(
-        default=None, primary_key=True, sa_column_kwargs={"autoincrement": True}
-    )
-    codice_ordine: str = Field(..., max_length=64, unique=True)
-    username: str = Field(..., max_length=24, foreign_key="utentiweb.username")
-    stato: str = Field(default="completato", max_length=32)
-    totale: float = Field(...)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-
-
-class OrdineProdotto(SQLModel, table=True):
-    __tablename__: ClassVar[str] = "ordini_prodotti"
-
-    id: Optional[int] = Field(
-        default=None, primary_key=True, sa_column_kwargs={"autoincrement": True}
-    )
-    ordine_id: int = Field(..., foreign_key="ordini.id")
-    prodotto_id: int = Field(...)
-    nome_prodotto: str = Field(..., max_length=128)
-    descrizione_prodotto: str = Field(default="", max_length=512)
-    quantita: int = Field(...)
-    prezzo_unitario: float = Field(...)
+class OrdCliDet(SQLModel, table=True):
+    __tablename__: ClassVar[str] = "ordclidet"
+    id_ord:       int   = Field(foreign_key="ordine.id_ord", primary_key=True)
+    cod_art:      str   = Field(foreign_key="anaart.cod_art", primary_key=True)
+    qta_ordinata: float = Field(default=0)

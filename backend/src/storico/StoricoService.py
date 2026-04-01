@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import List
 
 from src.storico.ports.StoricoRepoPort import StoricoRepoPort
-from src.storico.StoricoModels import Ordine, OrdineProdotto
+from src.storico.StoricoModels import Ordine
 from src.storico.StoricoSchemas import OrdineSchema, ProdottoSchema, StoricoPageSchema
 from src.storico.exceptions import OrdiniNotFoundException, OrdineNotFoundException
 
@@ -24,27 +24,24 @@ class StoricoService:
         per_pagina: int,
         include_username: bool,
     ) -> StoricoPageSchema:
-        ordine_ids = [o.id for o in ordini_orm if o.id is not None]
+        ordine_ids = [o.id_ord for o in ordini_orm]  # id → id_ord
         prodotti_orm = self.repo.get_prodotti_by_ordine_ids(ordine_ids)
 
-        # raggruppa i prodotti per ordine_id
         prodotti_per_ordine: dict[int, list[ProdottoSchema]] = defaultdict(list)
-        for p in prodotti_orm:
-            prodotti_per_ordine[p.ordine_id].append(
+        for det, art in prodotti_orm:  # ora è una tupla (OrdCliDet, CatalogProductRepository)
+            prodotti_per_ordine[det.id_ord].append(
                 ProdottoSchema(
-                    nome=p.nome_prodotto,
-                    descrizione=p.descrizione_prodotto,
-                    quantita=p.quantita,
+                    nome=art.prod_des,
+                    quantita=det.qta_ordinata,
                 )
             )
 
         ordini_schema = [
             OrdineSchema(
-                codice_ordine=o.codice_ordine,
-                numero_ordine=o.id,
-                data=o.created_at.isoformat(),
+                codice_ordine=str(o.id_ord),
+                data=o.data.isoformat() if o.data else None,
                 username=o.username if include_username else None,
-                prodotti=prodotti_per_ordine.get(o.id, []),
+                prodotti=prodotti_per_ordine.get(o.id_ord, []),
             )
             for o in ordini_orm
         ]
