@@ -111,9 +111,13 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
           className="absolute top-full right-4 mt-2 w-48 bg-(--bg-3) border border-(--border) rounded-xl shadow-xl z-50 overflow-hidden py-1"
         >
           {/* Header account */}
-          <div className="px-4 py-2.5 border-b border-(--bg-2)" >
-            <p className="text-[11px] text-(--text-4) uppercase tracking-wider font-semibold">Account</p>
-            <p className="text-sm font-medium text-(--text-1) truncate mt-0.5">{username || '?'}</p>
+          <div className="px-4 py-2.5 border-b-3 border-(--color-4)/60 bg-(--bg--3)/40">
+            <p className="text-[11px] text-(--text-2) uppercase tracking-wider font-semibold">
+              Account
+            </p>
+            <p className="text-sm font-medium text-(--text-1) truncate mt-0.5">
+              {username || '?'}
+            </p>
           </div>
 
           {/* Profilo — sempre visibile */}
@@ -134,24 +138,48 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
             <>
               <hr className="border-t border-[var(--border)] mx-3 my-1" />
 
-              {links.map(({ path, label }) => {
+              {links.map(({ path, label }, index) => {
                 const isCurrent = location.pathname === path;
+
+                // Icone moderne e coerenti
+                const iconMap: Record<string, JSX.Element> = {
+                Chat: (
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                  </svg>
+                ),
+                Storico: (
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 8v4l3 3" />
+                    <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                  </svg>
+                ),
+              };
+
                 return (
-                  <button
-                    key={path}
-                    role="menuitem"
-                    aria-current={isCurrent ? 'page' : undefined}
-                    tabIndex={isCurrent ? -1 : 0}
-                    onClick={() => !isCurrent && handleNav(path)}
-                    className={`
-                      flex items-center gap-2.5 w-full px-4 py-2.5 text-sm transition-colors
-                      ${isCurrent
-                        ? 'text-(--visited) font-semibold cursor-default pointer-events-none'
-                        : 'text-(--text-2) hover:bg-(--bg-2) hover:text-(--text-1)'}
-                    `}
-                  >
-                    {label}
-                  </button>
+                  <div key={path}>
+                    <button
+                      role="menuitem"
+                      aria-current={isCurrent ? 'page' : undefined}
+                      tabIndex={isCurrent ? -1 : 0}
+                      onClick={() => !isCurrent && handleNav(path)}
+                      className={`
+                        flex items-center gap-2.5 w-full px-4 py-2.5 text-sm transition-colors
+                        ${isCurrent
+                          ? 'text-(--visited) font-semibold cursor-default pointer-events-none'
+                          : 'text-(--text-2) hover:bg-(--bg-2) hover:text-(--text-1)'}
+                      `}
+                    >
+                      {/* Icona moderna */}
+                      <span className="shrink-0">{iconMap[label]}</span>
+                      {label}
+                    </button>
+
+                    {/* Linea separatrice SOLO tra elementi */}
+                    {index < links.length - 1 && (
+                      <hr className="border-t border-[var(--border)] mx-3 my-1" />
+                    )}
+                  </div>
                 );
               })}
             </>

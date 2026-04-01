@@ -13,6 +13,8 @@ interface Props {
   onSend: () => void;
   onAudioAttach?: (file: File) => void;
   onAudioRecord?: (blob: Blob) => void;
+  /** When true (narrow screen + sidebar open) the input bar stays fixed at the bottom */
+  sidebarOpen?: boolean;
 }
 
 function TypingIndicator() {
@@ -77,6 +79,7 @@ export const ChatArea: React.FC<Props> = ({
   onSend,
   onAudioAttach,
   onAudioRecord,
+  sidebarOpen = false,
 }) => {
   const MAX_CHARS = 4096;
   const MAX_FILE_MB = 10;
@@ -231,7 +234,7 @@ export const ChatArea: React.FC<Props> = ({
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-(--border) bg-(--bg-3) px-4 py-3">
+      <div className={`border-t border-(--border) bg-(--bg-3) px-4 py-3 ${sidebarOpen ? 'sticky bottom-0 z-10' : ''}`}>
         {/* Indicatore registrazione attiva */}
         {isRecording && (
           <output className="flex items-center gap-2 mb-2 px-1" aria-live="assertive">

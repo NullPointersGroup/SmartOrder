@@ -3,6 +3,22 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 
 import { ChatView } from '../../src/chat/ChatView';
 
+// ─── Mock window.matchMedia (non esiste in jsdom) ─────────────────────────────
+
+function mockMatchMedia(matches: boolean) {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
+
 // ─── Mock useChatViewModel ────────────────────────────────────────────────────
 
 const mockSetError = vi.fn();
@@ -36,7 +52,6 @@ const baseVm = {
   conversations: [],
 };
 
-// Stato mutabile del vm per poter variare i valori tra i test
 let vmOverrides: Partial<typeof baseVm> = {};
 
 vi.mock('../../src/chat/ChatViewModel', () => ({
@@ -44,7 +59,6 @@ vi.mock('../../src/chat/ChatViewModel', () => ({
 }));
 
 // ─── Mock componenti figli pesanti ────────────────────────────────────────────
-// Li stubbbiamo per isolare ChatView e velocizzare i test
 
 vi.mock('../../src/chat/ConversationSidebar', () => ({
   ConversationSidebar: ({ onToggleSelf }: { onToggleSelf: () => void }) => (
@@ -97,6 +111,8 @@ function renderView() {
 beforeEach(() => {
   vmOverrides = {};
   vi.useFakeTimers();
+  // Di default simula schermo largo (≥960px): matches=false → isNarrow=false
+  mockMatchMedia(false);
 });
 
 afterEach(() => {
@@ -162,14 +178,13 @@ describe('ChatView – sidebar sinistra', () => {
   it('di default la sidebar sinistra è aperta (ConversationSidebar visibile)', () => {
     renderView();
     expect(screen.getByTestId('conv-sidebar')).toBeInTheDocument();
-    // Il pulsante "Apri conversazioni" NON deve essere visibile
+    // In wide mode il pulsante "Apri conversazioni" è nel collapsed slot, non visibile
     expect(screen.queryByTitle('Apri conversazioni')).not.toBeInTheDocument();
   });
 
   it('chiude la sidebar sinistra al click su "chiudi sx"', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Chiudi conversazioni'));
-    // Compare il pulsante per riaprire
     expect(screen.getByTitle('Apri conversazioni')).toBeInTheDocument();
   });
 
@@ -246,14 +261,11 @@ describe('ChatView – error toast', () => {
   it('il cleanup del useEffect cancella il timer se error cambia prima dei 4000ms', () => {
     vmOverrides = { error: 'Errore temporaneo' };
     const { rerender } = renderView();
-    // Avanza parzialmente
     act(() => { vi.advanceTimersByTime(2000); });
     expect(mockSetError).not.toHaveBeenCalled();
-    // Simula error che scompare → rerender senza error → il timer precedente viene pulito
     vmOverrides = { error: null };
     rerender(<ChatView />);
     act(() => { vi.advanceTimersByTime(4000); });
-    // setError NON deve essere chiamato perché il timer precedente è stato cancellato
     expect(mockSetError).not.toHaveBeenCalled();
   });
 
@@ -263,4 +275,55 @@ describe('ChatView – error toast', () => {
     act(() => { vi.advanceTimersByTime(4000); });
     expect(mockSetError).not.toHaveBeenCalled();
   });
+});
+
+it('in modalità narrow chiude entrambe le sidebar all’avvio', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  expect(screen.getByTitle('Apri conversazioni')).toBeInTheDocument();
+  expect(screen.getByTitle('Apri carrello')).toBeInTheDocument();
+});
+
+it('apre overlay sinistro in modalità narrow', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  fireEvent.click(screen.getByTitle('Apri conversazioni'));
+
+  expect(screen.getByTestId('conv-sidebar')).toBeInTheDocument();
+});
+
+it('chiude overlay sinistro cliccando backdrop', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  fireEvent.click(screen.getByTitle('Apri conversazioni'));
+
+  const backdrop = document.querySelector('.bg-black\\/30');
+  fireEvent.click(backdrop!);
+
+  expect(screen.queryByTestId('conv-sidebar')).not.toBeInTheDocument();
+});
+
+it('in modalità narrow apre una sidebar e chiude l’altra', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  fireEvent.click(screen.getByTitle('Apri conversazioni'));
+  expect(screen.getByTestId('conv-sidebar')).toBeInTheDocument();
+
+  fireEvent.click(screen.getByTitle('Apri carrello'));
+
+  expect(screen.getByTestId('cart-sidebar')).toBeInTheDocument();
+  expect(screen.queryByTestId('conv-sidebar')).not.toBeInTheDocument();
+});
+
+it('apre overlay carrello in modalità narrow', () => {
+  mockMatchMedia(true);
+  renderView();
+
+  fireEvent.click(screen.getByTitle('Apri carrello'));
+
+  expect(screen.getByTestId('cart-sidebar')).toBeInTheDocument();
 });
