@@ -132,7 +132,7 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
           {/* Link di navigazione per ruolo */}
           {links.length > 0 && (
             <>
-              <hr className="h-px bg-(--bg-2) mx-3 my-1" />
+              <hr className="border-t border-[var(--border)] mx-3 my-1" />
 
               {links.map(({ path, label }) => {
                 const isCurrent = location.pathname === path;
@@ -146,7 +146,7 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
                     className={`
                       flex items-center gap-2.5 w-full px-4 py-2.5 text-sm transition-colors
                       ${isCurrent
-                        ? 'text-(--error) font-semibold cursor-default pointer-events-none opacity-60'
+                        ? 'text-(--visited) font-semibold cursor-default pointer-events-none'
                         : 'text-(--text-2) hover:bg-(--bg-2) hover:text-(--text-1)'}
                     `}
                   >
@@ -158,7 +158,7 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
           )}
 
           {/* Logout — sempre visibile */}
-          <hr className="h-px bg-(--bg-2) mx-3 my-1" />
+          <hr className="border-t border-[var(--border)] mx-3 my-1" />
           <button
             role="menuitem"
             onClick={() => { setOpen(false); onLogout(); }}
