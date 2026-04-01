@@ -1,28 +1,28 @@
 from sqlmodel import Session, col, delete, insert, select, update
 from src.cart.adapters.CartProductRepository import CartProductRepository
-from src.cart.adapters.UserCartRepository import UserCartRepository
 from src.cart.exceptions import (
     ProductNotFoundException,
     ProductNotInCartException,
 )
-from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
-from src.enums import CartUpdateOperation, MeasureUnitEnum
-
+from src.enums import CartUpdateOperation
+from src.db.models import Anaart, Carrello
+from src.enums import MeasureUnitEnum
+from src.cart.adapters.CartProductRepository import CartProductRepository
 
 class CartRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
-    ## TODO spostare CatalogProductRepository in cartella condivisa tra Cart e Catalog, e rinominarlo in ProductRepository
+    ## TODO spostare Anaart in cartella condivisa tra Cart e Catalog, e rinominarlo in ProductRepository
     def get_products(self, username: str) -> list[CartProductRepository]:
         stmt = (
-            select(UserCartRepository, CatalogProductRepository)
+            select(Carrello, Anaart)
             .join(
-                CatalogProductRepository,
-                col(UserCartRepository.cod_art)
-                == col(CatalogProductRepository.prod_id),
+                Anaart,
+                col(Carrello.cod_art)
+                == col(Anaart.prod_id),
             )
-            .where(UserCartRepository.username == username)
+            .where(Carrello.username == username)
         )
         result = self.db.exec(stmt).all()
         return [
@@ -41,17 +41,17 @@ class CartRepository:
     ) -> CartProductRepository:
 
         # Verifica che il prodotto esista nel catalogo
-        stmt = select(CatalogProductRepository).where(
-            CatalogProductRepository.prod_id == prod_id
+        stmt = select(Anaart).where(
+            Anaart.prod_id == prod_id
         )
         result = self.db.exec(stmt).first()
         if not result:
             raise ProductNotFoundException(prod_id)
 
         # Cerca se esiste già nel carrello
-        stmt_cart = select(UserCartRepository).where(
-            UserCartRepository.username == username,
-            UserCartRepository.cod_art == prod_id,
+        stmt_cart = select(Carrello).where(
+            Carrello.username == username,
+            Carrello.cod_art == prod_id,
         )
         existing_item = self.db.exec(stmt_cart).first()
 
@@ -61,7 +61,7 @@ class CartRepository:
             self.db.add(existing_item)
         else:
             # INSERT: crea nuovo elemento
-            existing_item = UserCartRepository(
+            existing_item = Carrello(
                 username=username, cod_art=prod_id, quantita=qty
             )
             self.db.add(existing_item)
@@ -79,23 +79,23 @@ class CartRepository:
 
     def remove_product(self, username: str, prod_id: str) -> CartProductRepository:
         stmt = (
-            select(UserCartRepository, CatalogProductRepository)
+            select(Carrello, Anaart)
             .join(
-                CatalogProductRepository,
-                col(UserCartRepository.cod_art)
-                == col(CatalogProductRepository.prod_id),
+                Anaart,
+                col(Carrello.cod_art)
+                == col(Anaart.prod_id),
             )
-            .where(col(UserCartRepository.username) == username)
-            .where(col(UserCartRepository.cod_art) == prod_id)
+            .where(col(Carrello.username) == username)
+            .where(col(Carrello.cod_art) == prod_id)
         )
         result = self.db.exec(stmt).first()
         if not result:
             raise ProductNotInCartException(prod_id, username)
         cart, catalog = result
         delete_stmt = (
-            delete(UserCartRepository)
-            .where(col(UserCartRepository.username) == username)
-            .where(col(UserCartRepository.cod_art) == prod_id)
+            delete(Carrello)
+            .where(col(Carrello.username) == username)
+            .where(col(Carrello.cod_art) == prod_id)
         )
 
         self.db.exec(delete_stmt)
@@ -113,14 +113,14 @@ class CartRepository:
         self, username: str, prod_id: str, qty: int, operation: CartUpdateOperation
     ) -> CartProductRepository:
         stmt = (
-            select(UserCartRepository, CatalogProductRepository)
+            select(Carrello, Anaart)
             .join(
-                CatalogProductRepository,
-                col(UserCartRepository.cod_art)
-                == col(CatalogProductRepository.prod_id),
+                Anaart,
+                col(Carrello.cod_art)
+                == col(Anaart.prod_id),
             )
-            .where(col(UserCartRepository.username) == username)
-            .where(col(UserCartRepository.cod_art) == prod_id)
+            .where(col(Carrello.username) == username)
+            .where(col(Carrello.cod_art) == prod_id)
         )
         result = self.db.exec(stmt).first()
         if not result:
@@ -128,13 +128,13 @@ class CartRepository:
         assert result is not None
         cart, catalog = result
         if operation == CartUpdateOperation.Add:
-            new_qty = col(UserCartRepository.quantita) + qty
+            new_qty = col(Carrello.quantita) + qty
         else:
-            new_qty = col(UserCartRepository.quantita) - qty
+            new_qty = col(Carrello.quantita) - qty
         update_stmt = (
-            update(UserCartRepository)
-            .where(col(UserCartRepository.username) == username)
-            .where(col(UserCartRepository.cod_art) == prod_id)
+            update(Carrello)
+            .where(col(Carrello.username) == username)
+            .where(col(Carrello.cod_art) == prod_id)
             .values(quantita=new_qty)
         )
         self.db.exec(update_stmt)

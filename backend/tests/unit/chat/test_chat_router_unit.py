@@ -12,7 +12,7 @@ from src.chat.ChatApi import (
 )
 from src.chat.ChatSchemas import ChatResponse, Message, MessageRequest, MessageResponse
 from src.enums import SenderEnum
-from src.db.models import Utente
+from src.db.models import Utentiweb
 
 
 def test_get_chat_service_unit():

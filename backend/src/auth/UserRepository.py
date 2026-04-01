@@ -3,7 +3,7 @@ from sqlalchemy import insert, delete
 
 from src.auth.models import UserRegistration, UserReset
 from src.auth.PasswordUtility import PasswordUtility
-from src.db.models import Utente
+from src.db.models import Utentiweb
 from src.db.queryExecutor import QueryExecutor
 
 
@@ -16,22 +16,22 @@ class UserRepository:
     def __init__(self, db: Session) -> None:
         self.executor = QueryExecutor(db)
 
-    def find_by_username(self, username: str) -> Utente | None:
+    def find_by_username(self, username: str) -> Utentiweb | None:
         """
         @brief Recupera un utente dal DB per username
         @return l'Utente se esiste
         """
         return self.executor.execute_one_raw(
-            select(Utente).where(Utente.username == username)
+            select(Utentiweb).where(Utentiweb.username == username)
         )
 
-    def find_by_email(self, email: str) -> Utente | None:
+    def find_by_email(self, email: str) -> Utentiweb | None:
         """
         @brief Recupera un utente dal DB per email
         @return l'Utente se esiste
         """
         return self.executor.execute_one_raw(
-            select(Utente).where(Utente.email == email)
+            select(Utentiweb).where(Utentiweb.email == email)
         )
 
     def save(self, u: UserRegistration) -> bool:
@@ -40,7 +40,7 @@ class UserRepository:
         @return restituisce true se l'operazione ha successo
         """
         return self.executor.mutate_raw(
-            insert(Utente).values(
+            insert(Utentiweb).values(
                 username=u.username,
                 password=PasswordUtility.hash_password(u.password),
                 email=u.email,
@@ -54,7 +54,7 @@ class UserRepository:
         @return Il risultato dell'operazione
         """
         return self.executor.mutate_raw(
-            delete(Utente).where(col(Utente.username) == username)
+            delete(Utentiweb).where(col(Utentiweb.username) == username)
         )
         
     def reset_password(self, u: UserReset) -> bool:
@@ -64,7 +64,7 @@ class UserRepository:
         """
         from sqlalchemy import update
         return self.executor.mutate_raw(
-            update(Utente)
-            .where(col(Utente.username) == u.username)
+            update(Utentiweb)
+            .where(col(Utentiweb.username) == u.username)
             .values(password=PasswordUtility.hash_password(u.new_pwd))
         )    

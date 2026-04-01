@@ -23,7 +23,7 @@ export function ProtectedRoute({ children }: Readonly<ProtectedRouteProps>) {
         return res.json();
       })
       .then((data) => {
-        setAuth(data.username);
+        setAuth(data.username, data.admin ? 'admin' : 'cliente');
         setValid(true);
       })
       .catch(() => {

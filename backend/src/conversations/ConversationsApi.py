@@ -2,7 +2,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select, col
 from pydantic import BaseModel
-from src.db.models import Conversazione
+from src.db.models import Conversazioni
 
 from src.db.dbConnection import get_conn
 from src.auth.api import get_current_user
@@ -42,9 +42,9 @@ def get_conversations(
 ) -> List[ConversationOut]:
     """Restituisce tutte le conversazioni di un utente."""
     rows = db.exec(
-        select(Conversazione)
-        .where(Conversazione.username == username)
-        .order_by(col(Conversazione.id_conv).desc())
+        select(Conversazioni)
+        .where(Conversazioni.username == username)
+        .order_by(col(Conversazioni.id_conv).desc())
     ).all()
     return [
         ConversationOut(id_conv=r.id_conv, username=r.username, titolo=r.titolo)
@@ -59,8 +59,8 @@ def create_conversation(
     db: SessionDb,
     current_user: CurrentUser,
 ) -> ConversationOut:
-    """Crea una nuova conversazione per l'utente."""
-    conv = Conversazione(username=username, titolo=body.titolo)
+    """Crea una nuova Conversazioni per l'utente."""
+    conv = Conversazioni(username=username, titolo=body.titolo)
     db.add(conv)
     db.commit()
     db.refresh(conv)
@@ -74,12 +74,12 @@ def rename_conversation(
     db: SessionDb,
     current_user: CurrentUser,
 ) -> ConversationOut:
-    """Rinomina una conversazione esistente."""
-    conv = db.get(Conversazione, conv_id)
+    """Rinomina una Conversazioni esistente."""
+    conv = db.get(Conversazioni, conv_id)
     if not conv:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Conversazione non trovata",
+            detail="Conversazioni non trovata",
         )
     conv.titolo = body.titolo
     db.add(conv)
@@ -94,12 +94,12 @@ def delete_conversation(
     db: SessionDb,
     current_user: CurrentUser,
 ) -> None:
-    """Elimina una conversazione e tutti i suoi messaggi (CASCADE)."""
-    conv = db.get(Conversazione, conv_id)
+    """Elimina una Conversazioni e tutti i suoi messaggi (CASCADE)."""
+    conv = db.get(Conversazioni, conv_id)
     if not conv:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Conversazione non trovata",
+            detail="Conversazioni non trovata",
         )
     db.delete(conv)
     db.commit()

@@ -5,13 +5,12 @@ from src.cart.exceptions import (
     ProductNotFoundException,
     ProductNotInCartException,
 )
-from src.cart.adapters.UserCartRepository import UserCartRepository
-from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
+from src.db.models import Carrello, Anaart
 from src.enums import CartUpdateOperation, MeasureUnitEnum
 
 
 def make_catalog(prod_id="ABC2", prod_des="Prodotto 2", price=2.0):
-    return CatalogProductRepository(
+    return Anaart(
         prod_id=prod_id,
         prod_des=prod_des,
         price=price,
@@ -20,7 +19,7 @@ def make_catalog(prod_id="ABC2", prod_des="Prodotto 2", price=2.0):
 
 
 def make_cart(username="Tom", cod_art="ABC2", quantita=1):
-    return UserCartRepository(username=username, cod_art=cod_art, quantita=quantita)
+    return Carrello(username=username, cod_art=cod_art, quantita=quantita)
 
 
 def test_get_products_calls_db(cart_repository, mock_db):
@@ -31,16 +30,16 @@ def test_get_products_calls_db(cart_repository, mock_db):
 
 
 def test_get_products_returns_list(cart_repository, mock_db):
-    cart1 = UserCartRepository(username="Tom", cod_art="ABC1", quantita=1)
-    catalog1 = CatalogProductRepository(
+    cart1 = Carrello(username="Tom", cod_art="ABC1", quantita=1)
+    catalog1 = Anaart(
         prod_id="ABC1",
         prod_des="Prodotto 1",
         price=1.0,
         measure_unit_type=MeasureUnitEnum.C,
     )
 
-    cart2 = UserCartRepository(username="Tom", cod_art="ABC2", quantita=1)
-    catalog2 = CatalogProductRepository(
+    cart2 = Carrello(username="Tom", cod_art="ABC2", quantita=1)
+    catalog2 = Anaart(
         prod_id="ABC2",
         prod_des="Prodotto 2",
         price=5.0,

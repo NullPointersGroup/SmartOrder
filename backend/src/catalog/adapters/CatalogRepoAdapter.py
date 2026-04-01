@@ -1,5 +1,5 @@
 from src.catalog.CatalogSchemas import CatalogProduct
-from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
+from src.db.models import Anaart
 from src.catalog.adapters.CatalogRepository import CatalogRepository
 from src.catalog.ports.CatalogRepoPort import CatalogRepoPort
 from src.enums import MeasureUnitEnum
@@ -8,7 +8,7 @@ class CatalogRepoAdapter(CatalogRepoPort):
     def __init__(self, repo: CatalogRepository) -> None:
         self.repo = repo
 
-    def _map_measure_unit(self, row: CatalogProductRepository) -> MeasureUnitEnum:
+    def _map_measure_unit(self, row: Anaart) -> MeasureUnitEnum:
         unit_code = (row.measure_unit_type.name if row.measure_unit_type else "").upper()
         unit_description = (row.measure_unit_type_description or "").upper()
 
@@ -20,7 +20,7 @@ class CatalogRepoAdapter(CatalogRepoPort):
             return MeasureUnitEnum.L
         return MeasureUnitEnum.K
 
-    def _map_product(self, row: CatalogProductRepository) -> CatalogProduct:
+    def _map_product(self, row: Anaart) -> CatalogProduct:
         return CatalogProduct(
             prod_id=row.prod_id,
             name=row.prod_des,

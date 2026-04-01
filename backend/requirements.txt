@@ -114,7 +114,6 @@ tiktoken==0.12.0
 tokenizers==0.22.2
 tqdm==4.67.3
 transformers==5.1.0
-triton==3.6.0
 typer==0.24.1
 typer-slim==0.24.0
 types-passlib==1.7.7.20260211
@@ -127,7 +126,6 @@ typing_extensions==4.15.0
 urllib3==2.6.3
 uuid_utils==0.14.1
 uvicorn==0.42.0
-uvloop==0.22.1
 watchfiles==1.1.1
 websockets==16.0
 xxhash==3.6.0
