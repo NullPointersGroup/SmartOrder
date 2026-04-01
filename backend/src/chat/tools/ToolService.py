@@ -7,7 +7,7 @@ from src.enums import CartUpdateOperation
 from src.vec.ports.VecDbPortIn import VecDbPortIn
 
 
-class ToolService(ToolPortIn):
+class ToolService:
     def __init__(
         self,
         username: str,
