@@ -1,5 +1,7 @@
 import pytest
-from sqlmodel import SQLModel, create_engine, Session, select, func
+import os
+from pathlib import Path
+from sqlmodel import create_engine, Session, select, func
 from datetime import date
 from sqlalchemy import text
 
@@ -14,22 +16,34 @@ try:
 except ImportError:
     USER_MODEL_AVAILABLE = False
 
-TEST_DB_URL = "postgresql://postgres:postgres@localhost:5433/smartorder_test"
+TEST_DATABASE_URL = os.getenv(
+    "TEST_DATABASE_URL", "postgresql://postgres:postgres@localhost:5433/smartorder_test"
+)
 
 
 @pytest.fixture(scope="session")
 def engine():
-    engine = create_engine(TEST_DB_URL)
-    SQLModel.metadata.create_all(engine)
+    engine = create_engine(TEST_DATABASE_URL)
+    schema_path = Path(__file__).resolve().parents[4] / "DB/schema.sql"
+    with open(schema_path) as f:
+        schema = f.read()
+    with engine.connect() as conn:
+        conn.execute(text(schema))
+        conn.commit()
     yield engine
-    SQLModel.metadata.drop_all(engine)
+    # pulizia finale
+    with engine.connect() as conn:
+        conn.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public;"))
+        conn.commit()
+    engine.dispose()
 
 
 @pytest.fixture
 def session(engine):
+    """Crea una nuova sessione per ogni test."""
     with Session(engine) as session:
         yield session
-        session.rollback()  # ensure rollback after test
+        session.rollback()
 
 
 @pytest.fixture
@@ -48,12 +62,11 @@ def sample_data(session, clean_db):
     """Insert test data and return references."""
     # 1. Users
     if USER_MODEL_AVAILABLE:
-        user1 = Utentiweb(username="user1", password="dummy", email="user1@test.com")        #NOSONAR
-        user2 = Utentiweb(username="user2", password="dummy", email="user2@test.com")        #NOSONAR
-        user3 = Utentiweb(username="newuser", password="dummy", email="newuser@test.com")    #NOSONAR
+        user1 = Utentiweb(username="user1", password="dummy", email="user1@test.com")
+        user2 = Utentiweb(username="user2", password="dummy", email="user2@test.com")
+        user3 = Utentiweb(username="newuser", password="dummy", email="newuser@test.com")
         session.add_all([user1, user2, user3])
     else:
-        # Raw SQL insert (adjust column list if needed)
         session.execute(text(
             "INSERT INTO utentiweb (username, password, email) VALUES "
             "('user1', 'dummy', 'user1@test.com'), "
@@ -111,7 +124,6 @@ def sample_data(session, clean_db):
 
 
 # ---------- Test Cases ----------
-
 def test_get_ordini_by_username(session, sample_data):
     repo = StoricoRepository(session)
     ordini, totale = repo.get_ordini_by_username("user1", pagina=1, per_pagina=10)

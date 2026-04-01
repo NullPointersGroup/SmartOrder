@@ -1,10 +1,37 @@
+-- DROP indici facoltativo
+DROP INDEX IF EXISTS idx_ordclidet_id_ord, idx_ordclidet_cod_art, idx_ordine_username,
+                     idx_anaart_des_art_trgm, idx_conversazioni_username,
+                     idx_messaggi_id_conv, idx_carrello_username;
+
+-- DROP tabelle
+DROP TABLE IF EXISTS carrello, messaggi, conversazioni, ordclidet, ordine, utentiweb, anaart;
+
+-- DROP tipi
+DROP TYPE IF EXISTS TipoUmEnum CASCADE;
+DROP TYPE IF EXISTS MittenteEnum CASCADE;
+
+-- DROP estensioni
+DROP EXTENSION IF EXISTS pg_stat_statements;
+DROP EXTENSION IF EXISTS pg_trgm;
+
+-- CREATE estensioni necessarie prima degli indici
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
-CREATE TYPE TipoUmEnum AS ENUM ('P', 'L', 'K', 'C');
-CREATE TYPE MittenteEnum AS ENUM ('Utente', 'Chatbot');
 
---  AnaArt
-CREATE TABLE anaart (
+-- CREATE ENUM (idempotente, compatibile PostgreSQL <14)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'tipoumenum') THEN
+        CREATE TYPE TipoUmEnum AS ENUM ('P', 'L', 'K', 'C');
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'mittenteenum') THEN
+        CREATE TYPE MittenteEnum AS ENUM ('Utente', 'Chatbot');
+    END IF;
+END$$;
+
+-- AnaArt
+CREATE TABLE IF NOT EXISTS anaart (
     cod_art         VARCHAR(13)  PRIMARY KEY,
     des_art         VARCHAR(255),
     des_um          VARCHAR(40),
@@ -17,16 +44,16 @@ CREATE TABLE anaart (
     prezzo          DOUBLE PRECISION
 );
 
---  UtentiWeb
-CREATE TABLE utentiweb (
+-- UtentiWeb
+CREATE TABLE IF NOT EXISTS utentiweb (
     username    VARCHAR(24)  PRIMARY KEY,
     email       VARCHAR(255) UNIQUE,
     password    VARCHAR(60) NOT NULL,
     admin       BOOLEAN
 );
 
---  Ordine
-CREATE TABLE ordine (
+-- Ordine
+CREATE TABLE IF NOT EXISTS ordine (
     id_ord      INTEGER      PRIMARY KEY,
     username    VARCHAR(24)  NOT NULL,
     data        DATE,
@@ -34,8 +61,8 @@ CREATE TABLE ordine (
         FOREIGN KEY (username) REFERENCES utentiweb(username) ON DELETE CASCADE
 );
 
---  OrdCliDet
-CREATE TABLE ordclidet (
+-- OrdCliDet
+CREATE TABLE IF NOT EXISTS ordclidet (
     id_ord       INTEGER      NOT NULL,
     cod_art      VARCHAR(13)  NOT NULL,
     qta_ordinata FLOAT,
@@ -46,8 +73,8 @@ CREATE TABLE ordclidet (
         FOREIGN KEY (cod_art) REFERENCES anaart(cod_art)
 );
 
---  Conversazioni
-CREATE TABLE conversazioni (
+-- Conversazioni
+CREATE TABLE IF NOT EXISTS conversazioni (
     id_conv     SERIAL       PRIMARY KEY,
     username    VARCHAR(24)  NOT NULL,
     titolo      VARCHAR(24)  NOT NULL,
@@ -55,8 +82,8 @@ CREATE TABLE conversazioni (
         FOREIGN KEY (username) REFERENCES utentiweb(username) ON DELETE CASCADE
 );
 
---  Messaggi
-CREATE TABLE messaggi (
+-- Messaggi
+CREATE TABLE IF NOT EXISTS messaggi (
     id_conv      INTEGER      NOT NULL,
     id_messaggio SERIAL,
     mittente     MittenteEnum NOT NULL,
@@ -66,8 +93,8 @@ CREATE TABLE messaggi (
         FOREIGN KEY (id_conv) REFERENCES conversazioni(id_conv) ON DELETE CASCADE
 );
 
---  Carrello
-CREATE TABLE carrello (
+-- Carrello
+CREATE TABLE IF NOT EXISTS carrello (
     username    VARCHAR(24)  NOT NULL,
     cod_art     VARCHAR(13)  NOT NULL,
     quantita    INTEGER,
@@ -78,13 +105,13 @@ CREATE TABLE carrello (
         FOREIGN KEY (cod_art) REFERENCES anaart(cod_art)
 );
 
---  Indici
-CREATE INDEX idx_anaart_des_art_trgm
+-- Indici
+CREATE INDEX IF NOT EXISTS idx_anaart_des_art_trgm
     ON anaart USING GIN (des_art gin_trgm_ops);
 
-CREATE INDEX idx_ordclidet_id_ord   ON ordclidet(id_ord);
-CREATE INDEX idx_ordclidet_cod_art  ON ordclidet(cod_art);
-CREATE INDEX idx_ordine_username    ON ordine(username);
-CREATE INDEX idx_conversazioni_username ON conversazioni(username);
-CREATE INDEX idx_messaggi_id_conv   ON messaggi(id_conv);
-CREATE INDEX idx_carrello_username  ON carrello(username);
+CREATE INDEX IF NOT EXISTS idx_ordclidet_id_ord   ON ordclidet(id_ord);
+CREATE INDEX IF NOT EXISTS idx_ordclidet_cod_art  ON ordclidet(cod_art);
+CREATE INDEX IF NOT EXISTS idx_ordine_username    ON ordine(username);
+CREATE INDEX IF NOT EXISTS idx_conversazioni_username ON conversazioni(username);
+CREATE INDEX IF NOT EXISTS idx_messaggi_id_conv   ON messaggi(id_conv);
+CREATE INDEX IF NOT EXISTS idx_carrello_username  ON carrello(username);
