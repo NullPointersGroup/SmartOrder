@@ -23,12 +23,14 @@ from src.cart.exceptions import ProductNotFoundException, ProductNotInCartExcept
 from src.enums import CartUpdateOperation, MeasureUnitEnum
 
 
+# TU-B_161
 def test_get_cart_service_unit():
     mock_db = MagicMock(spec=Session)
     service = get_cart_service(db=mock_db)
     assert isinstance(service, CartService)
 
 
+# TU-B_162
 def test_get_user_cart():
     mock_service = MagicMock()
     mock_products = [
@@ -49,6 +51,7 @@ def test_get_user_cart():
     mock_service.get_cart_products.assert_called_once_with("Tom")
 
 
+# TU-B_163
 def test_add_product_to_cart():
     mock_service = MagicMock()
     mock_products = CartProduct(
@@ -72,6 +75,7 @@ def test_add_product_to_cart():
     mock_service.add_product_to_cart.assert_called_once_with("Tom", "ABC", 2)
 
 
+# TU-B_164
 def test_add_product_not_found():
     mock_service = MagicMock()
     mock_service.add_product_to_cart.side_effect = ProductNotFoundException("ABC")
@@ -88,6 +92,7 @@ def test_add_product_not_found():
     assert "ABC" in exc.value.detail
 
 
+# TU-B_165
 def test_remove_product_from_cart():
     mock_service = MagicMock()
     mock_products = CartProduct(
@@ -113,6 +118,7 @@ def test_remove_product_from_cart():
     mock_service.remove_product_from_cart.assert_called_once_with("Tom", "ABC")
 
 
+# TU-B_166
 def test_remove_product_not_in_cart():
     mock_service = MagicMock()
     mock_service.remove_product_from_cart.side_effect = ProductNotInCartException(
@@ -132,6 +138,7 @@ def test_remove_product_not_in_cart():
     assert "ABC" in exc.value.detail
 
 
+# TU-B_167
 def test_update_product_quantity():
     mock_service = MagicMock()
     mock_products = CartProduct(
@@ -163,6 +170,7 @@ def test_update_product_quantity():
     )
 
 
+# TU-B_168
 def test_update_product_not_in_cart():
     mock_service = MagicMock()
     mock_service.update_cart_quantity.side_effect = ProductNotInCartException(
