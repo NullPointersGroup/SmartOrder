@@ -33,9 +33,9 @@ class VecDbService:
 
     def search_catalog(self, query: str) -> list[str]:
         vector = self.embedder.embed(query)
-        return self.catalog_vect.search(vector, n=5, threshold=1.5)
+        return self.catalog_vect.search(vector, n=5, threshold=0.8)
 
     def search_cart(self, username: str, query: str) -> list[str]:
         self.load_cart(username)
         vector = self.embedder.embed(query)
-        return self.cart_vect.search(vector, n=5, threshold=100)
+        return self.cart_vect.search(vector, n=5, threshold=0.8)
