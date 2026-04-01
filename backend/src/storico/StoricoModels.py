@@ -9,6 +9,7 @@ class Ordine(SQLModel, table=True):
     id: Optional[int] = Field(
         default=None, primary_key=True, sa_column_kwargs={"autoincrement": True}
     )
+    codice_ordine: str = Field(..., max_length=64, unique=True)
     username: str = Field(..., max_length=24, foreign_key="utentiweb.username")
     stato: str = Field(default="completato", max_length=32)
     totale: float = Field(...)
@@ -24,5 +25,6 @@ class OrdineProdotto(SQLModel, table=True):
     ordine_id: int = Field(..., foreign_key="ordini.id")
     prodotto_id: int = Field(...)
     nome_prodotto: str = Field(..., max_length=128)
+    descrizione_prodotto: str = Field(default="", max_length=512)
     quantita: int = Field(...)
     prezzo_unitario: float = Field(...)

@@ -1,28 +1,26 @@
-from datetime import datetime
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 
-class OrdineProdottoSchema(BaseModel):
-    prodotto_id: int
-    nome_prodotto: str
+class ProdottoSchema(BaseModel):
+    nome: str
+    descrizione: str
     quantita: int
-    prezzo_unitario: float
 
     model_config = {"from_attributes": True}
 
 
 class OrdineSchema(BaseModel):
-    id: int
-    username: str
-    stato: str
-    totale: float
-    created_at: datetime
-    prodotti: List[OrdineProdottoSchema] = []
+    codice_ordine: str
+    numero_ordine: int
+    data: str
+    username: Optional[str] = None
+    prodotti: List[ProdottoSchema] = []
 
     model_config = {"from_attributes": True}
 
 
-class StoricoResponseSchema(BaseModel):
+class StoricoPageSchema(BaseModel):
     ordini: List[OrdineSchema]
-    totale_ordini: int
+    pagina_corrente: int
+    totale_pagine: int

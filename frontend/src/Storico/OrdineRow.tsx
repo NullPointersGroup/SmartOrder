@@ -12,19 +12,9 @@ export const OrdineRow: React.FC<OrdineRowProps> = ({
   isAdmin,
   onApriDettaglio,
 }) => {
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      onApriDettaglio(ordine)
-    }
-  }
-
   return (
-    <button
-      tabIndex={0}
-      className="border-b border-(--border) hover:bg-(--bg-2) cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-(--color-2) focus:ring-inset"
-      onClick={() => onApriDettaglio(ordine)}
-      onKeyDown={handleKeyDown}
+    <tr
+      className="relative border-b border-(--border) hover:bg-(--bg-2) transition-colors"
     >
       <td className="py-3 px-4 font-mono text-sm text-(--text-4)">
         #{String(ordine.numero_ordine).padStart(4, '0')}
@@ -48,10 +38,20 @@ export const OrdineRow: React.FC<OrdineRowProps> = ({
         {ordine.prodotti.length} prodott{ordine.prodotti.length === 1 ? 'o' : 'i'}
       </td>
       <td className="py-3 px-4 text-right">
-        <span className="text-xs text-(--text-4) hover:text-(--text-3) transition-colors">
-          Dettaglio →
-        </span>
+        <button
+          type="button"
+          onClick={() => onApriDettaglio(ordine)}
+          aria-label={`Apri dettaglio ordine ${ordine.codice_ordine}`}
+          className="
+            text-xs text-(--text-4) hover:text-(--text-3) transition-colors
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-2)
+            focus-visible:ring-inset focus-visible:rounded-sm
+            after:absolute after:inset-0 after:content-['']
+          "
+        >
+          <span aria-hidden="true">Dettaglio →</span>
+        </button>
       </td>
-    </button>
+    </tr>
   )
 }

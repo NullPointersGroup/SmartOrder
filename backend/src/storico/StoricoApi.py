@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel import Session, select
 
@@ -8,8 +8,12 @@ from src.db.dbConnection import get_conn
 from src.auth.TokenUtility import TokenUtility
 from src.storico.adapters.ConcreteGetOrdiniAdapter import ConcreteGetOrdiniAdapter
 from src.storico.StoricoService import StoricoService
-from src.storico.StoricoSchemas import StoricoResponseSchema
-from src.storico.exceptions import OrdiniNotFoundException, StoricoAccessDeniedException
+from src.storico.StoricoSchemas import StoricoPageSchema
+from src.storico.exceptions import (
+    OrdiniNotFoundException,
+    OrdineNotFoundException,
+    StoricoAccessDeniedException,
+)
 from src.db.models import Utente
 
 router = APIRouter(prefix="/storico", tags=["Storico Ordini"])
@@ -18,6 +22,8 @@ _bearer = HTTPBearer()
 
 DBSession = Annotated[Session, Depends(get_conn)]
 Credentials = Annotated[HTTPAuthorizationCredentials, Depends(_bearer)]
+Pagina = Annotated[int, Query(ge=1)]
+PerPagina = Annotated[int, Query(ge=1, le=50)]
 
 
 def _get_username(credentials: Credentials) -> str:
@@ -54,23 +60,40 @@ def _require_admin(username: Username, db: DBSession) -> str:
 AdminUsername = Annotated[str, Depends(_require_admin)]
 
 
-@router.get("/cliente")
+@router.get("/miei")
 def get_storico_cliente(
     username: Username,
     service: ServiceDep,
-) -> StoricoResponseSchema:
+    pagina: Pagina = 1,
+    per_pagina: PerPagina = 10,
+) -> StoricoPageSchema:
     try:
-        return service.get_ordini_cliente(username)
+        return service.get_ordini_cliente(username, pagina, per_pagina)
     except OrdiniNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
 
 
-@router.get("/admin")
+@router.get("/tutti")
 def get_storico_admin(
     username: AdminUsername,
     service: ServiceDep,
-) -> StoricoResponseSchema:
+    pagina: Pagina = 1,
+    per_pagina: PerPagina = 10,
+) -> StoricoPageSchema:
     try:
-        return service.get_ordini_admin()
+        return service.get_ordini_admin(pagina, per_pagina)
     except StoricoAccessDeniedException as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.message)
+
+
+@router.post("/duplica/{codice_ordine}", status_code=status.HTTP_201_CREATED)
+def duplica_ordine(
+    codice_ordine: str,
+    username: Username,
+    service: ServiceDep,
+) -> dict:
+    try:
+        service.duplica_ordine(codice_ordine, username)
+        return {"detail": "Ordine duplicato con successo"}
+    except OrdineNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)

@@ -31,7 +31,7 @@ export const StoricoView: React.FC = () => {
     apriDettaglio,
     chiudiDettaglio,
     duplicaOrdine,
-  } = useStoricoViewModel(admin as 'admin' | 'cliente');
+  } = useStoricoViewModel();  // rimosso parametro inutile
 
   const handleLogout = () => {
     clearAuth();
@@ -86,7 +86,7 @@ export const StoricoView: React.FC = () => {
                   Prodotti
                 </th>
                 <th />
-               </tr>
+              </tr>
             </thead>
             <tbody>
               {ordini.map((ordine) => (
