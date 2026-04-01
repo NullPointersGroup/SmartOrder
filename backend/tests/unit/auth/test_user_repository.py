@@ -4,7 +4,7 @@ import pytest
 
 from src.auth.models import UserRegistration
 from src.auth.UserRepository import UserRepository
-from src.db.models import Utente
+from src.db.models import Utentiweb
 
 
 # ---------------------------------------------------------------------------
@@ -23,7 +23,7 @@ def repo(executor):
 
 @pytest.fixture
 def mock_utente():
-    u = MagicMock(spec=Utente)
+    u = MagicMock(spec=Utentiweb)
     u.username = "testuser"
     u.password = "hashed_password"
     u.email    = "test@test.com"

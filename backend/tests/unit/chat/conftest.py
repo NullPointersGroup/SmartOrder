@@ -5,8 +5,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from sqlmodel import Session
-from src.db.models import Conversazione, Utente
-from src.chat.adapters.ChatMessageRepository import ChatMessageRepository
+from src.db.models import Conversazioni, Utentiweb, Messaggi
 from src.chat.adapters.ChatRepoAdapter import ChatRepoAdapter
 from src.chat.adapters.ChatRepository import ChatRepository
 from src.chat.ChatService import ChatService
@@ -29,8 +28,12 @@ def chat_service(mock_repo, mock_llm):
 
 
 @pytest.fixture
-def mock_conversazione(mock_utente: Utente) -> Conversazione:
-    return Conversazione(id_conv=1, username=mock_utente.username)
+def mock_conversazione(mock_utente: Utentiweb) -> Conversazioni:
+    return Conversazioni(
+        id_conv=1,
+        username=mock_utente.username or "",
+        titolo="Example"
+    )
 
 
 @pytest.fixture
@@ -49,34 +52,34 @@ def chat_repository(mock_db):
 
 
 @pytest.fixture
-def mock_messaggi(mock_conversazione: Conversazione) -> list[ChatMessageRepository]:
+def mock_messaggi(mock_conversazione: Conversazioni) -> list[Messaggi]:
     return [
-        ChatMessageRepository(
+        Messaggi(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=1,
             mittente=SenderEnum.Utente,
-            contenuto="Primo messaggio da Utente",
+            contenuto="Primo messaggio da Utentiweb",
         ),
-        ChatMessageRepository(
+        Messaggi(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=2,
             mittente=SenderEnum.Chatbot,
             contenuto="Secondo messaggio da Chatbot",
         ),
-        ChatMessageRepository(
+        Messaggi(
             id_conv=mock_conversazione.id_conv,
             id_messaggio=3,
             mittente=SenderEnum.Utente,
-            contenuto="Terzo messaggio da Utente",
+            contenuto="Terzo messaggio da Utentiweb",
         ),
     ]
 
 
 @pytest.fixture
 def mock_session_with_messages(
-    mock_utente: Utente,
-    mock_conversazione: Conversazione,
-    mock_messaggi: list[ChatMessageRepository],
+    mock_utente: Utentiweb,
+    mock_conversazione: Conversazioni,
+    mock_messaggi: list[Messaggi],
 ) -> MagicMock:
     session = MagicMock()
     session.exec.return_value.all.return_value = mock_messaggi
@@ -87,9 +90,9 @@ def mock_session_with_messages(
 @pytest.fixture
 def db_session_with_messages(
     db_session: Session,
-    mock_utente: Utente,
-    mock_conversazione: Conversazione,
-    mock_messaggi: list[ChatMessageRepository],
+    mock_utente: Utentiweb,
+    mock_conversazione: Conversazioni,
+    mock_messaggi: list[Messaggi],
 ) -> Session:
     db_session.add(mock_utente)
     db_session.add(mock_conversazione)

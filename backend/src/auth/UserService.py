@@ -1,5 +1,5 @@
 from src.auth.models import User, UserRegistration, UserReset
-from src.db.models import Utente
+from src.db.models import Utentiweb
 from src.auth.IUserRepoPort import IUserRepoPort
 from src.auth.IEmailValidationPort import IEmailValidationPort
 from src.auth.PasswordUtility import PasswordUtility
@@ -99,7 +99,7 @@ class UserService:
         if not self.repo.delete_user(username):
             raise UserDeletionError()
         
-    def get_user(self, username: str) -> Utente:
+    def get_user(self, username: str) -> Utentiweb:
         user = self.repo.find_by_username(username)
         if user is None:
             raise UserNotFoundError()

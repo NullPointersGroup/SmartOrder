@@ -1,8 +1,7 @@
 from datetime import date
 from typing import List, Tuple
 from sqlmodel import Session, select, func, col
-from src.storico.StoricoModels import Ordine, OrdCliDet
-from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
+from src.db.models import Ordine, OrdCliDet, Anaart
 
 
 class StoricoRepository:
@@ -33,12 +32,12 @@ class StoricoRepository:
         ).all())
         return ordini, totale
 
-    def get_prodotti_by_ordine_ids(self, ordine_ids: List[int]) -> List[tuple]:
+    def get_prodotti_by_ordine_ids(self, ordine_ids: List[int]) -> List[Tuple[OrdCliDet, Anaart]]:
         if not ordine_ids:
             return []
         return list(self.db.exec(
-            select(OrdCliDet, CatalogProductRepository)
-            .join(CatalogProductRepository, col(OrdCliDet.cod_art) == col(CatalogProductRepository.prod_id))
+            select(OrdCliDet, Anaart)
+            .join(Anaart, col(OrdCliDet.cod_art) == col(Anaart.prod_id))
             .where(col(OrdCliDet.id_ord).in_(ordine_ids))
         ).all())
 
@@ -52,7 +51,7 @@ class StoricoRepository:
             select(OrdCliDet).where(OrdCliDet.id_ord == id_ord)
         ).all())
 
-        nuovo_id = self.db.exec(select(func.max(Ordine.id_ord))).one() + 1
+        nuovo_id = self.db.exec(select(func.max(Ordine.id_ord))).one()
 
         nuovo_ordine = Ordine(id_ord=nuovo_id, username=username, data=date.today())
         self.db.add(nuovo_ordine)

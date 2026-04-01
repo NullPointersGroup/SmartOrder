@@ -13,7 +13,7 @@ from src.storico.exceptions import (
     OrdineNotFoundException,
     StoricoAccessDeniedException,
 )
-from src.db.models import Utente
+from src.db.models import Utentiweb
 from src.auth.api import get_current_user
 
 Username = Annotated[str, Depends(get_current_user)]
@@ -34,7 +34,7 @@ ServiceDep = Annotated[StoricoService, Depends(_get_service)]
 
 
 def _require_admin(username: Username, db: DBSession) -> str:
-    utente = db.exec(select(Utente).where(Utente.username == username)).first()
+    utente = db.exec(select(Utentiweb).where(Utentiweb.username == username)).first()
     if utente is None or not utente.admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -73,7 +73,7 @@ def duplica_ordine(
     codice_ordine: str,
     username: Username,
     service: ServiceDep,
-) -> dict:
+) -> dict[str, str]:
     try:
         service.duplica_ordine(codice_ordine, username)
         return {"detail": "Ordine duplicato con successo"}

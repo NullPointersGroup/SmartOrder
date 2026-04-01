@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import List
 
 from src.storico.ports.StoricoRepoPort import StoricoRepoPort
-from src.storico.StoricoModels import Ordine
+from src.db.models import Ordine
 from src.storico.StoricoSchemas import OrdineSchema, ProdottoSchema, StoricoPageSchema
 from src.storico.exceptions import OrdiniNotFoundException, OrdineNotFoundException
 
@@ -22,36 +22,30 @@ class StoricoService:
         totale: int,
         pagina: int,
         per_pagina: int,
-        include_username: bool,
+        include_username: bool
     ) -> StoricoPageSchema:
-        ordine_ids = [o.id_ord for o in ordini_orm]  # id → id_ord
+        ordine_ids = [o.id_ord for o in ordini_orm if o.id_ord is not None]
         prodotti_orm = self.repo.get_prodotti_by_ordine_ids(ordine_ids)
 
         prodotti_per_ordine: dict[int, list[ProdottoSchema]] = defaultdict(list)
-        for det, art in prodotti_orm:  # ora è una tupla (OrdCliDet, CatalogProductRepository)
-            prodotti_per_ordine[det.id_ord].append(
-                ProdottoSchema(
-                    nome=art.prod_des,
-                    quantita=det.qta_ordinata,
+        for det, art in prodotti_orm:
+            if det.id_ord is not None:
+                prodotti_per_ordine[det.id_ord].append(
+                    ProdottoSchema(nome=art.prod_des, quantita=det.qta_ordinata)
                 )
-            )
 
         ordini_schema = [
             OrdineSchema(
                 codice_ordine=str(o.id_ord),
                 data=o.data.isoformat() if o.data else None,
                 username=o.username if include_username else None,
-                prodotti=prodotti_per_ordine.get(o.id_ord, []),
+                prodotti=prodotti_per_ordine.get(o.id_ord, []) if o.id_ord is not None else [],
             )
             for o in ordini_orm
         ]
 
         totale_pagine = max(1, math.ceil(totale / per_pagina))
-        return StoricoPageSchema(
-            ordini=ordini_schema,
-            pagina_corrente=pagina,
-            totale_pagine=totale_pagine,
-        )
+        return StoricoPageSchema(ordini=ordini_schema, pagina_corrente=pagina, totale_pagine=totale_pagine)
 
 
     def get_ordini_cliente(

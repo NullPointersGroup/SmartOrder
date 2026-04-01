@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
-from src.storico.StoricoModels import Ordine
+from src.db.models import Ordine, OrdCliDet, Anaart
 
 
 class StoricoRepoPort(ABC):
@@ -20,7 +20,7 @@ class StoricoRepoPort(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_prodotti_by_ordine_ids(self, ordine_ids: List[int]) -> List[tuple]:
+    def get_prodotti_by_ordine_ids(self, ordine_ids: List[int]) -> List[Tuple[OrdCliDet, Anaart]]:
         """Restituisce i prodotti per una lista di ordine_id."""
         raise NotImplementedError
 

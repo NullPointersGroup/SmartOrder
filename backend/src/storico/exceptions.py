@@ -1,6 +1,6 @@
 class OrdiniNotFoundException(Exception):
     def __init__(self, username: str) -> None:
-        self.message = f"Nessun ordine trovato per l'utente '{username}'"
+        self.message = "Non è stato effettuato alcun ordine"
         super().__init__(self.message)
 
 
