@@ -1,13 +1,13 @@
-from sqlmodel import Session, col, delete, select, update
+from sqlmodel import Session, col, delete, insert, select, update
+from src.cart.adapters.CartProductRepository import CartProductRepository
+from src.cart.adapters.UserCartRepository import UserCartRepository
 from src.cart.exceptions import (
     ProductNotFoundException,
     ProductNotInCartException,
 )
-from src.enums import CartUpdateOperation
-from src.cart.adapters.UserCartRepository import UserCartRepository
 from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
-from src.cart.adapters.CartProductRepository import CartProductRepository
-from src.enums import MeasureUnitEnum
+from src.enums import CartUpdateOperation, MeasureUnitEnum
+
 
 class CartRepository:
     def __init__(self, db: Session) -> None:
@@ -39,6 +39,8 @@ class CartRepository:
     def add_product(
         self, prod_id: str, username: str, qty: int
     ) -> CartProductRepository:
+
+        # Verifica che il prodotto esista nel catalogo
         stmt = select(CatalogProductRepository).where(
             CatalogProductRepository.prod_id == prod_id
         )
@@ -46,16 +48,30 @@ class CartRepository:
         if not result:
             raise ProductNotFoundException(prod_id)
 
-        new_cart_item = UserCartRepository(
-            username=username, cod_art=prod_id, quantita=qty
+        # Cerca se esiste già nel carrello
+        stmt_cart = select(UserCartRepository).where(
+            UserCartRepository.username == username,
+            UserCartRepository.cod_art == prod_id,
         )
-        self.db.add(new_cart_item)
+        existing_item = self.db.exec(stmt_cart).first()
+
+        if existing_item:
+            # UPDATE: aggiorna la quantità
+            existing_item.quantita += qty
+            self.db.add(existing_item)
+        else:
+            # INSERT: crea nuovo elemento
+            existing_item = UserCartRepository(
+                username=username, cod_art=prod_id, quantita=qty
+            )
+            self.db.add(existing_item)
+
         self.db.commit()
-        self.db.refresh(new_cart_item)
+        self.db.refresh(existing_item)
 
         return CartProductRepository(
             id_prod=prod_id,
-            qty=qty,
+            qty=existing_item.quantita,
             prod_descr=result.prod_des,
             price=result.price,
             measure_unit=MeasureUnitEnum(result.measure_unit_type),

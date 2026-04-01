@@ -18,13 +18,15 @@ from src.chat.ChatService import ChatService
 from src.chat.exceptions import ConversationNotFoundException, ToolNotFoundException
 from src.chat.LLMAgent import LLMAgent
 from src.chat.tools.AddToCart import AddToCartTool
+from src.chat.tools.RemoveFromCart import RemoveFromCartTool
+from src.chat.tools.SearchCart import SearchCartTool
+from src.chat.tools.SearchCatalog import SearchCatalogTool
 from src.chat.tools.ToolService import ToolService
 from src.db.dbConnection import get_conn
 from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
 from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
 from src.vec.adapters.FaissCatalogDb import FaissCatalogDb
 from src.vec.adapters.VecDbAdapter import VecDbAdapter
-from src.vec.ports.VecDbPortOut import VecDbPortOut
 from src.vec.VecDbService import VecDbService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
@@ -49,7 +51,10 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
     )
     tool_adapter = ToolAdapter(tool_service=tool_service)
     add_to_cart_tool = AddToCartTool(tool_service=tool_adapter)
-    return [add_to_cart_tool]
+    remove_from_cart = RemoveFromCartTool(tool_service=tool_adapter)
+    search_cart = SearchCartTool(tool_service=tool_adapter)
+    search_catalog = SearchCatalogTool(tool_service=tool_adapter)
+    return [add_to_cart_tool, remove_from_cart, search_cart, search_catalog]
 
 
 def get_chat_service(

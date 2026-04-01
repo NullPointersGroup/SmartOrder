@@ -1,4 +1,5 @@
 from src.cart.CartSchemas import CartProduct
+from src.catalog.CatalogSchemas import CatalogProduct
 from src.chat.ports.ToolPort import ToolPortIn
 from src.chat.tools.ToolService import ToolService
 
@@ -13,3 +14,9 @@ class ToolAdapter(ToolPortIn):
 
     def remove_from_cart(self, prod_id: str) -> CartProduct:
         return self.tool_service.remove_from_cart(prod_id)
+
+    def search_cart(self, query: str) -> list[CartProduct]:
+        return self.tool_service.search_cart(query)
+
+    def search_catalog(self, query: str) -> list[CatalogProduct]:
+        return self.tool_service.search_catalog(query)
