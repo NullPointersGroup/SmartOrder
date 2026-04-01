@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from src.chat.ChatSchemas import Message
-from src.db.models import Conversazione
+from src.db.models import Conversazioni
 from src.enums import SenderEnum
 
 
@@ -15,7 +15,7 @@ class ChatRepoPort(ABC):
 
     ## TODO create_conversation deve ritornare Conversation (tipo di dominio)
     @abstractmethod
-    def create_conversation(self, username: str) -> Conversazione:
+    def create_conversation(self, username: str) -> Conversazioni:
         pass
 
     @abstractmethod

@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 const env = loadEnv('development', process.cwd(), '')
 const backendUrl = env.VITE_API_BASE_URL
+console.log(backendUrl)
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -14,6 +15,7 @@ export default defineConfig({
       '/chat': backendUrl,
       '/conversations': backendUrl,
       '/cart': backendUrl,
+      '/storico': backendUrl,
     }
   },
   test: {

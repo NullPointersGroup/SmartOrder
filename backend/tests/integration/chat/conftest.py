@@ -1,12 +1,11 @@
 from typing import Any, Generator
 import pytest
-from sqlmodel import create_engine, SQLModel, Session, text
+from sqlmodel import create_engine, Session, text
 from fastapi.testclient import TestClient
-from src.db.models import Utente
+from src.db.models import Utentiweb, Conversazioni
 from src.main import app
 from src.db.dbConnection import get_conn
 from src.chat.adapters.ChatRepository import ChatRepository
-from src.chat.adapters.ChatRepository import Conversazione
 
 
 @pytest.fixture
@@ -16,19 +15,17 @@ def chat_repository(seeded_db):
 
 @pytest.fixture
 def seeded_db(db_session: Session) -> Generator[Session, Any, None]:
-    utente = Utente(
-        username="mario", email="mario@test.it", password="secret"
-    )  # NOSONAR
+    utente = Utentiweb(
+        username="mario", email="mario@test.it", password="secret" #NOSONAR
+    )
     db_session.add(utente)
     db_session.commit()
-    conv = Conversazione(username="mario", titolo="test")
+    conv = Conversazioni(username="mario", titolo="test")
     db_session.add(conv)
     db_session.commit()
     yield db_session
-    db_session.execute(
-        text(
-            "TRUNCATE TABLE messaggi, conversazioni, utentiweb RESTART IDENTITY CASCADE"
-        )
+    db_session.connection().execute(
+        text("TRUNCATE TABLE messaggi, conversazioni, utentiweb RESTART IDENTITY CASCADE")
     )
     db_session.commit()
 

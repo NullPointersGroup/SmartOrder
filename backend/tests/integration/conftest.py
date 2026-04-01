@@ -7,10 +7,8 @@ dotenv_path = Path(".env.test")
 load_dotenv(dotenv_path=dotenv_path, override=False)
 from typing import Any, Generator
 import pytest
-from fastapi.testclient import TestClient
 from sqlmodel import Session, create_engine
 from sqlalchemy import text
-from src.db.models import Utente, Conversazione
 from src.db.dbConnection import get_conn
 from src.main import app
 
