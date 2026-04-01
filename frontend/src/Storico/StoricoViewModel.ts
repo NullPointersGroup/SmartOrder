@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react'
-import type { Ordine, StoricoPage, UserRole } from './StoricoModel'
+import type { Ordine, StoricoPage } from './StoricoModel'
+import { useAuthStore } from '../auth/authStore'
 
-export function useStoricoViewModel(role: UserRole) {
+export function useStoricoViewModel() {
   const [pagina, setPagina] = useState(1)
   const [ordini, setOrdini] = useState<Ordine[]>([])
   const [totalePagine, setTotalePagine] = useState(1)
@@ -9,6 +10,7 @@ export function useStoricoViewModel(role: UserRole) {
   const [loading, setLoading] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const [erroreDuplica, setErroreDuplica] = useState<string | null>(null)
+  const role = useAuthStore((s) => s.admin);
 
   // RF-OB_89 / RF-OB_90 — endpoint diverso per ruolo
   const endpoint = role === 'admin'
