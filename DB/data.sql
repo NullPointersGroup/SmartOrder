@@ -2010,7 +2010,7 @@ INSERT INTO ordine (
     ('10', 'carlesso', '2025-06-18'),
     ('11', 'carlesso', '2025-06-19'),
     ('12', 'carlesso', '2025-06-22'),
-    ('13', 'carlesso', '2025-06-21'),
+    ('13', 'carlesso', '2025-06-21');
 
 -- Dettagli ordini
 -- Ordine 1
@@ -2059,7 +2059,7 @@ INSERT INTO ordclidet (id_ord, cod_art, qta_ordinata) VALUES
 INSERT INTO ordclidet (id_ord, cod_art, qta_ordinata) VALUES
 (8, 'L0222', 1),
 (8, 'SU207', 3),
-(8, 'SP067', 2);
+(8, 'SC217', 2);
 
 -- Ordine 9
 INSERT INTO ordclidet (id_ord, cod_art, qta_ordinata) VALUES
@@ -2076,7 +2076,7 @@ INSERT INTO ordclidet (id_ord, cod_art, qta_ordinata) VALUES
 -- Ordine 11
 INSERT INTO ordclidet (id_ord, cod_art, qta_ordinata) VALUES
 (11, 'L0220', 1),
-(11, 'BI148', 3),
+(11, 'SC018', 3), 
 (11, 'AC092', 2);
 
 -- Ordine 12
