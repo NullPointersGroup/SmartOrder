@@ -46,7 +46,7 @@ export default function AuthPage() {
           <div
             className="absolute rounded-full transition-all duration-200 top-0 bottom-0 w-[calc(50%-4px)] z-0"
             style={{
-              backgroundColor: 'var(--color-2)',
+              backgroundColor: 'var(--color-3)',
               left: isLogin ? 3 : 'calc(50% + 1px)',
             }}
           />
