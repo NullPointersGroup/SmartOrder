@@ -34,8 +34,8 @@ from src.vec.VecDbService import VecDbService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
-cart_service = CartService(repo=CartRepoAdapter(repo=CartRepository(next(get_conn()))))
-catalog_repo = CatalogRepoAdapter(CatalogRepository(next(get_conn())))
+cart_service: CartService | None = None
+catalog_repo: CatalogRepoAdapter | None = None
 vecDb_service: VecDbService | None = None
 _vec_init_failed = False
 
@@ -54,6 +54,17 @@ class NoopVecDbAdapter(VecDbPortIn):
         return []
 
 
+def get_shared_services() -> tuple[CartService, CatalogRepoAdapter]:
+    global cart_service, catalog_repo
+    if cart_service is None:
+        cart_service = CartService(
+            repo=CartRepoAdapter(repo=CartRepository(next(get_conn())))
+        )
+    if catalog_repo is None:
+        catalog_repo = CatalogRepoAdapter(CatalogRepository(next(get_conn())))
+    return cart_service, catalog_repo
+
+
 def get_vec_db_service() -> VecDbService:
     global vecDb_service, _vec_init_failed
     if vecDb_service is not None:
@@ -62,11 +73,12 @@ def get_vec_db_service() -> VecDbService:
         raise ModuleNotFoundError("sentence_transformers")
 
     try:
+        shared_cart_service, shared_catalog_repo = get_shared_services()
         vecDb_service = VecDbService(
             catalog_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
             cart_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
-            cart_service=cart_service,
-            catalog_repo=catalog_repo,
+            cart_service=shared_cart_service,
+            catalog_repo=shared_catalog_repo,
             embedder=EmbedderAdapter(),
         )
         vecDb_service.load_catalog()
@@ -77,6 +89,8 @@ def get_vec_db_service() -> VecDbService:
 
 
 def build_tools(username: str, db: Session) -> list[BaseTool]:
+    shared_cart_service, shared_catalog_repo = get_shared_services()
+
     try:
         vec_db: VecDbPortIn = VecDbAdapter(get_vec_db_service())
         vector_tools_available = True
@@ -86,8 +100,8 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
 
     tool_service = ToolService(
         username=username,
-        cart_service=cart_service,
-        catalog_repo=catalog_repo,
+        cart_service=shared_cart_service,
+        catalog_repo=shared_catalog_repo,
         vec_db=vec_db,
     )
     tool_adapter = ToolAdapter(tool_service=tool_service)

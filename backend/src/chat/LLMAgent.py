@@ -40,10 +40,10 @@ class LLMAgent:
                 if cleaned:
                     parts.append(cleaned)
             elif isinstance(item, dict) and item.get("type") == "text":
-                text = item.get("text")
-                if isinstance(text, str):
+                block_text = item.get("text")
+                if isinstance(block_text, str):
                     cleaned = re.sub(
-                        r"\{.*?\}.*?\n?", "", text, flags=re.DOTALL
+                        r"\{.*?\}.*?\n?", "", block_text, flags=re.DOTALL
                     ).strip()
                     if cleaned:
                         parts.append(cleaned)
