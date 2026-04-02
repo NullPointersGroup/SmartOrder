@@ -134,7 +134,6 @@ export const ChatArea: React.FC<Props> = ({
   const [recordingSeconds, setRecordingSeconds] = React.useState(0)
   const recordingIntervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null)
   const [recordingError, setRecordingError] = React.useState<string | null>(null)
-  const [attachError, setAttachError] = React.useState<string | null>(null)
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -312,12 +311,6 @@ export const ChatArea: React.FC<Props> = ({
             <span className="text-xs text-(--error) font-medium">
               Registrazione in corso… {recordingSeconds}s / 120s
             </span>
-          </output>
-        )}
-
-        {attachError && (
-          <output className="flex items-center gap-2 mb-2 px-1" aria-live="assertive">
-            <span className="text-xs text-(--error) font-medium">{attachError}</span>
           </output>
         )}
 
