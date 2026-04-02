@@ -1,5 +1,6 @@
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
+from src.cart.exceptions import ProductNotFoundException
 from src.chat.ports.ToolPort import ToolPortIn
 
 
@@ -18,7 +19,10 @@ class AddToCartTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _run(self, prod_id: str, qty: int) -> str:
-        product = self.tool_service.add_to_cart(prod_id, qty)
+        try:
+            product = self.tool_service.add_to_cart(prod_id, qty)
+        except ProductNotFoundException:
+            return "Prodotto non trovato nel catalogo."
         return f"Prodotto '{product.name}' aggiunto al carrello (quantità: {qty})."
 
     async def _arun(self, prod_id: str, qty: int) -> str:

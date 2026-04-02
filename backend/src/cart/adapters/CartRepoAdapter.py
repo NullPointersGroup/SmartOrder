@@ -44,7 +44,7 @@ class CartRepoAdapter(CartRepoPort):
     def update_quantity(
         self, prod_id: str, username: str, qty: int, operation: CartUpdateOperation
     ) -> CartProduct:
-        row = self.repo.update_quantity(prod_id, username, qty, operation)
+        row = self.repo.update_quantity(username, prod_id, qty, operation)
         return CartProduct(
             prod_id=row.id_prod,
             name=row.prod_descr,

@@ -1,5 +1,6 @@
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
+from src.cart.exceptions import ProductNotInCartException
 from src.chat.ports.ToolPort import ToolPortIn
 
 
@@ -17,7 +18,10 @@ class RemoveFromCartTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _run(self, prod_id: str) -> str:
-        product = self.tool_service.remove_from_cart(prod_id)
+        try:
+            product = self.tool_service.remove_from_cart(prod_id)
+        except ProductNotInCartException:
+            return "Il prodotto non è presente nel carrello."
         return f"Prodotto '{product.name}' rimosso dal carrello."
 
     async def _arun(self, prod_id: str) -> str:

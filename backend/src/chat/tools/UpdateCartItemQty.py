@@ -1,5 +1,6 @@
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
+from src.cart.exceptions import ProductNotInCartException
 from src.chat.ports.ToolPort import ToolPortIn
 from src.enums import CartUpdateOperation
 
@@ -26,10 +27,13 @@ class UpdateCartItemQty(BaseTool):
         arbitrary_types_allowed = True
 
     def _run(self, prod_id: str, qty: int, operation: CartUpdateOperation) -> str:
-        product = self.tool_service.update_cart_item_qty(prod_id, qty, operation)
+        try:
+            product = self.tool_service.update_cart_item_qty(prod_id, qty, operation)
+        except ProductNotInCartException:
+            return "Il prodotto non è presente nel carrello."
         return (
-            f"Product '{product.name}' cart quantity updated "
-            f"(operation: {operation.name}, qty: {qty}, current qty: {product.qty})."
+            f"Quantità del prodotto '{product.name}' aggiornata "
+            f"(operazione: {operation.name}, quantità applicata: {qty}, quantità attuale: {product.qty})."
         )
 
     async def _arun(
