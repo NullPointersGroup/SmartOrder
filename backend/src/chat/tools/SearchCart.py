@@ -22,9 +22,8 @@ class SearchCartTool(BaseTool):
         arbitrary_types_allowed = True
 
     def _run(self, query: str, threshold: float) -> str:
-        print(
-            f"L'ai usa il threshold: {threshold} per cercare il prodotto: {query} nel carrello"
-        )
+        msg = f"[DEBUG] L'AI usa il threshold: {threshold} per cercare il prodotto: {query} nel carrello"
+        print(f"\033[30;43m  {msg}  \033[0m")
         products = self.tool_service.search_cart(query, threshold)
         if not products:
             return "Nessun prodotto trovato nel carrello."

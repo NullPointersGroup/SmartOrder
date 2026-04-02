@@ -7,6 +7,10 @@ from src.enums import CartUpdateOperation
 
 class ToolPortIn(ABC):
     @abstractmethod
+    def get_cart_items(self) -> list[CartProduct]:
+        pass
+
+    @abstractmethod
     def search_catalog(self, query: str, threshold: float) -> list[CatalogProduct]:
         pass
 

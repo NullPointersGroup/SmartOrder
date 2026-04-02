@@ -29,6 +29,9 @@ class ToolService:
                 results.append(product)
         return results
 
+    def get_cart_items(self) -> list[CartProduct]:
+        return self.cart_service.get_cart_products(self.username)
+
     def search_cart(self, query: str, threshold: float) -> list[CartProduct]:
         prod_ids = self.vec_db.search_cart(self.username, query, threshold)
         cart = self.cart_service.get_cart_products(self.username)

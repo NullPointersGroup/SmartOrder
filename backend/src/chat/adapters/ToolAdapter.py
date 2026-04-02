@@ -10,6 +10,9 @@ class ToolAdapter(ToolPortIn):
         super().__init__()
         self.tool_service = tool_service
 
+    def get_cart_items(self) -> list[CartProduct]:
+        return self.tool_service.get_cart_items()
+
     def add_to_cart(self, prod_id: str, qty: int) -> CartProduct:
         return self.tool_service.add_to_cart(prod_id, qty)
 

@@ -18,6 +18,7 @@ from src.chat.ChatService import ChatService
 from src.chat.exceptions import ConversationNotFoundException, ToolNotFoundException
 from src.chat.LLMAgent import LLMAgent
 from src.chat.tools.AddToCart import AddToCartTool
+from src.chat.tools.GetCartItems import GetCartItemsTool
 from src.chat.tools.RemoveFromCart import RemoveFromCartTool
 from src.chat.tools.SearchCart import SearchCartTool
 from src.chat.tools.SearchCatalog import SearchCatalogTool
@@ -51,12 +52,14 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
         ),
     )
     tool_adapter = ToolAdapter(tool_service=tool_service)
+    get_cart_items = GetCartItemsTool(tool_service=tool_adapter)
     add_to_cart_tool = AddToCartTool(tool_service=tool_adapter)
     remove_from_cart = RemoveFromCartTool(tool_service=tool_adapter)
     search_cart = SearchCartTool(tool_service=tool_adapter)
     search_catalog = SearchCatalogTool(tool_service=tool_adapter)
     update_cart_item_qty = UpdateCartItemQty(tool_service=tool_adapter)
     return [
+        get_cart_items,
         add_to_cart_tool,
         remove_from_cart,
         search_cart,
