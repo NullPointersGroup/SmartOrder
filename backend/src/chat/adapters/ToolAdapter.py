@@ -2,6 +2,7 @@ from src.cart.CartSchemas import CartProduct
 from src.catalog.CatalogSchemas import CatalogProduct
 from src.chat.ports.ToolPort import ToolPortIn
 from src.chat.tools.ToolService import ToolService
+from src.enums import CartUpdateOperation
 
 
 class ToolAdapter(ToolPortIn):
@@ -14,6 +15,11 @@ class ToolAdapter(ToolPortIn):
 
     def remove_from_cart(self, prod_id: str) -> CartProduct:
         return self.tool_service.remove_from_cart(prod_id)
+
+    def update_cart_item_qty(
+        self, prod_id: str, qty: int, operation: CartUpdateOperation
+    ) -> CartProduct:
+        return self.tool_service.update_cart_item_qty(prod_id, qty, operation)
 
     def search_cart(self, query: str, threshold: float) -> list[CartProduct]:
         return self.tool_service.search_cart(query, threshold)

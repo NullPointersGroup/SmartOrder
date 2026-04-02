@@ -40,3 +40,10 @@ class ToolService:
 
     def remove_from_cart(self, prod_id: str) -> CartProduct:
         return self.cart_service.remove_product_from_cart(self.username, prod_id)
+
+    def update_cart_item_qty(
+        self, prod_id: str, qty: int, operation: CartUpdateOperation
+    ) -> CartProduct:
+        return self.cart_service.update_cart_quantity(
+            self.username, prod_id, qty, operation
+        )

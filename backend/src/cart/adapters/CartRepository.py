@@ -129,8 +129,13 @@ class CartRepository:
         cart, catalog = result
         if operation == CartUpdateOperation.Add:
             new_qty = col(Carrello.quantita) + qty
-        else:
+            result_qty = cart.quantita + qty
+        elif operation == CartUpdateOperation.Remove:
             new_qty = col(Carrello.quantita) - qty
+            result_qty = cart.quantita - qty
+        else:
+            new_qty = qty
+            result_qty = qty
         update_stmt = (
             update(Carrello)
             .where(col(Carrello.username) == username)
@@ -142,11 +147,7 @@ class CartRepository:
 
         return CartProductRepository(
             id_prod=prod_id,
-            qty=(
-                cart.quantita + qty
-                if operation == CartUpdateOperation.Add
-                else cart.quantita - qty
-            ),
+            qty=result_qty,
             prod_descr=catalog.prod_des,
             price=catalog.price,
             measure_unit=MeasureUnitEnum(catalog.measure_unit_type),

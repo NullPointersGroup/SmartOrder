@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from src.cart.CartSchemas import CartProduct
 from src.catalog.CatalogSchemas import CatalogProduct
+from src.enums import CartUpdateOperation
 
 
 class ToolPortIn(ABC):
@@ -19,4 +20,10 @@ class ToolPortIn(ABC):
 
     @abstractmethod
     def remove_from_cart(self, prod_id: str) -> CartProduct:
+        pass
+
+    @abstractmethod
+    def update_cart_item_qty(
+        self, prod_id: str, qty: int, operation: CartUpdateOperation
+    ) -> CartProduct:
         pass

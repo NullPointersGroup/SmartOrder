@@ -22,6 +22,7 @@ from src.chat.tools.RemoveFromCart import RemoveFromCartTool
 from src.chat.tools.SearchCart import SearchCartTool
 from src.chat.tools.SearchCatalog import SearchCatalogTool
 from src.chat.tools.ToolService import ToolService
+from src.chat.tools.UpdateCartItemQty import UpdateCartItemQty
 from src.db.dbConnection import get_conn
 from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
 from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
@@ -54,7 +55,14 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
     remove_from_cart = RemoveFromCartTool(tool_service=tool_adapter)
     search_cart = SearchCartTool(tool_service=tool_adapter)
     search_catalog = SearchCatalogTool(tool_service=tool_adapter)
-    return [add_to_cart_tool, remove_from_cart, search_cart, search_catalog]
+    update_cart_item_qty = UpdateCartItemQty(tool_service=tool_adapter)
+    return [
+        add_to_cart_tool,
+        remove_from_cart,
+        search_cart,
+        search_catalog,
+        update_cart_item_qty,
+    ]
 
 
 def get_chat_service(
