@@ -1,5 +1,5 @@
-from sqlmodel import Session, col, delete, insert, select, update
-from src.cart.adapters.CartProductRepository import CartProductRepository
+from typing import Any
+from sqlmodel import Session, col, delete, select, update
 from src.cart.exceptions import (
     ProductNotFoundException,
     ProductNotInCartException,
@@ -47,6 +47,7 @@ class CartRepository:
         result = self.db.exec(stmt).first()
         if not result:
             raise ProductNotFoundException(prod_id)
+        assert result is not None
 
         # Cerca se esiste già nel carrello
         stmt_cart = select(Carrello).where(
@@ -128,7 +129,7 @@ class CartRepository:
         assert result is not None
         cart, catalog = result
         if operation == CartUpdateOperation.Add:
-            new_qty = col(Carrello.quantita) + qty
+            new_qty: Any = col(Carrello.quantita) + qty
             result_qty = cart.quantita + qty
         elif operation == CartUpdateOperation.Remove:
             new_qty = col(Carrello.quantita) - qty
