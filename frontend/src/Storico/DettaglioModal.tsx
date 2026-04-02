@@ -59,7 +59,7 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
             onClick={() => {
               onDuplica(ordine.codice_ordine)
               setConfermaDuplica(false)
-              setDuplicatoOk(true)
+              setDuplicatoOk(false)
               setTimeout(() => onRefresh?.(), 300)
             }}
             className="flex-1 py-2.5 text-sm font-semibold bg-(--color-3) text-white hover:bg-(--color-4) transition-colors rounded-xl"
