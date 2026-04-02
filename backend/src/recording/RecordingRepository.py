@@ -1,12 +1,9 @@
 from openai import AsyncOpenAI
 import io
 
-client = AsyncOpenAI()  # legge OPENAI_API_KEY dall'ambiente
-
-class RecordingRepository():
-    """
-    @brief Implementazione della porta di trascrizione tramite OpenAI Whisper.
-    """
+class RecordingRepository:
+    def __init__(self, client: AsyncOpenAI):
+        self._client = client
 
     async def trascrivi(self, audio_bytes: bytes, filename: str) -> str:
         """
@@ -18,8 +15,7 @@ class RecordingRepository():
         """
         file_like = io.BytesIO(audio_bytes)
         file_like.name = filename
-
-        response = await client.audio.transcriptions.create(
+        response = await self._client.audio.transcriptions.create(
             model="whisper-1",
             file=file_like,
             language="it",

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
 
-from src.storico.StoricoApi import router, _get_service, _require_admin
+from src.storico.StoricoApi import router, get_service, require_admin
 from src.auth.api import get_current_user
 from src.storico.StoricoSchemas import StoricoPageSchema, OrdineSchema, ProdottoSchema
 from src.storico.exceptions import OrdiniNotFoundException, OrdineNotFoundException
@@ -61,17 +61,17 @@ def override_user(username: str = "utente1"):
 
 
 def override_service(service: MagicMock):
-    app.dependency_overrides[_get_service] = lambda: service
+    app.dependency_overrides[get_service] = lambda: service
 
 
 def override_admin(ok: bool = True, username: str = "admin1"):
     if ok:
-        app.dependency_overrides[_require_admin] = lambda: username
+        app.dependency_overrides[require_admin] = lambda: username
     else:
         from fastapi import HTTPException, status
         def deny():
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Accesso riservato agli amministratori")
-        app.dependency_overrides[_require_admin] = deny
+        app.dependency_overrides[require_admin] = deny
 
 
 @pytest.fixture(autouse=True)

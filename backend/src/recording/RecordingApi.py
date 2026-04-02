@@ -1,13 +1,18 @@
-from typing import Annotated
+from typing import Annotated, Dict
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
-from fastapi.responses import JSONResponse
 from .RecordingService import RecordingService
 from .RecordingRepoAdapter import RecordingRepoAdapter
+from .RecordingRepository import RecordingRepository
+import os
+from openai import AsyncOpenAI
 
 router = APIRouter(prefix="/recording", tags=["recording"])
 
 def get_service() -> RecordingService:
-    return RecordingService(RecordingRepoAdapter())
+    client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    repo = RecordingRepository(client)
+    adapter = RecordingRepoAdapter(repo)
+    return RecordingService(adapter)
 
 ServiceDep = Annotated[RecordingService, Depends(get_service)]
 
@@ -21,7 +26,7 @@ ServiceDep = Annotated[RecordingService, Depends(get_service)]
 async def trascrivi_audio(
     file: Annotated[UploadFile, File(description="File audio da trascrivere (webm, mp3, wav, m4a)")],
     service: ServiceDep,
-):
+) -> Dict[str, str]:
     """
     @brief Riceve un file audio e restituisce la trascrizione testuale.
     @param file    File audio caricato dal client (webm, mp3, wav, m4a).

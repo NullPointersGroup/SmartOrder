@@ -3,7 +3,6 @@ from mutagen import File #type: ignore
 import tempfile
 import os
 import aiofiles
-from pydub import AudioSegment
 
 MAX_DURATION_SEC = 120
 MAX_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
@@ -38,15 +37,14 @@ class RecordingService:
                 await tmp.write(audio_bytes)
 
             audio = File(tmp_path)
-            if audio is not None and hasattr(audio, 'info') and hasattr(audio.info, 'length'):
-                durata = audio.info.length
 
-            # fallback se mutagen restituisce 0 o None
-            if not durata:
-                segment = AudioSegment.from_file(tmp_path)
-                durata = len(segment) / 1000.0  # ms → secondi
+            if audio is None or not hasattr(audio, "info") or not hasattr(audio.info, "length"):
+                raise ValueError("Formato audio non supportato.")
+
+            durata = float(audio.info.length)
 
             print(f"Durata rilevata: {durata}s")
+            
             if durata > MAX_DURATION_SEC:
                 raise ValueError(f"Il file audio non può superare i {MAX_DURATION_SEC} secondi.")
         finally:

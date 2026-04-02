@@ -6,8 +6,8 @@ class RecordingRepoAdapter(IRecordingRepoPort):
     @brief Adapter che delega la trascrizione al RecordingRepository.
     """
 
-    def __init__(self):
-        self._repo = RecordingRepository()
+    def __init__(self, repo: RecordingRepository) -> None:
+        self._repo = repo
 
     async def trascrivi(self, audio_bytes: bytes, filename: str) -> str:
         """
