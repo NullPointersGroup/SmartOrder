@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { trascriviAudio } from '../../src/Recording/RecordingAPI';
+import { trascriviAudio } from '../../src/recording/RecordingAPI';
 
 // ─── Mock fetch globale ───────────────────────────────────────────────────────
 
