@@ -20,8 +20,8 @@ class ToolService:
         self.catalog_repo = catalog_repo
         self.vec_db = vec_db
 
-    def search_catalog(self, query: str) -> list[CatalogProduct]:
-        prod_ids = self.vec_db.search_catalog(query)
+    def search_catalog(self, query: str, threshold: float) -> list[CatalogProduct]:
+        prod_ids = self.vec_db.search_catalog(query, threshold)
         results = []
         for pid in prod_ids:
             product = self.catalog_repo.get_product(pid)
@@ -29,8 +29,8 @@ class ToolService:
                 results.append(product)
         return results
 
-    def search_cart(self, query: str) -> list[CartProduct]:
-        prod_ids = self.vec_db.search_cart(self.username, query)
+    def search_cart(self, query: str, threshold: float) -> list[CartProduct]:
+        prod_ids = self.vec_db.search_cart(self.username, query, threshold)
         cart = self.cart_service.get_cart_products(self.username)
         cart_map = {p.prod_id: p for p in cart}
         return [cart_map[pid] for pid in prod_ids if pid in cart_map]

@@ -6,11 +6,11 @@ from src.catalog.CatalogSchemas import CatalogProduct
 
 class ToolPortIn(ABC):
     @abstractmethod
-    def search_catalog(self, query: str) -> list[CatalogProduct]:
+    def search_catalog(self, query: str, threshold: float) -> list[CatalogProduct]:
         pass
 
     @abstractmethod
-    def search_cart(self, query: str) -> list[CartProduct]:
+    def search_cart(self, query: str, threshold: float) -> list[CartProduct]:
         pass
 
     @abstractmethod

@@ -1,3 +1,5 @@
+import sys
+
 from src.cart.CartService import CartService
 from src.catalog.ports.CatalogRepoPort import CatalogRepoPort
 from src.vec.ports.EmbedderPort import EmbedderPort
@@ -31,11 +33,12 @@ class VecDbService:
             vector = self.embedder.embed(f"{p.name} {p.price}")
             self.cart_vect.add(p.prod_id, vector)
 
-    def search_catalog(self, query: str) -> list[str]:
+    def search_catalog(self, query: str, threshold: float) -> list[str]:
+        self.load_catalog()
         vector = self.embedder.embed(query)
-        return self.catalog_vect.search(vector, n=5, threshold=0.8)
+        return self.catalog_vect.search(vector, n=1000, threshold=threshold)
 
-    def search_cart(self, username: str, query: str) -> list[str]:
+    def search_cart(self, username: str, query: str, threshold: float) -> list[str]:
         self.load_cart(username)
         vector = self.embedder.embed(query)
-        return self.cart_vect.search(vector, n=5, threshold=0.8)
+        return self.cart_vect.search(vector, n=5, threshold=threshold)

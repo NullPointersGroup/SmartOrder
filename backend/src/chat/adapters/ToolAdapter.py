@@ -15,8 +15,8 @@ class ToolAdapter(ToolPortIn):
     def remove_from_cart(self, prod_id: str) -> CartProduct:
         return self.tool_service.remove_from_cart(prod_id)
 
-    def search_cart(self, query: str) -> list[CartProduct]:
-        return self.tool_service.search_cart(query)
+    def search_cart(self, query: str, threshold: float) -> list[CartProduct]:
+        return self.tool_service.search_cart(query, threshold)
 
-    def search_catalog(self, query: str) -> list[CatalogProduct]:
-        return self.tool_service.search_catalog(query)
+    def search_catalog(self, query: str, threshold: float) -> list[CatalogProduct]:
+        return self.tool_service.search_catalog(query, threshold)

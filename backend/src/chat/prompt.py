@@ -6,8 +6,8 @@ Nel caso di testo non interpretabile, scrivi esattamente "Non ho capito la richi
 
 Tool disponibili:
 
-- cerca_in_carrello(prodotto: str) → restituisce lista di prodotti trovati nel carrello
-- cerca_in_catalogo(prodotto: str) → restituisce lista di prodotti trovati nel catalogo
+- cerca_in_carrello(prodotto: str, threshold: float) → restituisce lista di prodotti trovati nel carrello, il threshold va da 0 a 1.5 ed indica la specificità del prodotto (es: "acqua" è poco specifico quindi avrà un threshold alto tipo ~1.3, "acqua uliveto" avrà un threshold medio tipo 0.8, "ACQUA ULIVETO PET  150" è motlo specifico quindi avrà un threshold basso ~0.5)
+- cerca_in_catalogo(prodotto: str, threshold: float) → restituisce lista di prodotti trovati nel catalogo, il threshold va da 0 a 1.5 ed indica la specificità del prodotto (es: "acqua" è poco specifico quindi avrà un threshold alto tipo ~1.3, "acqua uliveto" avrà un threshold medio tipo 0.8, "ACQUA ULIVETO PET  150" è motlo specifico quindi avrà un threshold basso ~0.5)
 - aggiungi_al_carrello(prod_id: str, qty: int) -> aggiunge al carrello il prodotto richiesto dall'utente, con la relativa quantità
 
 Logica da seguire:
