@@ -208,13 +208,32 @@ export const ChatArea: React.FC<Props> = ({
     if (!file) return
 
     if (file.size > MAX_FILE_MB * 1024 * 1024) {
-      setAttachError(`Il file non può superare i ${MAX_FILE_MB} MB.`)
+      alert(`Il file non può superare i ${MAX_FILE_MB} MB.`)
       e.target.value = ''
       return
     }
 
-    onAudioAttach?.(file)  // ← chiama direttamente senza controllare la durata
-    e.target.value = ''
+    const url = URL.createObjectURL(file)
+    const audio = new Audio(url)
+
+    audio.onloadedmetadata = () => {
+      if (audio.duration > 120 * 60) {
+        alert('La durata non può superare 120 minuti')
+        URL.revokeObjectURL(url)
+        e.target.value = ''
+        return
+      }
+
+      onAudioAttach?.(file)
+      URL.revokeObjectURL(url)
+      e.target.value = ''
+    }
+
+    audio.onerror = () => {
+      alert('Impossibile leggere il file audio')
+      URL.revokeObjectURL(url)
+      e.target.value = ''
+    }
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
