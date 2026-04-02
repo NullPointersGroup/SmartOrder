@@ -2,6 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 export function Unauthorized() {
+  /**
+  @brief mostra la pagina 401 nel caso in cui un utente non autenticato provi ad accedere
+   */
   const navigate = useNavigate();
 
   usePageTitle("Non autorizzato");

@@ -7,6 +7,17 @@ interface Props {
 }
 
 export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf }) => {
+  /**
+  @brief costruisce la sidebar di destra del carrello
+  @param l'interfaccia Props
+  @return l'estetica
+  @req RF-OB_62
+  @req RF-OB_63
+  @req RF-OB_64
+  @req RF-OB_65
+  @req RF-OB_66
+  @req RF-OB_67
+   */
   const fmt = (n?: number) =>
   (n ?? 0).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 
@@ -15,7 +26,7 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf }) => {
   return (
     <aside className="flex flex-col w-80 min-w-[20rem] h-full bg-(--bg-3) border-l border-(--border)" aria-label="Carrello">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-6 border-1 border-(--border)">
+      <div className="flex items-center gap-2 px-4 py-6 border border-(--border)">
         <button
           onClick={onToggleSelf}
           className="flex items-center justify-center w-8 h-8 rounded-xl text-(--text-4) hover:text-(--color-2) hover:bg-(--color-1) transition-all focus:outline-none"

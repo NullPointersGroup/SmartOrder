@@ -2,6 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 export function NotFound() {
+  /**
+  @brief restituisce la pagina 404 che indica una pagina non trovata
+   */
   const navigate = useNavigate();
   
   usePageTitle("Non trovato");

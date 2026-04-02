@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from sqlmodel import Session
 
-from src.storico.adapters.ConcreteGetOrdiniAdapter import ConcreteGetOrdiniAdapter
+from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
 from src.db.models import Ordine, OrdCliDet, Anaart
 
 
@@ -16,10 +16,10 @@ def mock_repo():
 @pytest.fixture
 def adapter(mock_repo):
     with patch(
-        "src.storico.adapters.ConcreteGetOrdiniAdapter.StoricoRepository",
+        "src.storico.adapters.GetOrdiniAdapter.StoricoRepository",
         return_value=mock_repo,
     ):
-        return ConcreteGetOrdiniAdapter(MagicMock(spec=Session)), mock_repo
+        return GetOrdiniAdapter(MagicMock(spec=Session)), mock_repo
 
 
 # ─── get_ordini_by_username ───────────────────────────────────────────────────

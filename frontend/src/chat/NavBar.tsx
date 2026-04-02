@@ -34,6 +34,17 @@ interface Props {
 // ─── Componente ──────────────────────────────────────────────────────────────
 
 export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
+  /**
+  @brief Brief description
+  @param Type Description
+  @raise ExceptionType Condition or description
+  @bug  actual problems
+  @return Type Description
+  @req RF-OB_85
+  @req RF-OB_86
+  @req RF-DE_10
+  @req RF-DE_11
+   */
   const [open, setOpen]   = useState(false);
   const ref               = useRef<HTMLDivElement>(null);
   const location          = useLocation();
@@ -136,13 +147,13 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
           {/* Link di navigazione per ruolo */}
           {links.length > 0 && (
             <>
-              <hr className="border-t border-[var(--border)] mx-3 my-1" />
+              <hr className="border-t border-(--border) mx-3 my-1" />
 
               {links.map(({ path, label }, index) => {
                 const isCurrent = location.pathname === path;
 
                 // Icone moderne e coerenti
-                const iconMap: Record<string, JSX.Element> = {
+                const iconMap: Record<string, React.ReactElement> = {
                 Chat: (
                   <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
@@ -177,7 +188,7 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
 
                     {/* Linea separatrice SOLO tra elementi */}
                     {index < links.length - 1 && (
-                      <hr className="border-t border-[var(--border)] mx-3 my-1" />
+                      <hr className="border-t border-(--border) mx-3 my-1" />
                     )}
                   </div>
                 );
@@ -186,7 +197,7 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
           )}
 
           {/* Logout — sempre visibile */}
-          <hr className="border-t border-[var(--border)] mx-3 my-1" />
+          <hr className="border-t border-(--border) mx-3 my-1" />
           <button
             role="menuitem"
             onClick={() => { setOpen(false); onLogout(); }}

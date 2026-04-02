@@ -12,6 +12,13 @@ export const OrdineRow: React.FC<OrdineRowProps> = ({
   isAdmin,
   onApriDettaglio,
 }) => {
+  /**
+  @brief mostra l'ordine singolo
+  @req RF-OB_91
+  @req RF-OB_92
+  @req RF-OB_93
+  @req RF-OB_94
+   */
   return (
     <tr className="relative border-b border-(--border) hover:bg-(--bg-2) transition-colors group">
       {/* Accent bar on hover */}

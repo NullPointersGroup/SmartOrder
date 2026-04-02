@@ -2,16 +2,11 @@ FROM python:3.12-slim
 
 WORKDIR /src
 
-# 1. Installa PyTorch CPU-only (compatibile con Python 3.13)
-# Usiamo l'URL specifico per evitare pacchetti NVIDIA/CUDA
-RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
-
-# 2. Installa Sentence Transformers
-RUN pip install --no-cache-dir sentence-transformers
-
-# (Opzionale) Pre-carica il modello per evitare download al runtime
-# Sostituisci 'all-MiniLM-L6-v2' con il modello che preferisci
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+# 1. Installa ffmpeg e dipendenze di sistema
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/* && \
+    pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir sentence-transformers && \
+    python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

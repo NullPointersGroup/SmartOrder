@@ -16,6 +16,7 @@ export default defineConfig({
       '/conversations': backendUrl,
       '/cart': backendUrl,
       '/storico': backendUrl,
+      '/recording': backendUrl,
     }
   },
   test: {

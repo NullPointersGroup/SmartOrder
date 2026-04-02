@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ChatModel} from './ChatModel';
-import type { Message, Conversation, CartProduct} from './ChatModel'
+import { ChatModel } from './ChatModel';
+import type { Message, Conversation, CartProduct } from './ChatModel'
+import { trascriviAudio } from '../recording/RecordingAPI'
 
 export function useChatViewModel() {
   // ── Stato ─────────────────────────────────────────────────────────────────
@@ -13,6 +14,7 @@ export function useChatViewModel() {
   const [isLoadingMsgs, setIsLoadingMsgs] = useState(false);
   const [isSending, setIsSending]         = useState(false);
   const [error, setError]                 = useState<string | null>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +116,7 @@ export function useChatViewModel() {
     }
   }, []);
 
-  // ── Elimina conversazione ────────────────────────────────────────────────
+  // ── Elimina conversazione ─────────────────────────────────────────────────
   const deleteConversation = useCallback(async (conv_id: number) => {
     try {
       await ChatModel.deleteConversation(conv_id);
@@ -123,7 +125,6 @@ export function useChatViewModel() {
         const updatedConvs = prev.filter(c => c.id_conv !== conv_id);
 
         if (activeConvId === conv_id || updatedConvs.length === 0) {
-          
           if (updatedConvs.length === 0 && username) {
             ChatModel.createConversation(username, 'Nuova conversazione')
               .then(newConv => {
@@ -139,16 +140,14 @@ export function useChatViewModel() {
 
         return updatedConvs;
       });
-
     } catch {
       setError("Errore nell'eliminazione");
     }
   }, [activeConvId, username]);
 
-  // ── Invia messaggio ───────────────────────────────────────────────────────
-  const sendMessage = useCallback(async () => {
-    if (!activeConvId || !inputText.trim() || isSending) return;
-    const content = inputText.trim();
+  // ── Core invio ────────────────────────────────────────────────────────────
+  const _send = useCallback(async (content: string) => {
+    if (!activeConvId || !content.trim() || isSending) return;
     const tempId = -Date.now();
     const optimisticMessage: Message = {
       id_messaggio: tempId,
@@ -156,16 +155,13 @@ export function useChatViewModel() {
       contenuto: content,
     };
     setMessages(prev => [...prev, optimisticMessage]);
-    setInputText('');
     setIsSending(true);
     try {
       const { message: sentMessage } = await ChatModel.sendMessage(activeConvId, content);
       const { messages: latest } = await ChatModel.getMessages(activeConvId);
       setMessages(prev => {
         const withoutTemp = prev.filter(m => m.id_messaggio !== tempId);
-        // Rimuovi dal server i messaggi già presenti (evita duplicati)
         const existingIds = new Set(withoutTemp.map(m => m.id_messaggio));
-        // Includi il messaggio utente reale se non già presente
         const realUserMsg: Message = { ...sentMessage, mittente: 'Utente', contenuto: content };
         if (!existingIds.has(realUserMsg.id_messaggio)) {
           existingIds.add(realUserMsg.id_messaggio);
@@ -173,14 +169,44 @@ export function useChatViewModel() {
         const newFromServer = latest.filter(m => !existingIds.has(m.id_messaggio));
         return [...withoutTemp, realUserMsg, ...newFromServer];
       });
-
       refreshCart();
     } catch {
       setMessages(prev => prev.filter(m => m.id_messaggio !== tempId));
     } finally {
       setIsSending(false);
     }
-  }, [activeConvId, inputText, isSending, refreshCart]);
+  }, [activeConvId, isSending, refreshCart]);
+
+  // ── Invia messaggio da input ──────────────────────────────────────────────
+  const sendMessage = useCallback(async () => {
+    await _send(inputText.trim());
+    setInputText('');
+  }, [_send, inputText]);
+
+  // ── Trascrizione e invio audio ────────────────────────────────────────────
+  const handleAudioAttach = useCallback(async (file: File) => {
+    try {
+      setIsTranscribing(true)
+      const testo = await trascriviAudio(file, file.name)
+      setInputText(String(testo))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Errore nella trascrizione')
+    } finally {
+      setIsTranscribing(false)
+    }
+  }, [])
+
+  const handleAudioRecord = useCallback(async (blob: Blob) => {
+    try {
+      setIsTranscribing(true)
+      const testo = await trascriviAudio(blob)
+      setInputText(String(testo))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Errore nella trascrizione')
+    } finally {
+      setIsTranscribing(false)
+    }
+  }, [])
 
   // ── Rimuovi dal carrello ──────────────────────────────────────────────────
   const removeFromCart = useCallback(async (cod_art: string) => {
@@ -219,7 +245,6 @@ export function useChatViewModel() {
     error,
     setError,
     messagesEndRef,
-    // azioni
     selectConversation,
     createConversation,
     renameConversation,
@@ -227,5 +252,8 @@ export function useChatViewModel() {
     sendMessage,
     removeFromCart,
     logout,
+    handleAudioRecord,
+    handleAudioAttach,
+    isTranscribing
   };
 }

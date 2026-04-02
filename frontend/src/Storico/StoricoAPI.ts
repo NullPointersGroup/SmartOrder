@@ -20,14 +20,17 @@ export interface StoricoPageSchema {
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 
-/**
- * Recupera lo storico ordini dell'utente autenticato (cliente).
- * Endpoint: GET /storico/miei
- */
 export async function getStoricoCliente(
   pagina: number = 1,
   perPagina: number = 10,
 ): Promise<StoricoPageSchema> {
+  /**
+   * @brief Recupera lo storico ordini dell'utente autenticato (cliente).
+   * @param pagina: il numero della pagina da visualizzare
+   * @param perPagina: il numero di quanti ordini visualizzare ad ogni pagina, di default è 10
+   * @raise ExceptionType Condition or description
+   * @return StoricoPageSchema: lista degli ordini, pagina corrente e e totale pagine
+   */
   console.log("CHIAMATO")
   const params = new URLSearchParams({
     pagina: String(pagina),
@@ -47,14 +50,17 @@ export async function getStoricoCliente(
   return res.json() as Promise<StoricoPageSchema>;
 }
 
-/**
- * Recupera lo storico ordini di tutti i clienti (solo admin).
- * Endpoint: GET /storico/tutti
- */
 export async function getStoricoAdmin(
   pagina: number = 1,
   perPagina: number = 10,
 ): Promise<StoricoPageSchema> {
+  /**
+   * @brief Recupera lo storico ordini di tutti gli utenti
+   * @param pagina: il numero della pagina da visualizzare
+   * @param perPagina: il numero di quanti ordini visualizzare ad ogni pagina, di default è 10
+   * @raise ExceptionType Condition or description
+   * @return StoricoPageSchema: lista degli ordini, pagina corrente e e totale pagine
+   */
   const params = new URLSearchParams({
     pagina: String(pagina),
     per_pagina: String(perPagina),
@@ -73,11 +79,11 @@ export async function getStoricoAdmin(
   return res.json() as Promise<StoricoPageSchema>;
 }
 
-/**
- * Duplica un ordine esistente.
- * Endpoint: POST /storico/duplica/{codice_ordine}
- */
 export async function duplicaOrdine(codiceOrdine: string): Promise<void> {
+  /**
+   * @brief Duplica un ordine esistente
+   * @param codiceOrdine: string il codice dell'Ordine
+   */
   const res = await fetch(`/storico/duplica/${encodeURIComponent(codiceOrdine)}`, {
     method: 'POST',
     credentials: 'include',

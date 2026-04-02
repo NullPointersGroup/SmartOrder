@@ -5,7 +5,11 @@ from src.storico.StoricoRepository import StoricoRepository
 from src.db.models import Ordine, OrdCliDet, Anaart
 
 
-class ConcreteGetOrdiniAdapter(StoricoRepoPort):
+class GetOrdiniAdapter(StoricoRepoPort):
+    
+    """
+    @brief classe che si occupa di delegare alla classe repository i compiti
+    """
 
     def __init__(self, db: Session):
         self.repository = StoricoRepository(db)

@@ -24,6 +24,13 @@ class StoricoService:
         per_pagina: int,
         include_username: bool
     ) -> StoricoPageSchema:
+        """
+        @brief ritorna la visualizzazione degli ordini
+        @param ordini_orm: la lista degli ordini
+        @param totale: il totale di ordini
+        @param per_pagina: il numero di ordini per pagina
+        @return StoricoPageSchema: lista degli ordini, la pagina corrente e il totale delle pagine
+        """
         ordine_ids = [o.id_ord for o in ordini_orm if o.id_ord is not None]
         prodotti_orm = self.repo.get_prodotti_by_ordine_ids(ordine_ids)
 

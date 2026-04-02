@@ -144,6 +144,9 @@ export const ChatView: React.FC = () => {
             onInputChange={vm.setInputText}
             onSend={vm.sendMessage}
             sidebarOpen={false}
+            onAudioAttach={vm.handleAudioAttach}
+            onAudioRecord={vm.handleAudioRecord}
+            isTranscribing={vm.isTranscribing}
           />
         </main>
 

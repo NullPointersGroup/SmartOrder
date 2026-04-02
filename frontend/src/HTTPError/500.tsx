@@ -1,6 +1,9 @@
 import { usePageTitle } from "../hooks/usePageTitle";
 
 export function ServerError() {
+  /**
+  @brief restituisce la pagina 500 nel caso di errore server (ci si augura che non esca mai)
+   */
 
   usePageTitle("Errore server");
 

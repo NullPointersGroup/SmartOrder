@@ -9,6 +9,11 @@ import { NavBar } from '../chat/NavBar';
 import { Profile } from '../chat/Profile';
 
 export const StoricoView: React.FC = () => {
+  /**
+  @brief mostra la pagina dello storico
+  @req RF-OB_87
+  @req RF-OB_88
+   */
   const username = useAuthStore((state) => state.username);
   const admin = useAuthStore((state) => state.admin);
   const clearAuth = useAuthStore((state) => state.clearAuth);
@@ -170,6 +175,7 @@ export const StoricoView: React.FC = () => {
           onChiudi={chiudiDettaglio}
           onDuplica={duplicaOrdine}
           erroreDuplica={erroreDuplica}
+          onRefresh={() => caricaPagina(pagina)}
         />
       )}
     </div>

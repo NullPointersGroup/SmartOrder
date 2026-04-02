@@ -5,6 +5,10 @@ from sqlalchemy import Column, Float, String, Enum
 from sqlmodel import SQLModel, Field
 from src.enums import MeasureUnitEnum, SenderEnum
 
+"""
+@brief Questo file definisce tutte le tabelle presenti nel DB
+"""
+
 class Utentiweb(SQLModel, table=True):
     __tablename__: ClassVar[str] = "utentiweb"
 
