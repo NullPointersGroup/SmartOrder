@@ -43,6 +43,20 @@ function PasswordField({
   autoComplete = "off",
   children,
 }: PasswordFieldProps) {
+  /**
+  @brief Restituisce il form per reimpostare la password
+  @param l'interfaccia PasswordFieldProps
+  @req RF-DE_16
+  @req RF-DE_17
+  @req RF-DE_18
+  @req RF-DE_19
+  @req RF-DE_20
+  @req RF-DE_21
+  @req RF-DE_22
+  @req RF-DE_23
+  @req RF-DE_24
+  @req RF-DE_25
+   */
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-sm font-medium text-(--text-2)">

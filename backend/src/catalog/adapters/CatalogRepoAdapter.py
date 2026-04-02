@@ -1,6 +1,6 @@
 from src.catalog.CatalogSchemas import CatalogProduct
 from src.db.models import Anaart
-from src.catalog.adapters.CatalogRepository import CatalogRepository
+from src.catalog.CatalogRepository import CatalogRepository
 from src.catalog.ports.CatalogRepoPort import CatalogRepoPort
 from src.enums import MeasureUnitEnum
 

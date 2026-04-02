@@ -7,9 +7,20 @@ from src.db.models import Ordine, OrdCliDet, Anaart
 class StoricoRepository:
 
     def __init__(self, db: Session):
+        """
+        @brief Inizializza il repository con la sessione di database.
+        @param db Sessione SQLModel attiva.
+        """
         self.db = db
 
     def get_ordini_by_username(self, username: str, pagina: int, per_pagina: int) -> Tuple[List[Ordine], int]:
+        """
+        @brief Recupera gli ordini di un cliente specifico con paginazione.
+        @param username Username del cliente di cui recuperare gli ordini.
+        @param pagina   Numero della pagina richiesta (base 1).
+        @param per_pagina Numero di ordini per pagina.
+        @return Tupla (lista di Ordine, totale ordini del cliente).
+        """
         totale = self.db.exec(
             select(func.count()).select_from(Ordine).where(Ordine.username == username)
         ).one()
@@ -23,6 +34,12 @@ class StoricoRepository:
         return ordini, totale
 
     def get_all_ordini(self, pagina: int, per_pagina: int) -> Tuple[List[Ordine], int]:
+        """
+        @brief Recupera tutti gli ordini di tutti i clienti con paginazione.
+        @param pagina     Numero della pagina richiesta (base 1).
+        @param per_pagina Numero di ordini per pagina.
+        @return Tupla (lista di Ordine, totale ordini nel sistema).
+        """
         totale = self.db.exec(select(func.count()).select_from(Ordine)).one()
         ordini = list(self.db.exec(
             select(Ordine)
@@ -33,6 +50,11 @@ class StoricoRepository:
         return ordini, totale
 
     def get_prodotti_by_ordine_ids(self, ordine_ids: List[int]) -> List[Tuple[OrdCliDet, Anaart]]:
+        """
+        @brief Recupera i prodotti associati a una lista di ordini.
+        @param ordine_ids Lista di id_ord di cui recuperare i prodotti.
+        @return Lista di tuple (OrdCliDet, Anaart); lista vuota se ordine_ids è vuota.
+        """
         if not ordine_ids:
             return []
         return list(self.db.exec(
@@ -42,6 +64,13 @@ class StoricoRepository:
         ).all())
 
     def duplica_ordine(self, codice_ordine: str, username: str) -> Ordine:
+        """
+        @brief Duplica un ordine esistente assegnandolo all'utente indicato con la data odierna.
+        @param codice_ordine Codice (id) dell'ordine da duplicare.
+        @param username      Username del cliente a cui intestare il nuovo ordine.
+        @raise ValueError    Se l'ordine con il codice indicato non esiste.
+        @return Il nuovo Ordine creato e persistito.
+        """
         id_ord = int(codice_ordine)
         originale = self.db.get(Ordine, id_ord)
         if originale is None:
@@ -51,7 +80,8 @@ class StoricoRepository:
             select(OrdCliDet).where(OrdCliDet.id_ord == id_ord)
         ).all())
 
-        nuovo_id = self.db.exec(select(func.max(Ordine.id_ord))).one()
+        max_id = self.db.exec(select(func.max(Ordine.id_ord))).one()
+        nuovo_id = (max_id or 0) + 1
 
         nuovo_ordine = Ordine(id_ord=nuovo_id, username=username, data=date.today())
         self.db.add(nuovo_ordine)

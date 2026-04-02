@@ -4,7 +4,7 @@ from pathlib import Path
 from sqlmodel import create_engine, Session, select, func
 from datetime import date
 from sqlalchemy import text
-
+from sqlalchemy.exc import IntegrityError
 from src.db.models import Ordine, OrdCliDet, Anaart
 from src.storico.StoricoRepository import StoricoRepository
 from src.enums import MeasureUnitEnum
@@ -179,14 +179,47 @@ def test_duplica_ordine_not_found(session, sample_data):
         repo.duplica_ordine("999", "user1")
 
 
-def test_duplica_ordine(session, sample_data):
-    """Test that duplicating an order raises duplicate key error due to bug."""
+def test_duplica_ordine_crea_nuovo_ordine(session, sample_data):
     repo = StoricoRepository(session)
 
-    max_id = session.exec(select(func.max(Ordine.id_ord))).one()
-    assert max_id == 3
+    # Ordine originale
+    originale = sample_data["orders"][0]
+    username_nuovo = "newuser"
 
-    with pytest.raises(Exception) as exc_info:
-        repo.duplica_ordine("1", "newuser")
+    nuovo_ordine = repo.duplica_ordine(str(originale.id_ord), username_nuovo)
 
-    assert "duplicate key" in str(exc_info.value).lower()
+    # Controlla che l'ordine originale non sia stato modificato
+    assert originale.username == "user1"
+
+    # Controlla che sia stato creato un nuovo id_ord
+    assert nuovo_ordine.id_ord != originale.id_ord
+    assert nuovo_ordine.username == username_nuovo
+    assert nuovo_ordine.data == date.today()
+
+    # Controlla che i dettagli siano stati copiati
+    dettagli_originali = session.exec(
+        select(OrdCliDet).where(OrdCliDet.id_ord == originale.id_ord)
+    ).all()
+    dettagli_nuovo = session.exec(
+        select(OrdCliDet).where(OrdCliDet.id_ord == nuovo_ordine.id_ord)
+    ).all()
+
+    assert len(dettagli_originali) == len(dettagli_nuovo)
+    for d_orig, d_nuovo in zip(dettagli_originali, dettagli_nuovo):
+        assert d_orig.cod_art == d_nuovo.cod_art
+        assert d_orig.qta_ordinata == d_nuovo.qta_ordinata
+
+def test_duplica_ordine_non_esiste(session, sample_data):
+    repo = StoricoRepository(session)
+    with pytest.raises(ValueError, match="Ordine '999' non trovato"):
+        repo.duplica_ordine("999", "newuser")
+
+def test_duplica_ordine_piu_volte_crea_id_unici(session, sample_data):
+    repo = StoricoRepository(session)
+    ordine_originale = sample_data["orders"][0]
+
+    ordine1 = repo.duplica_ordine(str(ordine_originale.id_ord), "user1")
+    ordine2 = repo.duplica_ordine(str(ordine_originale.id_ord), "user1")
+
+    assert ordine1.id_ord != ordine2.id_ord
+    assert ordine1.username == ordine2.username == "user1"

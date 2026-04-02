@@ -56,7 +56,7 @@ export default function Form({ title, submitLabel, fields, vm }: FormProps) {
                     border: '1px solid var(--border)',
                     color: 'var(--text-1)',
                   }}
-                  onFocus={e => (e.target.style.borderColor = 'var(--color-2)')}
+                  onFocus={e => (e.target.style.borderColor = 'var(--color-3)')}
                   onBlurCapture={e => (e.target.style.borderColor = 'var(--border)')}
                 />
                 {isPassword && (
@@ -92,7 +92,7 @@ export default function Form({ title, submitLabel, fields, vm }: FormProps) {
           disabled={loading}
           className="w-full font-semibold text-base rounded-lg transition-all duration-150 disabled:opacity-50 mt-2 h-12"
           style={{
-            backgroundColor: 'var(--color-2)',
+            backgroundColor: 'var(--color-3)',
             color: 'var(--bg-3)',
             border: '1px solid transparent',
           }}
@@ -104,7 +104,7 @@ export default function Form({ title, submitLabel, fields, vm }: FormProps) {
           }}
           onMouseLeave={e => {
             const btn = e.currentTarget;
-            btn.style.backgroundColor = 'var(--color-2)';
+            btn.style.backgroundColor = 'var(--color-3)';
             btn.style.color = 'var(--bg-3)';
             btn.style.borderColor = 'transparent';
           }}

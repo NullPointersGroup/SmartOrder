@@ -4,6 +4,24 @@ import { useAuthStore } from '../auth/authStore'
 import { getStoricoCliente, getStoricoAdmin, duplicaOrdine as apiDuplicaOrdine } from './StoricoAPI'
 
 export function useStoricoViewModel() {
+  /**
+   * @brief ViewModel per la gestione dello storico ordini.
+   *   Espone stato e azioni per caricare, visualizzare e duplicare ordini,
+   *   adattando il comportamento al ruolo dell'utente (cliente o admin).
+   * @return Oggetto contenente:
+   *   - ordini: lista degli ordini della pagina corrente
+   *   - pagina: numero della pagina attualmente visualizzata
+   *   - totalePagine: numero totale di pagine disponibili
+   *   - ordineScelto: ordine selezionato per il dettaglio, null se nessuno
+   *   - loading: true durante il caricamento degli ordini
+   *   - errore: messaggio di errore del caricamento, null se assente
+   *   - erroreDuplica: messaggio di errore della duplicazione, null se assente
+   *   - isAdmin: true se l'utente autenticato ha ruolo admin
+   *   - caricaPagina: funzione asincrona per caricare una pagina di ordini
+   *   - apriDettaglio: funzione per selezionare un ordine e aprirne il dettaglio
+   *   - chiudiDettaglio: funzione per deselezionare l'ordine e chiudere il dettaglio
+   *   - duplicaOrdine: funzione asincrona per duplicare un ordine tramite codice
+   */
   const [pagina, setPagina] = useState(1)
   const [ordini, setOrdini] = useState<Ordine[]>([])
   const [totalePagine, setTotalePagine] = useState(1)

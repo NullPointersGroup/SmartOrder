@@ -8,6 +8,9 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: Readonly<ProtectedRouteProps>) {
+  /**
+  @brief impedisce l'accesso ad un utente non autenticato ad una qualsiasi pagina
+   */
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const setAuth = useAuthStore((state) => state.setAuth);
 

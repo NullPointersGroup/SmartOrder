@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
 import type { Message } from './ChatModel';
 
@@ -13,9 +13,15 @@ interface Props {
   onSend: () => void;
   onAudioAttach?: (file: File) => void;
   onAudioRecord?: (blob: Blob) => void;
+  /** When true (narrow screen + sidebar open) the input bar stays fixed at the bottom */
+  sidebarOpen?: boolean;
+  isTranscribing?: boolean;
 }
 
 function TypingIndicator() {
+  /**
+  @brief mostra l'indicatore "sta scrivendo" mentre l'AI sta elaborando la risposta
+   */
   return (
     <output className="flex items-end gap-2 mb-4" aria-label="Il chatbot sta scrivendo">
       <div className="w-7 h-7 rounded-full bg-(--color-1) flex items-center justify-center shrink-0">
@@ -39,6 +45,13 @@ function TypingIndicator() {
 
 function MessageBubble({ msg }: { readonly msg: Message }) {
   const isUser = msg.mittente.toLowerCase() === 'utente';
+  /**
+  @brief Renderizza un singolo messaggio nella chat, distinguendo tra utente e AI.
+  @param msg Messaggio da visualizzare.
+  @req RF-DE_131
+  @req RF-DE_132
+  @req RF-DE_133
+   */
   return (
     <div className={`flex items-end gap-2 mb-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       <div
@@ -77,16 +90,58 @@ export const ChatArea: React.FC<Props> = ({
   onSend,
   onAudioAttach,
   onAudioRecord,
+  sidebarOpen = false,
+  isTranscribing = false,
 }) => {
+  /**
+  @brief restituisce la chat area
+  @param l'interfaccia Props
+  @req RF-OB_32
+  @req RF-OB_33
+  @req RF-OB_34
+  @req RF-OB_35
+  @req RF-OB_36
+  @req RF-OB_37
+  @req RF-OB_38
+  @req RF-OB_39
+  @req RF-OB_40
+  @req RF-OB_41
+  @req RF-OB_42
+  @req RF-OB_43
+  @req RF-OB_44
+  @req RF-OB_45
+  @req RF-OB_46
+  @req RF-OB_47
+  @req RF-OB_48
+  @req RF-OB_49
+  @req RF-OB_50
+  @req RF-OB_51
+  @req RF-OB_52
+  @req RF-OB_53
+  @req RF-DE_26
+  @req RF-DE_129
+  @req RF-DE_130
+  @req RF-OP_15
+   */
   const MAX_CHARS = 4096;
   const MAX_FILE_MB = 10;
-  const MAX_DURATION_MIN = 120;
   const isOverLimit = inputText.length > MAX_CHARS;
 
   const [isRecording, setIsRecording] = React.useState(false);
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
   const audioChunksRef = React.useRef<Blob[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [recordingSeconds, setRecordingSeconds] = React.useState(0)
+  const recordingIntervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null)
+  const [recordingError, setRecordingError] = React.useState<string | null>(null)
+
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (!isTranscribing && inputText) {
+      textareaRef.current?.focus()
+    }
+  }, [isTranscribing, inputText])
 
   const counterColorClass = isOverLimit
     ? 'text-(--oth-1) font-semibold'
@@ -98,9 +153,11 @@ export const ChatArea: React.FC<Props> = ({
     if (!hasActiveConv || isSending) return;
 
     if (isRecording) {
-      mediaRecorderRef.current?.stop();
-      setIsRecording(false);
-      return;
+      mediaRecorderRef.current?.stop()
+      setIsRecording(false)
+      clearInterval(recordingIntervalRef.current!)
+      setRecordingSeconds(0)
+      return
     }
 
     try {
@@ -119,51 +176,75 @@ export const ChatArea: React.FC<Props> = ({
       };
 
       mediaRecorderRef.current = recorder;
-      recorder.start();
-      setIsRecording(true);
+      recorder.start()
+      setIsRecording(true)
+      setRecordingSeconds(0)
+      setRecordingError(null)
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingSeconds(s => {
+          if (s + 1 >= 120) {
+            mediaRecorderRef.current?.stop()
+            setIsRecording(false)
+            clearInterval(recordingIntervalRef.current!)
+            setRecordingError('Il messaggio vocale non può superare i 120 secondi.')
+            return 0
+          }
+          return s + 1
+        })
+      }, 1000)
     } catch {
       alert('Impossibile accedere al microfono. Controlla i permessi del browser.');
     }
   }
 
   function handleClipClick() {
+    /**
+    @brief gestisce cosa succede dopo il click della clip
+     */
     if (!hasActiveConv || isSending) return;
     fileInputRef.current?.click();
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    /**
+    @brief gestisce il controllo del file
+     */
+    const file = e.target.files?.[0]
+    if (!file) return
 
-    // Controllo dimensione: max 10 MB ----------------------->da vedere se mettere solo in backend o anche qui
     if (file.size > MAX_FILE_MB * 1024 * 1024) {
-      alert(`Il file non può superare i ${MAX_FILE_MB} MB.`);
-      e.target.value = '';
-      return;
+      alert(`Il file non può superare i ${MAX_FILE_MB} MB.`)
+      e.target.value = ''
+      return
     }
 
-    // Controllo durata: max 120 minuti----------------------->da vedere se mettere solo in backend o anche qui
-    const url = URL.createObjectURL(file);
-    const audio = new Audio(url);
+    const url = URL.createObjectURL(file)
+    const audio = new Audio(url)
 
     audio.onloadedmetadata = () => {
-      URL.revokeObjectURL(url);
-      if (audio.duration > MAX_DURATION_MIN * 60) {
-        alert(`Il file audio non può superare i ${MAX_DURATION_MIN} minuti.`);
-        return;
+      if (audio.duration > 120 * 60) {
+        alert('La durata non può superare 120 minuti')
+        URL.revokeObjectURL(url)
+        e.target.value = ''
+        return
       }
-      onAudioAttach?.(file);
-    };
+
+      onAudioAttach?.(file)
+      URL.revokeObjectURL(url)
+      e.target.value = ''
+    }
 
     audio.onerror = () => {
-      URL.revokeObjectURL(url);
-      alert('Impossibile leggere il file audio. Verifica che il formato sia supportato.');
-    };
-
-    e.target.value = '';
+      alert('Impossibile leggere il file audio')
+      URL.revokeObjectURL(url)
+      e.target.value = ''
+    }
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    /**
+    @brief invia il messaggio dopo aver premuto invio
+     */
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onSend();
@@ -231,14 +312,20 @@ export const ChatArea: React.FC<Props> = ({
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-(--border) bg-(--bg-3) px-4 py-3">
+      <div className={`border-t border-(--border) bg-(--bg-3) px-4 py-3 ${sidebarOpen ? 'sticky bottom-0 z-10' : ''}`}>
         {/* Indicatore registrazione attiva */}
         {isRecording && (
           <output className="flex items-center gap-2 mb-2 px-1" aria-live="assertive">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" aria-hidden="true" />
             <span className="text-xs text-(--error) font-medium">
-              Registrazione in corso…
+              Registrazione in corso… {recordingSeconds}s / 120s
             </span>
+          </output>
+        )}
+
+        {recordingError && (
+          <output className="flex items-center gap-2 mb-2 px-1 text-(--error)" aria-live="assertive">
+            <span className="text-xs font-medium">{recordingError}</span>
           </output>
         )}
 
@@ -268,12 +355,13 @@ export const ChatArea: React.FC<Props> = ({
           
           {/* Textarea */}
           <textarea
+            ref={textareaRef}
             className="flex-1 resize-none bg-transparent text-sm text-(--text-1) placeholder:text-(--text-4) focus:outline-none min-h-9 max-h-40 leading-relaxed disabled:cursor-not-allowed"
-            placeholder={hasActiveConv ? 'Scrivi un messaggio… (Invio per inviare)' : 'Seleziona una conversazione'}
+            placeholder={isTranscribing ? 'Trascrizione in corso…' : hasActiveConv ? 'Scrivi un messaggio…' : 'Seleziona una conversazione'}
             value={inputText}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
-            disabled={!hasActiveConv || isSending}
+            disabled={!hasActiveConv || isSending || isTranscribing}
             rows={1}
             aria-label="Campo di testo per il messaggio"
             aria-multiline="true"
@@ -331,10 +419,17 @@ export const ChatArea: React.FC<Props> = ({
         <input
           ref={fileInputRef}
           type="file"
-          accept=".mp3,.m4a,.m4p,.wav,audio/mpeg,audio/mp4,audio/wav"
+          accept=".mp3,.m4a,.flac,.wav,.webm,audio/mpeg,audio/flac,audio/wav,audio/webm"
           className="hidden"
           onChange={handleFileChange}
         />
+
+        {isTranscribing && (
+          <output className="flex items-center gap-2 mb-2 px-1" aria-live="assertive">
+            <div className="w-3 h-3 border-2 border-(--border) border-t-(--color-2) rounded-full animate-spin" />
+            <span className="text-xs text-(--text-4) font-medium">Trascrizione in corso…</span>
+          </output>
+        )}
 
         <div className="flex items-center justify-between mt-1.5 px-1">
           <p className="text-xs text-(--text-4)">Invio per inviare · Shift+Invio per andare a capo</p>
