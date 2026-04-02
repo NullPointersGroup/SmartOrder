@@ -10,10 +10,19 @@ from src.cart.adapters.CartProductRepository import CartProductRepository
 
 class CartRepository:
     def __init__(self, db: Session) -> None:
+        """
+        @brief Inizializza il repository del carrello con la sessione del database
+        @param db Sessione SQLModel per le operazioni sul database
+        """
         self.db = db
 
     ## TODO spostare Anaart in cartella condivisa tra Cart e Catalog, e rinominarlo in ProductRepository
     def get_products(self, username: str) -> list[CartProductRepository]:
+        """
+        @brief Recupera tutti i prodotti nel carrello di un utente
+        @param username Nome dell'utente
+        @return Lista di CartProductRepository con dati prodotto e quantità
+        """
         stmt = (
             select(Carrello, Anaart)
             .join(
@@ -38,6 +47,14 @@ class CartRepository:
     def add_product(
         self, prod_id: str, username: str, qty: int
     ) -> CartProductRepository:
+        """
+        @brief Aggiunge un prodotto al carrello dell'utente
+        @param prod_id ID del prodotto da aggiungere
+        @param username Nome dell'utente
+        @param qty Quantità del prodotto
+        @return CartProductRepository con i dati del prodotto aggiunto
+        @throws ProductNotFoundException se il prodotto non esiste nel catalogo
+        """
         stmt = select(Anaart).where(
             Anaart.prod_id == prod_id
         )
@@ -61,6 +78,13 @@ class CartRepository:
         )
 
     def remove_product(self, username: str, prod_id: str) -> CartProductRepository:
+        """
+        @brief Rimuove un prodotto dal carrello dell'utente
+        @param username Nome dell'utente
+        @param prod_id ID del prodotto da rimuovere
+        @return CartProductRepository con i dati del prodotto rimosso
+        @throws ProductNotInCartException se il prodotto non è presente nel carrello
+        """
         stmt = (
             select(Carrello, Anaart)
             .join(
@@ -95,6 +119,15 @@ class CartRepository:
     def update_quantity(
         self, username: str, prod_id: str, qty: int, operation: CartUpdateOperation
     ) -> CartProductRepository:
+        """
+        @brief Aggiorna la quantità di un prodotto nel carrello
+        @param username Nome dell'utente
+        @param prod_id ID del prodotto da aggiornare
+        @param qty Quantità da aggiungere o sottrarre
+        @param operation Tipo di operazione (Add = incrementa, Subtract = decrementa)
+        @return CartProductRepository con i dati del prodotto aggiornato
+        @throws ProductNotInCartException se il prodotto non è presente nel carrello
+        """
         stmt = (
             select(Carrello, Anaart)
             .join(

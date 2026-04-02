@@ -517,7 +517,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
   });
 
   it('mostra alert se getUserMedia fallisce', async () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
     const { Ctor } = makeMediaRecorderMock();
     globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
     Object.defineProperty(navigator, 'mediaDevices', {
@@ -623,7 +623,7 @@ describe('ChatArea – handleFileChange', () => {
   });
 
   it('mostra alert e non chiama onAudioAttach se il file supera 10 MB', () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
     const onAudioAttach = vi.fn();
     const { container } = renderChat({ hasActiveConv: true, onAudioAttach });
     const bigFile = makeFile(11 * 1024 * 1024);
@@ -654,7 +654,7 @@ describe('ChatArea – handleFileChange', () => {
   });
 
   it('mostra alert se la durata supera 120 minuti', () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
     const onAudioAttach = vi.fn();
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
@@ -675,7 +675,7 @@ describe('ChatArea – handleFileChange', () => {
   });
 
   it('mostra alert se il file audio è corrotto (onerror)', () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
     const mockAudio = {

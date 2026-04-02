@@ -8,6 +8,10 @@ import { Profile } from './Profile'
 import { usePageTitle } from '../hooks/usePageTitle';
 
 export const ChatView: React.FC = () => {
+  /**
+   * @brief Componente principale della chat, gestisce layout, sidebar responsive e notifiche
+   * @return JSX della vista chat completa
+   */
   usePageTitle("Chat");
   const vm = useChatViewModel();
   const { error, setError } = vm;
@@ -18,6 +22,10 @@ export const ChatView: React.FC = () => {
 
   // Detect viewport width below 960px
   useEffect(() => {
+    /**
+     * @brief Rileva la larghezza della viewport per attivare layout responsive
+     * @return Cleanup function per rimuovere il listener
+     */
     const mq = globalThis.matchMedia('(max-width: 959px)');
     const handler = (e: MediaQueryListEvent | MediaQueryList) => {
       setIsNarrow(e.matches);
@@ -34,15 +42,25 @@ export const ChatView: React.FC = () => {
 
   // Wrappers that enforce mutual exclusion on narrow screens
   const openLeft = () => {
+    /**
+     * @brief Apre la sidebar sinistra, chiudendo quella destra in modalità narrow
+     */
     setIsLeftOpen(true);
     if (isNarrow) setIsRightOpen(false);
   };
   const openRight = () => {
+    /**
+     * @brief Apre la sidebar destra, chiudendo quella sinistra in modalità narrow
+     */
     setIsRightOpen(true);
     if (isNarrow) setIsLeftOpen(false);
   };
 
   useEffect(() => {
+    /**
+     * @brief Mostra un toast di errore per 4 secondi, poi lo rimuove automaticamente
+     * @return Cleanup function per cancellare il timeout
+     */
     if (!error) return;
     const t = setTimeout(() => setError(null), 4000);
     return () => clearTimeout(t);

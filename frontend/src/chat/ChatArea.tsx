@@ -44,6 +44,7 @@ function TypingIndicator() {
 }
 
 function MessageBubble({ msg }: { readonly msg: Message }) {
+  const isUser = msg.mittente.toLowerCase() === 'utente';
   /**
   @brief Renderizza un singolo messaggio nella chat, distinguendo tra utente e AI.
   @param msg Messaggio da visualizzare.
@@ -51,7 +52,6 @@ function MessageBubble({ msg }: { readonly msg: Message }) {
   @req RF-DE_132
   @req RF-DE_133
    */
-  const isUser = msg.mittente.toLowerCase() === 'utente';
   return (
     <div className={`flex items-end gap-2 mb-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       <div
@@ -118,10 +118,10 @@ export const ChatArea: React.FC<Props> = ({
   @req RF-OB_51
   @req RF-OB_52
   @req RF-OB_53
-  @req RF-OP_15
   @req RF-DE_26
   @req RF-DE_129
   @req RF-DE_130
+  @req RF-OP_15
    */
   const MAX_CHARS = 4096;
   const MAX_FILE_MB = 10;
@@ -198,11 +198,17 @@ export const ChatArea: React.FC<Props> = ({
   }
 
   function handleClipClick() {
+    /**
+    @brief gestisce cosa succede dopo il click della clip
+     */
     if (!hasActiveConv || isSending) return;
     fileInputRef.current?.click();
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    /**
+    @brief gestisce il controllo del file
+     */
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -236,6 +242,9 @@ export const ChatArea: React.FC<Props> = ({
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    /**
+    @brief invia il messaggio dopo aver premuto invio
+     */
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onSend();

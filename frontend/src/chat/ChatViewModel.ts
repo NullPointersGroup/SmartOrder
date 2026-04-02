@@ -4,6 +4,10 @@ import type { Message, Conversation, CartProduct } from './ChatModel'
 import { trascriviAudio } from '../recording/RecordingAPI'
 
 export function useChatViewModel() {
+  /**
+   * @brief ViewModel per la chat, gestisce stato e logica di business
+   * @return Oggetto con stato e funzioni per la vista chat
+  */
   // ── Stato ─────────────────────────────────────────────────────────────────
   const [username, setUsername]           = useState<string | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -76,6 +80,9 @@ export function useChatViewModel() {
 
   // ── Aggiorna carrello ─────────────────────────────────────────────────────
   const refreshCart = useCallback(async () => {
+    /**
+     * @brief Aggiorna i prodotti del carrello dall'API
+     */
     if (!username) return;
     try {
       const cart = await ChatModel.getCart(username);
@@ -92,6 +99,9 @@ export function useChatViewModel() {
 
   // ── Crea nuova conversazione ──────────────────────────────────────────────
   const createConversation = useCallback(async () => {
+    /**
+     * @brief Crea una nuova conversazione con titolo predefinito
+     */
     if (!username) return;
     try {
       const conv = await ChatModel.createConversation(username, 'Nuova conversazione');
@@ -118,6 +128,10 @@ export function useChatViewModel() {
 
   // ── Elimina conversazione ─────────────────────────────────────────────────
   const deleteConversation = useCallback(async (conv_id: number) => {
+    /**
+     * @brief Elimina una conversazione e gestisce la selezione della successiva
+     * @param conv_id ID della conversazione da eliminare
+     */
     try {
       await ChatModel.deleteConversation(conv_id);
 
@@ -147,6 +161,10 @@ export function useChatViewModel() {
 
   // ── Core invio ────────────────────────────────────────────────────────────
   const _send = useCallback(async (content: string) => {
+    /**
+     * @brief Invia un messaggio con ottimistic update
+     * @param content Contenuto del messaggio da inviare
+     */
     if (!activeConvId || !content.trim() || isSending) return;
     const tempId = -Date.now();
     const optimisticMessage: Message = {
@@ -179,12 +197,19 @@ export function useChatViewModel() {
 
   // ── Invia messaggio da input ──────────────────────────────────────────────
   const sendMessage = useCallback(async () => {
+    /**
+     * @brief Invia il messaggio dall'input text e lo svuota
+     */
     await _send(inputText.trim());
     setInputText('');
   }, [_send, inputText]);
 
   // ── Trascrizione e invio audio ────────────────────────────────────────────
   const handleAudioAttach = useCallback(async (file: File) => {
+    /**
+     * @brief Trascrive un file audio allegato e lo inserisce nell'input
+     * @param file File audio da trascrivere
+     */
     try {
       setIsTranscribing(true)
       const testo = await trascriviAudio(file, file.name)
@@ -197,6 +222,10 @@ export function useChatViewModel() {
   }, [])
 
   const handleAudioRecord = useCallback(async (blob: Blob) => {
+    /**
+     * @brief Trascrive un audio registrato e lo inserisce nell'input
+     * @param blob Blob audio registrato
+     */
     try {
       setIsTranscribing(true)
       const testo = await trascriviAudio(blob)
@@ -210,6 +239,10 @@ export function useChatViewModel() {
 
   // ── Rimuovi dal carrello ──────────────────────────────────────────────────
   const removeFromCart = useCallback(async (cod_art: string) => {
+    /**
+     * @brief Rimuove un prodotto dal carrello
+     * @param cod_art ID del prodotto da rimuovere
+     */
     if (!username) return;
     try {
       await ChatModel.removeFromCart(username, cod_art);
@@ -221,6 +254,9 @@ export function useChatViewModel() {
 
   // ── Logout ────────────────────────────────────────────────────────────────
   const logout = useCallback(async () => {
+    /**
+     * @brief Effettua il logout e reindirizza alla home
+     */
     await ChatModel.logout().catch(() => {});
     globalThis.location.href = '/';
   }, []);

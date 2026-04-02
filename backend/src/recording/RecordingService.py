@@ -21,6 +21,13 @@ class RecordingService:
         self._repo = repo
 
     async def trascrivi_audio(self, audio_bytes: bytes, filename: str) -> str:
+        """
+        @brief Trascrive un file audio in testo, validandone durata e dimensione
+        @param audio_bytes Contenuto del file audio in bytes
+        @param filename Nome del file per estrarre l'estensione
+        @return Testo trascritto dall'API di riconoscimento vocale
+        @throws ValueError se file vuoto, troppo grande, formato non supportato o troppo lungo
+        """
         if not audio_bytes:
             raise ValueError("Il file audio è vuoto.")
 

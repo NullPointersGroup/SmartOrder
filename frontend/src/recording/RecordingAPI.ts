@@ -1,5 +1,11 @@
 export async function trascriviAudio(blob: Blob, filename = 'audio.webm'): Promise<string> {
-  console.log("Chiamato")
+    /**
+   * @brief Invia un file audio al backend per la trascrizione in testo
+   * @param blob File o blob audio da trascrivere
+   * @param filename Nome del file (default 'audio.webm')
+   * @return Promise con il testo trascritto
+   * @throws Error se la richiesta fallisce o la trascrizione non riesce
+   */
   const formData = new FormData()
   formData.append('file', blob, filename)
 
@@ -11,7 +17,6 @@ export async function trascriviAudio(blob: Blob, filename = 'audio.webm'): Promi
 
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
-    console.log(data)
     throw new Error(data.detail ?? 'Errore nella trascrizione audio')
   }
 

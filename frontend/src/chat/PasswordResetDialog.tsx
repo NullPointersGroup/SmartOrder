@@ -7,6 +7,9 @@ type Props = {
 }
 
 export const PasswordResetDialog: React.FC<Props> = ({ onClose, handleReset }) => {
+  /**
+  @brief restituisce il dialog di password reimpostata
+   */
   const [resetSuccess, setResetSuccess] = useState(false)
 
   const handleResetInternal = async (oldPassword: string, newPassword: string): Promise<string | null> => {

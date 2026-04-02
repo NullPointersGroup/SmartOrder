@@ -7,9 +7,9 @@ export interface ProdottoSchema {
 
 export interface OrdineSchema {
   codice_ordine: string;
-  data: string;           // ISO 8601, es. "2024-03-15T10:30:00"
+  data: string;
   prodotti: ProdottoSchema[];
-  cliente?: string;       // presente solo nella vista admin
+  cliente?: string;
 }
 
 export interface StoricoPageSchema {
