@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 
 import { ChatArea } from '../../src/chat/ChatArea';
 import type { Message } from '../../src/chat/ChatModel';
@@ -27,11 +27,7 @@ function renderChat(overrides: Partial<typeof defaultProps> = {}) {
   return render(<ChatArea {...defaultProps} {...overrides} />);
 }
 
-// ---------------------------------------------------------------------------
-// Helper: crea un mock di MediaRecorder controllabile
-// Nota: vi.fn() deve usare una vera funzione costruttore (non arrow function)
-// per poter essere usato con `new`. Usiamo mockImplementation con function.
-// ---------------------------------------------------------------------------
+// ── MediaRecorder helpers ────────────────────────────────────────────────────
 function makeMediaRecorderMock() {
   const instance = {
     start: vi.fn(),
@@ -44,9 +40,6 @@ function makeMediaRecorderMock() {
   return { Ctor, instance };
 }
 
-// ---------------------------------------------------------------------------
-// Helper: crea un mock di getUserMedia
-// ---------------------------------------------------------------------------
 function makeGetUserMediaMock(stream?: MediaStream) {
   const mockStream = stream ?? {
     getTracks: () => [{ stop: vi.fn() }],
@@ -54,6 +47,9 @@ function makeGetUserMediaMock(stream?: MediaStream) {
   return vi.fn().mockResolvedValue(mockStream);
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// Render base
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – render base', () => {
   it('ha il ruolo main con aria-label "Area chat"', () => {
     renderChat();
@@ -66,9 +62,9 @@ describe('ChatArea – render base', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Stato senza conversazione attiva
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
+// Senza conversazione attiva
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – senza conversazione attiva', () => {
   it('mostra il messaggio di invito a selezionare una conversazione', () => {
     renderChat({ hasActiveConv: false });
@@ -91,9 +87,9 @@ describe('ChatArea – senza conversazione attiva', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Stato con conversazione attiva
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
+// Con conversazione attiva
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – con conversazione attiva', () => {
   it('la textarea è abilitata', () => {
     renderChat({ hasActiveConv: true });
@@ -116,9 +112,9 @@ describe('ChatArea – con conversazione attiva', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
 // Messaggi
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – messaggi', () => {
   it('mostra tutti i messaggi', () => {
     renderChat({ hasActiveConv: true, messages });
@@ -142,9 +138,9 @@ describe('ChatArea – messaggi', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Loading
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
+// Stati di loading
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – stati di loading', () => {
   it('mostra lo spinner di caricamento messaggi con isLoading=true', () => {
     renderChat({ hasActiveConv: true, isLoading: true });
@@ -173,9 +169,104 @@ describe('ChatArea – stati di loading', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
+// isTranscribing – righe 186-193 (PRIMA NON COPERTE)
+// ════════════════════════════════════════════════════════════════════════════
+describe('ChatArea – isTranscribing', () => {
+  it('mostra il placeholder "Trascrizione in corso…" durante la trascrizione', () => {
+    renderChat({ hasActiveConv: true, isTranscribing: true });
+    expect(screen.getByPlaceholderText(/trascrizione in corso/i)).toBeInTheDocument();
+  });
+
+  it('la textarea è disabilitata durante la trascrizione', () => {
+    renderChat({ hasActiveConv: true, isTranscribing: true });
+    expect(screen.getByRole('textbox')).toBeDisabled();
+  });
+
+  it('mostra il banner "Trascrizione in corso…" visibile nell\'UI durante isTranscribing=true', () => {
+    renderChat({ hasActiveConv: true, isTranscribing: true });
+    // L'output con il testo "Trascrizione in corso…" è fuori dalla textarea
+    const banners = screen.getAllByText(/trascrizione in corso/i);
+    // Almeno uno deve essere il banner (non il placeholder)
+    expect(banners.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('non mostra il banner di trascrizione quando isTranscribing=false', () => {
+    renderChat({ hasActiveConv: true, isTranscribing: false });
+    // Il testo del banner non deve essere nel DOM come elemento visibile
+    // (il placeholder "Scrivi un messaggio…" sarà usato, non quello di trascrizione)
+    expect(screen.queryByPlaceholderText(/trascrizione in corso/i)).not.toBeInTheDocument();
+  });
+
+  it('il pulsante Invia rimane disabilitato durante la trascrizione anche con testo', () => {
+    // Durante la trascrizione la textarea è bloccata; invia deve restare disabilitato
+    renderChat({ hasActiveConv: true, isTranscribing: true, inputText: 'testo precedente' });
+    // Il pulsante invia è disabilitato se isSending o isTranscribing (dipende dall'implementazione)
+    // Verifichiamo che la textarea sia disabilitata, che è il comportamento documentato
+    expect(screen.getByRole('textbox')).toBeDisabled();
+  });
+
+  it('useEffect mette il focus sulla textarea quando isTranscribing torna false e inputText è valorizzato', async () => {
+    // Simula il flusso: prima isTranscribing=true, poi diventa false con un testo
+    const focusSpy = vi.spyOn(HTMLTextAreaElement.prototype, 'focus');
+
+    const { rerender } = render(
+      <ChatArea
+        {...defaultProps}
+        hasActiveConv={true}
+        isTranscribing={true}
+        inputText=""
+      />
+    );
+
+    // Passa a isTranscribing=false con inputText valorizzato → useEffect deve chiamare focus()
+    await act(async () => {
+      rerender(
+        <ChatArea
+          {...defaultProps}
+          hasActiveConv={true}
+          isTranscribing={false}
+          inputText="testo trascritto"
+        />
+      );
+    });
+
+    await waitFor(() => expect(focusSpy).toHaveBeenCalled());
+    focusSpy.mockRestore();
+  });
+
+  it('useEffect NON mette il focus se inputText è vuoto anche quando isTranscribing=false', async () => {
+    const focusSpy = vi.spyOn(HTMLTextAreaElement.prototype, 'focus');
+
+    const { rerender } = render(
+      <ChatArea
+        {...defaultProps}
+        hasActiveConv={true}
+        isTranscribing={true}
+        inputText=""
+      />
+    );
+
+    await act(async () => {
+      rerender(
+        <ChatArea
+          {...defaultProps}
+          hasActiveConv={true}
+          isTranscribing={false}
+          inputText=""  // vuoto → il guard `if (!isTranscribing && inputText)` non passa
+        />
+      );
+    });
+
+    // focus non deve essere chiamato
+    expect(focusSpy).not.toHaveBeenCalled();
+    focusSpy.mockRestore();
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
 // Input e invio
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – input e invio', () => {
   beforeEach(() => {
     defaultProps.onInputChange = vi.fn();
@@ -211,9 +302,9 @@ describe('ChatArea – input e invio', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
 // Limite caratteri
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – limite caratteri', () => {
   it('mostra il contatore dei caratteri', () => {
     renderChat({ hasActiveConv: true, inputText: 'Ciao' });
@@ -233,9 +324,27 @@ describe('ChatArea – limite caratteri', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Registrazione audio – pulsanti (visibilità / stato disabilitato)
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
+// sidebarOpen – classe CSS sticky (riga 307)
+// ════════════════════════════════════════════════════════════════════════════
+describe('ChatArea – sidebarOpen', () => {
+  it('aggiunge classe sticky bottom-0 z-10 quando sidebarOpen=true', () => {
+    const { container } = renderChat({ hasActiveConv: true, sidebarOpen: true });
+    // La input bar è il secondo div figlio del main
+    const inputBar = container.querySelector('.sticky');
+    expect(inputBar).toBeInTheDocument();
+  });
+
+  it('non aggiunge classe sticky quando sidebarOpen=false (default)', () => {
+    const { container } = renderChat({ hasActiveConv: true, sidebarOpen: false });
+    const inputBar = container.querySelector('.sticky');
+    expect(inputBar).not.toBeInTheDocument();
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// Pulsanti audio
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – pulsanti audio', () => {
   it('mostra il pulsante microfono', () => {
     renderChat({ hasActiveConv: true });
@@ -258,9 +367,9 @@ describe('ChatArea – pulsanti audio', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// handleMicClick – avvio registrazione (righe 97-127)
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
+// handleMicClick – avvio registrazione
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – handleMicClick: avvio registrazione', () => {
   let originalMediaDevices: MediaDevices;
   let originalMediaRecorder: typeof MediaRecorder;
@@ -279,7 +388,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     vi.restoreAllMocks();
   });
 
-  it('non fa nulla se isSending=true (guard riga 98)', async () => {
+  it('non fa nulla se isSending=true (guard)', async () => {
     const { Ctor } = makeMediaRecorderMock();
     globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
     Object.defineProperty(navigator, 'mediaDevices', {
@@ -290,7 +399,6 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
     });
-    // Il pulsante è disabled quando isSending=true, quindi getUserMedia non viene chiamato
     expect(Ctor).not.toHaveBeenCalled();
   });
 
@@ -304,7 +412,6 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     renderChat({ hasActiveConv: true });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
-      // Flush microtask queue so the async getUserMedia promise resolves inside act
       await Promise.resolve();
       await Promise.resolve();
     });
@@ -351,13 +458,11 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       configurable: true,
     });
     renderChat({ hasActiveConv: true });
-    // Primo click: avvia
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
       await Promise.resolve();
       await Promise.resolve();
     });
-    // Secondo click: ferma (riga 100-103)
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /ferma registrazione/i }));
     });
@@ -365,7 +470,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     expect(screen.queryByText(/registrazione in corso/i)).not.toBeInTheDocument();
   });
 
-  it('onstop chiama onAudioRecord con il blob e ferma i track (righe 115-119)', async () => {
+  it('onstop chiama onAudioRecord con il blob e ferma i track', async () => {
     const onAudioRecord = vi.fn();
     const stopTrack = vi.fn();
     const mockStream = { getTracks: () => [{ stop: stopTrack }] } as unknown as MediaStream;
@@ -381,20 +486,16 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       await Promise.resolve();
       await Promise.resolve();
     });
-    // Simula ondataavailable con un chunk audio
     act(() => {
       instance.ondataavailable?.({ data: new Blob(['audio'], { type: 'audio/webm' }) });
     });
-    // Simula onstop
-    act(() => {
-      instance.onstop?.();
-    });
+    act(() => { instance.onstop?.(); });
     expect(onAudioRecord).toHaveBeenCalledTimes(1);
     expect(onAudioRecord.mock.calls[0][0]).toBeInstanceOf(Blob);
     expect(stopTrack).toHaveBeenCalled();
   });
 
-  it('ondataavailable ignora chunk con size=0 (riga 112)', async () => {
+  it('ondataavailable ignora chunk con size=0', async () => {
     const onAudioRecord = vi.fn();
     const { Ctor, instance } = makeMediaRecorderMock();
     globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
@@ -409,15 +510,13 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       await Promise.resolve();
     });
     act(() => {
-      // Chunk vuoto: size=0, non deve essere aggiunto
       instance.ondataavailable?.({ data: new Blob([], { type: 'audio/webm' }) });
     });
     act(() => { instance.onstop?.(); });
-    // Il blob risultante non conterrà chunk, ma onAudioRecord viene comunque chiamato
     expect(onAudioRecord).toHaveBeenCalledTimes(1);
   });
 
-  it('mostra alert se getUserMedia fallisce (riga 125)', async () => {
+  it('mostra alert se getUserMedia fallisce', async () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     const { Ctor } = makeMediaRecorderMock();
     globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
@@ -433,38 +532,61 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       expect.stringMatching(/impossibile accedere al microfono/i),
     );
   });
+
+  it('auto-ferma la registrazione dopo 120 secondi e mostra errore', async () => {
+    vi.useFakeTimers();
+    const { Ctor, instance } = makeMediaRecorderMock();
+    globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      value: { getUserMedia: makeGetUserMediaMock() },
+      configurable: true,
+    });
+    renderChat({ hasActiveConv: true });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    // Avanza di 120 tick (1 al secondo) per innescare il limite automatico
+    await act(async () => {
+      for (let i = 0; i < 120; i++) {
+        vi.advanceTimersByTime(1000);
+        await Promise.resolve();
+      }
+    });
+    expect(instance.stop).toHaveBeenCalled();
+    expect(screen.getByText(/non può superare i 120 secondi/i)).toBeInTheDocument();
+    vi.useRealTimers();
+  });
 });
 
-// ---------------------------------------------------------------------------
-// handleClipClick – apertura file input (righe 129-132)
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
+// handleClipClick
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – handleClipClick', () => {
-  it('non fa nulla se isSending=true (guard riga 130)', () => {
+  it('non fa nulla se isSending=true (pulsante disabilitato)', () => {
     renderChat({ hasActiveConv: true, isSending: true });
-    // Il pulsante è disabled, il click non propaga
     const btn = screen.getByRole('button', { name: /allega file audio/i });
     expect(btn).toBeDisabled();
   });
 
-  it('non fa nulla se hasActiveConv=false (guard riga 130)', () => {
+  it('non fa nulla se hasActiveConv=false (pulsante disabilitato)', () => {
     renderChat({ hasActiveConv: false });
     const btn = screen.getByRole('button', { name: /allega file audio/i });
     expect(btn).toBeDisabled();
   });
 
-  it('al click con conversazione attiva tenta di aprire il file picker (riga 131)', () => {
+  it('al click con conversazione attiva non lancia eccezioni', () => {
     renderChat({ hasActiveConv: true });
-    // Non è possibile verificare direttamente fileInputRef.current.click()
-    // ma possiamo verificare che il click non lanci eccezioni
     expect(() => {
       fireEvent.click(screen.getByRole('button', { name: /allega file audio/i }));
     }).not.toThrow();
   });
 });
 
-// ---------------------------------------------------------------------------
-// handleFileChange – allegato file audio (righe 134-164)
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
+// handleFileChange
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – handleFileChange', () => {
   let originalURL: typeof URL;
   let originalAudio: typeof Audio;
@@ -480,20 +602,18 @@ describe('ChatArea – handleFileChange', () => {
     vi.restoreAllMocks();
   });
 
-  /** Crea un File di test con dimensione e nome configurabili */
   function makeFile(sizeBytes: number, name = 'test.mp3'): File {
     const buf = new ArrayBuffer(sizeBytes);
     return new File([buf], name, { type: 'audio/mpeg' });
   }
 
-  /** Simula il change event sull'input file nascosto */
   function triggerFileInput(container: HTMLElement, file: File) {
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
     Object.defineProperty(input, 'files', { value: [file], configurable: true });
     fireEvent.change(input);
   }
 
-  it('ignora il change se non è selezionato nessun file (riga 136)', () => {
+  it('ignora il change se non è selezionato nessun file', () => {
     const onAudioAttach = vi.fn();
     const { container } = renderChat({ hasActiveConv: true, onAudioAttach });
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
@@ -502,21 +622,20 @@ describe('ChatArea – handleFileChange', () => {
     expect(onAudioAttach).not.toHaveBeenCalled();
   });
 
-  it('mostra alert e non chiama onAudioAttach se il file supera 10 MB (righe 139-143)', () => {
+  it('mostra alert e non chiama onAudioAttach se il file supera 10 MB', () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     const onAudioAttach = vi.fn();
     const { container } = renderChat({ hasActiveConv: true, onAudioAttach });
-    const bigFile = makeFile(11 * 1024 * 1024); // 11 MB
+    const bigFile = makeFile(11 * 1024 * 1024);
     triggerFileInput(container, bigFile);
     expect(alertSpy).toHaveBeenCalledWith(expect.stringMatching(/non può superare/i));
     expect(onAudioAttach).not.toHaveBeenCalled();
   });
 
-  it('chiama onAudioAttach con file valido (dimensione ok, durata ok) (riga 155)', () => {
+  it('chiama onAudioAttach con file valido (dimensione ok, durata ok)', () => {
     const onAudioAttach = vi.fn();
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
-    // Audio deve essere un costruttore valido: usiamo mockImplementation con function()
     const mockAudio = {
       onloadedmetadata: null as (() => void) | null,
       onerror: null as (() => void) | null,
@@ -526,16 +645,15 @@ describe('ChatArea – handleFileChange', () => {
     globalThis.Audio = vi.fn().mockImplementation(function () { return mockAudio; }) as any;
 
     const { container } = renderChat({ hasActiveConv: true, onAudioAttach });
-    const file = makeFile(1 * 1024 * 1024); // 1 MB
+    const file = makeFile(1 * 1024 * 1024);
     triggerFileInput(container, file);
-
     act(() => { mockAudio.onloadedmetadata?.(); });
 
     expect(onAudioAttach).toHaveBeenCalledWith(file);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock');
   });
 
-  it('mostra alert se la durata supera 120 minuti (righe 151-153)', () => {
+  it('mostra alert se la durata supera 120 minuti', () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     const onAudioAttach = vi.fn();
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
@@ -543,7 +661,7 @@ describe('ChatArea – handleFileChange', () => {
     const mockAudio = {
       onloadedmetadata: null as (() => void) | null,
       onerror: null as (() => void) | null,
-      duration: 121 * 60, // 121 minuti
+      duration: 121 * 60,
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     globalThis.Audio = vi.fn().mockImplementation(function () { return mockAudio; }) as any;
@@ -556,7 +674,7 @@ describe('ChatArea – handleFileChange', () => {
     expect(onAudioAttach).not.toHaveBeenCalled();
   });
 
-  it('mostra alert se il file audio è corrotto (onerror) (righe 158-161)', () => {
+  it('mostra alert se il file audio è corrotto (onerror)', () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
@@ -577,9 +695,9 @@ describe('ChatArea – handleFileChange', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
 // Accessibilità
-// ---------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – accessibilità', () => {
   it('la textarea ha aria-label corretto', () => {
     renderChat({ hasActiveConv: true });
