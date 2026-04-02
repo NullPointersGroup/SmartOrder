@@ -38,9 +38,14 @@ class VecDbService:
             return "medium"
         return "generic"
 
-    def _normalize_catalog_threshold(self, query: str, requested_threshold: float) -> float:
+    def _normalize_catalog_threshold(
+        self, query: str, requested_threshold: float
+    ) -> float:
         specificity = self._classify_query(query)
-        clamped = max(self.CATALOG_THRESHOLD_MIN, min(requested_threshold, self.CATALOG_THRESHOLD_MAX))
+        clamped = max(
+            self.CATALOG_THRESHOLD_MIN,
+            min(requested_threshold, self.CATALOG_THRESHOLD_MAX),
+        )
 
         if specificity == "generic":
             return min(clamped, 0.90)
@@ -48,9 +53,13 @@ class VecDbService:
             return min(clamped, 0.75)
         return min(clamped, 0.60)
 
-    def _normalize_cart_threshold(self, query: str, requested_threshold: float) -> float:
+    def _normalize_cart_threshold(
+        self, query: str, requested_threshold: float
+    ) -> float:
         specificity = self._classify_query(query)
-        clamped = max(self.CART_THRESHOLD_MIN, min(requested_threshold, self.CART_THRESHOLD_MAX))
+        clamped = max(
+            self.CART_THRESHOLD_MIN, min(requested_threshold, self.CART_THRESHOLD_MAX)
+        )
 
         if specificity == "generic":
             return min(clamped, 0.80)
@@ -71,7 +80,7 @@ class VecDbService:
             self.cart_vect.add(p.prod_id, vector)
 
     def search_catalog(self, query: str, threshold: float) -> list[str]:
-        self.load_catalog()
+        # self.load_catalog()
         vector = self.embedder.embed(query)
         effective_threshold = self._normalize_catalog_threshold(query, threshold)
         return self.catalog_vect.search(

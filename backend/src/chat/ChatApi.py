@@ -33,22 +33,34 @@ from src.vec.VecDbService import VecDbService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
+cart_service = CartService(repo=CartRepoAdapter(repo=CartRepository(next(get_conn()))))
+catalog_repo = CatalogRepoAdapter(CatalogRepository(next(get_conn())))
+vecDb_service = VecDbService(
+    catalog_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
+    cart_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
+    cart_service=cart_service,
+    catalog_repo=catalog_repo,
+    embedder=EmbedderAdapter(),
+)
+vecDb_service.load_catalog()
+
 
 def build_tools(username: str, db: Session) -> list[BaseTool]:
-    cart_service = CartService(repo=CartRepoAdapter(repo=CartRepository(db)))
-    catalog_repo = CatalogRepoAdapter(CatalogRepository(db))
+    # cart_service = CartService(repo=CartRepoAdapter(repo=CartRepository(db)))
+    # catalog_repo = CatalogRepoAdapter(CatalogRepository(db))
     tool_service = ToolService(
         username=username,
         cart_service=cart_service,
         catalog_repo=catalog_repo,
         vec_db=VecDbAdapter(
-            VecDbService(
-                catalog_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
-                cart_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
-                cart_service=cart_service,
-                catalog_repo=catalog_repo,
-                embedder=EmbedderAdapter(),
-            ),
+            vecDb_service
+            # VecDbService(
+            #     catalog_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
+            #     cart_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
+            #     cart_service=cart_service,
+            #     catalog_repo=catalog_repo,
+            #     embedder=EmbedderAdapter(),
+            # ),
         ),
     )
     tool_adapter = ToolAdapter(tool_service=tool_service)
