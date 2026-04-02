@@ -59,9 +59,10 @@ def test_get_products_returns_list(cart_repository, mock_db):
 
 
 def test_add_product_calls_and_commit_refresh(cart_repository, mock_db):
-    mock_db.exec.return_value.first.return_value = make_catalog(
-        prod_id="ABC3", prod_des="Prodotto 3", price=3.0
-    )
+    mock_db.exec.return_value.first.side_effect = [
+        make_catalog(prod_id="ABC3", prod_des="Prodotto 3", price=3.0),
+        None,
+    ]
 
     cart_repository.add_product(prod_id="ABC3", username="Tom", qty=2)
 
@@ -70,7 +71,7 @@ def test_add_product_calls_and_commit_refresh(cart_repository, mock_db):
 
 
 def test_add_product_returns_product_repository(cart_repository, mock_db):
-    mock_db.exec.return_value.first.return_value = make_catalog()
+    mock_db.exec.return_value.first.side_effect = [make_catalog(), None]
 
     result = cart_repository.add_product(prod_id="ABC2", username="Tom", qty=4)
 
@@ -78,9 +79,10 @@ def test_add_product_returns_product_repository(cart_repository, mock_db):
 
 
 def test_add_product_correct_fields(cart_repository, mock_db):
-    mock_db.exec.return_value.first.return_value = make_catalog(
-        prod_id="ABC2", prod_des="Prodotto 2", price=2.0
-    )
+    mock_db.exec.return_value.first.side_effect = [
+        make_catalog(prod_id="ABC2", prod_des="Prodotto 2", price=2.0),
+        None,
+    ]
 
     result = cart_repository.add_product(prod_id="ABC2", username="Tom", qty=4)
 

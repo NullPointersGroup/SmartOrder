@@ -1,5 +1,8 @@
 from unittest.mock import MagicMock
 
+import pytest
+pytest.importorskip("langchain_core")
+
 from src.chat.LLMModels import LLMRequest, LLMResponse
 from src.chat.adapters.LLMAdapter import LLMAdapter
 

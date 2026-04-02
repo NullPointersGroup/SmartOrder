@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 import pytest
 import numpy as np
+pytest.importorskip("faiss")
 
 from src.vec.adapters.CartVecDbAdapter import CartVecDbAdapter
 from tests.unit.vec.conftest import make_vector

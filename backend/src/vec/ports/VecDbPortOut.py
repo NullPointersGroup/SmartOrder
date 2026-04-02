@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from faiss import np
+import numpy as np
 
 
 class VecDbPortOut(ABC):
