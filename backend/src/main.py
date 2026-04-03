@@ -9,6 +9,7 @@ from src.cart.CartApi import router as cart_router
 from src.conversations.ConversationsApi import router as conversations_router
 from src.storico.StoricoApi import router as storico_router
 from src.recording.RecordingApi import router as recording_router
+from src.commands.commandApi import router as command_router
 
 app = FastAPI()
 
@@ -26,3 +27,4 @@ app.include_router(cart_router)
 app.include_router(conversations_router)
 app.include_router(storico_router)
 app.include_router(recording_router)
+app.include_router(command_router)
