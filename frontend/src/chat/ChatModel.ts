@@ -256,4 +256,18 @@ export const ChatModel = {
     });
     return handleResponse(res);
   },
+
+  async sendOrder(username: string): Promise<void> {
+    /**
+     * @brief Invia l'ordine per il carrello corrente dell'utente
+     * @param username Nome dell'utente
+     * @throws Error se la richiesta fallisce
+     */
+    const res = await fetch(`/cart/${username}/sendOrder`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    return handleResponse(res);
+  },
+
 };

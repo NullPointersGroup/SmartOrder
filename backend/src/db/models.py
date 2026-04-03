@@ -92,7 +92,7 @@ class Messaggi(SQLModel, table=True):
     
 class Ordine(SQLModel, table=True):
     __tablename__: ClassVar[str] = "ordine"
-    id_ord:   Optional[int]  = Field(default=None, primary_key=True)
+    id_ord:   Optional[int]  = Field(default=None, primary_key=True, sa_column_kwargs={"autoincrement": True})
     username: Optional[str]  = Field(default=None, foreign_key="utentiweb.username")
     data:     Optional[date] = Field(default=None)
 

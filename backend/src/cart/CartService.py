@@ -1,15 +1,16 @@
 from src.cart.CartSchemas import CartProduct
-from src.cart.ports.CartRepoPort import CartRepoPort
+from src.cart.adapters.CartRepoAdapter import CartRepoAdapter
 from src.enums import CartUpdateOperation
+from src.cart.exceptions import CartEmptyException
 
 
 class CartService:
-    def __init__(self, repo: CartRepoPort) -> None:
+    def __init__(self, adapter: CartRepoAdapter) -> None:
         """
         @brief Inizializza il servizio carrello con il repository fornito
-        @param repo Implementazione del porto repository per il carrello
+        @param repo Implementazione della porta repository per il carrello
         """
-        self.repo = repo
+        self.adapter = adapter
 
     def get_cart_products(self, username: str) -> list[CartProduct]:
         """
@@ -17,7 +18,7 @@ class CartService:
         @param username Nome dell'utente
         @return Lista di prodotti nel carrello
         """
-        cart_products = self.repo.get_products(username)
+        cart_products = self.adapter.get_products(username)
         return cart_products
 
     def add_product_to_cart(self, username: str, prod_id: str, qty: int) -> CartProduct:
@@ -28,7 +29,7 @@ class CartService:
         @param qty Quantità del prodotto da aggiungere
         @return Prodotto aggiunto con quantità aggiornata
         """
-        product = self.repo.add_product(prod_id, username, qty)
+        product = self.adapter.add_product(prod_id, username, qty)
         return product
 
     def update_cart_quantity(
@@ -42,7 +43,7 @@ class CartService:
         @param operation Tipo di operazione (increase, decrease, set)
         @return Prodotto aggiornato con nuova quantità
         """
-        product = self.repo.update_quantity(prod_id, username, qty, operation)
+        product = self.adapter.update_quantity(prod_id, username, qty, operation)
         return product
 
     def remove_product_from_cart(self, username: str, prod_id: str) -> CartProduct:
@@ -52,5 +53,18 @@ class CartService:
         @param prod_id ID del prodotto da rimuovere
         @return Prodotto rimosso con quantità precedente
         """
-        product = self.repo.remove_product(prod_id, username)
+        product = self.adapter.remove_product(prod_id, username)
         return product
+    
+    def send_order(self, username: str) -> None:
+        """
+        @brief invia l'ordine
+        @param username: il cliente che sta inviando l'ordine
+        @raise CartEmptyException se il carrello è vuoto
+        @return None
+        @req TODO
+        """
+        try:
+            self.adapter.send_order(username)
+        except CartEmptyException as e:
+            raise CartEmptyException(f"Impossibile inviare l'ordine: il carrello di '{username}' è vuoto") from e

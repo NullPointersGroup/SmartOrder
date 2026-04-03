@@ -1,4 +1,4 @@
-from sqlmodel import Session, col, delete, select, update
+from sqlmodel import Session, col, delete, select, update, func
 from src.cart.exceptions import (
     ProductNotFoundException,
     ProductNotInCartException,
@@ -7,6 +7,9 @@ from src.enums import CartUpdateOperation
 from src.db.models import Anaart, Carrello
 from src.enums import MeasureUnitEnum
 from src.cart.adapters.CartProductRepository import CartProductRepository
+from datetime import date
+from src.cart.exceptions import CartEmptyException
+from src.db.models import Ordine, OrdCliDet
 
 class CartRepository:
     def __init__(self, db: Session) -> None:
@@ -167,3 +170,30 @@ class CartRepository:
             price=catalog.price,
             measure_unit=MeasureUnitEnum(catalog.measure_unit_type),
         )
+        
+    def send_order(self, username: str) -> None:
+        """
+        @brief Invia l'ordine creando Ordine e OrdCliDet, poi svuota il carrello
+        @param username Nome dell'utente
+        @throws CartEmptyException se il carrello è vuoto
+        """
+        items = list(self.db.exec(
+            select(Carrello).where(col(Carrello.username) == username)
+        ).all())
+
+        if not items:
+            raise CartEmptyException(username)
+
+        max_id = self.db.exec(select(func.max(Ordine.id_ord))).one()
+        nuovo_id = (max_id or 0) + 1
+
+        ordine = Ordine(id_ord=nuovo_id, username=username, data=date.today())
+        self.db.add(ordine)
+        self.db.flush()
+
+        for item in items:
+            self.db.add(OrdCliDet(id_ord=nuovo_id, cod_art=item.cod_art, qta_ordinata=item.quantita))
+
+        delete_stmt = delete(Carrello).where(col(Carrello.username) == username)
+        self.db.exec(delete_stmt)
+        self.db.commit()

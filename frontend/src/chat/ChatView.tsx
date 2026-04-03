@@ -177,6 +177,7 @@ export const ChatView: React.FC = () => {
               <CartSidebar
                 products={vm.cartProducts}
                 onToggleSelf={() => setIsRightOpen(false)}
+                onOrdine={vm.invioOrdine}
               />
             </div>
 
@@ -223,6 +224,7 @@ export const ChatView: React.FC = () => {
               <CartSidebar
                 products={vm.cartProducts}
                 onToggleSelf={() => setIsRightOpen(false)}
+                onOrdine={vm.invioOrdine}
               />
             </div>
           </div>
