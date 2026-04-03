@@ -29,6 +29,7 @@ class CartService:
         @param qty Quantità del prodotto da aggiungere
         @return Prodotto aggiunto con quantità aggiornata
         """
+        print("CALLED")
         product = self.adapter.add_product(prod_id, username, qty)
         return product
 

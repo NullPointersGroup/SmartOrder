@@ -10,6 +10,7 @@ from src.cart.adapters.CartProductRepository import CartProductRepository
 from datetime import date
 from src.cart.exceptions import CartEmptyException
 from src.db.models import Ordine, OrdCliDet
+from typing import Any
 
 class CartRepository:
     def __init__(self, db: Session) -> None:

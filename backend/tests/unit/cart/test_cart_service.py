@@ -74,6 +74,9 @@ def test_remove_product_returns_correct_product(cart_service, mock_adapter):
 
 
 def test_update_quantity_calls_repo_with_add(cart_service, mock_adapter):
+    
+    assert hasattr(mock_adapter, "update_quantity")
+    
     mock_adapter.update_quantity.return_value = make_cart_product()
 
     cart_service.update_cart_quantity(
@@ -118,13 +121,13 @@ def test_update_quantity_returns_correct_product(cart_service, mock_adapter):
     assert result.qty == 5
 
 
-def test_update_quantity_calls_repo_with_set(cart_service, mock_repo):
-    mock_repo.update_quantity.return_value = make_cart_product(qty=7)
+def test_update_quantity_calls_repo_with_set(cart_service, mock_adapter):
+    mock_adapter.update_quantity.return_value = make_cart_product(qty=7)
 
     cart_service.update_cart_quantity(
         username="Tom", prod_id="ABC1", qty=7, operation=CartUpdateOperation.Set
     )
 
-    mock_repo.update_quantity.assert_called_once_with(
+    mock_adapter.update_quantity.assert_called_once_with(
         "ABC1", "Tom", 7, CartUpdateOperation.Set
     )
