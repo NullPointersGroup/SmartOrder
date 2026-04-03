@@ -6,7 +6,7 @@ from datetime import date
 from src.storico.ports.StoricoRepoPort import StoricoRepoPort
 from src.db.models import Ordine
 from src.storico.StoricoSchemas import OrdineSchema, ProdottoSchema, StoricoPageSchema
-from src.storico.exceptions import OrdiniNotFoundException, OrdineNotFoundException
+from src.storico.exceptions import OrdiniNotFoundException, OrdineNotFoundException, OrdiniUsernameNotFoundException
 
 PER_PAGINA_DEFAULT = 10
 
@@ -75,9 +75,9 @@ class StoricoService:
         """
         ordini_orm, totale = self.adapter.get_ordini_by_username(username, pagina, per_pagina, data_inizio, data_fine)
 
-        totale_senza_filtri, _ = self.adapter.get_ordini_by_username(username, 1, 1)
+        _, totale_senza_filtri = self.adapter.get_ordini_by_username(username, 1, 1)
         if totale_senza_filtri == 0:
-            raise OrdiniNotFoundException(username)
+            raise OrdiniUsernameNotFoundException(username)
 
         return self._build_page(ordini_orm, totale, pagina, per_pagina, include_username=False)
 
@@ -91,6 +91,11 @@ class StoricoService:
         @return StoricoPageSchema con tutti gli ordini inclusi gli username
         """
         ordini_orm, totale = self.adapter.get_all_ordini(pagina, per_pagina, data_inizio, data_fine)
+        
+        _, totale_senza_filtri = self.adapter.get_all_ordini(1, 1)
+        if totale_senza_filtri == 0:
+            raise OrdiniNotFoundException()
+        
         return self._build_page(ordini_orm, totale, pagina, per_pagina, include_username=True)
 
     def duplica_ordine(self, codice_ordine: str, username: str) -> None:

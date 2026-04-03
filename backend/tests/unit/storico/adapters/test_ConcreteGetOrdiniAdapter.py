@@ -31,9 +31,9 @@ class TestGetOrdiniByUsername:
         ordine = MagicMock(spec=Ordine)
         repo.get_ordini_by_username.return_value = ([ordine], 1)
 
-        result = sut.get_ordini_by_username("mario", 1, 10)
+        result = sut.get_ordini_by_username("mario", 1, 10, None, None)
 
-        repo.get_ordini_by_username.assert_called_once_with("mario", 1, 10)
+        repo.get_ordini_by_username.assert_called_once_with("mario", 1, 10, None, None)
         assert result == ([ordine], 1)
 
     def test_propaga_paginazione(self, adapter):
@@ -42,7 +42,7 @@ class TestGetOrdiniByUsername:
 
         sut.get_ordini_by_username("mario", 3, 5)
 
-        repo.get_ordini_by_username.assert_called_once_with("mario", 3, 5)
+        repo.get_ordini_by_username.assert_called_once_with("mario", 3, 5, None, None)
 
 
 # ─── get_all_ordini ───────────────────────────────────────────────────────────
@@ -54,18 +54,18 @@ class TestGetAllOrdini:
         ordine = MagicMock(spec=Ordine)
         repo.get_all_ordini.return_value = ([ordine], 1)
 
-        result = sut.get_all_ordini(1, 10)
+        result = sut.get_all_ordini(1, 10, None, None)
 
-        repo.get_all_ordini.assert_called_once_with(1, 10)
+        repo.get_all_ordini.assert_called_once_with(1, 10, None, None)
         assert result == ([ordine], 1)
 
     def test_propaga_paginazione(self, adapter):
         sut, repo = adapter
         repo.get_all_ordini.return_value = ([], 0)
 
-        sut.get_all_ordini(2, 20)
+        sut.get_all_ordini(2, 20, None, None)
 
-        repo.get_all_ordini.assert_called_once_with(2, 20)
+        repo.get_all_ordini.assert_called_once_with(2, 20, None, None)
 
 
 # ─── get_prodotti_by_ordine_ids ───────────────────────────────────────────────

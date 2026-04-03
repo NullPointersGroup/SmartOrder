@@ -8,7 +8,7 @@ from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
 from src.storico.StoricoService import StoricoService
 from src.storico.StoricoSchemas import StoricoPageSchema
 from src.storico.exceptions import (
-    OrdiniNotFoundException,
+    OrdiniUsernameNotFoundException,
     OrdineNotFoundException,
     StoricoAccessDeniedException,
 )
@@ -67,7 +67,7 @@ def get_storico_cliente(
     """
     try:
         return service.get_ordini_cliente(username, pagina, per_pagina, data_inizio, data_fine)
-    except OrdiniNotFoundException as e:
+    except OrdiniUsernameNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
 
 

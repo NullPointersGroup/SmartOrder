@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from typing import Optional
 from src.storico.StoricoService import StoricoService
 from src.db.models import Ordine, OrdCliDet
-from src.storico.exceptions import OrdiniNotFoundException, OrdineNotFoundException
+from src.storico.exceptions import OrdiniUsernameNotFoundException, OrdineNotFoundException, OrdiniNotFoundException
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -145,22 +145,24 @@ class TestGetOrdiniCliente:
         repo = make_repo(ordini=[make_ordine(1)])
         service = StoricoService(repo)
 
-        service.get_ordini_cliente("mario", 2, 5)
+        service.get_ordini_cliente("mario", 2, 5, None, None)
 
-        repo.get_ordini_by_username.assert_called_once_with("mario", 2, 5)
+        assert repo.get_ordini_by_username.call_count == 2
+        repo.get_ordini_by_username.assert_any_call("mario", 2, 5, None, None)
+        repo.get_ordini_by_username.assert_any_call("mario", 1, 1)
 
     def test_lancia_eccezione_se_totale_zero(self):
         repo = make_repo(ordini=[], totale=0)
         service = StoricoService(repo)
 
-        with pytest.raises(OrdiniNotFoundException):
-            service.get_ordini_cliente("mario", 1, 10)
+        with pytest.raises(OrdiniUsernameNotFoundException):
+            service.get_ordini_cliente("mario", 1, 10, None, None)
 
     def test_username_non_incluso(self):
         repo = make_repo(ordini=[make_ordine(1, username="mario")])
         service = StoricoService(repo)
 
-        result = service.get_ordini_cliente("mario", 1, 10)
+        result = service.get_ordini_cliente("mario", 1, 10, None, None)
 
         assert result.ordini[0].username is None
 
@@ -173,25 +175,26 @@ class TestGetOrdiniAdmin:
         repo = make_repo(ordini=[make_ordine(1)])
         service = StoricoService(repo)
 
-        service.get_ordini_admin(2, 20)
+        service.get_ordini_admin(2, 20, None, None)
 
-        repo.get_all_ordini.assert_called_once_with(2, 20)
+        assert repo.get_all_ordini.call_count == 2
+        repo.get_all_ordini.assert_any_call(2, 20, None, None)
+        repo.get_all_ordini.assert_any_call(1, 1)
 
     def test_username_incluso(self):
         repo = make_repo(ordini=[make_ordine(1, username="luigi")])
         service = StoricoService(repo)
 
-        result = service.get_ordini_admin(1, 10)
+        result = service.get_ordini_admin(1, 10, None, None)
 
         assert result.ordini[0].username == "luigi"
 
-    def test_lista_vuota_non_lancia_eccezione(self):
+    def test_lista_vuota_lancia_eccezione(self):
         repo = make_repo(ordini=[], totale=0)
         service = StoricoService(repo)
 
-        result = service.get_ordini_admin(1, 10)
-
-        assert result.ordini == []
+        with pytest.raises(OrdiniNotFoundException):
+            service.get_ordini_admin(1, 10, None, None)
 
 
 # ─── duplica_ordine ───────────────────────────────────────────────────────────
