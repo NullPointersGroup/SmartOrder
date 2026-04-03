@@ -20,13 +20,13 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
   @req RF-OB_29
   @req RF-OB_30
   @req RF-OB_31
+  @req RF-DE_06
   @req RF-DE_07
   @req RF-DE_08
-  @req RF-DE_09
+  @req RF-DE_11
   @req RF-DE_12
   @req RF-DE_13
   @req RF-DE_14
-  @req RF-DE_15
    */
   const [info, setInfo] = useState<UserInfo | null>(null)
   const [loading, setLoading] = useState(true)

@@ -46,6 +46,7 @@ function PasswordField({
   /**
   @brief Restituisce il form per reimpostare la password
   @param l'interfaccia PasswordFieldProps
+  @req RF-DE_15
   @req RF-DE_16
   @req RF-DE_17
   @req RF-DE_18
@@ -55,7 +56,6 @@ function PasswordField({
   @req RF-DE_22
   @req RF-DE_23
   @req RF-DE_24
-  @req RF-DE_25
    */
   return (
     <div className="flex flex-col gap-1.5">

@@ -35,12 +35,12 @@ export const ConversationSidebar: React.FC<Props> = ({
   @param l'interfaccia Props
   @req RF-OB_74
   @req RF-OB_75
-  @req RF-DE_128
+  @req RF-DE_127
+  @req RF-DE_133
   @req RF-DE_134
   @req RF-DE_135
   @req RF-DE_136
   @req RF-DE_137
-  @req RF-DE_138
    */
   const [menu, setMenu] = useState<MenuState>({ convId: null });
   const [rename, setRename] = useState<RenameState>({ convId: null, value: '' });

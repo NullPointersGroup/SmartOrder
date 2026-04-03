@@ -13,12 +13,12 @@ export const StoricoView: React.FC = () => {
   @brief mostra la pagina dello storico
   @req RF-OB_79
   @req RF-OB_80
+  @req RF-DE_112
   @req RF-DE_113
   @req RF-DE_114
   @req RF-DE_115
   @req RF-DE_116
   @req RF-DE_117
-  @req RF-DE_118
    */
   const username = useAuthStore((state) => state.username);
   const admin = useAuthStore((state) => state.admin);

@@ -42,8 +42,8 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
   @return Type Description
   @req RF-OB_77
   @req RF-OB_78
+  @req RF-DE_09
   @req RF-DE_10
-  @req RF-DE_11
    */
   const [open, setOpen]   = useState(false);
   const ref               = useRef<HTMLDivElement>(null);
