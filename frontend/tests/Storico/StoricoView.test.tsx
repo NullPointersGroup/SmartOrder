@@ -569,7 +569,6 @@ describe('StoricoView – filtro data', () => {
     fireEvent.click(screen.getByTitle('Filtra per data'));
 
     const inputs = screen.getAllByDisplayValue('');
-    // dataInizio futura: nessun ordine corrisponde
     fireEvent.change(inputs[0], { target: { value: '2099-01-01' } });
 
     expect(screen.getByText(/nessun ordine corrisponde al filtro/i)).toBeInTheDocument();

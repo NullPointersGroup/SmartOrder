@@ -28,7 +28,7 @@ export function NotFound() {
         {/* Bottone Chat */}
         <button
           onClick={() => navigate('/home')}
-          className="px-6 py-3 bg-(--color-4) text-(--bg-3) font-bold rounded-xl shadow-lg hover:bg-[#1a365d] transition-all active:scale-95 whitespace-nowrap"
+          className="px-6 py-3 bg-(--color-4) text-(--bg-3) font-bold rounded-xl shadow-lg hover:opacity-70 transition-all active:scale-95 whitespace-nowrap"
         >
           Torna alla Chat
         </button>
@@ -36,7 +36,7 @@ export function NotFound() {
         {/* Bottone Login */}
         <button
           onClick={() => navigate('/')}
-          className="px-6 py-3 border-2 border-(--color-4) text-(--color-4) font-bold rounded-xl hover:bg-gray-50 transition-all active:scale-95 whitespace-nowrap"
+          className="px-6 py-3 border-2 border-(--color-4) text-(--color-4) font-bold rounded-xl hover:opacity-70 transition-all active:scale-95 whitespace-nowrap"
         >
           Vai al Login
         </button>

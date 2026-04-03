@@ -62,9 +62,6 @@ describe('OrdineRow – render base', () => {
 
   it('mostra la data formattata in italiano', () => {
     renderRow(ordineCliente);
-    // 2024-03-15 → "15 mar 2024" in it-IT con day:2-digit, month:short, year:numeric.
-    // Usiamo toHaveTextContent sulla riga per evitare che getByText trovi
-    // più elementi annidati (td, tr, tbody, table) con lo stesso testo.
     const row = screen.getByRole('row');
     expect(row).toHaveTextContent(/mar/i);
     expect(row).toHaveTextContent(/2024/);

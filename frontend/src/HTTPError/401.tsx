@@ -25,8 +25,7 @@ export function Unauthorized() {
 
       <button
         onClick={() => navigate('/')}
-        className="mt-8 px-10 py-4 bg-(--color-4) text-(--bg-3) font-bold rounded-xl shadow-lg hover:bg-[#1a365d] transition-all active:scale-95"
-      >
+className="mt-8 px-10 py-4 bg-(--color-4) text-(--bg-3) font-bold rounded-xl shadow-lg transition-all hover:opacity-70 active:scale-95"      >
         Torna al Login
       </button>
     </div>

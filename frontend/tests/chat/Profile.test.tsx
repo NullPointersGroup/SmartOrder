@@ -297,11 +297,9 @@ describe('Profile – reset password dialog', () => {
       fireEvent.click(submitBtn);
     });
 
-    // Wait for success dialog to appear
     const successText = await waitFor(() => screen.getByText(/password reimpostata/i));
     expect(successText).toBeInTheDocument();
 
-    // Find the backdrop inside the success dialog
     const successDialogDiv = successText.closest('div.absolute.inset-0');
     expect(successDialogDiv).not.toBeNull();
     
@@ -413,7 +411,6 @@ describe('Profile – cancella account', () => {
     });
     await waitFor(() => expect(screen.getByText(/sei sicuro/i)).toBeInTheDocument());
 
-    // Find the delete dialog container and its backdrop button
     const confirmText = screen.getByText(/sei sicuro/i);
     const deleteDialogDiv = confirmText.closest('div.absolute.inset-0');
     expect(deleteDialogDiv).not.toBeNull();

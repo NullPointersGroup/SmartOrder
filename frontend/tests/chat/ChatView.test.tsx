@@ -126,7 +126,7 @@ function renderView() {
 beforeEach(() => {
   vmOverrides = {};
   vi.useFakeTimers();
-  // Di default simula schermo largo (≥960px): matches=false → isNarrow=false
+  // su schermo (≥960px)
   mockMatchMedia(false);
 });
 

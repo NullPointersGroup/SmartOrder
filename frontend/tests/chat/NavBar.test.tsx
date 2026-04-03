@@ -166,14 +166,13 @@ describe('NavBar – edge case username', () => {
 
 describe('NavBar – visibilità Storico per ruolo cliente', () => {
   it('mostra il pulsante Storico se il ruolo è "cliente"', async () => {
-  mockAdmin = 'cliente'; // nessun mockImplementation, solo la variabile
+  mockAdmin = 'cliente';
   renderNavBar();
   fireEvent.click(screen.getByText('mario'));
   await waitFor(() => expect(screen.getByText('Storico')).toBeInTheDocument());
 });
 
 it('NON mostra il pulsante Storico se il ruolo non è "cliente"', async () => {
-  // mockAdmin è già null grazie al beforeEach
   renderNavBar();
   fireEvent.click(screen.getByText('mario'));
   await waitFor(() => expect(screen.getByText('Logout')).toBeInTheDocument());

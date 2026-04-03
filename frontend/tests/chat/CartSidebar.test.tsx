@@ -9,8 +9,14 @@ const products: CartProduct[] = [
   { prod_id: 'P002', name: 'Pane Bianco',  price: 2,    measure_unit: 1, qty: 1 },
 ];
 
-function renderCart(prods: CartProduct[] = products, onToggle = vi.fn()) {
-  return render(<CartSidebar products={prods} onToggleSelf={onToggle} />);
+function renderCart(
+  prods: CartProduct[] = products,
+  onToggle = vi.fn(),
+  onOrdine = vi.fn(),
+) {
+  return render(
+    <CartSidebar products={prods} onToggleSelf={onToggle} onOrdine={onOrdine} />,
+  );
 }
 
 describe('CartSidebar – render base', () => {
@@ -34,7 +40,6 @@ describe('CartSidebar – carrello vuoto', () => {
 
   it('non mostra il badge con il conteggio', () => {
     renderCart([]);
-    // Il badge mostra solo numeri, non dovrebbe esserci nessun numero nel documento
     expect(screen.queryByText(/^\d+$/)).not.toBeInTheDocument();
   });
 
@@ -46,6 +51,11 @@ describe('CartSidebar – carrello vuoto', () => {
   it('suggerisce di usare il chatbot', () => {
     renderCart([]);
     expect(screen.getByText(/chiedi al chatbot/i)).toBeInTheDocument();
+  });
+
+  it('non mostra il pulsante "Invia ordine" se il carrello è vuoto', () => {
+    renderCart([]);
+    expect(screen.queryByText(/invia ordine/i)).not.toBeInTheDocument();
   });
 });
 
@@ -81,7 +91,6 @@ describe('CartSidebar – con prodotti', () => {
 
   it('calcola il totale correttamente (1.5*2 + 2.0*1 = 5.00 €)', () => {
     renderCart();
-    // 1.5 * 2 + 2.0 * 1 = 5.00
     expect(screen.getByText(/5,00/)).toBeInTheDocument();
   });
 
@@ -105,17 +114,14 @@ describe('CartSidebar – formattazione valuta', () => {
     expect(() => renderCart(priceZero)).not.toThrow();
   });
 
-  // Copertura branch `?? 0` su price (riga 13 e 70): price=undefined attiva il ramo destro
   it('gestisce price undefined senza crash — copre branch ?? 0 su price (righe 13, 70)', () => {
     const p: CartProduct[] = [
       { prod_id: 'X', name: 'NoPrezzzo', price: undefined as unknown as number, measure_unit: 1, qty: 2 },
     ];
     expect(() => renderCart(p)).not.toThrow();
-    // totale = 0 * 2 = 0 → "Totale" è visibile ma non crasha
     expect(screen.getByText(/totale/i)).toBeInTheDocument();
   });
 
-  // Copertura branch `?? 0` su qty (riga 13 e 70): qty=undefined attiva il ramo destro
   it('gestisce qty undefined senza crash — copre branch ?? 0 su qty (righe 13, 70)', () => {
     const p: CartProduct[] = [
       { prod_id: 'X', name: 'NoQty', price: 3, measure_unit: 1, qty: undefined as unknown as number },
@@ -125,7 +131,7 @@ describe('CartSidebar – formattazione valuta', () => {
   });
 });
 
-// Interazione
+// Interazione – pulsante chiudi
 describe('CartSidebar – interazione', () => {
   it('chiama onToggleSelf al click del pulsante chiudi', () => {
     const onToggle = vi.fn();
@@ -140,6 +146,7 @@ describe('CartSidebar – interazione', () => {
   });
 });
 
+// Accessibilità
 describe('CartSidebar – accessibilità', () => {
   it('il pulsante chiudi ha aria-label o title leggibile', () => {
     renderCart();
@@ -151,5 +158,64 @@ describe('CartSidebar – accessibilità', () => {
     renderCart();
     const listItems = screen.getAllByRole('listitem');
     expect(listItems.length).toBeGreaterThanOrEqual(products.length);
+  });
+});
+
+// ── Dialog di conferma ordine ─────────────────────────────────────────────────
+describe('CartSidebar – dialog di conferma ordine', () => {
+
+  it('il click su "Invia ordine" apre il dialog di conferma (riga 140 – setShowConfirm(true))', () => {
+    renderCart();
+    expect(screen.queryByText(/conferma ordine/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/conferma ordine/i)).toBeInTheDocument();
+  });
+
+  it('il dialog mostra numero prodotti e totale (righe 42-54 – jsx dialog)', () => {
+    renderCart();
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/2 prodotti/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/5,00/).length).toBeGreaterThan(0);
+  });
+
+  it('il dialog mostra "prodotto" al singolare se c\'è un solo articolo', () => {
+    const one: CartProduct[] = [
+      { prod_id: 'P001', name: 'Latte', price: 3, measure_unit: 1, qty: 1 },
+    ];
+    renderCart(one);
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/1 prodotto(?!i)/i)).toBeInTheDocument();
+  });
+
+  it('"Annulla" chiude il dialog senza chiamare onOrdine (riga 31 – setShowConfirm(false))', () => {
+    const onOrdine = vi.fn();
+    renderCart(products, vi.fn(), onOrdine);
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/conferma ordine/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByText(/annulla/i));
+    expect(screen.queryByText(/conferma ordine/i)).not.toBeInTheDocument();
+    expect(onOrdine).not.toHaveBeenCalled();
+  });
+
+  it('"Conferma" chiude il dialog e chiama onOrdine (riga 32 – handleConferma)', () => {
+    const onOrdine = vi.fn();
+    renderCart(products, vi.fn(), onOrdine);
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/conferma ordine/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^conferma$/i }));
+    expect(screen.queryByText(/conferma ordine/i)).not.toBeInTheDocument();
+    expect(onOrdine).toHaveBeenCalledTimes(1);
+  });
+
+  it('click sullo sfondo (backdrop) chiude il dialog senza chiamare onOrdine', () => {
+    const onOrdine = vi.fn();
+    renderCart(products, vi.fn(), onOrdine);
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/conferma ordine/i)).toBeInTheDocument();
+    // Il backdrop è un <button> senza testo né aria-label esplicito
+    const backdrop = screen.getByRole('button', { name: '' });
+    fireEvent.click(backdrop);
+    expect(screen.queryByText(/conferma ordine/i)).not.toBeInTheDocument();
+    expect(onOrdine).not.toHaveBeenCalled();
   });
 });
