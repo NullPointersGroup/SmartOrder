@@ -8,7 +8,7 @@ from src.cart.adapters.CartRepoAdapter import CartRepoAdapter
 from src.cart.adapters.CartRepository import CartRepository
 from src.cart.CartService import CartService
 from src.catalog.adapters.CatalogRepoAdapter import CatalogRepoAdapter
-from src.catalog.adapters.CatalogRepository import CatalogRepository
+from src.catalog.CatalogRepository import CatalogRepository
 from src.chat.adapters.ChatRepoAdapter import ChatRepoAdapter
 from src.chat.adapters.ChatRepository import ChatRepository
 from src.chat.adapters.LLMAdapter import LLMAdapter
