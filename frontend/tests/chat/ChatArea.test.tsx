@@ -134,29 +134,21 @@ describe('ChatArea – isTranscribing', () => {
 
   it('mostra il banner "Trascrizione in corso…" visibile nell\'UI durante isTranscribing=true', () => {
     renderChat({ isTranscribing: true });
-    // L'output con il testo "Trascrizione in corso…" è fuori dalla textarea
     const banners = screen.getAllByText(/trascrizione in corso/i);
-    // Almeno uno deve essere il banner (non il placeholder)
     expect(banners.length).toBeGreaterThanOrEqual(1);
   });
 
   it('non mostra il banner di trascrizione quando isTranscribing=false', () => {
     renderChat({ isTranscribing: false });
-    // Il testo del banner non deve essere nel DOM come elemento visibile
-    // (il placeholder "Scrivi un messaggio…" sarà usato, non quello di trascrizione)
     expect(screen.queryByPlaceholderText(/trascrizione in corso/i)).not.toBeInTheDocument();
   });
 
   it('il pulsante Invia rimane disabilitato durante la trascrizione anche con testo', () => {
-    // Durante la trascrizione la textarea è bloccata; invia deve restare disabilitato
     renderChat({ isTranscribing: true, inputText: 'testo precedente' });
-    // Il pulsante invia è disabilitato se isSending o isTranscribing (dipende dall'implementazione)
-    // Verifichiamo che la textarea sia disabilitata, che è il comportamento documentato
     expect(screen.getByRole('textbox')).toBeDisabled();
   });
 
   it('useEffect mette il focus sulla textarea quando isTranscribing torna false e inputText è valorizzato', async () => {
-    // Simula il flusso: prima isTranscribing=true, poi diventa false con un testo
     const focusSpy = vi.spyOn(HTMLTextAreaElement.prototype, 'focus');
 
     const { rerender } = render(
@@ -167,7 +159,6 @@ describe('ChatArea – isTranscribing', () => {
       />
     );
 
-    // Passa a isTranscribing=false con inputText valorizzato → useEffect deve chiamare focus()
     await act(async () => {
       rerender(
         <ChatArea
@@ -198,12 +189,11 @@ describe('ChatArea – isTranscribing', () => {
         <ChatArea
           {...defaultProps}
           isTranscribing={false}
-          inputText=""  // vuoto → il guard `if (!isTranscribing && inputText)` non passa
+          inputText=""
         />
       );
     });
 
-    // focus non deve essere chiamato
     expect(focusSpy).not.toHaveBeenCalled();
     focusSpy.mockRestore();
   });
@@ -270,12 +260,11 @@ describe('ChatArea – limite caratteri', () => {
 });
 
 // ════════════════════════════════════════════════════════════════════════════
-// sidebarOpen – classe CSS sticky (riga 307)
+// sidebarOpen
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – sidebarOpen', () => {
   it('aggiunge classe sticky bottom-0 z-10 quando sidebarOpen=true', () => {
     const { container } = renderChat({ sidebarOpen: true });
-    // La input bar è il secondo div figlio del main
     const inputBar = container.querySelector('.sticky');
     expect(inputBar).toBeInTheDocument();
   });
@@ -482,7 +471,6 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       await Promise.resolve();
       await Promise.resolve();
     });
-    // Avanza di 120 tick (1 al secondo) per innescare il limite automatico
     await act(async () => {
       for (let i = 0; i < 120; i++) {
         vi.advanceTimersByTime(1000);
@@ -503,6 +491,20 @@ describe('ChatArea – handleClipClick', () => {
     renderChat({ isSending: true });
     const btn = screen.getByRole('button', { name: /allega file audio/i });
     expect(btn).toBeDisabled();
+  });
+
+  // ── NUOVA COPERTURA: righe 202-203 ────────────────────────────────────────
+  it('chiama click() sull\'input file nascosto quando isSending=false (riga 202-203)', () => {
+    const { container } = renderChat({ isSending: false });
+
+    // Spia il click sull'input file nascosto
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => {});
+
+    fireEvent.click(screen.getByRole('button', { name: /allega file audio/i }));
+
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+    clickSpy.mockRestore();
   });
 });
 
@@ -605,7 +607,6 @@ describe('ChatArea – handleFileChange', () => {
       onerror: null as (() => void) | null,
       duration: 0,
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     globalThis.Audio = vi.fn().mockImplementation(function () { return mockAudio; }) as any;
 
     const { container } = renderChat({  });
