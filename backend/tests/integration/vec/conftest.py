@@ -10,7 +10,7 @@ from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
 from src.vec.adapters.CartVecDbAdapter import CartVecDbAdapter
 from src.vec.VecDbService import VecDbService
 from src.catalog.adapters.CatalogRepoAdapter import CatalogRepoAdapter
-from src.catalog.adapters.CatalogRepository import CatalogRepository
+from src.catalog.CatalogRepository import CatalogRepository
 
 DIMENSION = 4
 

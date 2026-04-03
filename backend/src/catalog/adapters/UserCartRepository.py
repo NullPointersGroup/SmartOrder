@@ -1,2 +1,0 @@
-class UserCartRepository:
-    username: str

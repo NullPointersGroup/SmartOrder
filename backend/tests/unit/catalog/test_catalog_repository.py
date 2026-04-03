@@ -1,6 +1,6 @@
 from src.db.models import Anaart
 from src.enums import MeasureUnitEnum
-from src.catalog.adapters.CatalogRepository import CatalogRepository
+from src.catalog.CatalogRepository import CatalogRepository
 from sqlalchemy.orm import class_mapper
 
 

@@ -18,9 +18,10 @@ class TokenUtility:
         @param username: lo username dell'utente autenticato
         @return: il token JWT
         """
+        exp_time = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
         payload = {
             "sub": username,
-            "exp": datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS),
+            "exp": int(exp_time.timestamp()), 
         }
         return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 

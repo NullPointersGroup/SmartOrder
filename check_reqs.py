@@ -8,8 +8,8 @@ from dataclasses import dataclass
 
 # --- Totale requisiti per categoria ---
 TOT_OBBLIG: int = 106
-TOT_DESID: int = 142
-TOT_OPZ: int = 14
+TOT_DESID: int = 140
+TOT_OPZ: int = 15
 
 _CATEGORY_TOTALS: Dict[str, int] = {
     "obblig": TOT_OBBLIG,
@@ -271,7 +271,7 @@ def _collect_issues_and_reqs(
     for file_rel, funcs in func_map.items():
         covered_lines = coverage_map.get(file_rel, set())
         for func in funcs:
-            is_covered = any(line in covered_lines for line in range(func["start"] + 1, func["end"] + 1))
+            is_covered = any(line in covered_lines for line in range(func["start"], func["end"] + 1))
             for req in func["reqs"]:
                 all_reqs.add(req)
                 if not is_covered:

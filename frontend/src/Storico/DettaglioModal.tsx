@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { Ordine } from './StoricoModel'
 
 interface DettaglioModalProps {
@@ -7,6 +7,7 @@ interface DettaglioModalProps {
   readonly onChiudi: () => void
   readonly onDuplica: (codice: string) => void
   readonly erroreDuplica: string | null
+  readonly onRefresh: () => void
 }
 
 export const DettaglioModal: React.FC<DettaglioModalProps> = ({
@@ -15,8 +16,26 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
   onChiudi,
   onDuplica,
   erroreDuplica,
+  onRefresh
 }) => {
-  const [confermaDuplica, setConfermaDuplica] = React.useState(false)
+  /**
+  @brief crea il dettaglio di un ordine
+  @param l'interfaccia DettaglioModalProps, utilizzati in modalità solo lettura
+  @return Type Description
+  @req RF-OB_84
+  @req RF-OB_95
+  @req RF-OB_96
+  @req RF-OB_97
+  @req RF-OB_98
+  @req RF-OB_99
+  @req RF-OB_100
+  @req RF-OB_101
+  @req RF-OB_102
+  @req RF-OB_103
+  @req RF-OB_104
+   */
+  const [confermaDuplica, setConfermaDuplica] = useState(false)
+  const [duplicatoOk, setDuplicatoOk] = useState(false)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -31,6 +50,56 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
     dialog?.addEventListener('close', handleClose)
     return () => dialog?.removeEventListener('close', handleClose)
   }, [onChiudi])
+
+  const contenutoDuplica = () => {
+    if (confermaDuplica) {
+      return (
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              onDuplica(ordine.codice_ordine)
+              setConfermaDuplica(false)
+              setDuplicatoOk(false)
+              setTimeout(() => onRefresh?.(), 300)
+            }}
+            className="flex-1 py-2.5 text-sm font-semibold bg-(--color-3) text-white hover:bg-(--color-4) transition-colors rounded-xl"
+          >
+            Conferma duplicazione
+          </button>
+          <button
+            onClick={() => setConfermaDuplica(false)}
+            className="flex-1 py-2.5 text-sm font-medium border border-(--border) text-(--text-3) hover:bg-(--bg-1) transition-colors rounded-xl"
+          >
+            Annulla
+          </button>
+        </div>
+      )
+    }
+
+    if (duplicatoOk) {
+      return (
+        <p className="text-xs text-(--color-3) flex items-center gap-1.5 font-medium">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Ordine duplicato con successo
+        </p>
+      )
+    }
+
+    return (
+      <button
+        onClick={() => setConfermaDuplica(true)}
+        className="w-full py-2.5 text-sm font-semibold bg-(--color-2) text-white hover:bg-(--color-3) transition-colors rounded-xl flex items-center justify-center gap-2"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        Duplica ordine
+      </button>
+    )
+  }
 
   return (
     <dialog
@@ -93,7 +162,7 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
                 <div className="flex items-start gap-3 flex-1">
                   <div>
                     <p className="text-sm font-semibold text-(--text-1)">{p.nome}</p>
-                    {p.descrizione && (
+                    {p.descrizione?.trim() && (
                       <p className="text-xs text-(--text-4) mt-0.5 leading-relaxed">
                         {p.descrizione}
                       </p>
@@ -108,7 +177,6 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
           </div>
         </div>
 
-        {/* Duplicazione (solo per cliente) */}
         {!isAdmin && (
           <div className="px-6 py-4 border-t border-(--border) bg-(--bg-2)">
             {erroreDuplica && (
@@ -116,37 +184,7 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
                 {erroreDuplica}
               </p>
             )}
-
-            {confermaDuplica ? (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    onDuplica(ordine.codice_ordine)
-                    setConfermaDuplica(false)
-                  }}
-                  className="flex-1 py-2.5 text-sm font-semibold bg-(--color-3) text-white hover:bg-(--color-4) transition-colors rounded-xl"
-                >
-                  Conferma duplicazione
-                </button>
-                <button
-                  onClick={() => setConfermaDuplica(false)}
-                  className="flex-1 py-2.5 text-sm font-medium border border-(--border) text-(--text-3) hover:bg-(--bg-1) transition-colors rounded-xl"
-                >
-                  Annulla
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setConfermaDuplica(true)}
-                className="w-full py-2.5 text-sm font-semibold bg-(--color-2) text-white hover:bg-(--color-3) transition-colors rounded-xl flex items-center justify-center gap-2"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <rect x="9" y="9" width="13" height="13" rx="2"/>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                </svg>
-                Duplica ordine
-              </button>
-            )}
+            {contenutoDuplica()}
           </div>
         )}
       </div>

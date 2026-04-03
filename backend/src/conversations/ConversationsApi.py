@@ -40,7 +40,9 @@ def get_conversations(
     db: SessionDb,
     current_user: CurrentUser,
 ) -> List[ConversationOut]:
-    """Restituisce tutte le conversazioni di un utente."""
+    """
+    @brief Restituisce tutte le conversazioni di un utente
+    """
     rows = db.exec(
         select(Conversazioni)
         .where(Conversazioni.username == username)
@@ -59,7 +61,9 @@ def create_conversation(
     db: SessionDb,
     current_user: CurrentUser,
 ) -> ConversationOut:
-    """Crea una nuova Conversazioni per l'utente."""
+    """
+    @brief Crea una nuova Conversazioni per l'utente
+    """
     conv = Conversazioni(username=username, titolo=body.titolo)
     db.add(conv)
     db.commit()
@@ -74,7 +78,9 @@ def rename_conversation(
     db: SessionDb,
     current_user: CurrentUser,
 ) -> ConversationOut:
-    """Rinomina una Conversazioni esistente."""
+    """
+    @brief Rinomina una Conversazioni esistente
+    """
     conv = db.get(Conversazioni, conv_id)
     if not conv:
         raise HTTPException(
@@ -94,7 +100,9 @@ def delete_conversation(
     db: SessionDb,
     current_user: CurrentUser,
 ) -> None:
-    """Elimina una Conversazioni e tutti i suoi messaggi (CASCADE)."""
+    """
+    @brief Elimina una Conversazioni e tutti i suoi messaggi (CASCADE)
+    """
     conv = db.get(Conversazioni, conv_id)
     if not conv:
         raise HTTPException(
