@@ -22,17 +22,17 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
   @brief crea il dettaglio di un ordine
   @param l'interfaccia DettaglioModalProps, utilizzati in modalità solo lettura
   @return Type Description
-  @req RF-OB_84
+  @req RF-OB_76
+  @req RF-OB_87
+  @req RF-OB_88
+  @req RF-OB_89
+  @req RF-OB_90
+  @req RF-OB_91
+  @req RF-OB_92
+  @req RF-OB_93
+  @req RF-OB_94
   @req RF-OB_95
   @req RF-OB_96
-  @req RF-OB_97
-  @req RF-OB_98
-  @req RF-OB_99
-  @req RF-OB_100
-  @req RF-OB_101
-  @req RF-OB_102
-  @req RF-OB_103
-  @req RF-OB_104
    */
   const [confermaDuplica, setConfermaDuplica] = useState(false)
   const [duplicatoOk, setDuplicatoOk] = useState(false)
@@ -50,6 +50,13 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
     dialog?.addEventListener('close', handleClose)
     return () => dialog?.removeEventListener('close', handleClose)
   }, [onChiudi])
+
+  // Chiude cliccando sul backdrop (il click arriva sul <dialog> stesso, non sui figli)
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target === dialogRef.current) {
+      dialogRef.current?.close()
+    }
+  }
 
   const contenutoDuplica = () => {
     if (confermaDuplica) {
@@ -104,7 +111,8 @@ export const DettaglioModal: React.FC<DettaglioModalProps> = ({
   return (
     <dialog
       ref={dialogRef}
-      className="fixed inset-0 z-50 p-0 m-0 w-screen h-screen bg-transparent flex items-center justify-center backdrop:bg-black/40 backdrop:backdrop-blur-[2px]"
+      onClick={handleBackdropClick}
+      className="fixed inset-0 z-50 p-0 m-0 w-screen h-screen bg-transparent flex items-center justify-center backdrop:bg-black/40 backdrop:backdrop-blur-2"
     >
       <div className="bg-(--bg-3) w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden border border-(--border)">
 

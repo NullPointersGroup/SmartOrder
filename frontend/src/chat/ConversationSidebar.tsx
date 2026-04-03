@@ -33,8 +33,8 @@ export const ConversationSidebar: React.FC<Props> = ({
   /**
   @brief costruisce la sidebar di sinistra delle conversazioni
   @param l'interfaccia Props
-  @req RF-OB_81
-  @req RF-OB_82
+  @req RF-OB_74
+  @req RF-OB_75
   @req RF-DE_128
   @req RF-DE_134
   @req RF-DE_135

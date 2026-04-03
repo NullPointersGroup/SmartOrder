@@ -8,6 +8,7 @@ export default function FormErrors({ errors }: FormErrorsProps) {
     * @brief Visualizza la lista di errori restituiti dal backend dopo il submit.
     * @param errors string[] Lista di messaggi di errore provenienti dal ViewModel
     * @req RF-OB_04
+    * @req RF-OB_20
     * @req RF-OB_21
     * @req RF-OB_28
     */

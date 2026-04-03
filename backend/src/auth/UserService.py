@@ -48,16 +48,8 @@ class UserService:
         """
         @brief Orchestra la registrazione
         @param u: dati di registrazione
-        @req RF-OB_02
-        @req RF-OB_03
-        @req RF-OB_05
-        @req RF-OB_08
-        @req RF-OB_09
-        @req RF-OB_10
         @req RF-OB_16
         @req RF-OB_18
-        @req RF-OB_19
-        @req RF-OB_20
         """
         if self.repo.username_exists(u.username):
             raise UsernameAlreadyExistsError()

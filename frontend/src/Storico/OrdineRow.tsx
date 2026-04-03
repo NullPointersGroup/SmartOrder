@@ -14,10 +14,10 @@ export const OrdineRow: React.FC<OrdineRowProps> = ({
 }) => {
   /**
   @brief mostra l'ordine singolo
-  @req RF-OB_91
-  @req RF-OB_92
-  @req RF-OB_93
-  @req RF-OB_94
+  @req RF-OB_83
+  @req RF-OB_84
+  @req RF-OB_85
+  @req RF-OB_86
    */
   return (
     <tr className="relative border-b border-(--border) hover:bg-(--bg-2) transition-colors group">

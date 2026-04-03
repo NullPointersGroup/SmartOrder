@@ -11,8 +11,8 @@ import { Profile } from '../chat/Profile';
 export const StoricoView: React.FC = () => {
   /**
   @brief mostra la pagina dello storico
-  @req RF-OB_87
-  @req RF-OB_88
+  @req RF-OB_79
+  @req RF-OB_80
   @req RF-DE_113
   @req RF-DE_114
   @req RF-DE_115

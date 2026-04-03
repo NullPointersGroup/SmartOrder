@@ -14,8 +14,8 @@ export const Paginazione: React.FC<PaginazioneProps> = ({
   /**
   @brief divide in pagine tutti gli ordini
   @param l'interfaccia PaginazioneProps
-  @req RF-OB_89
-  @req RF-OB_90
+  @req RF-OB_81
+  @req RF-OB_82
    */
   if (totalePagine <= 1) return null
 
