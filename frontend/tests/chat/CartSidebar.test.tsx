@@ -1,0 +1,221 @@
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+
+import { CartSidebar } from '../../src/chat/CartSidebar';
+import type { CartProduct } from '../../src/chat/ChatModel';
+
+const products: CartProduct[] = [
+  { prod_id: 'P001', name: 'Latte Intero', price: 1.5,  measure_unit: 1, qty: 2 },
+  { prod_id: 'P002', name: 'Pane Bianco',  price: 2,    measure_unit: 1, qty: 1 },
+];
+
+function renderCart(
+  prods: CartProduct[] = products,
+  onToggle = vi.fn(),
+  onOrdine = vi.fn(),
+) {
+  return render(
+    <CartSidebar products={prods} onToggleSelf={onToggle} onOrdine={onOrdine} />,
+  );
+}
+
+describe('CartSidebar – render base', () => {
+  it('mostra il titolo "Carrello"', () => {
+    renderCart();
+    expect(screen.getByText(/carrello/i)).toBeInTheDocument();
+  });
+
+  it('ha il ruolo di aside con aria-label "Carrello"', () => {
+    renderCart();
+    expect(screen.getByRole('complementary', { name: /carrello/i })).toBeInTheDocument();
+  });
+});
+
+// Carrello vuoto
+describe('CartSidebar – carrello vuoto', () => {
+  it('mostra il messaggio di carrello vuoto', () => {
+    renderCart([]);
+    expect(screen.getByText(/il carrello è vuoto/i)).toBeInTheDocument();
+  });
+
+  it('non mostra il badge con il conteggio', () => {
+    renderCart([]);
+    expect(screen.queryByText(/^\d+$/)).not.toBeInTheDocument();
+  });
+
+  it('non mostra il totale', () => {
+    renderCart([]);
+    expect(screen.queryByText(/totale/i)).not.toBeInTheDocument();
+  });
+
+  it('suggerisce di usare il chatbot', () => {
+    renderCart([]);
+    expect(screen.getByText(/chiedi al chatbot/i)).toBeInTheDocument();
+  });
+
+  it('non mostra il pulsante "Invia ordine" se il carrello è vuoto', () => {
+    renderCart([]);
+    expect(screen.queryByText(/invia ordine/i)).not.toBeInTheDocument();
+  });
+});
+
+// Carrello con prodotti
+describe('CartSidebar – con prodotti', () => {
+  it('mostra la lista dei prodotti con i nomi corretti', () => {
+    renderCart();
+    expect(screen.getByText('Latte Intero')).toBeInTheDocument();
+    expect(screen.getByText('Pane Bianco')).toBeInTheDocument();
+  });
+
+  it('mostra i prod_id dei prodotti', () => {
+    renderCart();
+    expect(screen.getByText('P001')).toBeInTheDocument();
+    expect(screen.getByText('P002')).toBeInTheDocument();
+  });
+
+  it('mostra il badge con il numero corretto di prodotti', () => {
+    renderCart();
+    expect(screen.getByTestId('cart-badge')).toHaveTextContent('2');
+  });
+
+  it('mostra le quantità dei prodotti', () => {
+    renderCart();
+    const qtyElements = screen.getAllByText(/qtà/i);
+    expect(qtyElements.length).toBeGreaterThan(0);
+  });
+
+  it('mostra la sezione Totale', () => {
+    renderCart();
+    expect(screen.getByText(/totale/i)).toBeInTheDocument();
+  });
+
+  it('calcola il totale correttamente (1.5*2 + 2.0*1 = 5.00 €)', () => {
+    renderCart();
+    expect(screen.getByText(/5,00/)).toBeInTheDocument();
+  });
+
+  it('mostra la lista prodotti con aria-label corretto', () => {
+    renderCart();
+    expect(screen.getByRole('list', { name: /prodotti nel carrello/i })).toBeInTheDocument();
+  });
+});
+
+// Formattazione prezzi
+describe('CartSidebar – formattazione valuta', () => {
+  it('formatta i prezzi in formato italiano EUR', () => {
+    renderCart([{ prod_id: 'X', name: 'Test', price: 10.5, measure_unit: 1, qty: 1 }]);
+    expect(screen.getAllByText(/10,50/).length).toBeGreaterThan(0);
+  });
+
+  it('gestisce prodotti con price zero senza crash', () => {
+    const priceZero: CartProduct[] = [
+      { prod_id: 'X', name: 'Free', price: 0, measure_unit: 1, qty: 1 },
+    ];
+    expect(() => renderCart(priceZero)).not.toThrow();
+  });
+
+  it('gestisce price undefined senza crash — copre branch ?? 0 su price (righe 13, 70)', () => {
+    const p: CartProduct[] = [
+      { prod_id: 'X', name: 'NoPrezzzo', price: undefined as unknown as number, measure_unit: 1, qty: 2 },
+    ];
+    expect(() => renderCart(p)).not.toThrow();
+    expect(screen.getByText(/totale/i)).toBeInTheDocument();
+  });
+
+  it('gestisce qty undefined senza crash — copre branch ?? 0 su qty (righe 13, 70)', () => {
+    const p: CartProduct[] = [
+      { prod_id: 'X', name: 'NoQty', price: 3, measure_unit: 1, qty: undefined as unknown as number },
+    ];
+    expect(() => renderCart(p)).not.toThrow();
+    expect(screen.getByText(/totale/i)).toBeInTheDocument();
+  });
+});
+
+// Interazione – pulsante chiudi
+describe('CartSidebar – interazione', () => {
+  it('chiama onToggleSelf al click del pulsante chiudi', () => {
+    const onToggle = vi.fn();
+    renderCart(products, onToggle);
+    fireEvent.click(screen.getByTitle(/chiudi carrello/i));
+    expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it('il pulsante chiudi ha il title corretto', () => {
+    renderCart();
+    expect(screen.getByTitle(/chiudi carrello/i)).toBeInTheDocument();
+  });
+});
+
+// Accessibilità
+describe('CartSidebar – accessibilità', () => {
+  it('il pulsante chiudi ha aria-label o title leggibile', () => {
+    renderCart();
+    const btn = screen.getByTitle(/chiudi carrello/i);
+    expect(btn).toBeInTheDocument();
+  });
+
+  it('ogni prodotto è in un elemento li', () => {
+    renderCart();
+    const listItems = screen.getAllByRole('listitem');
+    expect(listItems.length).toBeGreaterThanOrEqual(products.length);
+  });
+});
+
+// ── Dialog di conferma ordine ─────────────────────────────────────────────────
+describe('CartSidebar – dialog di conferma ordine', () => {
+
+  it('il click su "Invia ordine" apre il dialog di conferma (riga 140 – setShowConfirm(true))', () => {
+    renderCart();
+    expect(screen.queryByText(/conferma ordine/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/conferma ordine/i)).toBeInTheDocument();
+  });
+
+  it('il dialog mostra numero prodotti e totale (righe 42-54 – jsx dialog)', () => {
+    renderCart();
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/2 prodotti/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/5,00/).length).toBeGreaterThan(0);
+  });
+
+  it('il dialog mostra "prodotto" al singolare se c\'è un solo articolo', () => {
+    const one: CartProduct[] = [
+      { prod_id: 'P001', name: 'Latte', price: 3, measure_unit: 1, qty: 1 },
+    ];
+    renderCart(one);
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/1 prodotto(?!i)/i)).toBeInTheDocument();
+  });
+
+  it('"Annulla" chiude il dialog senza chiamare onOrdine (riga 31 – setShowConfirm(false))', () => {
+    const onOrdine = vi.fn();
+    renderCart(products, vi.fn(), onOrdine);
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/conferma ordine/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByText(/annulla/i));
+    expect(screen.queryByText(/conferma ordine/i)).not.toBeInTheDocument();
+    expect(onOrdine).not.toHaveBeenCalled();
+  });
+
+  it('"Conferma" chiude il dialog e chiama onOrdine (riga 32 – handleConferma)', () => {
+    const onOrdine = vi.fn();
+    renderCart(products, vi.fn(), onOrdine);
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/conferma ordine/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^conferma$/i }));
+    expect(screen.queryByText(/conferma ordine/i)).not.toBeInTheDocument();
+    expect(onOrdine).toHaveBeenCalledTimes(1);
+  });
+
+  it('click sullo sfondo (backdrop) chiude il dialog senza chiamare onOrdine', () => {
+    const onOrdine = vi.fn();
+    renderCart(products, vi.fn(), onOrdine);
+    fireEvent.click(screen.getByText(/invia ordine/i));
+    expect(screen.getByText(/conferma ordine/i)).toBeInTheDocument();
+    // Il backdrop è un <button> senza testo né aria-label esplicito
+    const backdrop = screen.getByRole('button', { name: '' });
+    fireEvent.click(backdrop);
+    expect(screen.queryByText(/conferma ordine/i)).not.toBeInTheDocument();
+    expect(onOrdine).not.toHaveBeenCalled();
+  });
+});

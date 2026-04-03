@@ -141,6 +141,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.test
 .envrc
 .venv
 env/
@@ -211,3 +212,6 @@ __marimo__/
 
 # React
 node_modules/
+
+# Mise init file
+mise.toml

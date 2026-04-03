@@ -1,0 +1,43 @@
+from sqlmodel import Session, select
+
+from src.chat.exceptions import ConversationNotFoundException
+from src.db.models import Conversazioni, Messaggi
+from src.enums import SenderEnum
+
+
+class ChatRepository:
+    def __init__(self, db: Session) -> None:
+        self.db = db
+
+    ## TODO spostare Conversazioni negli schemi della chat
+    def get_conversation(self, conv_id: int) -> Conversazioni | None:
+        return self.db.get(Conversazioni, conv_id)
+
+    def create_conversation(self, username: str) -> Conversazioni:
+        conv = Conversazioni(
+            username=username,
+            titolo="Nuova Conversazioni"
+        )
+        self.db.add(conv)
+        self.db.commit()
+        self.db.refresh(conv)
+        return conv
+
+    def get_messages(self, conv_id: int) -> list[Messaggi]:
+        if not self.get_conversation(conv_id):
+            raise ConversationNotFoundException(conv_id)
+        stmt = select(Messaggi).where(
+            Messaggi.id_conv == conv_id
+        )
+        return list(self.db.exec(stmt).all())
+
+    def add_message(self, conv_id: int, text: str, sender: SenderEnum) -> Messaggi:
+        msg = Messaggi(
+            id_conv=conv_id,
+            contenuto=text,
+            mittente=sender
+        )
+        self.db.add(msg)
+        self.db.commit()
+        self.db.refresh(msg)
+        return msg

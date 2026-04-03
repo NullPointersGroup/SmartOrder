@@ -7,9 +7,9 @@ import re
 from dataclasses import dataclass
 
 # --- Totale requisiti per categoria ---
-TOT_OBBLIG: int = 110
-TOT_DESID: int = 146
-TOT_OPZ: int = 17
+TOT_OBBLIG: int = 106
+TOT_DESID: int = 140
+TOT_OPZ: int = 15
 
 _CATEGORY_TOTALS: Dict[str, int] = {
     "obblig": TOT_OBBLIG,
@@ -54,7 +54,7 @@ def _collect_nodes(
     results: List[FuncInfo] = []
 
     for node in body:
-        if isinstance(node, ast.FunctionDef):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             results.append(
                 FuncInfo(
                     name=_build_func_name(node.name, class_path),
@@ -169,9 +169,10 @@ def parse_lcov_info(lcov_path: Path, proj_root: Path) -> Dict[str, Set[int]]:
             if len(parts) == 2 and int(parts[1]) > 0:
                 lines_covered.add(int(parts[0]))
         elif line.startswith("end_of_record") and current_file is not None:
+            print(f"  lcov raw path: {current_file}")
             try:
-                # FIX: relative to proj_root (e.g. "frontend/") → "src/Counter.tsx"
                 rel_file = current_file.relative_to(proj_root).as_posix()
+                print(f"  lcov rel path: {rel_file}")
             except ValueError:
                 rel_file = current_file.name
             coverage[rel_file] = lines_covered
@@ -265,19 +266,19 @@ def _collect_issues_and_reqs(
 ) -> tuple[List[Dict], Set[str], Set[str]]:
     issues: List[Dict] = []
     all_reqs: Set[str] = set()
-    covered_reqs: Set[str] = set()
+    uncovered_reqs: Set[str] = set()
 
     for file_rel, funcs in func_map.items():
         covered_lines = coverage_map.get(file_rel, set())
         for func in funcs:
-            is_covered = any(line in covered_lines for line in range(func["start"] + 1, func["end"] + 1))
+            is_covered = any(line in covered_lines for line in range(func["start"], func["end"] + 1))
             for req in func["reqs"]:
                 all_reqs.add(req)
-                if is_covered:
-                    covered_reqs.add(req)
-                else:
+                if not is_covered:
+                    uncovered_reqs.add(req)
                     issues.append(_build_issue(file_rel, func, req))
 
+    covered_reqs = all_reqs - uncovered_reqs
     return issues, all_reqs, covered_reqs
 
 
@@ -287,7 +288,26 @@ def generate_sonar_issues(
     output_path: Path,
 ) -> None:
     issues, all_reqs, covered_reqs = _collect_issues_and_reqs(func_map, coverage_map)
+
+    print("\n=== DEBUG ===")
+    print(f"all_reqs ({len(all_reqs)}):      {sorted(all_reqs)}")
+    print(f"covered_reqs ({len(covered_reqs)}): {sorted(covered_reqs)}")
+    print(f"issues ({len(issues)}):         {[i['ruleId'] for i in issues]}")
+    print("=============\n")
+
     summary = _build_summary(all_reqs, covered_reqs)
+    
+    print("\n=== DEBUG PATHS ===")
+    print("func_map keys (frontend):")
+    for k in sorted(func_map.keys()):
+        if k.endswith(_TS_EXTENSIONS):
+            print(f"  {k}")
+
+    print("\ncoverage_map keys (frontend):")
+    for k in sorted(coverage_map.keys()):
+        if k.endswith(_TS_EXTENSIONS):
+            print(f"  {k}")
+    print("===================\n")
 
     with open(output_path, "w") as f:
         json.dump({"summary": summary, "issues": issues}, f, indent=2)
@@ -333,9 +353,8 @@ def _build_coverage_map(proj: ProjectConfig) -> Dict[str, Set[int]]:
     raw = (
         parse_coverage_xml(proj.coverage)
         if proj.lang == "py"
-        else parse_lcov_info(proj.coverage, proj.root.resolve())
+        else parse_lcov_info(proj.coverage, proj.root.resolve().parent)
     )
-    # Normalizza le chiavi garantendo il prefisso "src/"
     return {
         (f if f.startswith("src/") else f"src/{f}"): lines
         for f, lines in raw.items()
