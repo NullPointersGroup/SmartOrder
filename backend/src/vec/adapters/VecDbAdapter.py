@@ -1,5 +1,5 @@
-from src.vec.VecDbService import VecDbService
 from src.vec.ports.VecDbPortIn import VecDbPortIn
+from src.vec.VecDbService import VecDbService
 
 
 class VecDbAdapter(VecDbPortIn):
@@ -12,8 +12,8 @@ class VecDbAdapter(VecDbPortIn):
     def get_cart(self, username: str) -> None:
         self.vec_db_service.load_cart(username)
 
-    def search_catalog(self, query: str) -> list[str]:
-        return self.vec_db_service.search_catalog(query)
+    def search_catalog(self, query: str, threshold: float) -> list[str]:
+        return self.vec_db_service.search_catalog(query, threshold)
 
-    def search_cart(self, username: str, query: str) -> list[str]:
-        return self.vec_db_service.search_cart(username, query)
+    def search_cart(self, username: str, query: str, threshold: float) -> list[str]:
+        return self.vec_db_service.search_cart(username, query, threshold)

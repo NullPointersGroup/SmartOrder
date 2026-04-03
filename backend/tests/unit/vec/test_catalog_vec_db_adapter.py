@@ -57,3 +57,11 @@ def test_search_returns_empty_list(
     vector = make_vector([1.0, 0.0, 0.0, 0.0])
     result = adapter.search(vector, n=3, threshold=0.8)
     assert result == []
+
+
+def test_reset_calls_faiss_db_reset(
+    adapter: CatalogVecDbAdapter, mock_faiss_db: MagicMock
+):
+    adapter.reset()
+
+    mock_faiss_db.reset.assert_called_once_with()

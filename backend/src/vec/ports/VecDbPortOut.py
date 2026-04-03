@@ -1,8 +1,13 @@
 from abc import ABC, abstractmethod
-from faiss import np
+import numpy as np
 
 
 class VecDbPortOut(ABC):
+    @abstractmethod
+    def reset(self) -> None:
+        """Svuota il database vettoriale"""
+        pass
+
     @abstractmethod
     def search(self, v: np.ndarray, n: int, threshold: float) -> list[str]:
         """Ritorna lista prodotti simili"""

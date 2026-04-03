@@ -1,4 +1,5 @@
 import pytest
+pytest.importorskip("langchain")
 
 from src.chat.ToolExecutor import ToolExecutor
 from src.chat.exceptions import ToolNotFoundException

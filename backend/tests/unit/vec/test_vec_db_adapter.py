@@ -29,43 +29,43 @@ def test_get_cart_returns_none(adapter: VecDbAdapter, mock_service: MagicMock):
 
 def test_search_catalog_calls_service(adapter: VecDbAdapter, mock_service: MagicMock):
     mock_service.search_catalog.return_value = []
-    adapter.search_catalog("pasta")
-    mock_service.search_catalog.assert_called_once_with("pasta")
+    adapter.search_catalog("pasta", 0.7)
+    mock_service.search_catalog.assert_called_once_with("pasta", 0.7)
 
 
 def test_search_catalog_returns_results(adapter: VecDbAdapter, mock_service: MagicMock):
     mock_service.search_catalog.return_value = ["ABC1", "ABC2"]
-    result = adapter.search_catalog("pasta")
+    result = adapter.search_catalog("pasta", 0.7)
     assert result == ["ABC1", "ABC2"]
 
 
 def test_search_catalog_returns_empty(adapter: VecDbAdapter, mock_service: MagicMock):
     mock_service.search_catalog.return_value = []
-    result = adapter.search_catalog("pasta")
+    result = adapter.search_catalog("pasta", 0.7)
     assert result == []
 
 
 def test_search_cart_calls_service(adapter: VecDbAdapter, mock_service: MagicMock):
     mock_service.search_cart.return_value = []
-    adapter.search_cart("mario", "pasta")
-    mock_service.search_cart.assert_called_once_with("mario", "pasta")
+    adapter.search_cart("mario", "pasta", 0.7)
+    mock_service.search_cart.assert_called_once_with("mario", "pasta", 0.7)
 
 
 def test_search_cart_passes_username_and_query(
     adapter: VecDbAdapter, mock_service: MagicMock
 ):
     mock_service.search_cart.return_value = []
-    adapter.search_cart("luigi", "acqua")
-    mock_service.search_cart.assert_called_once_with("luigi", "acqua")
+    adapter.search_cart("luigi", "acqua", 0.7)
+    mock_service.search_cart.assert_called_once_with("luigi", "acqua", 0.7)
 
 
 def test_search_cart_returns_results(adapter: VecDbAdapter, mock_service: MagicMock):
     mock_service.search_cart.return_value = ["ABC1", "ABC2"]
-    result = adapter.search_cart("mario", "pasta")
+    result = adapter.search_cart("mario", "pasta", 0.7)
     assert result == ["ABC1", "ABC2"]
 
 
 def test_search_cart_returns_empty(adapter: VecDbAdapter, mock_service: MagicMock):
     mock_service.search_cart.return_value = []
-    result = adapter.search_cart("mario", "pasta")
+    result = adapter.search_cart("mario", "pasta", 0.7)
     assert result == []

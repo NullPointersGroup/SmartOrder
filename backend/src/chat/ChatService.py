@@ -1,8 +1,10 @@
 from src.chat.ChatSchemas import Message
-from src.chat.LLMModels import LLMRequest, Message as LLMMessage
-from src.enums import SenderEnum
+from src.chat.LLMModels import LLMRequest
+from src.chat.LLMModels import Message as LLMMessage
 from src.chat.ports.ChatRepoPort import ChatRepoPort
 from src.chat.ports.LLMPort import LLMPort
+from src.enums import SenderEnum
+
 
 class ChatService:
     def __init__(self, repo: ChatRepoPort, llm: LLMPort) -> None:
@@ -14,11 +16,7 @@ class ChatService:
         return messages
 
     def send_message(
-        self,
-        conv_id: int,
-        username: str,
-        content: str,
-        audio_file: None | str = None
+        self, conv_id: int, username: str, content: str, audio_file: None | str = None
     ) -> Message:
         # controlla se la conversazione esiste
         exists = self.repo.conversation_exist(conv_id)
@@ -32,7 +30,7 @@ class ChatService:
         request = LLMRequest(
             conversation_id=conv_id,
             message_id=message.id_message or 0,
-            chat_history=[LLMMessage(role="user", content=message.content)]
+            chat_history=[LLMMessage(role="user", content=message.content)],
         )
 
         llm_response = self.llm.invoke_agent(request)

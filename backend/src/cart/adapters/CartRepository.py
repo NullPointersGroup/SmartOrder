@@ -1,3 +1,4 @@
+from typing import Any
 from sqlmodel import Session, col, delete, select, update
 from src.cart.exceptions import (
     ProductNotFoundException,
@@ -61,17 +62,32 @@ class CartRepository:
         result = self.db.exec(stmt).first()
         if not result:
             raise ProductNotFoundException(prod_id)
+        assert result is not None
 
-        new_cart_item = Carrello(
-            username=username, cod_art=prod_id, quantita=qty
+        # Cerca se esiste già nel carrello
+        stmt_cart = select(Carrello).where(
+            Carrello.username == username,
+            Carrello.cod_art == prod_id,
         )
-        self.db.add(new_cart_item)
+        existing_item = self.db.exec(stmt_cart).first()
+
+        if existing_item:
+            # UPDATE: aggiorna la quantità
+            existing_item.quantita += qty
+            self.db.add(existing_item)
+        else:
+            # INSERT: crea nuovo elemento
+            existing_item = Carrello(
+                username=username, cod_art=prod_id, quantita=qty
+            )
+            self.db.add(existing_item)
+
         self.db.commit()
-        self.db.refresh(new_cart_item)
+        self.db.refresh(existing_item)
 
         return CartProductRepository(
             id_prod=prod_id,
-            qty=qty,
+            qty=existing_item.quantita,
             prod_descr=result.prod_des,
             price=result.price,
             measure_unit=MeasureUnitEnum(result.measure_unit_type),
@@ -144,9 +160,14 @@ class CartRepository:
         assert result is not None
         cart, catalog = result
         if operation == CartUpdateOperation.Add:
-            new_qty = col(Carrello.quantita) + qty
-        else:
+            new_qty: Any = col(Carrello.quantita) + qty
+            result_qty = cart.quantita + qty
+        elif operation == CartUpdateOperation.Remove:
             new_qty = col(Carrello.quantita) - qty
+            result_qty = cart.quantita - qty
+        else:
+            new_qty = qty
+            result_qty = qty
         update_stmt = (
             update(Carrello)
             .where(col(Carrello.username) == username)
@@ -158,11 +179,7 @@ class CartRepository:
 
         return CartProductRepository(
             id_prod=prod_id,
-            qty=(
-                cart.quantita + qty
-                if operation == CartUpdateOperation.Add
-                else cart.quantita - qty
-            ),
+            qty=result_qty,
             prod_descr=catalog.prod_des,
             price=catalog.price,
             measure_unit=MeasureUnitEnum(catalog.measure_unit_type),
