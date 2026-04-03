@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { CartProduct } from './ChatModel';
 
 interface Props {
   products: CartProduct[];
   onToggleSelf: () => void;
+  onOrdine: () => void;
 }
 
-export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf }) => {
+export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf, onOrdine }) => {
   /**
   @brief costruisce la sidebar di destra del carrello
   @param l'interfaccia Props
@@ -18,12 +19,53 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf }) => {
   @req RF-OB_66
   @req RF-OB_67
    */
+  
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const fmt = (n?: number) =>
-  (n ?? 0).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+    (n ?? 0).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 
   const total = products.reduce((sum, p) => sum + (p.price ?? 0) * (p.qty ?? 0), 0);
 
+  const handleConferma = () => {
+    setShowConfirm(false);
+    onOrdine();
+  };
+
   return (
+    <>
+      {/* Dialog di conferma */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-200 flex items-center justify-center">
+          <button
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowConfirm(false)}
+          />
+          <div className="relative z-10 bg-(--bg-1) border border-(--border) rounded-2xl shadow-2xl p-6 w-80 flex flex-col gap-4">
+            <h2 className="text-base font-semibold text-(--text-1)">Conferma ordine</h2>
+            <p className="text-sm text-(--text-3)">
+              Vuoi inviare l'ordine per{' '}
+              <span className="font-semibold text-(--text-1)">{products.length} prodott{products.length === 1 ? 'o' : 'i'}</span>{' '}
+              del valore di{' '}
+              <span className="font-semibold text-(--text-1)">{fmt(total)}</span>?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-4 py-2 rounded-xl text-sm text-(--text-3) hover:bg-(--bg-2) transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={handleConferma}
+                className="px-4 py-2 rounded-xl text-sm font-semibold bg-(--color-2) text-(--bg-1) hover:opacity-90 transition-opacity"
+              >
+                Conferma
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     <aside className="flex flex-col w-80 min-w-[20rem] h-full bg-(--bg-3) border-l border-(--border)" aria-label="Carrello">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-6 border border-(--border)">
@@ -86,15 +128,24 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf }) => {
         )}
       </ul>
 
-      {/* Footer con totale */}
-      {products.length > 0 && (
-        <div className="border-t border-(--border) px-4 py-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm text-(--text-3)">Totale</span>
-            <span className="text-base font-bold text-(--text-1)">{fmt(total)}</span>
+      {/* Footer */}
+        {products.length > 0 && (
+          <div className="border-t border-(--border) px-4 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-(--text-3)">Totale</span>
+              <span className="text-base font-bold text-(--text-1)">{fmt(total)}</span>
+            </div>
+            <div className="px-0 pb-0 pt-2">
+              <button
+                onClick={() => setShowConfirm(true)}  // ← apre il dialog, non chiama onOrdine direttamente
+                className="w-full py-3 rounded-xl bg-(--color-2) text-(--bg-1) text-sm font-semibold hover:opacity-90 transition-opacity"
+              >
+                Invia ordine
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </aside>
+    </>
   );
 };

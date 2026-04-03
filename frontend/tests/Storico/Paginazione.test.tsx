@@ -39,7 +39,6 @@ describe('Paginazione – non renderizzata se totalePagine <= 1', () => {
 describe('Paginazione – render base', () => {
   it('mostra il numero di pagina corrente e il totale', () => {
     renderPaginazione(2, 5);
-    // Il testo "2 / 5" è spezzato da un <span> interno: cerchiamo il contenitore
     const counter = document.querySelector('span.font-mono');
     if (!counter) throw new Error('elemento contatore non trovato');
     expect(
@@ -106,7 +105,6 @@ describe('Paginazione – interazione', () => {
   it('non chiama onCambia se "Precedente" è disabilitato', async () => {
     const onCambia = vi.fn();
     renderPaginazione(1, 5, onCambia);
-    // userEvent rispetta lo stato disabled del pulsante, fireEvent no
     await userEvent.click(screen.getByRole('button', { name: /precedente/i }));
     expect(onCambia).not.toHaveBeenCalled();
   });
@@ -123,7 +121,6 @@ describe('Paginazione – interazione', () => {
     renderPaginazione(2, 5, onCambia);
     fireEvent.click(screen.getByRole('button', { name: /successivo/i }));
     fireEvent.click(screen.getByRole('button', { name: /successivo/i }));
-    // Nota: la seconda chiamata punta sempre a pagina+1 del valore nel prop (non aggiornato qui)
     expect(onCambia).toHaveBeenCalledTimes(2);
   });
 });

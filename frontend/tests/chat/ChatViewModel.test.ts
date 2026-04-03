@@ -18,6 +18,7 @@ vi.mock('../../src/chat/ChatModel', () => ({
     sendMessage:          vi.fn(),
     removeFromCart:       vi.fn(),
     logout:               vi.fn(),
+    sendOrder:            vi.fn(),   // ← necessario per invioOrdine
   },
 }));
 
@@ -66,6 +67,7 @@ function setupDefaultMocks() {
 
 beforeEach(() => {
   localStorageMock.clear();
+  globalThis.location.href = '';
   setupDefaultMocks();
 });
 
@@ -349,7 +351,7 @@ describe('useChatViewModel – sendMessage', () => {
 });
 
 // ════════════════════════════════════════════════════════════════════════════
-// handleAudioAttach – righe 188-195 (PRIMA NON COPERTE)
+// handleAudioAttach
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – handleAudioAttach', () => {
   it('imposta inputText con la trascrizione del file audio', async () => {
@@ -374,11 +376,9 @@ describe('useChatViewModel – handleAudioAttach', () => {
     await waitFor(() => expect(result.current.username).toBe('mario'));
 
     const file = new File(['audio'], 'test.mp3', { type: 'audio/mpeg' });
-    // Avvia ma non attendere
     act(() => { result.current.handleAudioAttach(file); });
     await waitFor(() => expect(result.current.isTranscribing).toBe(true));
 
-    // Risolvi e verifica cleanup
     await act(async () => { resolveTranscription('risultato'); });
     await waitFor(() => expect(result.current.isTranscribing).toBe(false));
   });
@@ -409,7 +409,7 @@ describe('useChatViewModel – handleAudioAttach', () => {
 });
 
 // ════════════════════════════════════════════════════════════════════════════
-// handleAudioRecord – righe 200-207 (PRIMA NON COPERTE)
+// handleAudioRecord
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – handleAudioRecord', () => {
   it('imposta inputText con la trascrizione del blob audio', async () => {
@@ -420,7 +420,6 @@ describe('useChatViewModel – handleAudioRecord', () => {
     const blob = new Blob(['audio'], { type: 'audio/webm' });
     await act(async () => { await result.current.handleAudioRecord(blob); });
 
-    // handleAudioRecord chiama trascriviAudio(blob) senza secondo argomento
     expect(trascriviAudio).toHaveBeenCalledWith(blob);
     expect(result.current.inputText).toBe('testo trascritto da blob');
     expect(result.current.isTranscribing).toBe(false);
@@ -467,7 +466,6 @@ describe('useChatViewModel – handleAudioRecord', () => {
   });
 
   it('converte la risposta di trascriviAudio in stringa tramite String()', async () => {
-    // trascriviAudio può restituire qualsiasi tipo; il VM lo avvolge in String()
     vi.mocked(trascriviAudio).mockResolvedValue(12345 as unknown as string);
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.username).toBe('mario'));
@@ -569,5 +567,47 @@ describe('useChatViewModel – setError', () => {
     await waitFor(() => expect(result.current.error).not.toBeNull());
     act(() => result.current.setError(null));
     expect(result.current.error).toBeNull();
+  });
+});
+
+describe('useChatViewModel – invioOrdine', () => {
+
+  it('happy path: chiama sendOrder e svuota cartProducts (righe 270-272)', async () => {
+    vi.mocked(ChatModel.getCart).mockResolvedValue({
+      username: 'mario',
+      products: [{ prod_id: 'P001', name: 'Latte', price: 1.5, measure_unit: 1, qty: 2 }],
+    });
+    vi.mocked(ChatModel.sendOrder).mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.cartProducts).toHaveLength(1));
+
+    await act(async () => { await result.current.invioOrdine(); });
+
+    expect(ChatModel.sendOrder).toHaveBeenCalledWith('mario');
+    expect(result.current.cartProducts).toHaveLength(0);
+  });
+
+  it('error path: imposta errore se sendOrder lancia (righe 273-274)', async () => {
+    vi.mocked(ChatModel.sendOrder).mockRejectedValue(new Error('fail'));
+
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    await act(async () => { await result.current.invioOrdine(); });
+
+    expect(result.current.error).toMatch(/errore nell'invio dell'ordine/i);
+  });
+
+  it('guard username null: non chiama sendOrder (riga 269 – branch falso)', async () => {
+    vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('unauth'));
+
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(globalThis.location.href).toBe('/unauthorized'));
+
+    const callsBefore = vi.mocked(ChatModel.sendOrder).mock.calls.length;
+    await act(async () => { await result.current.invioOrdine(); });
+
+    expect(vi.mocked(ChatModel.sendOrder).mock.calls.length).toBe(callsBefore);
   });
 });

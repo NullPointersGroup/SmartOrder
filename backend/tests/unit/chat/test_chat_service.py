@@ -17,7 +17,7 @@ def test_send_message_returns_llm_response(chat_service, mock_repo, mock_llm):
     ]
 
     result = chat_service.send_message(
-        conv_id=1, username="Tom", content="Hello", audio_file=None
+        conv_id=1, username="Tom", content="Hello"
     )
 
     # asserzioni sul messaggio utente
@@ -48,7 +48,7 @@ def test_send_message_creates_conv_if_not_exists(chat_service, mock_repo, mock_l
         Message(id_message=1, content="Hello", sender=SenderEnum.Utente),
     ]
     chat_service.send_message(
-        conv_id=1, username="Tom", content="Hello", audio_file=None
+        conv_id=1, username="Tom", content="Hello"
     )
     mock_repo.create_conversation.assert_called_once_with("Tom")
 

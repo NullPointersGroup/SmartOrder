@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Cookie
 from sqlmodel import Session
 from starlette.status import HTTP_404_NOT_FOUND
 
@@ -18,8 +18,41 @@ from src.cart.exceptions import (
     ProductNotInCartException,
 )
 from src.db.dbConnection import get_conn
+from src.auth.TokenUtility import TokenUtility
+from src.auth.UserService import UserService
+from src.auth.UserRepoAdapter import UserRepoAdapter
+from src.auth.EmailValidationAdapter import EmailValidationAdapter
 
 router = APIRouter(prefix="/cart", tags=["cart"])
+
+def get_user_service(db: Session = Depends(get_conn)) -> UserService:
+    """
+    @brief Crea e restituisce un'istanza di UserService con le dipendenze necessarie
+    @param db Sessione del database
+    @return UserService configurato
+    """
+    return UserService(
+        repo=UserRepoAdapter(db),
+        email_validator=EmailValidationAdapter(),
+    )
+
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+
+def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
+    """
+    @brief Estrae e valida il token JWT dal cookie access_token
+    @param access_token Token JWT dal cookie
+    @return Username decodificato dal token
+    @throws HTTPException 401 se token assente o non valido
+    """
+    if access_token is None:
+        raise HTTPException(status_code=401, detail="Non autenticato")
+    username = TokenUtility.decode_token(access_token)
+    if username is None:
+        raise HTTPException(status_code=401, detail="Token non valido")
+    return str(username)
+
+CurrentUserDep = Annotated[str, Depends(get_current_user)]
 
 
 def get_cart_service(db: Session = Depends(get_conn)) -> CartService:
@@ -28,8 +61,8 @@ def get_cart_service(db: Session = Depends(get_conn)) -> CartService:
     @param db Sessione del database
     @return CartService configurato
     """
-    repo = CartRepoAdapter(CartRepository(db))
-    return CartService(repo=repo)
+    adapter = CartRepoAdapter(CartRepository(db))
+    return CartService(adapter=adapter)
 
 
 CartServiceDep = Annotated[CartService, Depends(get_cart_service)]
@@ -106,3 +139,19 @@ def update_product_quantity(
         return CartProductResponse(product=product, username=username)
     except ProductNotInCartException as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=str(e))
+    
+@router.post(
+    "/{username}/sendOrder",
+    status_code=204,
+    responses={
+        401: {}
+    }    
+)
+def send_order(
+    username: str,
+    cart_service: CartServiceDep,
+    current_user: CurrentUserDep,
+) -> None:
+    if current_user != username:
+        raise HTTPException(status_code=401, detail="Non autorizzato")
+    return cart_service.send_order(username)

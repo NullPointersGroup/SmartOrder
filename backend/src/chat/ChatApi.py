@@ -58,7 +58,7 @@ def get_shared_services() -> tuple[CartService, CatalogRepoAdapter]:
     global cart_service, catalog_repo
     if cart_service is None:
         cart_service = CartService(
-            repo=CartRepoAdapter(repo=CartRepository(next(get_conn())))
+            adapter=CartRepoAdapter(repo=CartRepository(next(get_conn())))
         )
     if catalog_repo is None:
         catalog_repo = CatalogRepoAdapter(CatalogRepository(next(get_conn())))
@@ -163,7 +163,6 @@ def send_message(
             conv_id=conv_id,
             username=current_user,
             content=message.content,
-            audio_file=message.audioFile,
         )
         return MessageResponse(id_conv=conv_id, message=msg)
     except ToolNotFoundException as e:

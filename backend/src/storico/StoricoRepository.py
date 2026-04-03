@@ -13,7 +13,8 @@ class StoricoRepository:
         """
         self.db = db
 
-    def get_ordini_by_username(self, username: str, pagina: int, per_pagina: int) -> Tuple[List[Ordine], int]:
+    def get_ordini_by_username(self, username: str, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
+    ) -> Tuple[List[Ordine], int]:
         """
         @brief Recupera gli ordini di un cliente specifico con paginazione.
         @param username Username del cliente di cui recuperare gli ordini.
@@ -21,29 +22,41 @@ class StoricoRepository:
         @param per_pagina Numero di ordini per pagina.
         @return Tupla (lista di Ordine, totale ordini del cliente).
         """
-        totale = self.db.exec(
-            select(func.count()).select_from(Ordine).where(Ordine.username == username)
-        ).one()
+        count_statement = select(func.count()).select_from(Ordine).where(Ordine.username == username)
+        statement = select(Ordine).where(Ordine.username == username)
+
+        if data_inizio:
+            count_statement = count_statement.where(col(Ordine.data) >= data_inizio)
+            statement = statement.where(col(Ordine.data) >= data_inizio)
+        if data_fine:
+            count_statement = count_statement.where(col(Ordine.data) <= data_fine)
+            statement = statement.where(col(Ordine.data) <= data_fine)
+
+        totale = self.db.exec(count_statement).one()
         ordini = list(self.db.exec(
-            select(Ordine)
-            .where(Ordine.username == username)
-            .order_by(col(Ordine.id_ord).desc())
+            statement.order_by(col(Ordine.id_ord).desc())
             .offset((pagina - 1) * per_pagina)
             .limit(per_pagina)
         ).all())
         return ordini, totale
 
-    def get_all_ordini(self, pagina: int, per_pagina: int) -> Tuple[List[Ordine], int]:
+    def get_all_ordini(self, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
+    ) -> Tuple[List[Ordine], int]:
         """
         @brief Recupera tutti gli ordini di tutti i clienti con paginazione.
         @param pagina     Numero della pagina richiesta (base 1).
         @param per_pagina Numero di ordini per pagina.
         @return Tupla (lista di Ordine, totale ordini nel sistema).
         """
-        totale = self.db.exec(select(func.count()).select_from(Ordine)).one()
+        statement = select(Ordine)
+        if data_inizio:
+            statement = statement.where(col(Ordine.data) >= data_inizio)
+        if data_fine:
+            statement = statement.where(col(Ordine.data) <= data_fine)
+
+        totale = self.db.exec(select(func.count()).select_from(statement.subquery())).one()
         ordini = list(self.db.exec(
-            select(Ordine)
-            .order_by(col(Ordine.id_ord).desc())
+            statement.order_by(col(Ordine.id_ord).desc())
             .offset((pagina - 1) * per_pagina)
             .limit(per_pagina)
         ).all())

@@ -261,6 +261,20 @@ export function useChatViewModel() {
     globalThis.location.href = '/';
   }, []);
 
+  // ── Invia ordine ──────────────────────────────────────────────────────────
+  const invioOrdine = useCallback(async () => {
+    /**
+     * @brief Invia l'ordine e svuota il carrello locale a conferma
+     */
+    if (!username) return;
+    try {
+      await ChatModel.sendOrder(username);
+      setCartProducts([]);
+    } catch {
+      setError("Errore nell'invio dell'ordine");
+    }
+  }, [username]);
+
   // ── Computed ──────────────────────────────────────────────────────────────
   const cartTotal = cartProducts.reduce(
     (sum, p) => sum + p.price * p.qty,
@@ -274,6 +288,7 @@ export function useChatViewModel() {
     messages,
     cartProducts,
     cartTotal,
+    invioOrdine,
     inputText,
     setInputText,
     isLoadingMsgs,

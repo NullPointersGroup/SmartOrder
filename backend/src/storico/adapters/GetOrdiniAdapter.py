@@ -3,6 +3,7 @@ from sqlmodel import Session
 from src.storico.ports.StoricoRepoPort import StoricoRepoPort
 from src.storico.StoricoRepository import StoricoRepository
 from src.db.models import Ordine, OrdCliDet, Anaart
+from datetime import date
 
 
 class GetOrdiniAdapter(StoricoRepoPort):
@@ -19,7 +20,7 @@ class GetOrdiniAdapter(StoricoRepoPort):
         self.repository = StoricoRepository(db)
 
     def get_ordini_by_username(
-        self, username: str, pagina: int, per_pagina: int
+        self, username: str, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
     ) -> Tuple[List[Ordine], int]:
         """
         @brief Recupera gli ordini di un utente specifico con paginazione
@@ -28,10 +29,10 @@ class GetOrdiniAdapter(StoricoRepoPort):
         @param per_pagina Numero di ordini per pagina
         @return Tuple con lista degli ordini e totale degli ordini dell'utente
         """
-        return self.repository.get_ordini_by_username(username, pagina, per_pagina)
+        return self.repository.get_ordini_by_username(username, pagina, per_pagina, data_inizio, data_fine)
 
     def get_all_ordini(
-        self, pagina: int, per_pagina: int
+        self, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
     ) -> Tuple[List[Ordine], int]:
         """
         @brief Recupera tutti gli ordini (vista admin) con paginazione
@@ -39,7 +40,7 @@ class GetOrdiniAdapter(StoricoRepoPort):
         @param per_pagina Numero di ordini per pagina
         @return Tuple con lista degli ordini e totale complessivo
         """
-        return self.repository.get_all_ordini(pagina, per_pagina)
+        return self.repository.get_all_ordini(pagina, per_pagina, data_inizio, data_fine)
 
     def get_prodotti_by_ordine_ids(self, ordine_ids: List[int]) -> List[Tuple[OrdCliDet, Anaart]]:
         """

@@ -157,7 +157,6 @@ export const ChatView: React.FC = () => {
             isLoading={vm.isLoadingMsgs}
             isSending={vm.isSending}
             inputText={vm.inputText}
-            hasActiveConv={vm.activeConvId !== null}
             messagesEndRef={vm.messagesEndRef}
             onInputChange={vm.setInputText}
             onSend={vm.sendMessage}
@@ -178,6 +177,7 @@ export const ChatView: React.FC = () => {
               <CartSidebar
                 products={vm.cartProducts}
                 onToggleSelf={() => setIsRightOpen(false)}
+                onOrdine={vm.invioOrdine}
               />
             </div>
 
@@ -224,6 +224,7 @@ export const ChatView: React.FC = () => {
               <CartSidebar
                 products={vm.cartProducts}
                 onToggleSelf={() => setIsRightOpen(false)}
+                onOrdine={vm.invioOrdine}
               />
             </div>
           </div>

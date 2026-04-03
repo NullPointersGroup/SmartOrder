@@ -5,7 +5,6 @@ import { DettaglioModal } from '../../src/Storico/DettaglioModal';
 import type { Ordine } from '../../src/Storico/StoricoModel';
 
 // ─── Mock <dialog> per jsdom ─────────────────────────────────────────────────
-// jsdom non implementa showModal() né close() nativamente.
 
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = vi.fn();
@@ -72,7 +71,6 @@ describe('DettaglioModal – render base', () => {
 
   it('mostra la data formattata in italiano (formato long)', () => {
     renderModal();
-    // 2024-03-15 → "15 marzo 2024" in it-IT con day:2-digit, month:long, year:numeric
     expect(screen.getByText(/marzo/i)).toBeInTheDocument();
     expect(screen.getByText(/2024/)).toBeInTheDocument();
   });
@@ -92,15 +90,11 @@ describe('DettaglioModal – render base', () => {
 
   it('NON mostra la descrizione vuota', () => {
     renderModal();
-    // "Pane" ha descrizione: '' — il branch {p.descrizione?.trim() && ...} non deve renderizzare nulla.
-    // Recuperiamo il container diretto di <p>Pane</p> (il div che contiene nome + eventuale descrizione)
-    // e verifichiamo che contenga un solo <p> (solo il nome, senza descrizione).
     const paneNameEl = screen.getByText('Pane');
     const paneContainer = paneNameEl.closest('div');
     const paragraphs = paneContainer?.querySelectorAll('p') ?? [];
     expect(paragraphs).toHaveLength(1);
 
-    // Latte e Yogurt hanno descrizione non vuota: devono essere visibili
     expect(screen.getByText('Intero')).toBeInTheDocument();
     expect(screen.getByText('Greco')).toBeInTheDocument();
   });
@@ -114,7 +108,6 @@ describe('DettaglioModal – render base', () => {
 
   it('ha il pulsante di chiusura con aria-label "Chiudi"', () => {
     renderModal();
-    // jsdom non imposta open sul dialog, quindi byRole richiede hidden:true
     expect(
       screen.getByRole('button', { name: /chiudi/i, hidden: true })
     ).toBeInTheDocument();
@@ -224,7 +217,6 @@ describe('DettaglioModal – chiusura', () => {
 
     const dialog = document.querySelector('dialog');
     if (dialog) fireEvent(dialog, new Event('close'));
-    // Dopo lo smontaggio il listener non deve essere più attivo
     expect(onChiudi).not.toHaveBeenCalled();
   });
 });

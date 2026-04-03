@@ -28,7 +28,7 @@ export function ServerError() {
 
       <button
         onClick={() => globalThis.location.reload()}
-        className="mt-8 px-8 py-3 border-2 border-(--color-4) text-(--color-4) font-bold rounded-xl hover:bg-gray-50 transition-all active:scale-95"
+        className="mt-8 px-8 py-3 border-2 border-(--color-4) text-(--color-4) font-bold rounded-xl hover:opacity-70 transition-all active:scale-95"
       >
         Riprova a caricare
       </button>

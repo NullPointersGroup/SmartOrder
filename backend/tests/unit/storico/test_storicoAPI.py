@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from src.storico.StoricoApi import router, get_service, require_admin
 from src.auth.api import get_current_user
 from src.storico.StoricoSchemas import StoricoPageSchema, OrdineSchema, ProdottoSchema
-from src.storico.exceptions import OrdiniNotFoundException, OrdineNotFoundException
+from src.storico.exceptions import OrdiniUsernameNotFoundException, OrdineNotFoundException
 
 # ─── App di test ─────────────────────────────────────────────────────────────
 
@@ -107,11 +107,11 @@ class TestGetStoricoCliente:
 
         client.get("/storico/miei?pagina=2&per_pagina=5")
 
-        service.get_ordini_cliente.assert_called_once_with("mario", 2, 5)
+        service.get_ordini_cliente.assert_called_once_with("mario", 2, 5, None, None)
 
     def test_404_se_nessun_ordine(self):
         service = mock_service()
-        service.get_ordini_cliente.side_effect = OrdiniNotFoundException("mario")
+        service.get_ordini_cliente.side_effect = OrdiniUsernameNotFoundException("mario")
         override_user("mario")
         override_service(service)
 
@@ -158,7 +158,7 @@ class TestGetStoricoAdmin:
 
         client.get("/storico/tutti?pagina=2&per_pagina=20")
 
-        service.get_ordini_admin.assert_called_once_with(2, 20)
+        service.get_ordini_admin.assert_called_once_with(2, 20, None, None)
 
     def test_403_se_non_admin(self):
         override_admin(ok=False)

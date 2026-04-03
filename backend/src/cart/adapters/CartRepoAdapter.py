@@ -82,3 +82,6 @@ class CartRepoAdapter(CartRepoPort):
             measure_unit=row.measure_unit,
             qty=row.qty,
         )
+        
+    def send_order(self, username: str) -> None:
+        self.repo.send_order(username)

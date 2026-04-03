@@ -23,6 +23,8 @@ export interface StoricoPageSchema {
 export async function getStoricoCliente(
   pagina: number = 1,
   perPagina: number = 10,
+  dataInizio?: string,
+  dataFine?: string,
 ): Promise<StoricoPageSchema> {
   /**
    * @brief Recupera lo storico ordini dell'utente autenticato (cliente).
@@ -31,11 +33,13 @@ export async function getStoricoCliente(
    * @raise ExceptionType Condition or description
    * @return StoricoPageSchema: lista degli ordini, pagina corrente e e totale pagine
    */
-  console.log("CHIAMATO")
   const params = new URLSearchParams({
     pagina: String(pagina),
-    per_pagina: String(perPagina),
+    per_pagina: String(perPagina)
   });
+
+  if (dataInizio) params.append('data_inizio', dataInizio);
+  if (dataFine) params.append('data_fine', dataFine);
 
   const res = await fetch(`/storico/miei?${params}`, {
     method: 'GET',
@@ -53,6 +57,8 @@ export async function getStoricoCliente(
 export async function getStoricoAdmin(
   pagina: number = 1,
   perPagina: number = 10,
+  dataInizio?: string,
+  dataFine?: string,
 ): Promise<StoricoPageSchema> {
   /**
    * @brief Recupera lo storico ordini di tutti gli utenti
@@ -63,8 +69,11 @@ export async function getStoricoAdmin(
    */
   const params = new URLSearchParams({
     pagina: String(pagina),
-    per_pagina: String(perPagina),
+    per_pagina: String(perPagina)
   });
+
+  if (dataInizio) params.append('data_inizio', dataInizio);
+  if (dataFine) params.append('data_fine', dataFine);
 
   const res = await fetch(`/storico/tutti?${params}`, {
     method: 'GET',

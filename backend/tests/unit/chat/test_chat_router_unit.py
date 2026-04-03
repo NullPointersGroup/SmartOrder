@@ -48,9 +48,7 @@ def test_send_message_unit():
     result = send_message(
         conv_id=1,
         message=MessageRequest(
-            username="test",
             content="Test message",
-            audioFile=None
         ),
         chat_service=mock_service,
         current_user="test",  # stringa, coerente col tipo
@@ -62,7 +60,6 @@ def test_send_message_unit():
         conv_id=1,
         username="test",
         content="Test message",
-        audio_file=None
     )
 
 
@@ -83,7 +80,7 @@ def test_send_message_returns_500_when_tool_is_missing():
     with pytest.raises(HTTPException) as info:
         send_message(
             conv_id=1,
-            message=MessageRequest(username="test", content="Test message", audioFile=None),
+            message=MessageRequest(content="Test message"),
             chat_service=mock_service,
             current_user="test",
         )

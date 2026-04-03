@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 
 import { StoricoView } from '../../src/Storico/StoricoView';
 
@@ -51,7 +51,7 @@ type StoricoVm = {
   errore: string | null;
   erroreDuplica: string | null;
   isAdmin: boolean;
-  caricaPagina: (pagina: number) => void;
+  caricaPagina: (pagina: number, dataInizio?: string, dataFine?: string) => void;
   apriDettaglio: (ordine: Ordine) => void;
   chiudiDettaglio: () => void;
   duplicaOrdine: (codiceOrdine: string) => void;
@@ -425,5 +425,228 @@ describe('StoricoView – logout', () => {
     fireEvent.click(screen.getByText('logout profilo'));
     expect(mockClearAuth).toHaveBeenCalledTimes(1);
     expect(globalThis.location.href).toBe('/');
+  });
+});
+
+// ─── Filtro data (righe 60-61, 80-82, 210-301) ───────────────────────────────
+
+describe('StoricoView – filtro data', () => {
+  const mockOrdini = [
+    { codice_ordine: 'ORD-001', numero_ordine: 1, data: '2024-01-15T00:00:00Z', prodotti: [] },
+    { codice_ordine: 'ORD-002', numero_ordine: 2, data: '2024-03-20T00:00:00Z', prodotti: [] },
+    { codice_ordine: 'ORD-003', numero_ordine: 3, data: '2024-06-10T00:00:00Z', prodotti: [] },
+  ];
+
+  // ── apertura/chiusura pannello ────────────────────────────────────────────
+
+  it('il pannello filtro è chiuso di default', () => {
+    vmOverrides = { ordini: mockOrdini };
+    renderView();
+    expect(screen.queryByText(/filtra per data/i)).not.toBeInTheDocument();
+  });
+
+  it('apre il pannello filtro al click sull\'icona calendario', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+    expect(screen.getByText(/filtra per data/i)).toBeInTheDocument();
+  });
+
+  it('chiude il pannello filtro al secondo click sull\'icona (toggle)', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+    expect(screen.queryByText(/da/i)).not.toBeInTheDocument();
+  });
+
+  it('chiude il pannello filtro cliccando fuori (useEffect clickOutside – riga 60-61)', async () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+    expect(screen.getByText(/filtra per data/i)).toBeInTheDocument();
+
+    // Simula un click fuori dal pannello
+    await act(async () => {
+      fireEvent.mouseDown(document.body);
+    });
+    expect(screen.queryByText(/filtra per data/i)).not.toBeInTheDocument();
+  });
+
+  it('il click dentro il pannello filtro NON lo chiude', async () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    // Clicca dentro il pannello stesso: cerca l'input "Da"
+    const inputDa = screen.getAllByDisplayValue('')[0];
+    await act(async () => {
+      fireEvent.mouseDown(inputDa);
+    });
+    expect(screen.getByText(/filtra per data/i)).toBeInTheDocument();
+  });
+
+  // ── campo "Da" ────────────────────────────────────────────────────────────
+
+  it('impostare la data "Da" chiama caricaPagina(1, dataInizio, "")', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    const inputDa = inputs[0];
+    fireEvent.change(inputDa, { target: { value: '2024-02-01' } });
+
+    expect(mockCaricaPagina).toHaveBeenCalledWith(1, '2024-02-01', '');
+  });
+
+  // ── campo "A" ─────────────────────────────────────────────────────────────
+
+  it('impostare la data "A" chiama caricaPagina(1, "", dataFine)', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    const inputA = inputs[1]; 
+    fireEvent.change(inputA, { target: { value: '2024-05-01' } });
+
+    expect(mockCaricaPagina).toHaveBeenCalledWith(1, '', '2024-05-01');
+  });
+
+  // ── filtro attivo: indicatore visuale ─────────────────────────────────────
+
+  it('mostra il pallino indicatore quando il filtro è attivo', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    fireEvent.change(inputs[0], { target: { value: '2024-01-01' } });
+
+    const btn = screen.getByTitle('Filtra per data');
+    expect(btn.className).toMatch(/color-2/);
+  });
+
+  // ── filtraggio lato client ────────────────────────────────────────────────
+
+  it('filtra gli ordini per dataInizio: esclude ordini precedenti', () => {
+    vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    fireEvent.change(inputs[0], { target: { value: '2024-03-01' } });
+
+    expect(screen.queryByTestId('ordine-row-ORD-001')).not.toBeInTheDocument();
+    expect(screen.getByTestId('ordine-row-ORD-002')).toBeInTheDocument();
+    expect(screen.getByTestId('ordine-row-ORD-003')).toBeInTheDocument();
+  });
+
+  it('filtra gli ordini per dataFine: esclude ordini successivi', () => {
+    vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    fireEvent.change(inputs[1], { target: { value: '2024-04-01' } });
+
+    expect(screen.getByTestId('ordine-row-ORD-001')).toBeInTheDocument();
+    expect(screen.getByTestId('ordine-row-ORD-002')).toBeInTheDocument();
+    expect(screen.queryByTestId('ordine-row-ORD-003')).not.toBeInTheDocument();
+  });
+
+  it('filtra con entrambe le date: mostra solo ordini nell\'intervallo', () => {
+    vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    fireEvent.change(inputs[0], { target: { value: '2024-02-01' } });
+    fireEvent.change(inputs[1], { target: { value: '2024-04-01' } });
+
+    expect(screen.queryByTestId('ordine-row-ORD-001')).not.toBeInTheDocument();
+    expect(screen.getByTestId('ordine-row-ORD-002')).toBeInTheDocument();
+    expect(screen.queryByTestId('ordine-row-ORD-003')).not.toBeInTheDocument();
+  });
+
+  it('mostra "Nessun ordine corrisponde al filtro" quando filtroAttivo e lista filtrata è vuota', () => {
+    vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    fireEvent.change(inputs[0], { target: { value: '2099-01-01' } });
+
+    expect(screen.getByText(/nessun ordine corrisponde al filtro/i)).toBeInTheDocument();
+  });
+
+  // ── reset filtro (righe 80-82) ────────────────────────────────────────────
+
+  it('il pulsante "Azzera" è nascosto quando il filtro non è attivo', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+    expect(screen.queryByText('Azzera')).not.toBeInTheDocument();
+  });
+
+  it('il pulsante "Azzera" compare quando il filtro è attivo (riga 80)', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    fireEvent.change(inputs[0], { target: { value: '2024-01-01' } });
+
+    expect(screen.getByText('Azzera')).toBeInTheDocument();
+  });
+
+  it('cliccando "Azzera" reimposta entrambe le date e chiama caricaPagina(1,"","") (riga 80-82)', () => {
+    vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    fireEvent.change(inputs[0], { target: { value: '2024-01-01' } });
+    mockCaricaPagina.mockReset();
+
+    fireEvent.click(screen.getByText('Azzera'));
+
+    expect(mockCaricaPagina).toHaveBeenCalledWith(1, '', '');
+    expect(screen.getByTestId('ordine-row-ORD-001')).toBeInTheDocument();
+  });
+
+  it('dopo "Azzera" il pulsante indicatore torna allo stile inattivo', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    fireEvent.change(inputs[0], { target: { value: '2024-01-01' } });
+    fireEvent.click(screen.getByText('Azzera'));
+
+    const btn = screen.getByTitle('Filtra per data');
+    expect(btn.className).not.toMatch(/bg-\(--color-2\)/);
+  });
+
+  // ── testo hint nel pannello ────────────────────────────────────────────────
+
+  it('mostra il testo di aiuto "Lascia A vuoto" nel pannello', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+    expect(screen.getByText(/lascia .* vuoto/i)).toBeInTheDocument();
+  });
+
+  // ── constraint max/min sugli input ────────────────────────────────────────
+
+  it('l\'input "Da" riceve l\'attributo max quando dataFine è impostata', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    fireEvent.change(inputs[1], { target: { value: '2024-12-31' } });
+    const inputDa = screen.getAllByDisplayValue('')[0];
+    expect(inputDa).toHaveAttribute('max', '2024-12-31');
+  });
+
+  it('l\'input "A" riceve l\'attributo min quando dataInizio è impostata', () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Filtra per data'));
+
+    const inputs = screen.getAllByDisplayValue('');
+    fireEvent.change(inputs[0], { target: { value: '2024-01-01' } });
+
+    const inputA = screen.getAllByDisplayValue('')[0]; 
+    expect(inputA).toHaveAttribute('min', '2024-01-01');
   });
 });

@@ -1,23 +1,24 @@
 import math
 from collections import defaultdict
 from typing import List
+from datetime import date
 
 from src.storico.ports.StoricoRepoPort import StoricoRepoPort
 from src.db.models import Ordine
 from src.storico.StoricoSchemas import OrdineSchema, ProdottoSchema, StoricoPageSchema
-from src.storico.exceptions import OrdiniNotFoundException, OrdineNotFoundException
+from src.storico.exceptions import OrdiniNotFoundException, OrdineNotFoundException, OrdiniUsernameNotFoundException
 
 PER_PAGINA_DEFAULT = 10
 
 
 class StoricoService:
 
-    def __init__(self, repo: StoricoRepoPort):
+    def __init__(self, adapter: StoricoRepoPort):
         """
         @brief Inizializza il servizio storico con il repository fornito
         @param repo Implementazione del porto repository per lo storico
         """
-        self.repo = repo
+        self.adapter = adapter
         
 
     def _build_page(
@@ -38,7 +39,7 @@ class StoricoService:
         @return StoricoPageSchema con ordini, pagina corrente e totale pagine
         """
         ordine_ids = [o.id_ord for o in ordini_orm if o.id_ord is not None]
-        prodotti_orm = self.repo.get_prodotti_by_ordine_ids(ordine_ids)
+        prodotti_orm = self.adapter.get_prodotti_by_ordine_ids(ordine_ids)
 
         prodotti_per_ordine: dict[int, list[ProdottoSchema]] = defaultdict(list)
         for det, art in prodotti_orm:
@@ -62,7 +63,7 @@ class StoricoService:
 
 
     def get_ordini_cliente(
-        self, username: str, pagina: int = 1, per_pagina: int = PER_PAGINA_DEFAULT
+        self, username: str, pagina: int = 1, per_pagina: int = PER_PAGINA_DEFAULT, data_inizio: date | None = None, data_fine: date | None = None
     ) -> StoricoPageSchema:
         """
         @brief Recupera gli ordini di un cliente specifico con paginazione
@@ -72,13 +73,16 @@ class StoricoService:
         @return StoricoPageSchema con gli ordini del cliente
         @throws OrdiniNotFoundException se l'utente non ha ordini
         """
-        ordini_orm, totale = self.repo.get_ordini_by_username(username, pagina, per_pagina)
-        if totale == 0:
-            raise OrdiniNotFoundException(username)
+        ordini_orm, totale = self.adapter.get_ordini_by_username(username, pagina, per_pagina, data_inizio, data_fine)
+
+        _, totale_senza_filtri = self.adapter.get_ordini_by_username(username, 1, 1)
+        if totale_senza_filtri == 0:
+            raise OrdiniUsernameNotFoundException(username)
+
         return self._build_page(ordini_orm, totale, pagina, per_pagina, include_username=False)
 
     def get_ordini_admin(
-        self, pagina: int = 1, per_pagina: int = PER_PAGINA_DEFAULT
+        self, pagina: int = 1, per_pagina: int = PER_PAGINA_DEFAULT, data_inizio: date | None = None, data_fine: date | None = None
     ) -> StoricoPageSchema:
         """
         @brief Recupera tutti gli ordini (vista admin) con paginazione
@@ -86,7 +90,12 @@ class StoricoService:
         @param per_pagina Ordini per pagina (default PER_PAGINA_DEFAULT)
         @return StoricoPageSchema con tutti gli ordini inclusi gli username
         """
-        ordini_orm, totale = self.repo.get_all_ordini(pagina, per_pagina)
+        ordini_orm, totale = self.adapter.get_all_ordini(pagina, per_pagina, data_inizio, data_fine)
+        
+        _, totale_senza_filtri = self.adapter.get_all_ordini(1, 1)
+        if totale_senza_filtri == 0:
+            raise OrdiniNotFoundException()
+        
         return self._build_page(ordini_orm, totale, pagina, per_pagina, include_username=True)
 
     def duplica_ordine(self, codice_ordine: str, username: str) -> None:
@@ -97,6 +106,6 @@ class StoricoService:
         @throws OrdineNotFoundException se l'ordine con il codice specificato non esiste
         """
         try:
-            self.repo.duplica_ordine(codice_ordine, username)
+            self.adapter.duplica_ordine(codice_ordine, username)
         except ValueError as e:
             raise OrdineNotFoundException(codice_ordine) from e

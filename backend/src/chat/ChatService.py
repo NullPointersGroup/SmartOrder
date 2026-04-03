@@ -16,7 +16,10 @@ class ChatService:
         return messages
 
     def send_message(
-        self, conv_id: int, username: str, content: str, audio_file: None | str = None
+        self,
+        conv_id: int,
+        username: str,
+        content: str,
     ) -> Message:
         # controlla se la conversazione esiste
         exists = self.repo.conversation_exist(conv_id)
