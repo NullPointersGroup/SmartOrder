@@ -29,29 +29,35 @@ export function useStoricoViewModel() {
   const [loading, setLoading] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const [erroreDuplica, setErroreDuplica] = useState<string | null>(null)
+  const [dataInizio, setDataInizio] = useState('');
+  const [dataFine, setDataFine] = useState('');
   const role = useAuthStore((s) => s.admin)
 
   const isAdmin = role === 'admin'
 
-  const caricaPagina = useCallback(async (n: number) => {
-    setLoading(true)
-    setErrore(null)
+  const caricaPagina = useCallback(async (n: number, di?: string, df?: string) => {
+    const inizio = di ?? dataInizio;
+    const fine = df ?? dataFine;
+
+    if (di !== undefined) setDataInizio(di);
+    if (df !== undefined) setDataFine(df);
+
+    setLoading(true);
+    setErrore(null);
     try {
-      
       const data = isAdmin
-        ? await getStoricoAdmin(n, 10)
-        : await getStoricoCliente(n, 10)
+        ? await getStoricoAdmin(n, 10, inizio, fine)
+        : await getStoricoCliente(n, 10, inizio, fine);
 
-
-      setOrdini(data.ordini as Ordine[])
-      setTotalePagine(data.totale_pagine)
-      setPagina(n)
+      setOrdini(data.ordini as Ordine[]);
+      setTotalePagine(data.totale_pagine);
+      setPagina(n);
     } catch (e) {
-      setErrore(e instanceof Error ? e.message : 'Errore nel caricamento dello storico')
+      setErrore(e instanceof Error ? e.message : 'Errore nel caricamento dello storico');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [isAdmin])
+  }, [isAdmin, dataInizio, dataFine]);
 
   const apriDettaglio = (ordine: Ordine) => setOrdineScelto(ordine)
   const chiudiDettaglio = () => setOrdineScelto(null)

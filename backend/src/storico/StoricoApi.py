@@ -1,5 +1,5 @@
 from typing import Annotated
-
+from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Cookie
 from sqlmodel import Session, select
 
@@ -57,6 +57,8 @@ def get_storico_cliente(
     service: ServiceDep,
     pagina: Pagina = 1,
     per_pagina: PerPagina = 10,
+    data_inizio: date | None = None,
+    data_fine: date | None = None,
 ) -> StoricoPageSchema:
     """
     @brief ritorna gli ordini di un cliente
@@ -64,7 +66,7 @@ def get_storico_cliente(
     @return StoricoPageSchema: lista degli ordini, la pagina corrente e il totale delle pagine
     """
     try:
-        return service.get_ordini_cliente(username, pagina, per_pagina)
+        return service.get_ordini_cliente(username, pagina, per_pagina, data_inizio, data_fine)
     except OrdiniNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
 
@@ -74,6 +76,8 @@ def get_storico_admin(
     service: ServiceDep,
     pagina: Pagina = 1,
     per_pagina: PerPagina = 10,
+    data_inizio: date | None = None,
+    data_fine: date | None = None,
 ) -> StoricoPageSchema:
     """
     @brief ritorna tutti gli ordini
@@ -81,7 +85,7 @@ def get_storico_admin(
     @return StoricoPageSchema: lista degli ordini, la pagina corrente e il totale delle pagine
     """
     try:
-        return service.get_ordini_admin(pagina, per_pagina)
+        return service.get_ordini_admin(pagina, per_pagina, data_inizio, data_fine)
     except StoricoAccessDeniedException as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.message)
 

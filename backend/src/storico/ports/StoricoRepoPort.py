@@ -1,20 +1,21 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 from src.db.models import Ordine, OrdCliDet, Anaart
+from datetime import date
 
 
 class StoricoRepoPort(ABC):
 
     @abstractmethod
     def get_ordini_by_username(
-        self, username: str, pagina: int, per_pagina: int
+        self, username: str, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
     ) -> Tuple[List[Ordine], int]:
         """Restituisce gli ordini di un utente (paginati) e il totale."""
         raise NotImplementedError
 
     @abstractmethod
     def get_all_ordini(
-        self, pagina: int, per_pagina: int
+        self, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
     ) -> Tuple[List[Ordine], int]:
         """Restituisce tutti gli ordini (admin, paginati) e il totale."""
         raise NotImplementedError
