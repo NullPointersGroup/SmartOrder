@@ -4,6 +4,9 @@ from src.cart.adapters.CartRepository import CartRepository
 from src.cart.CartService import CartService
 import pytest
 
+@pytest.fixture
+def mock_adapter():
+    return MagicMock()
 
 @pytest.fixture
 def mock_repo():
@@ -11,8 +14,8 @@ def mock_repo():
 
 
 @pytest.fixture
-def cart_service(mock_repo):
-    return CartService(repo=mock_repo)
+def cart_service(mock_adapter):
+    return CartService(adapter=mock_adapter)
 
 
 @pytest.fixture
