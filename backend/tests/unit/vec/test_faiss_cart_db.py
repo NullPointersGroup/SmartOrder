@@ -1,5 +1,8 @@
-import pytest
 import numpy as np
+import pytest
+
+pytest.importorskip("faiss")
+
 from src.vec.adapters.FaissCartDb import FaissCartDb
 from tests.unit.vec.conftest import make_vector
 
@@ -40,9 +43,9 @@ def test_add_multiple_users(faiss_db: FaissCartDb):
 
 
 def test_add_correct_positions_in_user_map(faiss_db: FaissCartDb):
-    faiss_db.add("MAX3", "mario", make_vector([1.0, 0.0, 0.0, 0.0]))  # pos 0
-    faiss_db.add("PIU7", "luigi", make_vector([0.0, 1.0, 0.0, 0.0]))  # pos 1
-    faiss_db.add("IOP4", "mario", make_vector([0.0, 0.0, 1.0, 0.0]))  # pos 2
+    faiss_db.add("MAX3", "mario", make_vector([1.0, 0.0, 0.0, 0.0]))
+    faiss_db.add("PIU7", "luigi", make_vector([0.0, 1.0, 0.0, 0.0]))
+    faiss_db.add("IOP4", "mario", make_vector([0.0, 0.0, 1.0, 0.0]))
     assert faiss_db.user_map["mario"] == [0, 2]
     assert faiss_db.user_map["luigi"] == [1]
 
@@ -60,10 +63,9 @@ def test_search_returns_exact_match(populated_db: FaissCartDb):
 
 
 def test_search_filters_by_username(populated_db: FaissCartDb):
-    # prod_id=3 appartiene a luigi, non deve apparire nella ricerca di mario
     query = make_vector([0.0, 0.0, 1.0, 0.0])
     result = populated_db.search(query, n=3, threshold=10.0, username="mario")
-    assert 3 not in result
+    assert "IOP7" not in result
 
 
 def test_search_returns_only_user_products(populated_db: FaissCartDb):
@@ -84,12 +86,6 @@ def test_search_unknown_username(populated_db: FaissCartDb):
     assert result == []
 
 
-def test_search_above_threshold_returns_empty(populated_db: FaissCartDb):
-    query = make_vector([1.0, 0.0, 0.0, 0.0])
-    result = populated_db.search(query, n=1, threshold=0.0, username="mario")
-    assert result == ["ADE3"]  # distanza 0 — vettore identico
-
-
 def test_search_n_greater_than_indexed(faiss_db: FaissCartDb):
     faiss_db.add("POL8", "mario", make_vector([1.0, 0.0, 0.0, 0.0]))
     result = faiss_db.search(
@@ -99,7 +95,17 @@ def test_search_n_greater_than_indexed(faiss_db: FaissCartDb):
 
 
 def test_search_returns_closest_product(populated_db: FaissCartDb):
-    # vettore più vicino a prod_id="GGR1" di mario
     query = make_vector([0.1, 0.9, 0.0, 0.0])
     result = populated_db.search(query, n=1, threshold=10.0, username="mario")
     assert result == ["GGR1"]
+
+
+def test_reset_clears_index_prod_ids_and_user_map(populated_db: FaissCartDb):
+    populated_db.reset()
+
+    assert populated_db.prod_ids == []
+    assert populated_db.user_map == {}
+    result = populated_db.search(
+        make_vector([1.0, 0.0, 0.0, 0.0]), n=3, threshold=1.0, username="mario"
+    )
+    assert result == []

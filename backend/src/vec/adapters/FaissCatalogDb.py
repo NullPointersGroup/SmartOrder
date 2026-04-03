@@ -4,8 +4,13 @@ import numpy as np
 
 class FaissCatalogDb:
     def __init__(self, dimension: int = 384) -> None:
+        self.dimension = dimension
         self.index = faiss.IndexFlatL2(dimension)
         self.prod_ids: list[str] = []
+
+    def reset(self) -> None:
+        self.index = faiss.IndexFlatL2(self.dimension)
+        self.prod_ids = []
 
     def add(self, prod_id: str, vector: np.ndarray) -> None:
         vector_f32 = np.array(vector, dtype=np.float32).reshape(1, -1)

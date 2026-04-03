@@ -121,6 +121,19 @@ def test_update_quantity_subtract_calls_repo(adapter, mock_repo):
     )
 
     mock_repo.update_quantity.assert_called_once_with(
-        "ABC1", "Tom", 1, CartUpdateOperation.Remove
+        "Tom", "ABC1", 1, CartUpdateOperation.Remove
     )
     assert result.qty == 2
+
+
+def test_update_quantity_set_calls_repo(adapter, mock_repo):
+    mock_repo.update_quantity.return_value = make_db_row(qty=7)
+
+    result = adapter.update_quantity(
+        prod_id="ABC1", username="Tom", qty=7, operation=CartUpdateOperation.Set
+    )
+
+    mock_repo.update_quantity.assert_called_once_with(
+        "Tom", "ABC1", 7, CartUpdateOperation.Set
+    )
+    assert result.qty == 7
