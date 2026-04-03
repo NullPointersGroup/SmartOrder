@@ -116,3 +116,15 @@ def test_update_quantity_returns_correct_product(cart_service, mock_adapter):
 
     assert result.prod_id == "ABC1"
     assert result.qty == 5
+
+
+def test_update_quantity_calls_repo_with_set(cart_service, mock_repo):
+    mock_repo.update_quantity.return_value = make_cart_product(qty=7)
+
+    cart_service.update_cart_quantity(
+        username="Tom", prod_id="ABC1", qty=7, operation=CartUpdateOperation.Set
+    )
+
+    mock_repo.update_quantity.assert_called_once_with(
+        "ABC1", "Tom", 7, CartUpdateOperation.Set
+    )

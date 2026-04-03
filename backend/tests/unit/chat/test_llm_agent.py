@@ -1,5 +1,8 @@
 from types import SimpleNamespace
 
+import pytest
+pytest.importorskip("langchain_core")
+
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 from src.chat.LLMAgent import LLMAgent

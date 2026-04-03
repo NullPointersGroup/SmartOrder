@@ -1,7 +1,9 @@
 from unittest.mock import MagicMock
 
-from fastapi import HTTPException
 import pytest
+pytest.importorskip("langchain")
+
+from fastapi import HTTPException
 from sqlmodel import Session
 from src.chat.exceptions import ConversationNotFoundException, ToolNotFoundException
 from src.chat.ChatApi import (

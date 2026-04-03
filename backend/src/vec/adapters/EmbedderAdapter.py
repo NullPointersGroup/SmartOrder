@@ -1,13 +1,18 @@
-from langchain_openai import OpenAIEmbeddings
+# from langchain_openai import OpenAIEmbeddings
+from typing import cast
 import numpy as np
-
+from numpy.typing import NDArray
 from src.vec.ports.EmbedderPort import EmbedderPort
 
 
 class EmbedderAdapter(EmbedderPort):
     def __init__(self) -> None:
-        self.embedder = OpenAIEmbeddings()
+        from sentence_transformers import SentenceTransformer
 
-    def embed(self, text: str) -> np.ndarray:
-        vector = self.embedder.embed_query(text)
-        return np.array(vector, dtype=np.float32)
+        self.embedder = SentenceTransformer("all-MiniLM-L6-v2")
+
+    def embed(self, text: str) -> NDArray[np.float32]:
+        encoded = self.embedder.encode(
+            text, convert_to_numpy=True, normalize_embeddings=True
+        )
+        return cast(NDArray[np.float32], np.asarray(encoded, dtype=np.float32))
