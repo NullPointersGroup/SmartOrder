@@ -10,7 +10,6 @@ class Message(BaseModel):
 
 class MessageRequest(BaseModel):
     content: str
-    audioFile: str | None = None
 
 
 class ChatRequest(BaseModel):

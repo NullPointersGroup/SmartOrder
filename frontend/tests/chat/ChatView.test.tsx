@@ -77,8 +77,8 @@ vi.mock('../../src/chat/CartSidebar', () => ({
 }));
 
 vi.mock('../../src/chat/ChatArea', () => ({
-  ChatArea: ({ hasActiveConv }: { hasActiveConv: boolean }) => (
-    <div data-testid="chat-area" data-active={String(hasActiveConv)} />
+  ChatArea: () => (
+    <div data-testid="chat-area" />
   ),
 }));
 
@@ -231,22 +231,6 @@ describe('ChatView – sidebar destra (carrello)', () => {
     fireEvent.click(screen.getByTitle('Chiudi carrello'));
     fireEvent.click(screen.getByTitle('Apri carrello'));
     expect(screen.queryByTitle('Apri carrello')).not.toBeInTheDocument();
-  });
-});
-
-// ─── hasActiveConv passato a ChatArea ─────────────────────────────────────────
-
-describe('ChatView – hasActiveConv', () => {
-  it('passa hasActiveConv=false a ChatArea quando activeConvId è null', () => {
-    vmOverrides = { activeConvId: null };
-    renderView();
-    expect(screen.getByTestId('chat-area').dataset.active).toBe('false');
-  });
-
-  it('passa hasActiveConv=true a ChatArea quando activeConvId è valorizzato', () => {
-    vmOverrides = { activeConvId: 42 };
-    renderView();
-    expect(screen.getByTestId('chat-area').dataset.active).toBe('true');
   });
 });
 

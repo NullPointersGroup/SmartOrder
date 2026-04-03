@@ -7,7 +7,6 @@ interface Props {
   isLoading: boolean;
   isSending: boolean;
   inputText: string;
-  hasActiveConv: boolean;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   onInputChange: (val: string) => void;
   onSend: () => void;
@@ -84,7 +83,6 @@ export const ChatArea: React.FC<Props> = ({
   isLoading,
   isSending,
   inputText,
-  hasActiveConv,
   messagesEndRef,
   onInputChange,
   onSend,
@@ -150,7 +148,7 @@ export const ChatArea: React.FC<Props> = ({
   const formattedCharCount = `${inputText.length.toLocaleString('it-IT')} / 4096`;
 
   async function handleMicClick() {
-    if (!hasActiveConv || isSending) return;
+    if (isSending) return;
 
     if (isRecording) {
       mediaRecorderRef.current?.stop()
@@ -201,7 +199,7 @@ export const ChatArea: React.FC<Props> = ({
     /**
     @brief gestisce cosa succede dopo il click della clip
      */
-    if (!hasActiveConv || isSending) return;
+    if (isSending) return;
     fileInputRef.current?.click();
   }
 
@@ -274,30 +272,14 @@ export const ChatArea: React.FC<Props> = ({
         aria-live="polite"
         aria-label="Messaggi della conversazione"
       >
-        {!hasActiveConv && (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="w-16 h-16 rounded-2xl bg-(--color-1) flex items-center justify-center mb-4">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                <path
-                  d="M4 4h24v18H18l-6 6V22H4V4z"
-                  stroke="var(--color-2)" strokeWidth="2" strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <h2 className="text-lg font-semibold text-(--text-2) mb-1">Inizia una conversazione</h2>
-            <p className="text-sm text-(--text-4) max-w-xs">
-              Seleziona una conversazione dalla sidebar o creane una nuova.
-            </p>
-          </div>
-        )}
 
-        {hasActiveConv && isLoading && (
+        {isLoading && (
           <output className="flex justify-center py-12" aria-label="Caricamento messaggi">
             <div className="w-6 h-6 border-2 border-(--border) border-t-(--color-2) rounded-full animate-spin" />
           </output>
         )}
 
-        {hasActiveConv && !isLoading && messages.length === 0 && (
+        {!isLoading && messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <p className="text-sm text-(--text-4)">Nessun messaggio ancora. Scrivi qualcosa!</p>
           </div>
@@ -330,17 +312,14 @@ export const ChatArea: React.FC<Props> = ({
         )}
 
         <div
-          className={`flex items-end gap-2 rounded-xl border transition-colors px-3 py-2 ${
-            hasActiveConv
-              ? 'border-(--border) focus-within:border-(--color-2) bg-(--bg-3)'
-              : 'border-(--border) bg-(--bg-1)'
-          }`}
+          className='flex items-end gap-2 rounded-xl border transition-colors px-3 py-2
+            border-(--border) focus-within:border-(--color-2) bg-(--bg-3)'
         >
           {/* Clip */}
           <button
             type="button"
             onClick={handleClipClick}
-            disabled={!hasActiveConv || isSending}
+            disabled={isSending}
             aria-label="Allega file audio (mp3, m4a, m4p, wav — max 10 MB, 120 min)"
             title="Allega file audio"
             className={`${iconBtnBase} text-(--text-3) hover:text-(--text-1) hover:bg-(--bg-2)`}
@@ -357,11 +336,12 @@ export const ChatArea: React.FC<Props> = ({
           <textarea
             ref={textareaRef}
             className="flex-1 resize-none bg-transparent text-sm text-(--text-1) placeholder:text-(--text-4) focus:outline-none min-h-9 max-h-40 leading-relaxed disabled:cursor-not-allowed"
-            placeholder={isTranscribing ? 'Trascrizione in corso…' : hasActiveConv ? 'Scrivi un messaggio…' : 'Seleziona una conversazione'}
+            placeholder={isTranscribing ? 'Trascrizione in corso…' : 'Scrivi un messaggio…'}
             value={inputText}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
-            disabled={!hasActiveConv || isSending || isTranscribing}
+            disabled={
+              isSending || isTranscribing}
             rows={1}
             aria-label="Campo di testo per il messaggio"
             aria-multiline="true"
@@ -371,7 +351,7 @@ export const ChatArea: React.FC<Props> = ({
           <button
             type="button"
             onClick={handleMicClick}
-            disabled={!hasActiveConv || isSending}
+            disabled={isSending}
             aria-label={isRecording ? 'Ferma registrazione' : 'Registra messaggio vocale'}
             title={isRecording ? 'Ferma registrazione' : 'Registra messaggio vocale'}
             className={`${iconBtnBase} ${
@@ -398,7 +378,7 @@ export const ChatArea: React.FC<Props> = ({
           {/* Invia */}
           <button
             onClick={onSend}
-            disabled={!hasActiveConv || !inputText.trim() || isSending || isOverLimit}
+            disabled={!inputText.trim() || isSending || isOverLimit}
             aria-label="Invia messaggio"
             className="
               w-9 h-9 shrink-0 flex items-center justify-center rounded-lg

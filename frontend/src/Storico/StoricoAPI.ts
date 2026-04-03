@@ -31,7 +31,6 @@ export async function getStoricoCliente(
    * @raise ExceptionType Condition or description
    * @return StoricoPageSchema: lista degli ordini, pagina corrente e e totale pagine
    */
-  console.log("CHIAMATO")
   const params = new URLSearchParams({
     pagina: String(pagina),
     per_pagina: String(perPagina),

@@ -102,6 +102,9 @@ interface PasswordResetFormProps {
 const PASSWORD_ERROR_MESSAGE = "La password deve avere almeno 8 caratteri, 1 maiuscola, 1 minuscola, 1 numero e 1 carattere speciale"; //NOSONAR
 
 export default function PasswordResetForm({ handleReset }: Readonly<PasswordResetFormProps>) {
+  /**
+  @brief crea il form della password
+   */
   const [oldPwd,     setOldPwd]     = useState("");
   const [newPwd,     setNewPwd]     = useState("");
   const [confirmPwd, setConfirmPwd] = useState("");

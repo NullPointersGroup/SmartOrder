@@ -17,7 +17,6 @@ const defaultProps: ChatAreaProps = {
   isLoading: false,
   isSending: false,
   inputText: '',
-  hasActiveConv: false,
   messagesEndRef: { current: null },
   onInputChange: vi.fn(),
   onSend: vi.fn(),
@@ -63,77 +62,27 @@ describe('ChatArea – render base', () => {
 });
 
 // ════════════════════════════════════════════════════════════════════════════
-// Senza conversazione attiva
-// ════════════════════════════════════════════════════════════════════════════
-describe('ChatArea – senza conversazione attiva', () => {
-  it('mostra il messaggio di invito a selezionare una conversazione', () => {
-    renderChat({ hasActiveConv: false });
-    expect(screen.getByText(/inizia una conversazione/i)).toBeInTheDocument();
-  });
-
-  it('la textarea è disabilitata', () => {
-    renderChat({ hasActiveConv: false });
-    expect(screen.getByRole('textbox')).toBeDisabled();
-  });
-
-  it('la textarea mostra il placeholder "Seleziona una conversazione"', () => {
-    renderChat({ hasActiveConv: false });
-    expect(screen.getByPlaceholderText(/seleziona una conversazione/i)).toBeInTheDocument();
-  });
-
-  it('il pulsante Invia è disabilitato', () => {
-    renderChat({ hasActiveConv: false, inputText: 'testo' });
-    expect(screen.getByRole('button', { name: /invia messaggio/i })).toBeDisabled();
-  });
-});
-
-// ════════════════════════════════════════════════════════════════════════════
-// Con conversazione attiva
-// ════════════════════════════════════════════════════════════════════════════
-describe('ChatArea – con conversazione attiva', () => {
-  it('la textarea è abilitata', () => {
-    renderChat({ hasActiveConv: true });
-    expect(screen.getByRole('textbox')).not.toBeDisabled();
-  });
-
-  it('la textarea mostra il placeholder di scrittura', () => {
-    renderChat({ hasActiveConv: true });
-    expect(screen.getByPlaceholderText(/scrivi un messaggio/i)).toBeInTheDocument();
-  });
-
-  it('il pulsante Invia è disabilitato con inputText vuoto', () => {
-    renderChat({ hasActiveConv: true, inputText: '' });
-    expect(screen.getByRole('button', { name: /invia messaggio/i })).toBeDisabled();
-  });
-
-  it('il pulsante Invia è abilitato con inputText non vuoto', () => {
-    renderChat({ hasActiveConv: true, inputText: 'Ciao' });
-    expect(screen.getByRole('button', { name: /invia messaggio/i })).not.toBeDisabled();
-  });
-});
-
-// ════════════════════════════════════════════════════════════════════════════
 // Messaggi
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – messaggi', () => {
   it('mostra tutti i messaggi', () => {
-    renderChat({ hasActiveConv: true, messages });
+    renderChat({ messages: messages })
     expect(screen.getByText('Ciao chatbot!')).toBeInTheDocument();
     expect(screen.getByText('Come posso aiutarti?')).toBeInTheDocument();
   });
 
   it('mostra il messaggio "Nessun messaggio" se la lista è vuota', () => {
-    renderChat({ hasActiveConv: true, messages: [], isLoading: false });
+    renderChat({ messages: [], isLoading: false });
     expect(screen.getByText(/nessun messaggio ancora/i)).toBeInTheDocument();
   });
 
   it('i messaggi dell\'utente hanno aria-label corretto', () => {
-    renderChat({ hasActiveConv: true, messages });
+    renderChat({ messages });
     expect(screen.getByRole('article', { name: /messaggio di te/i })).toBeInTheDocument();
   });
 
   it('i messaggi del chatbot hanno aria-label corretto', () => {
-    renderChat({ hasActiveConv: true, messages });
+    renderChat({ messages });
     expect(screen.getByRole('article', { name: /messaggio di chatbot/i })).toBeInTheDocument();
   });
 });
@@ -143,48 +92,48 @@ describe('ChatArea – messaggi', () => {
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – stati di loading', () => {
   it('mostra lo spinner di caricamento messaggi con isLoading=true', () => {
-    renderChat({ hasActiveConv: true, isLoading: true });
+    renderChat({ isLoading: true });
     expect(screen.getByLabelText(/caricamento messaggi/i)).toBeInTheDocument();
   });
 
   it('non mostra lo spinner con isLoading=false', () => {
-    renderChat({ hasActiveConv: true, isLoading: false });
+    renderChat({ isLoading: false });
     expect(screen.queryByLabelText(/caricamento messaggi/i)).not.toBeInTheDocument();
   });
 
   it('mostra il typing indicator quando isSending=true', () => {
-    renderChat({ hasActiveConv: true, isSending: true });
+    renderChat({ isSending: true });
     expect(screen.getByLabelText(/il chatbot sta scrivendo/i)).toBeInTheDocument();
   });
 
   it('non mostra il typing indicator quando isSending=false', () => {
-    renderChat({ hasActiveConv: true, isSending: false });
+    renderChat({ isSending: false });
     expect(screen.queryByLabelText(/il chatbot sta scrivendo/i)).not.toBeInTheDocument();
   });
 
   it('disabilita textarea e pulsanti durante isSending', () => {
-    renderChat({ hasActiveConv: true, isSending: true, inputText: 'testo' });
+    renderChat({ isSending: true, inputText: 'testo' });
     expect(screen.getByRole('textbox')).toBeDisabled();
     expect(screen.getByRole('button', { name: /invia messaggio/i })).toBeDisabled();
   });
 });
 
 // ════════════════════════════════════════════════════════════════════════════
-// isTranscribing – righe 186-193 (PRIMA NON COPERTE)
+// isTranscribing
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – isTranscribing', () => {
   it('mostra il placeholder "Trascrizione in corso…" durante la trascrizione', () => {
-    renderChat({ hasActiveConv: true, isTranscribing: true });
+    renderChat({ isTranscribing: true });
     expect(screen.getByPlaceholderText(/trascrizione in corso/i)).toBeInTheDocument();
   });
 
   it('la textarea è disabilitata durante la trascrizione', () => {
-    renderChat({ hasActiveConv: true, isTranscribing: true });
+    renderChat({ isTranscribing: true });
     expect(screen.getByRole('textbox')).toBeDisabled();
   });
 
   it('mostra il banner "Trascrizione in corso…" visibile nell\'UI durante isTranscribing=true', () => {
-    renderChat({ hasActiveConv: true, isTranscribing: true });
+    renderChat({ isTranscribing: true });
     // L'output con il testo "Trascrizione in corso…" è fuori dalla textarea
     const banners = screen.getAllByText(/trascrizione in corso/i);
     // Almeno uno deve essere il banner (non il placeholder)
@@ -192,7 +141,7 @@ describe('ChatArea – isTranscribing', () => {
   });
 
   it('non mostra il banner di trascrizione quando isTranscribing=false', () => {
-    renderChat({ hasActiveConv: true, isTranscribing: false });
+    renderChat({ isTranscribing: false });
     // Il testo del banner non deve essere nel DOM come elemento visibile
     // (il placeholder "Scrivi un messaggio…" sarà usato, non quello di trascrizione)
     expect(screen.queryByPlaceholderText(/trascrizione in corso/i)).not.toBeInTheDocument();
@@ -200,7 +149,7 @@ describe('ChatArea – isTranscribing', () => {
 
   it('il pulsante Invia rimane disabilitato durante la trascrizione anche con testo', () => {
     // Durante la trascrizione la textarea è bloccata; invia deve restare disabilitato
-    renderChat({ hasActiveConv: true, isTranscribing: true, inputText: 'testo precedente' });
+    renderChat({ isTranscribing: true, inputText: 'testo precedente' });
     // Il pulsante invia è disabilitato se isSending o isTranscribing (dipende dall'implementazione)
     // Verifichiamo che la textarea sia disabilitata, che è il comportamento documentato
     expect(screen.getByRole('textbox')).toBeDisabled();
@@ -213,7 +162,6 @@ describe('ChatArea – isTranscribing', () => {
     const { rerender } = render(
       <ChatArea
         {...defaultProps}
-        hasActiveConv={true}
         isTranscribing={true}
         inputText=""
       />
@@ -224,7 +172,6 @@ describe('ChatArea – isTranscribing', () => {
       rerender(
         <ChatArea
           {...defaultProps}
-          hasActiveConv={true}
           isTranscribing={false}
           inputText="testo trascritto"
         />
@@ -241,7 +188,6 @@ describe('ChatArea – isTranscribing', () => {
     const { rerender } = render(
       <ChatArea
         {...defaultProps}
-        hasActiveConv={true}
         isTranscribing={true}
         inputText=""
       />
@@ -251,7 +197,6 @@ describe('ChatArea – isTranscribing', () => {
       rerender(
         <ChatArea
           {...defaultProps}
-          hasActiveConv={true}
           isTranscribing={false}
           inputText=""  // vuoto → il guard `if (!isTranscribing && inputText)` non passa
         />
@@ -275,28 +220,28 @@ describe('ChatArea – input e invio', () => {
 
   it('chiama onInputChange quando si scrive nella textarea', () => {
     const onInputChange = vi.fn();
-    renderChat({ hasActiveConv: true, onInputChange });
+    renderChat({ onInputChange });
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Ciao' } });
     expect(onInputChange).toHaveBeenCalledWith('Ciao');
   });
 
   it('chiama onSend al click del pulsante Invia', () => {
     const onSend = vi.fn();
-    renderChat({ hasActiveConv: true, inputText: 'Ciao', onSend });
+    renderChat({ inputText: 'Ciao', onSend });
     fireEvent.click(screen.getByRole('button', { name: /invia messaggio/i }));
     expect(onSend).toHaveBeenCalledTimes(1);
   });
 
   it('chiama onSend premendo Invio nella textarea', () => {
     const onSend = vi.fn();
-    renderChat({ hasActiveConv: true, inputText: 'Ciao', onSend });
+    renderChat({ inputText: 'Ciao', onSend });
     fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter', shiftKey: false });
     expect(onSend).toHaveBeenCalledTimes(1);
   });
 
   it('NON chiama onSend premendo Shift+Invio (va a capo)', () => {
     const onSend = vi.fn();
-    renderChat({ hasActiveConv: true, inputText: 'Ciao', onSend });
+    renderChat({ inputText: 'Ciao', onSend });
     fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter', shiftKey: true });
     expect(onSend).not.toHaveBeenCalled();
   });
@@ -307,19 +252,19 @@ describe('ChatArea – input e invio', () => {
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – limite caratteri', () => {
   it('mostra il contatore dei caratteri', () => {
-    renderChat({ hasActiveConv: true, inputText: 'Ciao' });
+    renderChat({ inputText: 'Ciao' });
     expect(screen.getByText(/4\.096|4096/)).toBeInTheDocument();
   });
 
   it('disabilita il pulsante Invia se si supera il limite di 4096 caratteri', () => {
     const longText = 'a'.repeat(4097);
-    renderChat({ hasActiveConv: true, inputText: longText });
+    renderChat({ inputText: longText });
     expect(screen.getByRole('button', { name: /invia messaggio/i })).toBeDisabled();
   });
 
   it('il pulsante Invia è abilitato esattamente a 4096 caratteri', () => {
     const maxText = 'a'.repeat(4096);
-    renderChat({ hasActiveConv: true, inputText: maxText });
+    renderChat({ inputText: maxText });
     expect(screen.getByRole('button', { name: /invia messaggio/i })).not.toBeDisabled();
   });
 });
@@ -329,14 +274,14 @@ describe('ChatArea – limite caratteri', () => {
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – sidebarOpen', () => {
   it('aggiunge classe sticky bottom-0 z-10 quando sidebarOpen=true', () => {
-    const { container } = renderChat({ hasActiveConv: true, sidebarOpen: true });
+    const { container } = renderChat({ sidebarOpen: true });
     // La input bar è il secondo div figlio del main
     const inputBar = container.querySelector('.sticky');
     expect(inputBar).toBeInTheDocument();
   });
 
   it('non aggiunge classe sticky quando sidebarOpen=false (default)', () => {
-    const { container } = renderChat({ hasActiveConv: true, sidebarOpen: false });
+    const { container } = renderChat({ sidebarOpen: false });
     const inputBar = container.querySelector('.sticky');
     expect(inputBar).not.toBeInTheDocument();
   });
@@ -347,23 +292,13 @@ describe('ChatArea – sidebarOpen', () => {
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – pulsanti audio', () => {
   it('mostra il pulsante microfono', () => {
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     expect(screen.getByRole('button', { name: /registra messaggio vocale/i })).toBeInTheDocument();
   });
 
-  it('il pulsante microfono è disabilitato senza conversazione attiva', () => {
-    renderChat({ hasActiveConv: false });
-    expect(screen.getByRole('button', { name: /registra messaggio vocale/i })).toBeDisabled();
-  });
-
   it('mostra il pulsante allega file audio', () => {
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     expect(screen.getByRole('button', { name: /allega file audio/i })).toBeInTheDocument();
-  });
-
-  it('il pulsante allega è disabilitato senza conversazione attiva', () => {
-    renderChat({ hasActiveConv: false });
-    expect(screen.getByRole('button', { name: /allega file audio/i })).toBeDisabled();
   });
 });
 
@@ -395,7 +330,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       value: { getUserMedia: makeGetUserMediaMock() },
       configurable: true,
     });
-    renderChat({ hasActiveConv: true, isSending: true });
+    renderChat({ isSending: true });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
     });
@@ -409,7 +344,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       value: { getUserMedia: makeGetUserMediaMock() },
       configurable: true,
     });
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
       await Promise.resolve();
@@ -425,7 +360,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       value: { getUserMedia: makeGetUserMediaMock() },
       configurable: true,
     });
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
       await Promise.resolve();
@@ -441,7 +376,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       value: { getUserMedia: makeGetUserMediaMock() },
       configurable: true,
     });
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
       await Promise.resolve();
@@ -457,7 +392,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       value: { getUserMedia: makeGetUserMediaMock() },
       configurable: true,
     });
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
       await Promise.resolve();
@@ -480,7 +415,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       value: { getUserMedia: vi.fn().mockResolvedValue(mockStream) },
       configurable: true,
     });
-    renderChat({ hasActiveConv: true, onAudioRecord });
+    renderChat({ onAudioRecord });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
       await Promise.resolve();
@@ -503,7 +438,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       value: { getUserMedia: makeGetUserMediaMock() },
       configurable: true,
     });
-    renderChat({ hasActiveConv: true, onAudioRecord });
+    renderChat({ onAudioRecord });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
       await Promise.resolve();
@@ -524,7 +459,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       value: { getUserMedia: vi.fn().mockRejectedValue(new Error('denied')) },
       configurable: true,
     });
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
     });
@@ -541,7 +476,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
       value: { getUserMedia: makeGetUserMediaMock() },
       configurable: true,
     });
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
       await Promise.resolve();
@@ -565,22 +500,9 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – handleClipClick', () => {
   it('non fa nulla se isSending=true (pulsante disabilitato)', () => {
-    renderChat({ hasActiveConv: true, isSending: true });
+    renderChat({ isSending: true });
     const btn = screen.getByRole('button', { name: /allega file audio/i });
     expect(btn).toBeDisabled();
-  });
-
-  it('non fa nulla se hasActiveConv=false (pulsante disabilitato)', () => {
-    renderChat({ hasActiveConv: false });
-    const btn = screen.getByRole('button', { name: /allega file audio/i });
-    expect(btn).toBeDisabled();
-  });
-
-  it('al click con conversazione attiva non lancia eccezioni', () => {
-    renderChat({ hasActiveConv: true });
-    expect(() => {
-      fireEvent.click(screen.getByRole('button', { name: /allega file audio/i }));
-    }).not.toThrow();
   });
 });
 
@@ -615,7 +537,7 @@ describe('ChatArea – handleFileChange', () => {
 
   it('ignora il change se non è selezionato nessun file', () => {
     const onAudioAttach = vi.fn();
-    const { container } = renderChat({ hasActiveConv: true, onAudioAttach });
+    const { container } = renderChat({ onAudioAttach });
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
     Object.defineProperty(input, 'files', { value: [], configurable: true });
     fireEvent.change(input);
@@ -625,7 +547,7 @@ describe('ChatArea – handleFileChange', () => {
   it('mostra alert e non chiama onAudioAttach se il file supera 10 MB', () => {
     const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
     const onAudioAttach = vi.fn();
-    const { container } = renderChat({ hasActiveConv: true, onAudioAttach });
+    const { container } = renderChat({ onAudioAttach });
     const bigFile = makeFile(11 * 1024 * 1024);
     triggerFileInput(container, bigFile);
     expect(alertSpy).toHaveBeenCalledWith(expect.stringMatching(/non può superare/i));
@@ -644,7 +566,7 @@ describe('ChatArea – handleFileChange', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     globalThis.Audio = vi.fn().mockImplementation(function () { return mockAudio; }) as any;
 
-    const { container } = renderChat({ hasActiveConv: true, onAudioAttach });
+    const { container } = renderChat({ onAudioAttach });
     const file = makeFile(1 * 1024 * 1024);
     triggerFileInput(container, file);
     act(() => { mockAudio.onloadedmetadata?.(); });
@@ -666,7 +588,7 @@ describe('ChatArea – handleFileChange', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     globalThis.Audio = vi.fn().mockImplementation(function () { return mockAudio; }) as any;
 
-    const { container } = renderChat({ hasActiveConv: true, onAudioAttach });
+    const { container } = renderChat({ onAudioAttach });
     triggerFileInput(container, makeFile(1 * 1024 * 1024));
     act(() => { mockAudio.onloadedmetadata?.(); });
 
@@ -686,7 +608,7 @@ describe('ChatArea – handleFileChange', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     globalThis.Audio = vi.fn().mockImplementation(function () { return mockAudio; }) as any;
 
-    const { container } = renderChat({ hasActiveConv: true });
+    const { container } = renderChat({  });
     triggerFileInput(container, makeFile(1 * 1024 * 1024));
     act(() => { mockAudio.onerror?.(); });
 
@@ -700,17 +622,17 @@ describe('ChatArea – handleFileChange', () => {
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – accessibilità', () => {
   it('la textarea ha aria-label corretto', () => {
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     expect(screen.getByLabelText(/campo di testo per il messaggio/i)).toBeInTheDocument();
   });
 
   it('il pulsante Invia ha aria-label corretto', () => {
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     expect(screen.getByRole('button', { name: /invia messaggio/i })).toBeInTheDocument();
   });
 
   it('mostra hint per la shortcut Shift+Invio', () => {
-    renderChat({ hasActiveConv: true });
+    renderChat({  });
     expect(screen.getByText(/shift\+invio/i)).toBeInTheDocument();
   });
 });

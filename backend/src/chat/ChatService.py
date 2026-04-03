@@ -18,7 +18,6 @@ class ChatService:
         conv_id: int,
         username: str,
         content: str,
-        audio_file: None | str = None
     ) -> Message:
         # controlla se la conversazione esiste
         exists = self.repo.conversation_exist(conv_id)

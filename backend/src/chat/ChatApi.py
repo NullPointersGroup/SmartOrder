@@ -47,7 +47,6 @@ def send_message(
             conv_id=conv_id,
             username=current_user,
             content=message.content,
-            audio_file=message.audioFile,
         )
         return MessageResponse(id_conv=conv_id, message=msg)
     except ToolNotFoundException as e:

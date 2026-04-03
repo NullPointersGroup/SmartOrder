@@ -157,7 +157,6 @@ export const ChatView: React.FC = () => {
             isLoading={vm.isLoadingMsgs}
             isSending={vm.isSending}
             inputText={vm.inputText}
-            hasActiveConv={vm.activeConvId !== null}
             messagesEndRef={vm.messagesEndRef}
             onInputChange={vm.setInputText}
             onSend={vm.sendMessage}
