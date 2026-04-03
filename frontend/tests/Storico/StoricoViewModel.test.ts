@@ -102,7 +102,7 @@ describe('useStoricoViewModel – caricaPagina (cliente)', () => {
   it('chiama getStoricoCliente con pagina e perPagina=10', async () => {
     const { result } = renderHook(() => useStoricoViewModel());
     await act(async () => { await result.current.caricaPagina(1); });
-    expect(StoricoAPI.getStoricoCliente).toHaveBeenCalledWith(1, 10);
+    expect(StoricoAPI.getStoricoCliente).toHaveBeenCalledWith(1, 10, expect.anything(), expect.anything());
     expect(StoricoAPI.getStoricoAdmin).not.toHaveBeenCalled();
   });
 
@@ -156,7 +156,7 @@ describe('useStoricoViewModel – caricaPagina (cliente)', () => {
   it('carica pagine diverse passando il numero corretto', async () => {
     const { result } = renderHook(() => useStoricoViewModel());
     await act(async () => { await result.current.caricaPagina(3); });
-    expect(StoricoAPI.getStoricoCliente).toHaveBeenCalledWith(3, 10);
+    expect(StoricoAPI.getStoricoCliente).toHaveBeenCalledWith(3, 10, expect.anything(), expect.anything());
     expect(result.current.pagina).toBe(3);
   });
 });
@@ -169,7 +169,7 @@ describe('useStoricoViewModel – caricaPagina (admin)', () => {
   it('chiama getStoricoAdmin invece di getStoricoCliente', async () => {
     const { result } = renderHook(() => useStoricoViewModel());
     await act(async () => { await result.current.caricaPagina(2); });
-    expect(StoricoAPI.getStoricoAdmin).toHaveBeenCalledWith(2, 10);
+    expect(StoricoAPI.getStoricoAdmin).toHaveBeenCalledWith(2, 10, expect.anything(), expect.anything());
     expect(StoricoAPI.getStoricoCliente).not.toHaveBeenCalled();
   });
 
