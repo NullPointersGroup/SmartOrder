@@ -19,12 +19,15 @@ from src.chat.exceptions import ConversationNotFoundException, ToolNotFoundExcep
 from src.chat.LLMAgent import LLMAgent
 from src.chat.tools.AddToCart import AddToCartTool
 from src.chat.tools.GetCartItems import GetCartItemsTool
+from src.chat.tools.GetOrdini import GetOrdiniTool
 from src.chat.tools.RemoveFromCart import RemoveFromCartTool
 from src.chat.tools.SearchCart import SearchCartTool
 from src.chat.tools.SearchCatalog import SearchCatalogTool
 from src.chat.tools.ToolService import ToolService
 from src.chat.tools.UpdateCartItemQty import UpdateCartItemQty
 from src.db.dbConnection import get_conn
+from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
+from src.storico.StoricoService import StoricoService
 from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
 from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
 from src.vec.adapters.FaissCatalogDb import FaissCatalogDb
@@ -90,6 +93,11 @@ def get_vec_db_service() -> VecDbService:
 
 def build_tools(username: str, db: Session) -> list[BaseTool]:
     shared_cart_service, shared_catalog_repo = get_shared_services()
+    storico_service = StoricoService(GetOrdiniAdapter(db))
+    preferred_product_frequency = {
+        prod_id: frequency
+        for prod_id, _, frequency in storico_service.get_user_product_preferences(username)
+    }
 
     try:
         vec_db: VecDbPortIn = VecDbAdapter(get_vec_db_service())
@@ -103,23 +111,24 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
         cart_service=shared_cart_service,
         catalog_repo=shared_catalog_repo,
         vec_db=vec_db,
+        storico_service=storico_service,
+        preferred_product_frequency=preferred_product_frequency,
     )
     tool_adapter = ToolAdapter(tool_service=tool_service)
-    get_cart_items = GetCartItemsTool(tool_service=tool_adapter)
-    add_to_cart_tool = AddToCartTool(tool_service=tool_adapter)
-    remove_from_cart = RemoveFromCartTool(tool_service=tool_adapter)
-    update_cart_item_qty = UpdateCartItemQty(tool_service=tool_adapter)
+
     tools: list[BaseTool] = [
-        get_cart_items,
-        add_to_cart_tool,
-        remove_from_cart,
-        update_cart_item_qty,
+        GetCartItemsTool(tool_service=tool_adapter),
+        AddToCartTool(tool_service=tool_adapter),
+        RemoveFromCartTool(tool_service=tool_adapter),
+        UpdateCartItemQty(tool_service=tool_adapter),
+        GetOrdiniTool(tool_service=tool_adapter),
     ]
 
     if vector_tools_available:
-        search_cart = SearchCartTool(tool_service=tool_adapter)
-        search_catalog = SearchCatalogTool(tool_service=tool_adapter)
-        tools.extend([search_cart, search_catalog])
+        tools.extend([
+            SearchCartTool(tool_service=tool_adapter),
+            SearchCatalogTool(tool_service=tool_adapter),
+        ])
 
     return tools
 
@@ -130,10 +139,11 @@ def get_chat_service(
     from src.chat.ToolExecutor import ToolExecutor
 
     repo = ChatRepoAdapter(ChatRepository(db))
+    storico_service = StoricoService(GetOrdiniAdapter(db))
     tool_executor = ToolExecutor(tools=build_tools(username, db))
     agent = LLMAgent(tool_executor=tool_executor)
     llm = LLMAdapter(agent=agent)
-    return ChatService(repo=repo, llm=llm)
+    return ChatService(repo=repo, llm=llm, storico_service=storico_service)
 
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]

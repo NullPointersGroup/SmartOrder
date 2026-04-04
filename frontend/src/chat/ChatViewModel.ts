@@ -200,8 +200,10 @@ export function useChatViewModel() {
     /**
      * @brief Invia il messaggio dall'input text e lo svuota
      */
-    await _send(inputText.trim());
+    const content = inputText.trim();
+    if (!content) return;
     setInputText('');
+    await _send(content);
   }, [_send, inputText]);
 
   // ── Trascrizione e invio audio ────────────────────────────────────────────

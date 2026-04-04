@@ -96,7 +96,7 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf, onOrdine 
             <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-100">
               <svg
                 width="28" height="28" viewBox="0 0 24 24"
-                fill="none" stroke="#16a34a" strokeWidth="2.2"
+                fill="none" stroke="var(--color-2)" strokeWidth="2.2"
                 strokeLinecap="round" strokeLinejoin="round"
                 aria-hidden="true"
               >
@@ -194,7 +194,7 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf, onOrdine 
               <button
                 onClick={() => setShowConfirm(true)}
                 disabled={isSendingOrder}
-                className="w-full py-3 rounded-xl bg-(--color-2) text-(--bg-1) text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 rounded-xl bg-(--color-3) text-(--bg-1) text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSendingOrder ? 'Invio in corso…' : 'Invia ordine'}
               </button>

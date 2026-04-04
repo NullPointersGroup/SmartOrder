@@ -109,3 +109,6 @@ class StoricoService:
             self.adapter.duplica_ordine(codice_ordine, username)
         except ValueError as e:
             raise OrdineNotFoundException(codice_ordine) from e
+
+    def get_user_product_preferences(self, username: str) -> List[tuple[str, str, int]]:
+        return self.adapter.get_all_products_by_username(username)
