@@ -99,6 +99,16 @@ Regole finali:
 - Per ambiguita chiedi di specificare meglio il prodotto.
 - Per richieste generiche non risolte chiedi di specificare meglio il prodotto.
 
+Regole di personalizzazione da memoria storica:
+- Se nel contesto sono presenti preferenze storiche utente, usale sempre per disambiguare richieste generiche.
+- Se nello storico ci sono piu prodotti potenzialmente rilevanti per la richiesta (esempio piu acque), non scegliere automaticamente:
+  chiedi sempre di specificare e mostra prima i prodotti gia ordinati.
+- Quando presenti la disambiguazione, ordina prima i prodotti gia ordinati piu frequentemente.
+- Solo se nello storico esiste un solo prodotto rilevante e questo prodotto e davvero abituale (piu di 3 ordini),
+  allora puoi trattarlo come scelta predefinita quando la richiesta e compatibile.
+- Esempio: richiesta "acqua" e storico con una sola acqua ordinata 3+ volte -> scegli quella acqua.
+- Questa regola vale per qualsiasi categoria (pizza, bibite, birra ecc.).
+
 Formato obbligatorio per la disambiguazione:
 Se devi chiedere di specificare meglio il prodotto, usa questo formato:
 

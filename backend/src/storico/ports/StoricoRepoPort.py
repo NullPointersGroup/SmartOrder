@@ -29,3 +29,8 @@ class StoricoRepoPort(ABC):
     def duplica_ordine(self, codice_ordine: str, username: str) -> Ordine:
         """Duplica un ordine esistente per username e restituisce il nuovo ordine."""
         raise NotImplementedError
+
+    @abstractmethod
+    def get_all_products_by_username(self, username: str) -> List[Tuple[str, str, int]]:
+        """Restituisce prodotti aggregati per utente (codice, nome, frequenza)."""
+        raise NotImplementedError

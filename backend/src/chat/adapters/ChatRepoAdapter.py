@@ -16,6 +16,13 @@ class ChatRepoAdapter(ChatRepoPort):
             for r in rows
         ]
 
+    def get_chat_history(self, conv_id: int, max_messages: int = 20) -> list[Message]:
+        rows = self.repo.get_chat_history(conv_id, max_messages)
+        return [
+            Message(id_message=r.id_messaggio, content=r.contenuto, sender=r.mittente)
+            for r in rows
+        ]
+
     def add_message(self, conv_id: int, text: str, sender: SenderEnum) -> Message:
         row = self.repo.add_message(conv_id, text, sender)
         return Message(

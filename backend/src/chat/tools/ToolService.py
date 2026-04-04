@@ -14,11 +14,13 @@ class ToolService:
         cart_service: CartService,
         catalog_repo: CatalogRepoPort,
         vec_db: VecDbPortIn,
+        preferred_product_frequency: dict[str, int] | None = None,
     ) -> None:
         self.username = username
         self.cart_service = cart_service
         self.catalog_repo = catalog_repo
         self.vec_db = vec_db
+        self.preferred_product_frequency = preferred_product_frequency or {}
 
     def search_catalog(self, query: str, threshold: float) -> list[CatalogProduct]:
         prod_ids = self.vec_db.search_catalog(query, threshold)
@@ -27,7 +29,18 @@ class ToolService:
             product = self.catalog_repo.get_product(pid)
             if product:
                 results.append(product)
-        return results
+        if not results or not self.preferred_product_frequency:
+            return results
+
+        # Mantiene la rilevanza vettoriale ma promuove i prodotti gia ordinati.
+        original_rank = {p.prod_id: idx for idx, p in enumerate(results)}
+        return sorted(
+            results,
+            key=lambda p: (
+                -self.preferred_product_frequency.get(p.prod_id, 0),
+                original_rank.get(p.prod_id, 10_000),
+            ),
+        )
 
     def get_cart_items(self) -> list[CartProduct]:
         return self.cart_service.get_cart_products(self.username)

@@ -1,8 +1,16 @@
 from pydantic import BaseModel, Field
 
+
 class Message(BaseModel):
-    role: str 
+    role: str
     content: str
+
+
+class UserPreference(BaseModel):
+    prod_id: str
+    prod_name: str
+    frequency: int
+    is_habitual: bool = False
 
 
 class MetaData(BaseModel):
@@ -15,6 +23,8 @@ class MetaData(BaseModel):
 class LLMRequest(BaseModel):
     conversation_id: int
     message_id: int
+    username: str = ""
+    user_preferences: list[UserPreference] = Field(default_factory=list)
     chat_history: list[Message] = Field(default_factory=list)
 
 

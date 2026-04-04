@@ -106,3 +106,18 @@ class StoricoRepository:
         self.db.commit()
         self.db.refresh(nuovo_ordine)
         return nuovo_ordine
+
+    def get_all_products_by_username(self, username: str) -> List[Tuple[str, str, int]]:
+        result = self.db.exec(
+            select(
+                Anaart.prod_id,
+                Anaart.prod_des,
+                func.count(OrdCliDet.cod_art).label("freq"),
+            )
+            .join(OrdCliDet, col(OrdCliDet.cod_art) == col(Anaart.prod_id))
+            .join(Ordine, col(OrdCliDet.id_ord) == col(Ordine.id_ord))
+            .where(Ordine.username == username)
+            .group_by(Anaart.prod_id, Anaart.prod_des)
+            .order_by(func.count(OrdCliDet.cod_art).desc(), Anaart.prod_des.asc())
+        ).all()
+        return [(row[0], row[1], int(row[2])) for row in result]

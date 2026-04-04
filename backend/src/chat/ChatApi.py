@@ -25,6 +25,8 @@ from src.chat.tools.SearchCatalog import SearchCatalogTool
 from src.chat.tools.ToolService import ToolService
 from src.chat.tools.UpdateCartItemQty import UpdateCartItemQty
 from src.db.dbConnection import get_conn
+from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
+from src.storico.StoricoService import StoricoService
 from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
 from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
 from src.vec.adapters.FaissCatalogDb import FaissCatalogDb
@@ -90,6 +92,11 @@ def get_vec_db_service() -> VecDbService:
 
 def build_tools(username: str, db: Session) -> list[BaseTool]:
     shared_cart_service, shared_catalog_repo = get_shared_services()
+    storico_service = StoricoService(GetOrdiniAdapter(db))
+    preferred_product_frequency = {
+        prod_id: frequency
+        for prod_id, _, frequency in storico_service.get_user_product_preferences(username)
+    }
 
     try:
         vec_db: VecDbPortIn = VecDbAdapter(get_vec_db_service())
@@ -103,6 +110,7 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
         cart_service=shared_cart_service,
         catalog_repo=shared_catalog_repo,
         vec_db=vec_db,
+        preferred_product_frequency=preferred_product_frequency,
     )
     tool_adapter = ToolAdapter(tool_service=tool_service)
     get_cart_items = GetCartItemsTool(tool_service=tool_adapter)
@@ -130,10 +138,11 @@ def get_chat_service(
     from src.chat.ToolExecutor import ToolExecutor
 
     repo = ChatRepoAdapter(ChatRepository(db))
+    storico_service = StoricoService(GetOrdiniAdapter(db))
     tool_executor = ToolExecutor(tools=build_tools(username, db))
     agent = LLMAgent(tool_executor=tool_executor)
     llm = LLMAdapter(agent=agent)
-    return ChatService(repo=repo, llm=llm)
+    return ChatService(repo=repo, llm=llm, storico_service=storico_service)
 
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]

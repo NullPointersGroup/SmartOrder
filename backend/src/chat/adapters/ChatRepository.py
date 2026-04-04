@@ -31,6 +31,19 @@ class ChatRepository:
         )
         return list(self.db.exec(stmt).all())
 
+    def get_chat_history(self, conv_id: int, max_messages: int = 20) -> list[Messaggi]:
+        if not self.get_conversation(conv_id):
+            raise ConversationNotFoundException(conv_id)
+        stmt = (
+            select(Messaggi)
+            .where(Messaggi.id_conv == conv_id)
+            .order_by(Messaggi.id_messaggio.desc())
+            .limit(max_messages)
+        )
+        rows = list(self.db.exec(stmt).all())
+        rows.reverse()
+        return rows
+
     def add_message(self, conv_id: int, text: str, sender: SenderEnum) -> Messaggi:
         msg = Messaggi(
             id_conv=conv_id,
