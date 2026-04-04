@@ -1,8 +1,11 @@
+from datetime import date
+
 from src.cart.CartSchemas import CartProduct
 from src.catalog.CatalogSchemas import CatalogProduct
 from src.chat.ports.ToolPort import ToolPortIn
 from src.chat.tools.ToolService import ToolService
 from src.enums import CartUpdateOperation
+from src.storico.StoricoSchemas import StoricoPageSchema
 
 
 class ToolAdapter(ToolPortIn):
@@ -29,3 +32,7 @@ class ToolAdapter(ToolPortIn):
 
     def search_catalog(self, query: str, threshold: float) -> list[CatalogProduct]:
         return self.tool_service.search_catalog(query, threshold)
+
+    def get_ordini(
+        self, pagina: int = 1, data_inizio: date | None = None, data_fine: date | None = None, ) -> StoricoPageSchema:
+        return self.tool_service.get_ordini(pagina, data_inizio, data_fine)

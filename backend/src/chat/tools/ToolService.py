@@ -1,9 +1,12 @@
+from datetime import date
+
 from src.cart.CartSchemas import CartProduct
 from src.cart.CartService import CartService
 from src.catalog.CatalogSchemas import CatalogProduct
 from src.catalog.ports.CatalogRepoPort import CatalogRepoPort
-from src.chat.ports.ToolPort import ToolPortIn
 from src.enums import CartUpdateOperation
+from src.storico.StoricoSchemas import StoricoPageSchema
+from src.storico.StoricoService import StoricoService
 from src.vec.ports.VecDbPortIn import VecDbPortIn
 
 
@@ -14,12 +17,14 @@ class ToolService:
         cart_service: CartService,
         catalog_repo: CatalogRepoPort,
         vec_db: VecDbPortIn,
+        storico_service: StoricoService,
         preferred_product_frequency: dict[str, int] | None = None,
     ) -> None:
         self.username = username
         self.cart_service = cart_service
         self.catalog_repo = catalog_repo
         self.vec_db = vec_db
+        self.storico_service = storico_service
         self.preferred_product_frequency = preferred_product_frequency or {}
 
     def search_catalog(self, query: str, threshold: float) -> list[CatalogProduct]:
@@ -32,7 +37,6 @@ class ToolService:
         if not results or not self.preferred_product_frequency:
             return results
 
-        # Mantiene la rilevanza vettoriale ma promuove i prodotti gia ordinati.
         original_rank = {p.prod_id: idx for idx, p in enumerate(results)}
         return sorted(
             results,
@@ -62,4 +66,14 @@ class ToolService:
     ) -> CartProduct:
         return self.cart_service.update_cart_quantity(
             self.username, prod_id, qty, operation
+        )
+
+    def get_ordini(
+        self, pagina: int = 1, data_inizio: date | None = None, data_fine: date | None = None, ) -> StoricoPageSchema:
+        return self.storico_service.get_ordini_cliente(
+            username=self.username,
+            pagina=pagina,
+            per_pagina=10,
+            data_inizio=data_inizio,
+            data_fine=data_fine,
         )

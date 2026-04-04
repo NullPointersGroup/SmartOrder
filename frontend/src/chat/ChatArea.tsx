@@ -12,7 +12,6 @@ interface Props {
   onSend: () => void;
   onAudioAttach?: (file: File) => void;
   onAudioRecord?: (blob: Blob) => void;
-  /** When true (narrow screen + sidebar open) the input bar stays fixed at the bottom */
   sidebarOpen?: boolean;
   isTranscribing?: boolean;
 }
@@ -136,10 +135,10 @@ export const ChatArea: React.FC<Props> = ({
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    if (!isTranscribing && inputText) {
+    if (!isTranscribing && !isSending) {
       textareaRef.current?.focus()
     }
-  }, [isTranscribing, inputText])
+  }, [isTranscribing, isSending])
 
   const counterColorClass = isOverLimit
     ? 'text-(--oth-1) font-semibold'
