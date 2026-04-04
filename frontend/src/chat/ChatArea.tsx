@@ -135,7 +135,7 @@ export const ChatArea: React.FC<Props> = ({
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    if (!isTranscribing && !isSending) {
+    if (!isTranscribing && !isSending && inputText.length > 0) {
       textareaRef.current?.focus()
     }
   }, [isTranscribing, isSending])
