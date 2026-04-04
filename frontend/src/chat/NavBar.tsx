@@ -40,10 +40,10 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
   @raise ExceptionType Condition or description
   @bug  actual problems
   @return Type Description
-  @req RF-OB_85
-  @req RF-OB_86
+  @req RF-OB_77
+  @req RF-OB_78
+  @req RF-DE_09
   @req RF-DE_10
-  @req RF-DE_11
    */
   const [open, setOpen]   = useState(false);
   const ref               = useRef<HTMLDivElement>(null);

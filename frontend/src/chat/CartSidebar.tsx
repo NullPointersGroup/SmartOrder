@@ -4,7 +4,7 @@ import type { CartProduct } from './ChatModel';
 interface Props {
   products: CartProduct[];
   onToggleSelf: () => void;
-  onOrdine: () => void;
+  onOrdine: () => Promise<void>;
 }
 
 export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf, onOrdine }) => {
@@ -18,18 +18,30 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf, onOrdine 
   @req RF-OB_65
   @req RF-OB_66
   @req RF-OB_67
+  @req RF-OB_68
+  @req RF-OB_69
+  @req RF-OB_70
    */
-  
+
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isSendingOrder, setIsSendingOrder] = useState(false);
 
   const fmt = (n?: number) =>
     (n ?? 0).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 
   const total = products.reduce((sum, p) => sum + (p.price ?? 0) * (p.qty ?? 0), 0);
 
-  const handleConferma = () => {
+  const handleConferma = async () => {
     setShowConfirm(false);
-    onOrdine();
+    setIsSendingOrder(true);
+    try {
+      await onOrdine();
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 4000);
+    } finally {
+      setIsSendingOrder(false);
+    }
   };
 
   return (
@@ -66,6 +78,49 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf, onOrdine 
           </div>
         </div>
       )}
+
+      {/* Popup di successo */}
+      {showSuccess && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-0 z-200 flex items-center justify-center"
+        >
+          <button
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowSuccess(false)}
+            aria-label="Chiudi notifica"
+          />
+          <div className="relative z-10 bg-(--bg-1) border border-(--border) rounded-2xl shadow-2xl p-6 w-80 flex flex-col items-center gap-4">
+            {/* Icona check */}
+            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-100">
+              <svg
+                width="28" height="28" viewBox="0 0 24 24"
+                fill="none" stroke="#16a34a" strokeWidth="2.2"
+                strokeLinecap="round" strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+
+            <div className="text-center flex flex-col gap-1">
+              <h2 className="text-base font-semibold text-(--text-1)">Ordine inviato!</h2>
+              <p className="text-sm text-(--text-3)">
+                Il tuo ordine è stato inviato con successo.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowSuccess(false)}
+              className="w-full py-2.5 rounded-xl text-sm font-semibold bg-(--color-2) text-(--bg-1) hover:opacity-90 transition-opacity"
+            >
+              Chiudi
+            </button>
+          </div>
+        </div>
+      )}
+
     <aside className="flex flex-col w-80 min-w-[20rem] h-full bg-(--bg-3) border-l border-(--border)" aria-label="Carrello">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-6 border border-(--border)">
@@ -137,10 +192,11 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf, onOrdine 
             </div>
             <div className="px-0 pb-0 pt-2">
               <button
-                onClick={() => setShowConfirm(true)}  // ← apre il dialog, non chiama onOrdine direttamente
-                className="w-full py-3 rounded-xl bg-(--color-2) text-(--bg-1) text-sm font-semibold hover:opacity-90 transition-opacity"
+                onClick={() => setShowConfirm(true)}
+                disabled={isSendingOrder}
+                className="w-full py-3 rounded-xl bg-(--color-2) text-(--bg-1) text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Invia ordine
+                {isSendingOrder ? 'Invio in corso…' : 'Invia ordine'}
               </button>
             </div>
           </div>

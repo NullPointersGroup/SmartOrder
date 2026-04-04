@@ -102,7 +102,6 @@ export const ChatModel = {
      * @brief Ottiene le informazioni dell'utente autenticato
      * @return Promise con username dell'utente
      * @throws Error in caso di fallimento autenticazione
-     * @req RF-OB_1
      */
     const res = await fetch(`/auth/me`, { credentials: 'include' });
     return handleResponse(res);
@@ -112,7 +111,6 @@ export const ChatModel = {
     /**
      * @brief Effettua il logout dell'utente corrente
      * @throws Error in caso di errore nella richiesta di logout
-     * @req RF-OB_2
      */
     const res = await fetch(`/auth/logout`, {
       method: 'POST',
@@ -129,7 +127,6 @@ export const ChatModel = {
      * @param username Nome dell'utente
      * @return Promise con array di conversazioni
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_3
      */
     const res = await fetch(`/conversations/${username}`, {
       credentials: 'include',
@@ -144,7 +141,6 @@ export const ChatModel = {
      * @param titolo Titolo della nuova conversazione
      * @return Promise con la conversazione creata
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_4
      */
     const res = await fetch(`/conversations/${username}`, {
       method: 'POST',
@@ -161,7 +157,6 @@ export const ChatModel = {
      * @param titolo Nuovo titolo
      * @return Promise con la conversazione aggiornata
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_5
      */
     const res = await fetch(`/conversations/${conv_id}`, {
       method: 'PATCH',
@@ -176,7 +171,6 @@ export const ChatModel = {
      * @brief Elimina una conversazione
      * @param conv_id ID della conversazione da eliminare
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_6
      */
     const res = await fetch(`/conversations/${conv_id}`, {
       method: 'DELETE',
@@ -193,7 +187,6 @@ export const ChatModel = {
      * @param conv_id ID della conversazione
      * @return Promise con id conversazione e array di messaggi
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_7
      */
     const res = await fetch(`/chat/${conv_id}/all`, { credentials: 'include' });
     const data = await handleResponse<RawChatApiResponse>(res);
@@ -211,7 +204,6 @@ export const ChatModel = {
      * @param content Contenuto del messaggio
      * @return Promise con id conversazione e messaggio inviato
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_8
      */
     const res = await fetch(`/chat/${conv_id}`, {
       method: 'POST',
@@ -235,7 +227,6 @@ export const ChatModel = {
      * @param username Nome dell'utente
      * @return Promise con username e lista prodotti nel carrello
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_9
      */
     const res = await fetch(`/cart/${username}`, { credentials: 'include' });
     return handleResponse(res);
@@ -247,7 +238,6 @@ export const ChatModel = {
      * @param username Nome dell'utente
      * @param prod_id ID del prodotto da rimuovere
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_10
      */
     const res = await fetch(`/cart/${username}`, {
       method: 'DELETE',

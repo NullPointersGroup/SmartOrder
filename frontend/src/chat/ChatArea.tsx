@@ -47,9 +47,9 @@ function MessageBubble({ msg }: { readonly msg: Message }) {
   /**
   @brief Renderizza un singolo messaggio nella chat, distinguendo tra utente e AI.
   @param msg Messaggio da visualizzare.
+  @req RF-DE_130
   @req RF-DE_131
   @req RF-DE_132
-  @req RF-DE_133
    */
   return (
     <div className={`flex items-end gap-2 mb-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -116,9 +116,9 @@ export const ChatArea: React.FC<Props> = ({
   @req RF-OB_51
   @req RF-OB_52
   @req RF-OB_53
-  @req RF-DE_26
+  @req RF-DE_25
+  @req RF-DE_128
   @req RF-DE_129
-  @req RF-DE_130
   @req RF-OP_15
    */
   const MAX_CHARS = 4096;

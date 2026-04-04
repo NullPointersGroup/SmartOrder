@@ -50,7 +50,6 @@ class UserRegistrationSchema(UserSchema):
         @param v: la password da validare
         @raise ValueError
         @return ritorna la stessa password se validata
-        @req RF-OB_11
         """
         if not PASSWORD_REGEX.match(v):
             raise ValueError(

@@ -23,23 +23,19 @@ class UserRepoAdapter(IUserRepoPort):
 
     def username_exists(self, username: str) -> bool:
         """
-        @req RF-OB_03
-        @req RF-OB_04
+        @brief verifica che lo username esiste
         """
         return self.repo.find_by_username(username) is not None
 
     def email_exists(self, email: str) -> bool:
         """
-        @req RF-OB_19
-        @req RF-OB_21
+        @brief controlla che la mail esiste
         """
         return self.repo.find_by_email(email) is not None
 
     def add_user(self, u: UserRegistration) -> bool:
         """
-        @req RF-OB_02
-        @req RF-OB_08
-        @req RF-OB_18
+        @brief aggiunge l'utente
         """
         return self.repo.save(u)
     
