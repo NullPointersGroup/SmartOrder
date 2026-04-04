@@ -1,4 +1,4 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, col
 
 from src.chat.exceptions import ConversationNotFoundException
 from src.db.models import Conversazioni, Messaggi
@@ -37,7 +37,7 @@ class ChatRepository:
         stmt = (
             select(Messaggi)
             .where(Messaggi.id_conv == conv_id)
-            .order_by(Messaggi.id_messaggio.desc())
+            .order_by(col(Messaggi.id_messaggio).desc())
             .limit(max_messages)
         )
         rows = list(self.db.exec(stmt).all())
