@@ -96,7 +96,7 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf, onOrdine 
             <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-100">
               <svg
                 width="28" height="28" viewBox="0 0 24 24"
-                fill="none" stroke="#16a34a" strokeWidth="2.2"
+                fill="none" stroke="var(--color-2)" strokeWidth="2.2"
                 strokeLinecap="round" strokeLinejoin="round"
                 aria-hidden="true"
               >

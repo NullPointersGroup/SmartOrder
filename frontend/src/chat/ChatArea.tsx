@@ -65,7 +65,7 @@ function MessageBubble({ msg }: { readonly msg: Message }) {
       </div>
       <article
         className={`
-          max-w-[65%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
+          max-w-[75%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
           ${isUser
             ? 'bg-(--color-3) text-(--bg-3) rounded-2xl rounded-br-sm'
             : 'bg-(--bg-3) border border-(--border) text-(--text-1) rounded-2xl rounded-bl-sm shadow-sm'}
@@ -272,6 +272,7 @@ export const ChatArea: React.FC<Props> = ({
         aria-live="polite"
         aria-label="Messaggi della conversazione"
       >
+        <div className="max-w-3xl mx-auto w-full">
 
         {isLoading && (
           <output className="flex justify-center py-12" aria-label="Caricamento messaggi">
@@ -291,6 +292,7 @@ export const ChatArea: React.FC<Props> = ({
 
         {isSending && <TypingIndicator />}
         <div ref={messagesEndRef} aria-hidden="true" />
+        </div>
       </div>
 
       {/* Input bar */}
@@ -395,7 +397,6 @@ export const ChatArea: React.FC<Props> = ({
           </button>
         </div>
 
-        {/* Per apertura di selezione file, normale che non abbia il focus */}
         <input
           ref={fileInputRef}
           type="file"
