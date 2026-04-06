@@ -42,7 +42,6 @@ catalog_repo: CatalogRepoAdapter | None = None
 vecDb_service: VecDbService | None = None
 _vec_init_failed = False
 
-
 class NoopVecDbAdapter(VecDbPortIn):
     def get_cart(self, username: str) -> None:
         return None

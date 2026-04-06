@@ -1,7 +1,7 @@
 from datetime import date
 
 from langchain.tools import BaseTool
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from src.chat.ports.ToolPort import ToolPortIn
 from src.storico.exceptions import OrdiniUsernameNotFoundException
@@ -33,8 +33,7 @@ class GetOrdiniTool(BaseTool):
     args_schema: type[BaseModel] = GetOrdiniInput
     tool_service: ToolPortIn
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @staticmethod
     def _parse_date(s: str) -> date | None:

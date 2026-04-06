@@ -1,5 +1,5 @@
 from langchain.tools import BaseTool
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from src.cart.exceptions import ProductNotInCartException
 from src.chat.ports.ToolPort import ToolPortIn
 
@@ -14,8 +14,7 @@ class RemoveFromCartTool(BaseTool):
     args_schema: type[BaseModel] = RemoveFromCartInput
     tool_service: ToolPortIn
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def _run(self, prod_id: str) -> str:
         try:

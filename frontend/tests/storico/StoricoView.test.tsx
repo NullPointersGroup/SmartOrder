@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 
-import { StoricoView } from '../../src/Storico/StoricoView';
+import { StoricoView } from '../../src/storico/StoricoView';
 
 // ─── Mock authStore ───────────────────────────────────────────────────────────
 
@@ -74,7 +74,7 @@ const baseVm: StoricoVm = {
 
 let vmOverrides: Partial<StoricoVm> = {};
 
-vi.mock('../../src/Storico/StoricoViewModel', () => ({
+vi.mock('../../src/storico/StoricoViewModel', () => ({
   useStoricoViewModel: (): StoricoVm => ({ ...baseVm, ...vmOverrides }),
 }));
 
@@ -98,7 +98,7 @@ vi.mock('../../src/chat/Profile', () => ({
   ),
 }));
 
-vi.mock('../../src/Storico/OrdineRow', () => ({
+vi.mock('../../src/storico/OrdineRow', () => ({
   OrdineRow: ({
     ordine,
     onApriDettaglio,
@@ -116,7 +116,7 @@ vi.mock('../../src/Storico/OrdineRow', () => ({
   ),
 }));
 
-vi.mock('../../src/Storico/Paginazione', () => ({
+vi.mock('../../src/storico/Paginazione', () => ({
   Paginazione: ({
     pagina,
     totalePagine,
@@ -133,7 +133,7 @@ vi.mock('../../src/Storico/Paginazione', () => ({
   ),
 }));
 
-vi.mock('../../src/Storico/DettaglioModal', () => ({
+vi.mock('../../src/storico/DettaglioModal', () => ({
   DettaglioModal: ({
     ordine,
     onChiudi,

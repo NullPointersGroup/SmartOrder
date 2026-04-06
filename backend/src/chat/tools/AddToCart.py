@@ -1,5 +1,5 @@
 from langchain.tools import BaseTool
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from src.cart.exceptions import ProductNotFoundException
 from src.chat.ports.ToolPort import ToolPortIn
 
@@ -15,8 +15,7 @@ class AddToCartTool(BaseTool):
     args_schema: type[BaseModel] = AddToCartInput
     tool_service: ToolPortIn
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def _run(self, prod_id: str, qty: int) -> str:
         try:

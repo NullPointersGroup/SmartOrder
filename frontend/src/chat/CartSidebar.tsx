@@ -81,8 +81,7 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf, onOrdine 
 
       {/* Popup di successo */}
       {showSuccess && (
-        <div
-          role="status"
+        <output
           aria-live="polite"
           className="fixed inset-0 z-200 flex items-center justify-center"
         >
@@ -118,7 +117,7 @@ export const CartSidebar: React.FC<Props> = ({ products, onToggleSelf, onOrdine 
               Chiudi
             </button>
           </div>
-        </div>
+        </output>
       )}
 
     <aside className="flex flex-col w-80 min-w-[20rem] h-full bg-(--bg-3) border-l border-(--border)" aria-label="Carrello">

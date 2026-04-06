@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
-import { OrdineRow } from '../../src/Storico/OrdineRow';
-import type { Ordine } from '../../src/Storico/StoricoModel';
+import { OrdineRow } from '../../src/storico/OrdineRow';
+import type { Ordine } from '../../src/storico/StoricoModel';
 
 // jsdom spesso non ha i dati ICU completi per 'it-IT',
 // il che causa timeout su toLocaleDateString con opzioni di formato.

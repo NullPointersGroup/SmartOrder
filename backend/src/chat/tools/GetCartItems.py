@@ -1,5 +1,5 @@
 from langchain.tools import BaseTool
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from src.chat.ports.ToolPort import ToolPortIn
 
 
@@ -16,8 +16,7 @@ class GetCartItemsTool(BaseTool):
     args_schema: type[BaseModel] = GetCartItemsInput
     tool_service: ToolPortIn
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def _run(self) -> str:
         products = self.tool_service.get_cart_items()
