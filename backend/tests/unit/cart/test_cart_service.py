@@ -129,7 +129,7 @@ def test_update_quantity_returns_correct_product(cart_service, mock_adapter):
     assert result.prod_id == "ABC1"
     assert result.qty == 5
 
-
+#TU-B_361
 def test_update_quantity_calls_repo_with_set(cart_service, mock_adapter):
     mock_adapter.update_quantity.return_value = make_cart_product(qty=7)
 

@@ -135,7 +135,7 @@ def test_update_quantity_subtract_calls_repo(adapter, mock_repo):
     )
     assert result.qty == 2
 
-
+#TU-B_359
 def test_update_quantity_set_calls_repo(adapter, mock_repo):
     mock_repo.update_quantity.return_value = make_db_row(qty=7)
 
