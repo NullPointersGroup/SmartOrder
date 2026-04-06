@@ -41,7 +41,7 @@ def make_mutation():
 
 
 class TestExecute:
-    # TU-B_45
+    #TU-B_45
     def test_returns_all_results(self, executor, db):
         q, _ = make_query()
         db.exec.return_value.all.return_value = ["a", "b", "c"]
@@ -50,7 +50,7 @@ class TestExecute:
 
         assert result == ["a", "b", "c"]
 
-    # TU-B_46
+    #TU-B_46
     def test_calls_exec_with_stmt(self, executor, db):
         q, stmt = make_query()
         db.exec.return_value.all.return_value = []
@@ -59,7 +59,7 @@ class TestExecute:
 
         db.exec.assert_called_once_with(stmt)
 
-    # TU-B_47
+    #TU-B_47
     def test_returns_empty_sequence(self, executor, db):
         q, _ = make_query()
         db.exec.return_value.all.return_value = []
@@ -75,7 +75,7 @@ class TestExecute:
 
 
 class TestExecuteOne:
-    # TU-B_48
+    #TU-B_48
     def test_returns_single_result(self, executor, db):
         q, _ = make_query()
         db.exec.return_value.first.return_value = "item"
@@ -84,7 +84,7 @@ class TestExecuteOne:
 
         assert result == "item"
 
-    # TU-B_49
+    #TU-B_49
     def test_returns_none_when_not_found(self, executor, db):
         q, _ = make_query()
         db.exec.return_value.first.return_value = None
@@ -93,7 +93,7 @@ class TestExecuteOne:
 
         assert result is None
 
-    # TU-B_50
+    #TU-B_50
     def test_calls_exec_with_stmt(self, executor, db):
         q, stmt = make_query()
         db.exec.return_value.first.return_value = None
@@ -110,7 +110,7 @@ class TestExecuteOne:
 
 class TestMutate:
 
-    # TU-B_51
+    #TU-B_51
     def test_returns_true_on_success(self, executor, db):
         m, _ = make_mutation()
 
@@ -118,7 +118,7 @@ class TestMutate:
 
         assert result is True
 
-    # TU-B_52
+    #TU-B_52
     def test_commits_on_success(self, executor, db):
         m, _ = make_mutation()
 
@@ -126,7 +126,7 @@ class TestMutate:
 
         db.commit.assert_called_once()
 
-    # TU-B_53
+    #TU-B_53
     def test_returns_false_on_integrity_error(self, executor, db):
         m, _ = make_mutation()
         db.exec.side_effect = IntegrityError(None, None, Exception())
@@ -135,7 +135,7 @@ class TestMutate:
 
         assert result is False
 
-    # TU-B_54
+    #TU-B_54
     def test_rollback_on_integrity_error(self, executor, db):
         m, _ = make_mutation()
         db.exec.side_effect = IntegrityError(None, None, Exception())
@@ -145,7 +145,7 @@ class TestMutate:
         db.rollback.assert_called_once()
         db.commit.assert_not_called()
 
-    # TU-B_55
+    #TU-B_55
     def test_returns_false_on_generic_exception(self, executor, db):
         m, _ = make_mutation()
         db.exec.side_effect = Exception("errore generico")
@@ -154,7 +154,7 @@ class TestMutate:
 
         assert result is False
 
-    # TU-B_56
+    #TU-B_56
     def test_rollback_on_generic_exception(self, executor, db):
         m, _ = make_mutation()
         db.exec.side_effect = Exception("errore generico")
@@ -164,7 +164,7 @@ class TestMutate:
         db.rollback.assert_called_once()
         db.commit.assert_not_called()
 
-    # TU-B_57
+    #TU-B_57
     def test_no_commit_on_failure(self, executor, db):
         m, _ = make_mutation()
         db.exec.side_effect = IntegrityError(None, None, Exception())
@@ -173,14 +173,14 @@ class TestMutate:
 
         db.commit.assert_not_called()
 
-    # TU-B_58
+    #TU-B_58
     def test_returns_false_on_integrity_error_raw(self, executor, db):
         db.exec.side_effect = IntegrityError(None, None, Exception())
         stmt = MagicMock()
         result = executor.mutate_raw(stmt)
         assert result is False
 
-    # TU-B_59
+    #TU-B_59
     def test_rollback_on_integrity_error_raw(self, executor, db):
         db.exec.side_effect = IntegrityError(None, None, Exception())
         stmt = MagicMock()
@@ -191,7 +191,7 @@ class TestMutate:
 
 class TestQueryBase:
 
-    # TU-B_60
+    #TU-B_60
     def test_execute_raises_not_implemented(self):
         q = Query()
         with pytest.raises(NotImplementedError):
@@ -200,7 +200,7 @@ class TestQueryBase:
 
 class TestMutationBase:
 
-    # TU-B_61
+    #TU-B_61
     def test_execute_raises_not_implemented(self):
         m = Mutation()
         with pytest.raises(NotImplementedError):

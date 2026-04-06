@@ -15,7 +15,7 @@ def make_catalog_row(prod_id: str, prod_des: str) -> Anaart:
     )
 
 
-# TU-B_184
+#TU-B_184
 def test_catalog_product_repository_maps_real_db_column_names():
     column_names = [c.key for c in class_mapper(Anaart).columns]
 
@@ -31,7 +31,7 @@ def test_catalog_product_repository_maps_real_db_column_names():
     assert "prezzo" in column_names
 
 
-# TU-B_185
+#TU-B_185
 def test_get_product_calls_db_and_returns_first_row():
     mock_db = __import__("unittest.mock").mock.MagicMock()
     row = make_catalog_row("A0063", "DETERGENTE")
@@ -44,7 +44,7 @@ def test_get_product_calls_db_and_returns_first_row():
     mock_db.exec.assert_called_once()
 
 
-# TU-B_186
+#TU-B_186
 def test_get_full_catalog_calls_db_and_returns_all_rows():
     mock_db = __import__("unittest.mock").mock.MagicMock()
     rows = [

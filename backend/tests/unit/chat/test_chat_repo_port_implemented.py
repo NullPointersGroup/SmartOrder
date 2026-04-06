@@ -22,13 +22,13 @@ class ConcreteChatRepo(ChatRepoPort):
     def conversation_exist(self, conv_id: int) -> bool:
         return True
 
-
+#TU-B_194
 def test_get_messages_can_be_implemented():
     chat_repo = ConcreteChatRepo()
     result = chat_repo.get_messages(1)
     assert result == [message1, message2]
 
-
+#TU-B_195
 def test_add_message_can_be_implemented():
     chat_repo = ConcreteChatRepo()
     result = chat_repo.add_message(
@@ -36,14 +36,14 @@ def test_add_message_can_be_implemented():
     )
     assert result == message1
 
-
+#TU-B_196
 def test_get_messages_returns_message_list():
     chat_repo = ConcreteChatRepo()
     result = chat_repo.get_messages(1)
     assert isinstance(result, list)
     assert all(isinstance(m, Message) for m in result)
 
-
+#TU-B_197
 def test_add_message_returns_message():
     chat_repo = ConcreteChatRepo()
     result = chat_repo.add_message(

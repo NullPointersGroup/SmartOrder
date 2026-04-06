@@ -6,7 +6,7 @@ class ConcreteLLM(LLMPort):
     def invoke(self, request: LLMRequest) -> LLMResponse:
         return LLMResponse(content=f"invoke called with message_id: {request.message_id}")
 
-
+#TU-B_223
 def test_llm_port_can_be_implemented():
     llm = ConcreteLLM()
     request = LLMRequest(conversation_id=1, message_id=10, chat_history=[])
