@@ -9,7 +9,7 @@ def test_send_message_returns_llm_response(chat_service, mock_repo, mock_llm):
     mock_repo.conversation_exist.return_value = True
 
     # il metodo corretto chiamato dal servizio
-    mock_llm.invoke_agent.return_value = LLMResponse(content="LLM Response")
+    mock_llm.invoke.return_value = LLMResponse(content="LLM Response")
 
     mock_repo.add_message.side_effect = [
         Message(id_message=1, content="Hello", sender=SenderEnum.Utente),
@@ -25,8 +25,8 @@ def test_send_message_returns_llm_response(chat_service, mock_repo, mock_llm):
     assert result.sender == SenderEnum.Utente
 
     # asserzioni sul LLM
-    mock_llm.invoke_agent.assert_called_once()
-    llm_request = mock_llm.invoke_agent.call_args.args[0]
+    mock_llm.invoke.assert_called_once()
+    llm_request = mock_llm.invoke.call_args.args[0]
     assert isinstance(llm_request, LLMRequest)
     assert llm_request.conversation_id == 1
     assert llm_request.message_id == 1
