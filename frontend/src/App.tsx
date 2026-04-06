@@ -2,7 +2,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthPage from './auth/AuthPage';
 import { ChatView } from './chat/ChatView';
-import { StoricoView } from './Storico/StoricoView';
+import { StoricoView } from './storico/StoricoView';
 import { ProtectedRoute } from './ProtectedRoute';
 import { Unauthorized } from './HTTPError/401';
 import { NotFound } from './HTTPError/404';

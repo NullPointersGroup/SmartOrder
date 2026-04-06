@@ -39,7 +39,6 @@ catalog_repo: CatalogRepoAdapter | None = None
 vecDb_service: VecDbService | None = None
 _vec_init_failed = False
 
-
 class NoopVecDbAdapter(VecDbPortIn):
     def get_cart(self, username: str) -> None:
         return None
@@ -88,7 +87,7 @@ def get_vec_db_service() -> VecDbService:
         raise
 
 
-def build_tools(username: str, db: Session) -> list[BaseTool]:
+def build_tools(username: str) -> list[BaseTool]:
     shared_cart_service, shared_catalog_repo = get_shared_services()
 
     try:
@@ -130,7 +129,7 @@ def get_chat_service(
     from src.chat.ToolExecutor import ToolExecutor
 
     repo = ChatRepoAdapter(ChatRepository(db))
-    tool_executor = ToolExecutor(tools=build_tools(username, db))
+    tool_executor = ToolExecutor(tools=build_tools(username))
     agent = LLMAgent(tool_executor=tool_executor)
     llm = LLMAdapter(agent=agent)
     return ChatService(repo=repo, llm=llm)

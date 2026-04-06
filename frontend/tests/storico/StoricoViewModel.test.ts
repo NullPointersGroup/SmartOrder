@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
-import { useStoricoViewModel } from '../../src/Storico/StoricoViewModel';
-import * as StoricoAPI from '../../src/Storico/StoricoAPI';
+import { useStoricoViewModel } from '../../src/storico/StoricoViewModel';
+import * as StoricoAPI from '../../src/storico/StoricoAPI';
 import { useAuthStore } from '../../src/auth/authStore';
 
 // ─── Mock StoricoAPI ──────────────────────────────────────────────────────────
 
-vi.mock('../../src/Storico/StoricoAPI', () => ({
+vi.mock('../../src/storico/StoricoAPI', () => ({
   getStoricoCliente: vi.fn(),
   getStoricoAdmin:   vi.fn(),
   duplicaOrdine:     vi.fn(),

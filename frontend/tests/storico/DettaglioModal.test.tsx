@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
-import { DettaglioModal } from '../../src/Storico/DettaglioModal';
-import type { Ordine } from '../../src/Storico/StoricoModel';
+import { DettaglioModal } from '../../src/storico/DettaglioModal';
+import type { Ordine } from '../../src/storico/StoricoModel';
 
 // ─── Mock <dialog> per jsdom ─────────────────────────────────────────────────
 
@@ -108,9 +108,7 @@ describe('DettaglioModal – render base', () => {
 
   it('ha il pulsante di chiusura con aria-label "Chiudi"', () => {
     renderModal();
-    expect(
-      screen.getByRole('button', { name: /chiudi/i, hidden: true })
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Chiudi')).toBeInTheDocument();
   });
 });
 
@@ -206,7 +204,7 @@ describe('DettaglioModal – chiusura', () => {
   it('chiama dialog.close() al click sul pulsante X', () => {
     renderModal();
     const closeSpy = vi.spyOn(HTMLDialogElement.prototype, 'close');
-    fireEvent.click(screen.getByRole('button', { name: /chiudi/i, hidden: true }));
+    fireEvent.click(screen.getByLabelText('Chiudi'));
     expect(closeSpy).toHaveBeenCalled();
   });
 

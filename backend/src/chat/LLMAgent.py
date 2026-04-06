@@ -23,12 +23,17 @@ class LLMAgent:
             model=os.getenv("OPENAI_MODEL", "gpt-5-mini"), api_key=SecretStr(os.getenv("OPENAI_API_KEY") or "")
         )
         self.runnable = self.model.bind_tools(self.tool_executor.tools)
+        
+    REGEX = r"\{.*?\}[^\n]*\n?"
+    
+    @staticmethod
+    def clean(text: str) -> str:
+        return re.sub(LLMAgent.REGEX, "", text, flags=re.DOTALL).strip()
 
     @staticmethod
-    def _normalize_content(content: str | list[str | dict[str, Any]] | None) -> str:
+    def normalize_content(content: str | list[str | dict[str, Any]] | None) -> str:
         if isinstance(content, str):
-            text = re.sub(r"\{.*?\}.*?\n?", "", content, flags=re.DOTALL)
-            return text.strip()
+            return LLMAgent.clean(content)
 
         if not content:
             return ""
@@ -36,20 +41,17 @@ class LLMAgent:
         parts: list[str] = []
         for item in content:
             if isinstance(item, str):
-                cleaned = re.sub(r"\{.*?\}.*?\n?", "", item, flags=re.DOTALL).strip()
-                if cleaned:
-                    parts.append(cleaned)
+                cleaned = LLMAgent.clean(item)
             elif isinstance(item, dict) and item.get("type") == "text":
-                block_text = item.get("text")
-                if isinstance(block_text, str):
-                    cleaned = re.sub(
-                        r"\{.*?\}.*?\n?", "", block_text, flags=re.DOTALL
-                    ).strip()
-                    if cleaned:
-                        parts.append(cleaned)
+                cleaned = LLMAgent.clean(item.get("text") or "")
+            else:
+                continue
+
+            if cleaned:
+                parts.append(cleaned)
 
         return "\n".join(parts).strip()
-
+    
     def invoke(self, request: LLMRequest) -> LLMResponse:
         langchain_messages: list[BaseMessage] = [SystemMessage(content=cart_prompt)]
 
@@ -102,7 +104,7 @@ class LLMAgent:
             )
 
         return LLMResponse(
-            content=self._normalize_content(response.content),
+            content=self.normalize_content(response.content),
             tool_calls=tool_call_names,
             metadata=metadata,
         )
