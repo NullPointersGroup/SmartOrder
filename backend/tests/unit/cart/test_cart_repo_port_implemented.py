@@ -33,6 +33,9 @@ class ConcreteCartRepo(CartRepoPort):
             qty=qty,
             measure_unit=MeasureUnitEnum.C,
         )
+        
+    def send_order(self, username: str) -> None:
+        return None
 
 
 # TU-B_143

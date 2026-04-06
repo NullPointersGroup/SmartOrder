@@ -25,14 +25,14 @@ def test_load_catalog_indexes_all_prod_ids(
 
 
 def test_search_catalog_before_load_returns_empty(real_vec_service: VecDbService):
-    result = real_vec_service.search_catalog("Pasta Barilla 1.2")
+    result = real_vec_service.search_catalog("Pasta Barilla 1.2", 1.0)
     assert result == []
 
 
 def test_search_catalog_returns_indexed_product(real_vec_service: VecDbService):
     real_vec_service.load_catalog()
     # cerca con il testo esatto usato per indicizzare → distanza 0
-    result = real_vec_service.search_catalog("Pasta Barilla 1.2")
+    result = real_vec_service.search_catalog("Pasta Barilla 1.2", 1.0)
     assert "ABC1" in result
 
 
@@ -41,10 +41,10 @@ def test_search_catalog_finds_each_product_by_exact_text(
 ):
     real_vec_service.load_catalog()
     # ogni prodotto viene trovato cercando il suo testo esatto
-    assert "ABC1" in real_vec_service.search_catalog("Pasta Barilla 1.2")
-    assert "ABC2" in real_vec_service.search_catalog("Acqua Naturale 0.5")
-    assert "ABC3" in real_vec_service.search_catalog("Vino Rosso 5.0")
-    assert "ABC4" in real_vec_service.search_catalog("Olio Extravergine 8.0")
+    assert "ABC1" in real_vec_service.search_catalog("Pasta Barilla 1.2", 1.0)
+    assert "ABC2" in real_vec_service.search_catalog("Acqua Naturale 0.5", 1.0)
+    assert "ABC3" in real_vec_service.search_catalog("Vino Rosso 5.0", 1.0)
+    assert "ABC4" in real_vec_service.search_catalog("Olio Extravergine 8.0", 1.0)
 
 
 def test_search_catalog_returns_results_within_threshold(
@@ -52,7 +52,7 @@ def test_search_catalog_returns_results_within_threshold(
 ):
     real_vec_service.load_catalog()
     # con threshold altissimo trova almeno qualcosa
-    result = real_vec_service.search_catalog("Pasta Barilla 1.2")
+    result = real_vec_service.search_catalog("Pasta Barilla 1.2", 1.0)
     assert len(result) > 0
 
 
@@ -62,7 +62,7 @@ def test_search_catalog_exact_text_has_distance_zero(
 ):
     real_vec_service.load_catalog()
     # il testo esatto produce distanza 0 quindi passa qualsiasi threshold
-    result = real_vec_service.search_catalog("Pasta Barilla 1.2")
+    result = real_vec_service.search_catalog("Pasta Barilla 1.2", 1.0)
     assert "ABC1" in result
 
 
@@ -96,7 +96,7 @@ def test_load_cart_indexes_correct_prod_ids(
 
 
 def test_search_cart_before_load_returns_empty(real_vec_service: VecDbService):
-    result = real_vec_service.search_cart("mario", "Pasta Barilla 1.2")
+    result = real_vec_service.search_cart("mario", "Pasta Barilla 1.2", 1.0)
     assert result == []
 
 
@@ -108,7 +108,7 @@ def test_search_cart_returns_indexed_product(
         _make_cart_product("ABC1", "Pasta Barilla", 1.2),
     ]
     real_vec_service.load_cart("mario")
-    result = real_vec_service.search_cart("mario", "Pasta Barilla 1.2")
+    result = real_vec_service.search_cart("mario", "Pasta Barilla 1.2", 1.0)
     assert "ABC1" in result
 
 

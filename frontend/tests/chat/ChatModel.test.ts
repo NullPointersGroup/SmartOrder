@@ -98,7 +98,7 @@ describe('ChatModel.getConversations', () => {
   });
 });
 
-// createConversation 
+// createConversation
 describe('ChatModel.createConversation', () => {
   const created = { id_conv: 10, username: 'mario', titolo: 'Nuova Conv' };
 
@@ -124,7 +124,7 @@ describe('ChatModel.createConversation', () => {
   });
 });
 
-// renameConversation 
+// renameConversation
 describe('ChatModel.renameConversation', () => {
   const renamed = { id_conv: 5, username: 'mario', titolo: 'Nuovo Titolo' };
 
@@ -149,7 +149,7 @@ describe('ChatModel.renameConversation', () => {
   });
 });
 
-// deleteConversation 
+// deleteConversation
 describe('ChatModel.deleteConversation', () => {
   it('non lancia con risposta 204', async () => {
     mock204();
@@ -304,5 +304,32 @@ describe('ChatModel.removeFromCart', () => {
   it('lancia errore in caso di risposta non ok', async () => {
     mockFetch(404, { detail: 'Prodotto non trovato' });
     await expect(ChatModel.removeFromCart('mario', 'P999')).rejects.toThrow('Prodotto non trovato');
+  });
+});
+
+// ── sendOrder ─────────────────────────────────────────────────────────────────
+describe('ChatModel.sendOrder', () => {
+  it('non lancia con risposta 204 – happy path (riga 269)', async () => {
+    mock204();
+    await expect(ChatModel.sendOrder('mario')).resolves.toBeUndefined();
+  });
+
+  it('chiama /cart/:username/sendOrder con POST e credentials include (righe 266-268)', async () => {
+    const spy = mock204();
+    await ChatModel.sendOrder('mario');
+    const [url, options] = spy.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain('/cart/mario/sendOrder');
+    expect(options.method).toBe('POST');
+    expect(options.credentials).toBe('include');
+  });
+
+  it('lancia errore con detail se la risposta non è ok (riga 270 – error path)', async () => {
+    mockFetch(500, { detail: 'Errore interno del server' });
+    await expect(ChatModel.sendOrder('mario')).rejects.toThrow('Errore interno del server');
+  });
+
+  it('lancia errore generico HTTP se non c\'è detail (riga 270 – fallback)', async () => {
+    mockFetch(503, {});
+    await expect(ChatModel.sendOrder('mario')).rejects.toThrow('HTTP 503');
   });
 });

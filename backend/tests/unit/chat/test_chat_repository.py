@@ -1,9 +1,9 @@
-from src.chat.adapters.ChatMessageRepository import ChatMessageRepository
+from src.db.models import Messaggi
 from src.enums import SenderEnum
 
 
 def make_chat_message(id_conv: int, id_mess: int, content: str, sender: SenderEnum):
-    msg = ChatMessageRepository(
+    msg = Messaggi(
             id_conv=id_conv,
             id_messaggio=id_mess,
             contenuto=content, 
@@ -44,7 +44,7 @@ def test_add_message_calls_and_commit_refresh(chat_repository, mock_db):
 def test_add_message_returns_chat_message_repository(chat_repository, mock_db):
     result = chat_repository.add_message(conv_id=1, text="Hello", sender=SenderEnum.Utente)
 
-    assert isinstance(result, ChatMessageRepository)
+    assert isinstance(result, Messaggi)
 
 def test_add_message_correct_fields(chat_repository, mock_db):
     result = chat_repository.add_message(conv_id=1, text="Hello", sender=SenderEnum.Utente)

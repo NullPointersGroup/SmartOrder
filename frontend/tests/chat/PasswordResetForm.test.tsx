@@ -17,7 +17,6 @@ function submit() {
   fireEvent.click(screen.getByRole('button', { name: /reimposta password/i }));
 }
 
-// Helpers per recuperare i tre bottoni occhio (tabIndex=-1)
 function getEyeButtons() {
   return document.querySelectorAll('button[tabindex="-1"]');
 }
@@ -66,7 +65,6 @@ describe('PasswordResetForm – toggle visibilità', () => {
     expect(screen.getByLabelText(/password attuale/i)).toHaveAttribute('type', 'password');
   });
 
-  // Copre riga 167: toggle showNew (campo "Nuova password")
   it('mostra la nuova password al click sull\'occhio (campo 1)', () => {
     renderForm();
     fireEvent.click(getEyeButtons()[1]);
@@ -80,7 +78,6 @@ describe('PasswordResetForm – toggle visibilità', () => {
     expect(screen.getByLabelText(/^nuova password$/i)).toHaveAttribute('type', 'password');
   });
 
-  // Copre riga 180: toggle showConfirm (campo "Conferma password")
   it('mostra la conferma password al click sull\'occhio (campo 2)', () => {
     renderForm();
     fireEvent.click(getEyeButtons()[2]);
@@ -95,7 +92,6 @@ describe('PasswordResetForm – toggle visibilità', () => {
   });
 });
 
-// Validazione: campo vuoto
 describe('PasswordResetForm – validazione campo vuoto', () => {
   it('mostra errore se la password attuale è vuota al submit', async () => {
     renderForm();
@@ -113,7 +109,6 @@ describe('PasswordResetForm – validazione campo vuoto', () => {
   });
 });
 
-// Validazione: nuova password non valida
 describe('PasswordResetForm – validazione nuova password', () => {
   it('mostra errore se la nuova password non rispetta i requisiti', async () => {
     renderForm();
@@ -143,7 +138,6 @@ describe('PasswordResetForm – validazione nuova password', () => {
   });
 });
 
-// Indicatore coincidenza conferma
 describe('PasswordResetForm – indicatore conferma', () => {
   it('mostra "Le password coincidono" quando confirm === new', async () => {
     renderForm();

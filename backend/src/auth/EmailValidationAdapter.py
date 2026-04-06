@@ -8,7 +8,7 @@ class EmailValidationAdapter(IEmailValidationPort):
 
     def domain_exists(self, email: str) -> bool:
         """
-        @req RF-OB_20
+        @brief controlla che il dominio della mail esiste
         """
         try:
             domain = email.split("@")[1]

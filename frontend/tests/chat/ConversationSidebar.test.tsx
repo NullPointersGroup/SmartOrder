@@ -132,7 +132,6 @@ describe('ConversationSidebar – selezione', () => {
     expect(onSelect).toHaveBeenCalledWith(1);
   });
 
-  // Copre il branch !isEditing=false: click su conv durante rinomina non chiama onSelect
   it('NON chiama onSelect quando si sta rinominando quella conversazione (isEditing=true)', async () => {
     const onSelect = vi.fn();
     renderSidebar({ onSelect });
@@ -197,7 +196,6 @@ describe('ConversationSidebar – menu contestuale', () => {
     );
   });
 
-  // Copre righe 41-42: handleClickOutside — click fuori dal menu lo chiude
   it('chiude il menu con click fuori (handleClickOutside)', async () => {
     renderSidebar();
     fireEvent.click(getMenuButton());
@@ -210,7 +208,6 @@ describe('ConversationSidebar – menu contestuale', () => {
     );
   });
 
-  // Branch menuRef.current falso: click fuori quando menu è già chiuso non crasha
   it('mouseDown fuori quando menu è chiuso non produce errori', () => {
     renderSidebar();
     expect(() => fireEvent.mouseDown(document.body)).not.toThrow();
@@ -240,7 +237,6 @@ describe('ConversationSidebar – rinomina', () => {
     expect(onRename).toHaveBeenCalledWith(1, 'Nuovo titolo');
   });
 
-  // Copre riga 177: commitRename via onBlur
   it('chiama onRename quando l\'input perde il focus (onBlur)', async () => {
     const onRename = vi.fn();
     renderSidebar({ onRename });
@@ -256,7 +252,6 @@ describe('ConversationSidebar – rinomina', () => {
     expect(onRename).toHaveBeenCalledWith(1, 'Titolo via blur');
   });
 
-  // Branch falso commitRename: valore vuoto → onRename NON chiamato
   it('NON chiama onRename se il valore è vuoto al blur', async () => {
     const onRename = vi.fn();
     renderSidebar({ onRename });
@@ -272,7 +267,6 @@ describe('ConversationSidebar – rinomina', () => {
     expect(onRename).not.toHaveBeenCalled();
   });
 
-  // Copre riga 75: Escape annulla la rinomina
   it('annulla la rinomina premendo Escape', async () => {
     const onRename = vi.fn();
     renderSidebar({ onRename });
@@ -325,7 +319,6 @@ describe('ConversationSidebar – eliminazione', () => {
     expect(onDelete).toHaveBeenCalledWith(1);
   });
 
-  // Copre riga 244: click su "Annulla" nel dialog chiude senza eliminare
   it('chiude il dialog senza eliminare cliccando "Annulla"', async () => {
     const onDelete = vi.fn();
     renderSidebar({ onDelete });
@@ -346,7 +339,6 @@ describe('ConversationSidebar – eliminazione', () => {
     expect(onDelete).not.toHaveBeenCalled();
   });
 
-  // Copre riga 238: click sullo sfondo (backdrop) chiude il dialog
   it('chiude il dialog cliccando lo sfondo (backdrop)', async () => {
     renderSidebar();
 
@@ -367,8 +359,6 @@ describe('ConversationSidebar – eliminazione', () => {
     );
   });
 
-  // Copre riga 84: branch falso di confirmDeleteConv (confirmDeleteId === null)
-  // Apri dialog → chiudi via backdrop (confirmDeleteId → null) → onDelete non chiamato
   it('confirmDeleteConv non chiama onDelete se confirmDeleteId è già null (branch falso riga 84)', async () => {
     const onDelete = vi.fn();
     renderSidebar({ onDelete });
@@ -381,7 +371,6 @@ describe('ConversationSidebar – eliminazione', () => {
       expect(screen.getByText(/elimina conversazione/i)).toBeInTheDocument()
     );
 
-    // Chiudi tramite backdrop → confirmDeleteId torna null
     const backdrop = document.querySelector('button.absolute.inset-0');
     if (backdrop) fireEvent.click(backdrop);
 

@@ -13,9 +13,9 @@ class VecDbPortIn(ABC):
         pass
 
     @abstractmethod
-    def search_catalog(self, query: str) -> list[str]:
+    def search_catalog(self, query: str, threshold: float) -> list[str]:
         pass
 
     @abstractmethod
-    def search_cart(self, username: str, query: str) -> list[str]:
+    def search_cart(self, username: str, query: str, threshold: float) -> list[str]:
         pass

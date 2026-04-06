@@ -58,6 +58,11 @@ interface RawMessageApiResponse {
 // ── Mapper ────────────────────────────────────────────────────────────────────
 
 function toMessage(m: RawMessage): Message {
+  /**
+   * @brief Converte un messaggio dal formato raw del backend al formato di dominio
+   * @param m Messaggio raw proveniente dall'API
+   * @return Message convertito nel formato dell'applicazione
+   */
   return {
     id_messaggio: m.id_message,
     mittente:     m.sender,
@@ -73,6 +78,12 @@ const json = (body: unknown) => ({
 });
 
 async function handleResponse<T>(res: Response): Promise<T> {
+  /**
+   * @brief Gestisce la risposta HTTP, estrae JSON o lancia errore
+   * @param res Risposta HTTP dal fetch
+   * @return Promise con il body parsato come JSON
+   * @throws Error se la risposta non è ok (status 4xx/5xx)
+   */
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err?.detail ?? `HTTP ${res.status}`);
@@ -85,12 +96,22 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 export const ChatModel = {
   // Auth
+
   async getMe(): Promise<{ username: string }> {
+    /**
+     * @brief Ottiene le informazioni dell'utente autenticato
+     * @return Promise con username dell'utente
+     * @throws Error in caso di fallimento autenticazione
+     */
     const res = await fetch(`/auth/me`, { credentials: 'include' });
     return handleResponse(res);
   },
 
   async logout(): Promise<void> {
+    /**
+     * @brief Effettua il logout dell'utente corrente
+     * @throws Error in caso di errore nella richiesta di logout
+     */
     const res = await fetch(`/auth/logout`, {
       method: 'POST',
       credentials: 'include',
@@ -99,7 +120,14 @@ export const ChatModel = {
   },
 
   // Conversazioni
+
   async getConversations(username: string): Promise<Conversation[]> {
+    /**
+     * @brief Recupera tutte le conversazioni di un utente
+     * @param username Nome dell'utente
+     * @return Promise con array di conversazioni
+     * @throws Error se la richiesta fallisce
+     */
     const res = await fetch(`/conversations/${username}`, {
       credentials: 'include',
     });
@@ -107,6 +135,13 @@ export const ChatModel = {
   },
 
   async createConversation(username: string, titolo: string): Promise<Conversation> {
+    /**
+     * @brief Crea una nuova conversazione per un utente
+     * @param username Nome dell'utente
+     * @param titolo Titolo della nuova conversazione
+     * @return Promise con la conversazione creata
+     * @throws Error se la richiesta fallisce
+     */
     const res = await fetch(`/conversations/${username}`, {
       method: 'POST',
       credentials: 'include',
@@ -116,6 +151,13 @@ export const ChatModel = {
   },
 
   async renameConversation(conv_id: number, titolo: string): Promise<Conversation> {
+    /**
+     * @brief Rinomina una conversazione esistente
+     * @param conv_id ID della conversazione
+     * @param titolo Nuovo titolo
+     * @return Promise con la conversazione aggiornata
+     * @throws Error se la richiesta fallisce
+     */
     const res = await fetch(`/conversations/${conv_id}`, {
       method: 'PATCH',
       credentials: 'include',
@@ -125,6 +167,11 @@ export const ChatModel = {
   },
 
   async deleteConversation(conv_id: number): Promise<void> {
+    /**
+     * @brief Elimina una conversazione
+     * @param conv_id ID della conversazione da eliminare
+     * @throws Error se la richiesta fallisce
+     */
     const res = await fetch(`/conversations/${conv_id}`, {
       method: 'DELETE',
       credentials: 'include',
@@ -133,7 +180,14 @@ export const ChatModel = {
   },
 
   // Messaggi
+
   async getMessages(conv_id: number): Promise<ChatApiResponse> {
+    /**
+     * @brief Recupera tutti i messaggi di una conversazione
+     * @param conv_id ID della conversazione
+     * @return Promise con id conversazione e array di messaggi
+     * @throws Error se la richiesta fallisce
+     */
     const res = await fetch(`/chat/${conv_id}/all`, { credentials: 'include' });
     const data = await handleResponse<RawChatApiResponse>(res);
 
@@ -144,6 +198,13 @@ export const ChatModel = {
   },
 
   async sendMessage(conv_id: number, content: string): Promise<MessageApiResponse> {
+    /**
+     * @brief Invia un nuovo messaggio in una conversazione
+     * @param conv_id ID della conversazione
+     * @param content Contenuto del messaggio
+     * @return Promise con id conversazione e messaggio inviato
+     * @throws Error se la richiesta fallisce
+     */
     const res = await fetch(`/chat/${conv_id}`, {
       method: 'POST',
       credentials: 'include',
@@ -159,12 +220,25 @@ export const ChatModel = {
   },
 
   // Carrello
+
   async getCart(username: string): Promise<CartApiResponse> {
+    /**
+     * @brief Recupera il carrello di un utente
+     * @param username Nome dell'utente
+     * @return Promise con username e lista prodotti nel carrello
+     * @throws Error se la richiesta fallisce
+     */
     const res = await fetch(`/cart/${username}`, { credentials: 'include' });
     return handleResponse(res);
   },
 
   async removeFromCart(username: string, prod_id: string): Promise<void> {
+    /**
+     * @brief Rimuove un prodotto dal carrello dell'utente
+     * @param username Nome dell'utente
+     * @param prod_id ID del prodotto da rimuovere
+     * @throws Error se la richiesta fallisce
+     */
     const res = await fetch(`/cart/${username}`, {
       method: 'DELETE',
       credentials: 'include',
@@ -172,4 +246,18 @@ export const ChatModel = {
     });
     return handleResponse(res);
   },
+
+  async sendOrder(username: string): Promise<void> {
+    /**
+     * @brief Invia l'ordine per il carrello corrente dell'utente
+     * @param username Nome dell'utente
+     * @throws Error se la richiesta fallisce
+     */
+    const res = await fetch(`/cart/${username}/sendOrder`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    return handleResponse(res);
+  },
+
 };

@@ -44,6 +44,11 @@ class ErrorResponse(BaseModel):
 
 
 def get_user_service(db: Session = Depends(get_conn)) -> UserService:
+    """
+    @brief Crea e restituisce un'istanza di UserService con le dipendenze necessarie
+    @param db Sessione del database
+    @return UserService configurato
+    """
     return UserService(
         repo=UserRepoAdapter(db),
         email_validator=EmailValidationAdapter(),
@@ -53,6 +58,12 @@ def get_user_service(db: Session = Depends(get_conn)) -> UserService:
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
 def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
+    """
+    @brief Estrae e valida il token JWT dal cookie access_token
+    @param access_token Token JWT dal cookie
+    @return Username decodificato dal token
+    @throws HTTPException 401 se token assente o non valido
+    """
     if access_token is None:
         raise HTTPException(status_code=401, detail="Non autenticato")
     username = TokenUtility.decode_token(access_token)
@@ -70,7 +81,15 @@ def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
 def login(
     payload: UserSchema, service: UserServiceDep, response: Response
 ) -> LoginResponse:
-    u = User(username=payload.username, password=payload.password)
+    """
+    @brief Autentica un utente e imposta il cookie di sessione
+    @param payload Credenziali utente (username, password)
+    @param service Servizio utente iniettato
+    @param response Oggetto Response per impostare il cookie
+    @return LoginResponse con ok=True se successo
+    @throws HTTPException 400 se credenziali errate
+    """
+    u = User(username=payload.username, password=payload.password, admin = None)
 
     try:
         username = service.check_user(u)
@@ -109,21 +128,18 @@ async def register(
 ) -> AuthResponse:
     """
     @brief Registrazione utente
-    @req RF-OB_02
     @req RF-OB_03
     @req RF-OB_05
-    @req RF-OB_08
     @req RF-OB_09
     @req RF-OB_10
     @req RF-OB_16
     @req RF-OB_18
     @req RF-OB_19
-    @req RF-OB_20
-    @req RF-OB_22
     """
     u = UserRegistration(
         username=payload.username,
         password=payload.password,
+        admin = None,
         confirm_pwd=payload.confirmPwd,
         email=payload.email,
     )
@@ -171,9 +187,18 @@ def reset_password(
     service: UserServiceDep,
     current_user: UserServiceCurrentUser,
 ) -> AuthResponse:
+    """
+    @brief Reimposta la password di un utente autenticato
+    @param body Contiene old_password e new_password
+    @param service Servizio utente iniettato
+    @param current_user Username dell'utente autenticato
+    @return AuthResponse con ok=True se reimpostazione riuscita
+    @throws HTTPException 400, 401, 404, 500 in base all'errore
+    """
     u = UserReset(
         username=current_user,
         password=body.old_password,
+        admin = None,
         new_pwd=body.new_password,
     )
     try:
@@ -215,7 +240,11 @@ def delete_account(
     service: UserServiceDep, current_user: UserServiceCurrentUser
 ) -> AuthResponse:
     """
-    @brief Cancellazione account utente autenticato
+    @brief Cancella l'account dell'utente autenticato
+    @param service Servizio utente iniettato
+    @param current_user Username dell'utente autenticato
+    @return AuthResponse con ok=True se cancellazione riuscita
+    @throws HTTPException 404 se utente non trovato, 500 per errori interni
     """
     try:
         service.delete_user(current_user)
@@ -242,6 +271,13 @@ def delete_account(
 def retrieve(
     service: UserServiceDep, current_user: UserServiceCurrentUser
 ) -> Dict[str, str | None]:
+    """
+    @brief Recupera i dati dell'utente autenticato
+    @param service Servizio utente iniettato
+    @param current_user Username dell'utente autenticato
+    @return Dizionario con username e email dell'utente
+    @throws HTTPException 404 se utente non trovato
+    """
     try:
         user = service.get_user(current_user)
         return {
@@ -256,9 +292,40 @@ def retrieve(
 
 @router.post("/logout")
 def logout(response: Response) -> dict[str, bool]:
+    """
+    @brief Effettua il logout eliminando il cookie access_token
+    @param response Oggetto Response per eliminare il cookie
+    @return Dizionario con ok=True
+    """
     response.delete_cookie("access_token")
     return {"ok": True}
 
-@router.get("/me")
-def me(current_user: UserServiceCurrentUser) -> dict[str, str]:
-    return {"username": current_user}
+@router.get(
+    "/me",
+    responses={
+        404: {"model": ErrorResponse, "description": "Utente non trovato"},
+    },
+)
+def me(
+    current_user: UserServiceCurrentUser,
+    service: UserServiceDep
+) -> dict[str, str | bool]:
+    """
+    @brief Restituisce username e ruolo admin dell'utente autenticato
+    @param current_user Username dell'utente autenticato
+    @param service Servizio utente iniettato
+    @return Dizionario con username e admin
+    @throws HTTPException 404 se utente non trovato
+    """
+    try:
+        user = service.get_user(current_user)
+        print(bool(user.admin))
+        return {
+            "username": user.username or "",
+            "admin": bool(user.admin),
+        }
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail={"ok": False, "errors": [user_not_found]},
+        )

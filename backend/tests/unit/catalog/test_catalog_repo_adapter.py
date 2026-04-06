@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 import pytest
 from src.catalog.CatalogSchemas import CatalogProduct
-from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
+from src.db.models import Anaart
 from src.catalog.adapters.CatalogRepoAdapter import CatalogRepoAdapter
 from src.enums import MeasureUnitEnum
 
@@ -12,8 +12,8 @@ def make_catalog_row(
     price: float,
     measure_unit_type: MeasureUnitEnum,
     measure_unit_type_description: str,
-) -> CatalogProductRepository:
-    return CatalogProductRepository(
+) -> Anaart:
+    return Anaart(
         prod_id=prod_id,
         prod_des=prod_des,
         price=price,

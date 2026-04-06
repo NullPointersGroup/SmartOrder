@@ -14,12 +14,14 @@ export default function AuthPage() {
   @req RF-OB_06
   @req RF-OB_07
   @req RF-OB_08
+  @req RF-OB_11
   @req RF-OB_12
   @req RF-OB_13
   @req RF-OB_14
   @req RF-OB_15
   @req RF-OB_17
   @req RF-OB_18
+  @req RF-OB_22
   @req RF-OB_23
   @req RF-OB_24
   @req RF-OB_25
@@ -46,7 +48,7 @@ export default function AuthPage() {
           <div
             className="absolute rounded-full transition-all duration-200 top-0 bottom-0 w-[calc(50%-4px)] z-0"
             style={{
-              backgroundColor: 'var(--color-2)',
+              backgroundColor: 'var(--color-3)',
               left: isLogin ? 3 : 'calc(50% + 1px)',
             }}
           />
@@ -76,8 +78,8 @@ export default function AuthPage() {
             <Login onLogin={async () => {
               const res = await fetch(`/auth/me`, { credentials: 'include' });
               const data = await res.json();
-              setAuth(data.username);
-              navigate('/home');
+              setAuth(data.username, data.admin);
+              navigate(data.admin? '/history' : '/home')
             }} />
           ) : (
             <Register onRegister={() => setIsLogin(true)} />

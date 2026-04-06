@@ -10,7 +10,7 @@ from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
 from src.vec.adapters.CartVecDbAdapter import CartVecDbAdapter
 from src.vec.VecDbService import VecDbService
 from src.catalog.adapters.CatalogRepoAdapter import CatalogRepoAdapter
-from src.catalog.adapters.CatalogRepository import CatalogRepository
+from src.catalog.CatalogRepository import CatalogRepository
 
 DIMENSION = 4
 
@@ -81,8 +81,17 @@ def mock_embedder() -> MagicMock:
     embedder = MagicMock()
 
     def embed_fn(text: str) -> np.ndarray:
-        # produce un vettore deterministico basato sul testo
-        seed = sum(ord(c) for c in text)
+        normalized = text.lower()
+        if "pasta" in normalized:
+            return make_vector([1.0, 0.0, 0.0, 0.0])
+        if "acqua" in normalized:
+            return make_vector([0.0, 1.0, 0.0, 0.0])
+        if "vino" in normalized:
+            return make_vector([0.0, 0.0, 1.0, 0.0])
+        if "olio" in normalized:
+            return make_vector([0.0, 0.0, 0.0, 1.0])
+
+        seed = sum(ord(c) for c in normalized)
         rng = np.random.default_rng(seed)
         return rng.random(DIMENSION).astype(np.float32)
 

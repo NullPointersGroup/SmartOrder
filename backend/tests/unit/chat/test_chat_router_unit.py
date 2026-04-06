@@ -1,7 +1,9 @@
 from unittest.mock import MagicMock
 
-from fastapi import HTTPException
 import pytest
+pytest.importorskip("langchain")
+
+from fastapi import HTTPException
 from sqlmodel import Session
 from src.chat.exceptions import ConversationNotFoundException, ToolNotFoundException
 from src.chat.ChatApi import (
@@ -12,7 +14,7 @@ from src.chat.ChatApi import (
 )
 from src.chat.ChatSchemas import ChatResponse, Message, MessageRequest, MessageResponse
 from src.enums import SenderEnum
-from src.db.models import Utente
+from src.db.models import Utentiweb
 
 
 def test_get_chat_service_unit():
@@ -46,9 +48,7 @@ def test_send_message_unit():
     result = send_message(
         conv_id=1,
         message=MessageRequest(
-            username="test",
             content="Test message",
-            audioFile=None
         ),
         chat_service=mock_service,
         current_user="test",  # stringa, coerente col tipo
@@ -60,7 +60,6 @@ def test_send_message_unit():
         conv_id=1,
         username="test",
         content="Test message",
-        audio_file=None
     )
 
 
@@ -81,7 +80,7 @@ def test_send_message_returns_500_when_tool_is_missing():
     with pytest.raises(HTTPException) as info:
         send_message(
             conv_id=1,
-            message=MessageRequest(username="test", content="Test message", audioFile=None),
+            message=MessageRequest(content="Test message"),
             chat_service=mock_service,
             current_user="test",
         )

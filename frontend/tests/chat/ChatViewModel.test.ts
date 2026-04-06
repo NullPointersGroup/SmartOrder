@@ -3,8 +3,9 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 
 import { useChatViewModel } from '../../src/chat/ChatViewModel';
 import { ChatModel } from '../../src/chat/ChatModel';
+import { trascriviAudio } from '../../src/recording/RecordingAPI';
 
-// Mock
+// ── Mock ChatModel ──────────────────────────────────────────────────────────
 vi.mock('../../src/chat/ChatModel', () => ({
   ChatModel: {
     getMe:                vi.fn(),
@@ -17,10 +18,16 @@ vi.mock('../../src/chat/ChatModel', () => ({
     sendMessage:          vi.fn(),
     removeFromCart:       vi.fn(),
     logout:               vi.fn(),
+    sendOrder:            vi.fn(),   // ← necessario per invioOrdine
   },
 }));
 
-// Mock localStorage e location 
+// ── Mock RecordingAPI ───────────────────────────────────────────────────────
+vi.mock('../../src/recording/RecordingAPI', () => ({
+  trascriviAudio: vi.fn(),
+}));
+
+// ── Mock localStorage e location ────────────────────────────────────────────
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
@@ -37,6 +44,7 @@ Object.defineProperty(globalThis, 'location', {
   writable: true,
 });
 
+// ── Fixtures ────────────────────────────────────────────────────────────────
 const mockConversations = [
   { id_conv: 1, username: 'mario', titolo: 'Conv 1' },
   { id_conv: 2, username: 'mario', titolo: 'Conv 2' },
@@ -59,11 +67,15 @@ function setupDefaultMocks() {
 
 beforeEach(() => {
   localStorageMock.clear();
+  globalThis.location.href = '';
   setupDefaultMocks();
 });
 
 afterEach(() => vi.clearAllMocks());
 
+// ════════════════════════════════════════════════════════════════════════════
+// Bootstrap
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – bootstrap', () => {
   it('carica username, conversazioni e carrello all\'avvio', async () => {
     const { result } = renderHook(() => useChatViewModel());
@@ -109,7 +121,9 @@ describe('useChatViewModel – bootstrap', () => {
   });
 });
 
-// Caricamento messaggi
+// ════════════════════════════════════════════════════════════════════════════
+// Messaggi
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – messaggi', () => {
   it('carica i messaggi quando cambia la conversazione attiva', async () => {
     const { result } = renderHook(() => useChatViewModel());
@@ -120,9 +134,7 @@ describe('useChatViewModel – messaggi', () => {
   it('imposta isLoadingMsgs=true durante il caricamento', async () => {
     let resolve!: (v: { id_conv: number; messages: any[] }) => void;
     vi.mocked(ChatModel.getMessages).mockReturnValue(
-      new Promise<{ id_conv: number; messages: any[] }>(r => {
-        resolve = r;
-      })
+      new Promise<{ id_conv: number; messages: any[] }>(r => { resolve = r; })
     );
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.username).toBe('mario'));
@@ -138,16 +150,15 @@ describe('useChatViewModel – messaggi', () => {
   });
 });
 
+// ════════════════════════════════════════════════════════════════════════════
 // refreshCart
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – refreshCart', () => {
-  it('non fa nulla se username è null – guard riga 77', async () => {
+  it('non fa nulla se username è null – guard', async () => {
     vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(globalThis.location.href).toBe('/unauthorized'));
     const callsBefore = vi.mocked(ChatModel.getCart).mock.calls.length;
-    // refreshCart non è esposta direttamente, ma viene chiamata da sendMessage;
-    // qui la testiamo indirettamente: username=null, sendMessage è no-op,
-    // quindi getCart non viene chiamata oltre le chiamate già avvenute
     await act(async () => {
       result.current.setInputText('test');
       await result.current.sendMessage();
@@ -155,11 +166,10 @@ describe('useChatViewModel – refreshCart', () => {
     expect(vi.mocked(ChatModel.getCart).mock.calls.length).toBe(callsBefore);
   });
 
-  it('aggiorna il carrello dopo invio di un messaggio (refreshCart chiamata)', async () => {
+  it('aggiorna il carrello dopo invio di un messaggio', async () => {
     const cartAfterSend = { username: 'mario', products: [{ prod_id: 'P001', name: 'Latte', price: 1.5, measure_unit: 1, qty: 1 }] };
     vi.mocked(ChatModel.sendMessage).mockResolvedValue({ id_conv: 1, message: { id_messaggio: 10, mittente: 'Chatbot', contenuto: 'ok' } });
     vi.mocked(ChatModel.getMessages).mockResolvedValue({ id_conv: 1, messages: mockMessages });
-    // Dopo il send, refreshCart chiama getCart e aggiorna i prodotti
     vi.mocked(ChatModel.getCart).mockResolvedValueOnce(mockCart).mockResolvedValue(cartAfterSend);
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.username).toBe('mario'));
@@ -169,7 +179,9 @@ describe('useChatViewModel – refreshCart', () => {
   });
 });
 
+// ════════════════════════════════════════════════════════════════════════════
 // selectConversation
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – selectConversation', () => {
   it('aggiorna activeConvId', async () => {
     const { result } = renderHook(() => useChatViewModel());
@@ -179,7 +191,9 @@ describe('useChatViewModel – selectConversation', () => {
   });
 });
 
+// ════════════════════════════════════════════════════════════════════════════
 // createConversation
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – createConversation', () => {
   it('aggiunge la nuova conversazione in testa e la seleziona', async () => {
     const { result } = renderHook(() => useChatViewModel());
@@ -193,13 +207,12 @@ describe('useChatViewModel – createConversation', () => {
     vi.mocked(ChatModel.createConversation).mockRejectedValueOnce(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.username).toBe('mario'));
-    // Prima chiamata è il bootstrap (mock ok); la seconda è quella manuale
     vi.mocked(ChatModel.createConversation).mockRejectedValue(new Error('fail'));
     await act(async () => { await result.current.createConversation(); });
     expect(result.current.error).toMatch(/creazione della conversazione/i);
   });
 
-  it('non fa nulla se username è null – guard riga 93', async () => {
+  it('non fa nulla se username è null', async () => {
     vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(globalThis.location.href).toBe('/unauthorized'));
@@ -209,7 +222,9 @@ describe('useChatViewModel – createConversation', () => {
   });
 });
 
+// ════════════════════════════════════════════════════════════════════════════
 // renameConversation
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – renameConversation', () => {
   it('aggiorna il titolo della conversazione', async () => {
     vi.mocked(ChatModel.renameConversation).mockResolvedValue({ id_conv: 1, username: 'mario', titolo: 'Rinominata' });
@@ -235,7 +250,9 @@ describe('useChatViewModel – renameConversation', () => {
   });
 });
 
+// ════════════════════════════════════════════════════════════════════════════
 // deleteConversation
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – deleteConversation', () => {
   it('rimuove la conversazione eliminata dalla lista', async () => {
     vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
@@ -245,10 +262,7 @@ describe('useChatViewModel – deleteConversation', () => {
     expect(result.current.conversations.find(c => c.id_conv === 2)).toBeUndefined();
   });
 
-  it('non cambia activeConvId se si elimina una conversazione non attiva (branch riga 135)', async () => {
-    // activeConvId parte a 1; eliminiamo la conv 2 (non attiva) con altre conv rimaste
-    // → il ramo else-if (updatedConvs.length > 0) NON deve essere eseguito
-    // → activeConvId resta 1
+  it('non cambia activeConvId se si elimina una conversazione non attiva', async () => {
     vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.activeConvId).toBe(1));
@@ -282,27 +296,20 @@ describe('useChatViewModel – deleteConversation', () => {
     expect(result.current.error).toMatch(/eliminazione/i);
   });
 
-  it('imposta errore se createConversation fallisce dopo aver eliminato l\'ultima conversazione (riga 134)', async () => {
-    // Setup: una sola conversazione
+  it('imposta errore se createConversation fallisce dopo aver eliminato l\'ultima conversazione', async () => {
     vi.mocked(ChatModel.getConversations).mockResolvedValue([{ id_conv: 1, username: 'mario', titolo: 'Unica' }]);
     vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
-    // Il bootstrap usa createConversation con successo (non viene invocato perché c'è già 1 conv);
-    // la chiamata automatica post-delete deve fallire
     vi.mocked(ChatModel.createConversation).mockRejectedValue(new Error('fail'));
-
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.conversations).toHaveLength(1));
-
     await act(async () => { await result.current.deleteConversation(1); });
-
-    // Il .catch della riga 134 deve aver impostato l'errore
-    await waitFor(() =>
-      expect(result.current.error).toMatch(/creazione automatica/i),
-    );
+    await waitFor(() => expect(result.current.error).toMatch(/creazione automatica/i));
   });
 });
 
+// ════════════════════════════════════════════════════════════════════════════
 // sendMessage
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – sendMessage', () => {
   it('aggiunge subito il messaggio utente (ottimistico)', async () => {
     vi.mocked(ChatModel.sendMessage).mockResolvedValue({ id_conv: 1, message: { id_messaggio: 10, mittente: 'Chatbot', contenuto: 'ok' } });
@@ -311,7 +318,6 @@ describe('useChatViewModel – sendMessage', () => {
     await waitFor(() => expect(result.current.username).toBe('mario'));
     act(() => result.current.setInputText('Messaggio di test'));
     await act(async () => { await result.current.sendMessage(); });
-    // Il messaggio ottimistico compare immediatamente (id negativo)
     expect(result.current.messages.some(m => m.contenuto === 'Messaggio di test')).toBe(true);
   });
 
@@ -321,17 +327,6 @@ describe('useChatViewModel – sendMessage', () => {
     act(() => result.current.setInputText(''));
     await act(async () => { await result.current.sendMessage(); });
     expect(ChatModel.sendMessage).not.toHaveBeenCalled();
-  });
-
-  it('non invia se non c\'è conversazione attiva', async () => {
-    vi.mocked(ChatModel.getConversations).mockResolvedValue([]);
-    vi.mocked(ChatModel.createConversation).mockResolvedValue({ id_conv: 99, username: 'mario', titolo: 'Nova' });
-    const { result } = renderHook(() => useChatViewModel());
-    await waitFor(() => expect(result.current.username).toBe('mario'));
-    act(() => { /* activeConvId è gestito internamente */ });
-    act(() => result.current.setInputText('test'));
-    // sendMessage guarda activeConvId: se è null non invia
-    // Verifica semplicemente che sendMessage sia stato chiamato 0 volte sul model
   });
 
   it('rimuove il messaggio ottimistico in caso di errore di rete', async () => {
@@ -355,7 +350,136 @@ describe('useChatViewModel – sendMessage', () => {
   });
 });
 
+// ════════════════════════════════════════════════════════════════════════════
+// handleAudioAttach
+// ════════════════════════════════════════════════════════════════════════════
+describe('useChatViewModel – handleAudioAttach', () => {
+  it('imposta inputText con la trascrizione del file audio', async () => {
+    vi.mocked(trascriviAudio).mockResolvedValue('testo trascritto da file');
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    const file = new File(['audio'], 'test.mp3', { type: 'audio/mpeg' });
+    await act(async () => { await result.current.handleAudioAttach(file); });
+
+    expect(trascriviAudio).toHaveBeenCalledWith(file, file.name);
+    expect(result.current.inputText).toBe('testo trascritto da file');
+    expect(result.current.isTranscribing).toBe(false);
+  });
+
+  it('imposta isTranscribing=true durante la trascrizione del file', async () => {
+    let resolveTranscription!: (v: string) => void;
+    vi.mocked(trascriviAudio).mockReturnValue(
+      new Promise<string>(r => { resolveTranscription = r; })
+    );
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    const file = new File(['audio'], 'test.mp3', { type: 'audio/mpeg' });
+    act(() => { result.current.handleAudioAttach(file); });
+    await waitFor(() => expect(result.current.isTranscribing).toBe(true));
+
+    await act(async () => { resolveTranscription('risultato'); });
+    await waitFor(() => expect(result.current.isTranscribing).toBe(false));
+  });
+
+  it('imposta errore se la trascrizione del file fallisce (istanza Error)', async () => {
+    vi.mocked(trascriviAudio).mockRejectedValue(new Error('Errore microfono'));
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    const file = new File(['audio'], 'test.mp3', { type: 'audio/mpeg' });
+    await act(async () => { await result.current.handleAudioAttach(file); });
+
+    expect(result.current.error).toBe('Errore microfono');
+    expect(result.current.isTranscribing).toBe(false);
+  });
+
+  it('imposta errore generico se la trascrizione del file lancia un non-Error', async () => {
+    vi.mocked(trascriviAudio).mockRejectedValue('errore stringa');
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    const file = new File(['audio'], 'test.mp3', { type: 'audio/mpeg' });
+    await act(async () => { await result.current.handleAudioAttach(file); });
+
+    expect(result.current.error).toMatch(/errore nella trascrizione/i);
+    expect(result.current.isTranscribing).toBe(false);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// handleAudioRecord
+// ════════════════════════════════════════════════════════════════════════════
+describe('useChatViewModel – handleAudioRecord', () => {
+  it('imposta inputText con la trascrizione del blob audio', async () => {
+    vi.mocked(trascriviAudio).mockResolvedValue('testo trascritto da blob');
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    const blob = new Blob(['audio'], { type: 'audio/webm' });
+    await act(async () => { await result.current.handleAudioRecord(blob); });
+
+    expect(trascriviAudio).toHaveBeenCalledWith(blob);
+    expect(result.current.inputText).toBe('testo trascritto da blob');
+    expect(result.current.isTranscribing).toBe(false);
+  });
+
+  it('imposta isTranscribing=true durante la trascrizione del blob', async () => {
+    let resolveTranscription!: (v: string) => void;
+    vi.mocked(trascriviAudio).mockReturnValue(
+      new Promise<string>(r => { resolveTranscription = r; })
+    );
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    const blob = new Blob(['audio'], { type: 'audio/webm' });
+    act(() => { result.current.handleAudioRecord(blob); });
+    await waitFor(() => expect(result.current.isTranscribing).toBe(true));
+
+    await act(async () => { resolveTranscription('risultato'); });
+    await waitFor(() => expect(result.current.isTranscribing).toBe(false));
+  });
+
+  it('imposta errore se la trascrizione del blob fallisce (istanza Error)', async () => {
+    vi.mocked(trascriviAudio).mockRejectedValue(new Error('Rete non disponibile'));
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    const blob = new Blob(['audio'], { type: 'audio/webm' });
+    await act(async () => { await result.current.handleAudioRecord(blob); });
+
+    expect(result.current.error).toBe('Rete non disponibile');
+    expect(result.current.isTranscribing).toBe(false);
+  });
+
+  it('imposta errore generico se la trascrizione del blob lancia un non-Error', async () => {
+    vi.mocked(trascriviAudio).mockRejectedValue(42);
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    const blob = new Blob(['audio'], { type: 'audio/webm' });
+    await act(async () => { await result.current.handleAudioRecord(blob); });
+
+    expect(result.current.error).toMatch(/errore nella trascrizione/i);
+    expect(result.current.isTranscribing).toBe(false);
+  });
+
+  it('converte la risposta di trascriviAudio in stringa tramite String()', async () => {
+    vi.mocked(trascriviAudio).mockResolvedValue(12345 as unknown as string);
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    const blob = new Blob(['audio'], { type: 'audio/webm' });
+    await act(async () => { await result.current.handleAudioRecord(blob); });
+
+    expect(result.current.inputText).toBe('12345');
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
 // removeFromCart
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – removeFromCart', () => {
   it('rimuove il prodotto dal carrello locale', async () => {
     vi.mocked(ChatModel.getCart).mockResolvedValue({
@@ -377,7 +501,7 @@ describe('useChatViewModel – removeFromCart', () => {
     expect(result.current.error).toMatch(/rimozione dal carrello/i);
   });
 
-  it('non fa nulla se username è null – guard riga 187', async () => {
+  it('non fa nulla se username è null', async () => {
     vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(globalThis.location.href).toBe('/unauthorized'));
@@ -387,14 +511,16 @@ describe('useChatViewModel – removeFromCart', () => {
   });
 });
 
+// ════════════════════════════════════════════════════════════════════════════
 // cartTotal
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – cartTotal', () => {
   it('calcola il totale correttamente', async () => {
     vi.mocked(ChatModel.getCart).mockResolvedValue({
       username: 'mario',
       products: [
         { prod_id: 'P001', name: 'Latte',  price: 1.5, measure_unit: 1, qty: 2 },
-        { prod_id: 'P002', name: 'Pane',   price: 2, measure_unit: 1, qty: 1 },
+        { prod_id: 'P002', name: 'Pane',   price: 2,   measure_unit: 1, qty: 1 },
       ],
     });
     const { result } = renderHook(() => useChatViewModel());
@@ -409,7 +535,9 @@ describe('useChatViewModel – cartTotal', () => {
   });
 });
 
+// ════════════════════════════════════════════════════════════════════════════
 // logout
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – logout', () => {
   it('chiama ChatModel.logout e reindirizza a /', async () => {
     vi.mocked(ChatModel.logout).mockResolvedValue(undefined);
@@ -429,7 +557,9 @@ describe('useChatViewModel – logout', () => {
   });
 });
 
+// ════════════════════════════════════════════════════════════════════════════
 // setError
+// ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – setError', () => {
   it('espone setError per pulire manualmente l\'errore', async () => {
     vi.mocked(ChatModel.getMessages).mockRejectedValue(new Error('fail'));
@@ -437,5 +567,47 @@ describe('useChatViewModel – setError', () => {
     await waitFor(() => expect(result.current.error).not.toBeNull());
     act(() => result.current.setError(null));
     expect(result.current.error).toBeNull();
+  });
+});
+
+describe('useChatViewModel – invioOrdine', () => {
+
+  it('happy path: chiama sendOrder e svuota cartProducts (righe 270-272)', async () => {
+    vi.mocked(ChatModel.getCart).mockResolvedValue({
+      username: 'mario',
+      products: [{ prod_id: 'P001', name: 'Latte', price: 1.5, measure_unit: 1, qty: 2 }],
+    });
+    vi.mocked(ChatModel.sendOrder).mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.cartProducts).toHaveLength(1));
+
+    await act(async () => { await result.current.invioOrdine(); });
+
+    expect(ChatModel.sendOrder).toHaveBeenCalledWith('mario');
+    expect(result.current.cartProducts).toHaveLength(0);
+  });
+
+  it('error path: imposta errore se sendOrder lancia (righe 273-274)', async () => {
+    vi.mocked(ChatModel.sendOrder).mockRejectedValue(new Error('fail'));
+
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(result.current.username).toBe('mario'));
+
+    await act(async () => { await result.current.invioOrdine(); });
+
+    expect(result.current.error).toMatch(/errore nell'invio dell'ordine/i);
+  });
+
+  it('guard username null: non chiama sendOrder (riga 269 – branch falso)', async () => {
+    vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('unauth'));
+
+    const { result } = renderHook(() => useChatViewModel());
+    await waitFor(() => expect(globalThis.location.href).toBe('/unauthorized'));
+
+    const callsBefore = vi.mocked(ChatModel.sendOrder).mock.calls.length;
+    await act(async () => { await result.current.invioOrdine(); });
+
+    expect(vi.mocked(ChatModel.sendOrder).mock.calls.length).toBe(callsBefore);
   });
 });

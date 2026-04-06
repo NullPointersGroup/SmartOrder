@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from src.auth.api import get_user_service, get_current_user
 from src.auth.schemas import UserSchema, UserRegistrationSchema
 from src.auth.UserService import UserService
-from src.db.models import Utente 
+from src.db.models import Utentiweb 
 from src.main import app
 
 
@@ -25,7 +25,7 @@ def mock_user_registration() -> UserRegistrationSchema:
 
 
 @pytest.fixture
-def mock_session(mock_utente: Utente) -> MagicMock:
+def mock_session(mock_utente: Utentiweb) -> MagicMock:
     session = MagicMock()
     session.exec.return_value.all.return_value = [mock_utente]
     return session

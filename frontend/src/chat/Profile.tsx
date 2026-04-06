@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import PasswordResetForm from './PasswordResetForm'
+import { PasswordResetDialog } from './PasswordResetDialog'
 
 type Props = {
   onClose: () => void;
@@ -14,12 +14,25 @@ type UserInfo = {
 }
 
 export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
+  /**
+  @brief crea il profilo dell'utente
+  @param l'interfaccia props
+  @req RF-OB_29
+  @req RF-OB_30
+  @req RF-OB_31
+  @req RF-DE_06
+  @req RF-DE_07
+  @req RF-DE_08
+  @req RF-DE_11
+  @req RF-DE_12
+  @req RF-DE_13
+  @req RF-DE_14
+   */
   const [info, setInfo] = useState<UserInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [resetPassword, setResetPassword] = useState(false)
-  const [resetSuccess, setResetSuccess] = useState(false)
 
   useEffect(() => {
     if (!username) return
@@ -46,11 +59,7 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
       body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
     })
 
-    if (res.ok) {
-      setResetPassword(false)
-      setResetSuccess(true)
-      return null
-    }
+    if (res.ok) return null
 
     const data = await res.json()
     return data.detail.errors[0]
@@ -85,12 +94,12 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
                 <p className="text-sm text-(--text-2)">{info.email}</p>
               </div>
               <div>
-              <button
-                onClick={() => setResetPassword(true)}
-                className="self-start mt-2 py-2 rounded-xl bg-(--color-3) hover:opacity-90 text-(--bg-3) text-sm font-medium transition-colors text-left px-3"
-              >
-                Reimposta password
-              </button>
+                <button
+                  onClick={() => setResetPassword(true)}
+                  className="self-start mt-2 py-2 rounded-xl bg-(--color-3) hover:opacity-90 text-(--bg-3) text-sm font-medium transition-colors text-left px-3"
+                >
+                  Reimposta password
+                </button>
               </div>
             </div>
 
@@ -106,34 +115,13 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
         )}
       </div>
 
-      {/* Reset password dialog */}
       {resetPassword && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <button data-testid="reset-overlay" className="absolute inset-0 bg-black/20" onClick={() => setResetPassword(false)} />
-          <div className="relative bg-(--bg-3) rounded-2xl shadow-xl p-6">
-            <PasswordResetForm handleReset={handleReset} />
-          </div>
-        </div>
+        <PasswordResetDialog
+          onClose={() => setResetPassword(false)}
+          handleReset={handleReset}
+        />
       )}
 
-      {/* Reset success dialog */}
-      {resetSuccess && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <button className="absolute inset-0 bg-black/20" onClick={() => setResetSuccess(false)} />
-          <div className="relative bg-(--bg-3) rounded-2xl shadow-xl p-6 w-72 flex flex-col gap-4">
-            <h3 className="text-base font-semibold text-(--text-1)">Password reimpostata</h3>
-            <p className="text-sm text-(--text-3)">La tua password è stata aggiornata con successo.</p>
-            <button
-              onClick={() => setResetSuccess(false)}
-              className="w-full py-2 rounded-xl bg-(--color-2) hover:bg-(--color-3) text-(--bg-3) text-sm font-medium transition-colors"
-            >
-              OK
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Confirm delete dialog */}
       {confirmDelete && (
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <button className="absolute inset-0 bg-black/20" onClick={() => setConfirmDelete(false)} />

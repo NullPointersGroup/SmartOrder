@@ -12,7 +12,7 @@ from src.auth.exceptions import (
     UserNotFoundError,
     UserDeletionError,
 )
-from src.db.models import Utente
+from src.db.models import Utentiweb
 
 
 @pytest.fixture
@@ -32,12 +32,12 @@ def service(repo, email_validator):
 
 @pytest.fixture
 def valid_user():
-    return User(username="testuser", password="Password1!")
+    return User(username="testuser", password="Password1!", admin=None)
 
 
 @pytest.fixture
 def mock_utente():
-    u = MagicMock(spec=Utente)
+    u = MagicMock(spec=Utentiweb)
     u.username = "testuser"
     u.password = "hashed_password"
     return u
@@ -50,6 +50,7 @@ def valid_registration():
         email="test@test.com",
         password="Password1!",
         confirm_pwd="Password1!",
+        admin=False,
     )
 
 

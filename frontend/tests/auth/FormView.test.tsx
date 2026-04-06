@@ -98,7 +98,7 @@ describe('FormView – rendering e interazioni', () => {
     const input = screen.getByLabelText(/username/i);
 
     fireEvent.focus(input);
-    expect(input.style.borderColor).toBe('var(--color-2)');
+    expect(input.style.borderColor).toBe('var(--color-3)');
 
     fireEvent.blur(input); // blur normale non cambia colore, blurCapture sì
     fireEvent.blur(input); // trigger onBlurCapture
@@ -126,7 +126,7 @@ describe('FormView – rendering e interazioni', () => {
     expect(btn.style.borderColor).toBe('var(--color-3)');
 
     fireEvent.mouseLeave(btn);
-    expect(btn.style.backgroundColor).toBe('var(--color-2)');
+    expect(btn.style.backgroundColor).toBe('var(--color-3)');
     expect(btn.style.color).toBe('var(--bg-3)');
     expect(btn.style.borderColor).toBe('transparent');
   });

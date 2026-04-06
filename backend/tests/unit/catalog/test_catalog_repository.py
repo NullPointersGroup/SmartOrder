@@ -1,13 +1,15 @@
-from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
-from src.catalog.adapters.CatalogRepository import CatalogRepository
+from src.db.models import Anaart
+from src.enums import MeasureUnitEnum
+from src.catalog.CatalogRepository import CatalogRepository
+from sqlalchemy.orm import class_mapper
 
 
-def make_catalog_row(prod_id: str, prod_des: str) -> CatalogProductRepository:
-    return CatalogProductRepository(
+def make_catalog_row(prod_id: str, prod_des: str) -> Anaart:
+    return Anaart(
         prod_id=prod_id,
         prod_des=prod_des,
         measure_unit_description="NUMERO",
-        measure_unit_type="P",
+        measure_unit_type=MeasureUnitEnum.P,
         measure_unit_type_description="PEZZI",
         price=1.0,
     )
@@ -15,9 +17,7 @@ def make_catalog_row(prod_id: str, prod_des: str) -> CatalogProductRepository:
 
 # TU-B_184
 def test_catalog_product_repository_maps_real_db_column_names():
-    column_names = [
-        column.name for column in CatalogProductRepository.__table__.columns
-    ]
+    column_names = [c.key for c in class_mapper(Anaart).columns]
 
     assert "cod_art" in column_names
     assert "des_art" in column_names

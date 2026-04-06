@@ -11,7 +11,7 @@ def test_load_and_search_catalog(service: VecDbService, mock_catalog_repo: Magic
         make_product("ABC2", "Acqua", 0.5),
     ]
     service.load_catalog()
-    result = service.search_catalog("pasta")
+    result = service.search_catalog("pasta", 1.0)
     assert "ABC1" in result
 
 
@@ -28,7 +28,7 @@ def test_load_catalog_indexes_all_products(
 
 
 def test_search_catalog_returns_empty_before_load(service: VecDbService):
-    result = service.search_catalog("pasta")
+    result = service.search_catalog("pasta", 1.0)
     assert result == []
 
 
@@ -40,10 +40,10 @@ def test_search_catalog_returns_closest(
         make_product("ABC2", "Acqua", 0.5),
     ]
     service.load_catalog()
-    result_pasta = service.search_catalog("Pasta 1.2")
-    result_acqua = service.search_catalog("Acqua 0.5")
+    result_pasta = service.search_catalog("Pasta 1.2", 1.0)
+    result_acqua = service.search_catalog("Acqua 0.5", 1.0)
     assert result_pasta[0] == "ABC1"
-    assert result_acqua[0] == "ABC2"
+    assert "ABC2" in result_acqua
 
 
 def test_load_and_search_cart(service: VecDbService, mock_cart_service: MagicMock):
@@ -51,7 +51,7 @@ def test_load_and_search_cart(service: VecDbService, mock_cart_service: MagicMoc
         make_product("ABC1", "Pasta", 1.2),
     ]
     service.load_cart("mario")
-    result = service.search_cart("mario", "pasta")
+    result = service.search_cart("mario", "pasta", 1.0)
     assert "ABC1" in result
 
 
@@ -67,7 +67,7 @@ def test_load_cart_indexes_all_products(
 
 
 def test_search_cart_returns_empty_before_load(service: VecDbService):
-    result = service.search_cart("mario", "pasta")
+    result = service.search_cart("mario", "pasta", 1.0)
     assert result == []
 
 

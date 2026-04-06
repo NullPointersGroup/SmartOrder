@@ -5,13 +5,12 @@ from src.cart.exceptions import (
     ProductNotFoundException,
     ProductNotInCartException,
 )
-from src.cart.adapters.UserCartRepository import UserCartRepository
-from src.catalog.adapters.CatalogProductRepository import CatalogProductRepository
+from src.db.models import Carrello, Anaart
 from src.enums import CartUpdateOperation, MeasureUnitEnum
 
 
 def make_catalog(prod_id="ABC2", prod_des="Prodotto 2", price=2.0):
-    return CatalogProductRepository(
+    return Anaart(
         prod_id=prod_id,
         prod_des=prod_des,
         price=price,
@@ -20,7 +19,7 @@ def make_catalog(prod_id="ABC2", prod_des="Prodotto 2", price=2.0):
 
 
 def make_cart(username="Tom", cod_art="ABC2", quantita=1):
-    return UserCartRepository(username=username, cod_art=cod_art, quantita=quantita)
+    return Carrello(username=username, cod_art=cod_art, quantita=quantita)
 
 
 # TU-B_147
@@ -33,16 +32,16 @@ def test_get_products_calls_db(cart_repository, mock_db):
 
 # TU-B_148
 def test_get_products_returns_list(cart_repository, mock_db):
-    cart1 = UserCartRepository(username="Tom", cod_art="ABC1", quantita=1)
-    catalog1 = CatalogProductRepository(
+    cart1 = Carrello(username="Tom", cod_art="ABC1", quantita=1)
+    catalog1 = Anaart(
         prod_id="ABC1",
         prod_des="Prodotto 1",
         price=1.0,
         measure_unit_type=MeasureUnitEnum.C,
     )
 
-    cart2 = UserCartRepository(username="Tom", cod_art="ABC2", quantita=1)
-    catalog2 = CatalogProductRepository(
+    cart2 = Carrello(username="Tom", cod_art="ABC2", quantita=1)
+    catalog2 = Anaart(
         prod_id="ABC2",
         prod_des="Prodotto 2",
         price=5.0,
@@ -63,9 +62,10 @@ def test_get_products_returns_list(cart_repository, mock_db):
 
 # TU-B_149
 def test_add_product_calls_and_commit_refresh(cart_repository, mock_db):
-    mock_db.exec.return_value.first.return_value = make_catalog(
-        prod_id="ABC3", prod_des="Prodotto 3", price=3.0
-    )
+    mock_db.exec.return_value.first.side_effect = [
+        make_catalog(prod_id="ABC3", prod_des="Prodotto 3", price=3.0),
+        None,
+    ]
 
     cart_repository.add_product(prod_id="ABC3", username="Tom", qty=2)
 
@@ -75,7 +75,7 @@ def test_add_product_calls_and_commit_refresh(cart_repository, mock_db):
 
 # TU-B_150
 def test_add_product_returns_product_repository(cart_repository, mock_db):
-    mock_db.exec.return_value.first.return_value = make_catalog()
+    mock_db.exec.return_value.first.side_effect = [make_catalog(), None]
 
     result = cart_repository.add_product(prod_id="ABC2", username="Tom", qty=4)
 
@@ -84,9 +84,10 @@ def test_add_product_returns_product_repository(cart_repository, mock_db):
 
 # TU-B_151
 def test_add_product_correct_fields(cart_repository, mock_db):
-    mock_db.exec.return_value.first.return_value = make_catalog(
-        prod_id="ABC2", prod_des="Prodotto 2", price=2.0
-    )
+    mock_db.exec.return_value.first.side_effect = [
+        make_catalog(prod_id="ABC2", prod_des="Prodotto 2", price=2.0),
+        None,
+    ]
 
     result = cart_repository.add_product(prod_id="ABC2", username="Tom", qty=4)
 

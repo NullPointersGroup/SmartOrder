@@ -21,3 +21,9 @@ class CartRepoPort(ABC):
         self, prod_id: str, username: str, qty: int, operation: CartUpdateOperation
     ) -> CartProduct:
         pass
+    
+    @abstractmethod
+    def send_order(
+        self, username: str
+    ) -> None:
+        pass

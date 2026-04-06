@@ -4,10 +4,16 @@ import numpy as np
 
 class FaissCartDb:
     def __init__(self, dimension: int = 384) -> None:
+        self.dimension = dimension
         self.index = faiss.IndexFlatL2(dimension)
         self.prod_ids: list[str] = []
 
         self.user_map: dict[str, list[int]] = {}
+
+    def reset(self) -> None:
+        self.index = faiss.IndexFlatL2(self.dimension)
+        self.prod_ids = []
+        self.user_map = {}
 
     def add(self, prod_id: str, username: str, vector: np.ndarray) -> None:
         vector_f32 = np.array(vector, dtype=np.float32).reshape(1, -1)

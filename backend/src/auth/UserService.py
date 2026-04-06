@@ -1,5 +1,5 @@
 from src.auth.models import User, UserRegistration, UserReset
-from src.db.models import Utente
+from src.db.models import Utentiweb
 from src.auth.IUserRepoPort import IUserRepoPort
 from src.auth.IEmailValidationPort import IEmailValidationPort
 from src.auth.PasswordUtility import PasswordUtility
@@ -31,36 +31,25 @@ class UserService:
 
     def check_user(self, u: User) -> str:
         """
-        @brief Verifica le credenziali e ritorna lo username autenticato
+        @brief Verifica le credenziali e ritorna lo username autenticato e se è admin
         @param u: credenziali (username + password)
-        @return username se le credenziali sono valide
+        @return tuple(username, admin) se le credenziali sono valide
         @req RF-OB_24
         @req RF-OB_26
         """
         stored = self.repo.find_by_username(u.username)
-
         if stored is None or stored.username is None:
             raise InvalidCredentialsError()
-
         if not PasswordUtility.verify_password(u.password, stored.password):
             raise InvalidCredentialsError()
-
         return stored.username
 
     def register_user(self, u: UserRegistration) -> None:
         """
         @brief Orchestra la registrazione
         @param u: dati di registrazione
-        @req RF-OB_02
-        @req RF-OB_03
-        @req RF-OB_05
-        @req RF-OB_08
-        @req RF-OB_09
-        @req RF-OB_10
         @req RF-OB_16
         @req RF-OB_18
-        @req RF-OB_19
-        @req RF-OB_20
         """
         if self.repo.username_exists(u.username):
             raise UsernameAlreadyExistsError()
@@ -102,7 +91,7 @@ class UserService:
         if not self.repo.delete_user(username):
             raise UserDeletionError()
         
-    def get_user(self, username: str) -> Utente:
+    def get_user(self, username: str) -> Utentiweb:
         user = self.repo.find_by_username(username)
         if user is None:
             raise UserNotFoundError()
