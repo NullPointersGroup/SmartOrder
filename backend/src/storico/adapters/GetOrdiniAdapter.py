@@ -58,3 +58,6 @@ class GetOrdiniAdapter(StoricoRepoPort):
         @return Ordine duplicato
         """
         return self.repository.duplica_ordine(codice_ordine, username)
+
+    def get_all_products_by_username(self, username: str) -> List[Tuple[str, str, int]]:
+        return self.repository.get_all_products_by_username(username)

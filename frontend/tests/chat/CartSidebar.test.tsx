@@ -1,8 +1,24 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
 import { CartSidebar } from '../../src/chat/CartSidebar';
 import type { CartProduct } from '../../src/chat/ChatModel';
+
+// jsdom spesso non ha i dati ICU completi per 'it-IT' + 'EUR',
+// il che causa timeout su toLocaleString/toLocaleDateString.
+// Mocchiamo Number.prototype.toLocaleString per restituire valori prevedibili.
+const originalToLocaleString = Number.prototype.toLocaleString;
+beforeAll(() => {
+  Number.prototype.toLocaleString = function (_locale?: string, options?: Intl.NumberFormatOptions) {
+    if (options?.style === 'currency' && options?.currency === 'EUR') {
+      return `${this.toFixed(2).replace('.', ',')} €`;
+    }
+    return originalToLocaleString.call(this, _locale, options);
+  };
+});
+afterAll(() => {
+  Number.prototype.toLocaleString = originalToLocaleString;
+});
 
 const products: CartProduct[] = [
   { prod_id: 'P001', name: 'Latte Intero', price: 1.5,  measure_unit: 1, qty: 2 },
