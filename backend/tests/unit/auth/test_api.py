@@ -21,7 +21,7 @@ VALID_USER = {
     "confirmPwd": "Password1!",
 }
 
-# TU-B_01
+#TU-B_01
 def test_registration_success(
     client, mock_user_service: MagicMock, mock_user_registration: UserRegistrationSchema
 ) -> None:
@@ -41,7 +41,7 @@ def test_registration_success(
     assert response.json()["ok"] is True
     mock_user_service.register_user.assert_called_once()
 
-# TU-B_02
+#TU-B_02
 def test_register_user_twice(client, mock_user_service: MagicMock) -> None:
     from src.auth.exceptions import UsernameAlreadyExistsError
     mock_user_service.register_user = MagicMock(
