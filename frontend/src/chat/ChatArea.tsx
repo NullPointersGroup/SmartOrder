@@ -138,7 +138,7 @@ export const ChatArea: React.FC<Props> = ({
     if (!isTranscribing && !isSending && inputText.length > 0) {
       textareaRef.current?.focus()
     }
-  }, [isTranscribing, isSending])
+  }, [isTranscribing, isSending, inputText.length])
 
   const counterColorClass = isOverLimit
     ? 'text-(--oth-1) font-semibold'
