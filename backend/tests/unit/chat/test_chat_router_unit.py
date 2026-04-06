@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 pytest.importorskip("langchain")
@@ -20,7 +20,8 @@ from src.db.models import Utentiweb
 def test_get_chat_service_unit():
     mock_db = MagicMock(spec=Session)
 
-    service = get_chat_service(db=mock_db)
+    with patch("src.chat.ChatApi.build_tools", return_value=[]):
+        service = get_chat_service(username="test", db=mock_db)
 
     assert isinstance(service, ChatService)
 
