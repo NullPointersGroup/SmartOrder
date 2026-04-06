@@ -1,5 +1,6 @@
 # tests/integration/conftest.py
 import os
+os.environ.setdefault("SECRET_KEY", "test-secret-key")
 from pathlib import Path
 from dotenv import load_dotenv
 
