@@ -1,5 +1,5 @@
 from langchain.tools import BaseTool
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from src.chat.ports.ToolPort import ToolPortIn
 
 
@@ -18,8 +18,7 @@ class SearchCartTool(BaseTool):
     args_schema: type[BaseModel] = SearchCartInput
     tool_service: ToolPortIn
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def _run(self, query: str, threshold: float) -> str:
         msg = f"[DEBUG] L'AI usa il threshold: {threshold} per cercare il prodotto: {query} nel carrello"
