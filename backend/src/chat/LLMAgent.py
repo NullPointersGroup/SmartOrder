@@ -53,7 +53,34 @@ class LLMAgent:
         return "\n".join(parts).strip()
     
     def invoke(self, request: LLMRequest) -> LLMResponse:
-        langchain_messages: list[BaseMessage] = [SystemMessage(content=cart_prompt)]
+        user_pref_block = ""
+        if request.user_preferences:
+            preference_lines: list[str] = []
+            habitual_count = 0
+            for pref in request.user_preferences:
+                habitual_flag = " [ABITUDINE FORTE]" if pref.is_habitual else ""
+                if pref.is_habitual:
+                    habitual_count += 1
+                preference_lines.append(
+                    f"- {pref.prod_id} - {pref.prod_name} (acquistato {pref.frequency} volte){habitual_flag}"
+                )
+            tie_rule = (
+                "\nRegola decisionale: se i prodotti storici rilevanti sono piu di uno, "
+                + "non scegliere automaticamente; chiedi sempre disambiguazione mostrando prima i prodotti storici. "
+                + "Se il prodotto storico e uno solo e marcato ABITUDINE FORTE, puoi usarlo come scelta principale."
+            )
+            if habitual_count > 1:
+                tie_rule = (
+                    "\nRegola decisionale: sono presenti piu prodotti con ABITUDINE FORTE; "
+                    + "non scegliere automaticamente e chiedi disambiguazione."
+                )
+            user_pref_block = (
+                "\n\nPreferenze storiche utente:\n"
+                + "\n".join(preference_lines)
+                + tie_rule
+            )
+
+        langchain_messages: list[BaseMessage] = [SystemMessage(content=cart_prompt + user_pref_block)]
 
         for msg in request.chat_history:
             if msg.role == "user":

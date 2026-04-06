@@ -1,8 +1,26 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
 import { OrdineRow } from '../../src/storico/OrdineRow';
 import type { Ordine } from '../../src/storico/StoricoModel';
+
+// jsdom spesso non ha i dati ICU completi per 'it-IT',
+// il che causa timeout su toLocaleDateString con opzioni di formato.
+// Mocchiamo Date.prototype.toLocaleDateString per restituire valori prevedibili.
+const originalToLocaleDateString = Date.prototype.toLocaleDateString;
+beforeAll(() => {
+  Date.prototype.toLocaleDateString = function (_locale?: string, _options?: Intl.DateTimeFormatOptions) {
+    const d = this as Date;
+    const months = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+});
+afterAll(() => {
+  Date.prototype.toLocaleDateString = originalToLocaleDateString;
+});
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 

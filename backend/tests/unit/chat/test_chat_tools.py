@@ -22,6 +22,7 @@ class DummyToolPort(ToolPortIn):
         self.search_cart_mock = MagicMock()
         self.search_catalog_mock = MagicMock()
         self.update_cart_item_qty_mock = MagicMock()
+        self.get_ordini_mock = MagicMock()
 
     def get_cart_items(self):
         return self.get_cart_items_mock()
@@ -42,6 +43,9 @@ class DummyToolPort(ToolPortIn):
         self, prod_id: str, qty: int, operation: CartUpdateOperation
     ):
         return self.update_cart_item_qty_mock(prod_id, qty, operation)
+
+    def get_ordini(self, pagina=1, data_inizio=None, data_fine=None):
+        return self.get_ordini_mock(pagina, data_inizio, data_fine)
 
 
 def make_cart_product(prod_id: str, name: str, qty: int) -> CartProduct:

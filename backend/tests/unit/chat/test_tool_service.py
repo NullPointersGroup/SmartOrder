@@ -34,6 +34,7 @@ def test_get_cart_items_delegates_to_cart_service():
         cart_service=cart_service,
         catalog_repo=catalog_repo,
         vec_db=vec_db,
+        storico_service=MagicMock(),
     )
     cart_service.get_cart_products.return_value = [make_cart_product("A1", "Acqua", 2)]
 
@@ -52,6 +53,7 @@ def test_search_cart_maps_only_products_present_in_cart():
         cart_service=cart_service,
         catalog_repo=catalog_repo,
         vec_db=vec_db,
+        storico_service=MagicMock(),
     )
     vec_db.search_cart.return_value = ["A1", "MISSING", "B2"]
     cart_service.get_cart_products.return_value = [
@@ -74,6 +76,7 @@ def test_search_catalog_maps_only_existing_products():
         cart_service=cart_service,
         catalog_repo=catalog_repo,
         vec_db=vec_db,
+        storico_service=MagicMock(),
     )
     vec_db.search_catalog.return_value = ["A1", "MISS", "B2"]
     catalog_repo.get_product.side_effect = [
@@ -97,6 +100,7 @@ def test_update_cart_item_qty_delegates_with_username():
         cart_service=cart_service,
         catalog_repo=catalog_repo,
         vec_db=vec_db,
+        storico_service=MagicMock(),
     )
 
     tool_service.update_cart_item_qty("A1", 4, CartUpdateOperation.Set)

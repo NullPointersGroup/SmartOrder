@@ -10,6 +10,10 @@ class ChatRepoPort(ABC):
         pass
 
     @abstractmethod
+    def get_chat_history(self, conv_id: int, max_messages: int = 20) -> list[Message]:
+        pass
+
+    @abstractmethod
     def add_message(self, conv_id: int, text: str, sender: SenderEnum) -> Message:
         pass
 
