@@ -26,6 +26,7 @@ function renderInRouter(ui: React.ReactElement) {
 }
 
 describe('Login', () => {
+  //TU-F_55
   it('mostra titolo, username e password', () => {
     renderInRouter(<Login onLogin={vi.fn()} />);
     expect(screen.getByRole('heading', { name: /accedi/i })).toBeInTheDocument();
@@ -33,6 +34,7 @@ describe('Login', () => {
     fireEvent.change(screen.getAllByLabelText(/password/i)[0], { target: { value: 'Password1!' } });
   });
 
+  //TU-F_56
   it('ok=true: chiama onLogin', async () => {
     const onLogin = vi.fn();
     const { login: loginApi } = await import('../../src/auth/AuthAPI');
@@ -46,6 +48,7 @@ describe('Login', () => {
     await waitFor(() => expect(onLogin).toHaveBeenCalled());
   });
 
+  //TU-F_57
   it('ok=false: mostra errore, NON chiama onLogin (RF-OB_28)', async () => {
     const onLogin = vi.fn();
     const { login: loginApi } = await import('../../src/auth/AuthAPI');

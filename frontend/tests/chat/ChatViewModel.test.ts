@@ -77,6 +77,7 @@ afterEach(() => vi.clearAllMocks());
 // Bootstrap
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – bootstrap', () => {
+  //TU-F_208
   it('carica username, conversazioni e carrello all\'avvio', async () => {
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.username).toBe('mario'));
@@ -84,23 +85,27 @@ describe('useChatViewModel – bootstrap', () => {
     expect(result.current.cartProducts).toEqual([]);
   });
 
+  //TU-F_209
   it('seleziona la prima conversazione se non c\'è un savedId', async () => {
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.activeConvId).toBe(1));
   });
 
+  //TU-F_210
   it('ripristina la conversazione salvata in localStorage se esiste', async () => {
     localStorageMock.setItem('activeConvId', '2');
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.activeConvId).toBe(2));
   });
 
+  //TU-F_211
   it('ignora il savedId se non è nella lista delle conversazioni', async () => {
     localStorageMock.setItem('activeConvId', '999');
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.activeConvId).toBe(1));
   });
 
+  //TU-F_213
   it('crea una conversazione automatica se la lista è vuota', async () => {
     vi.mocked(ChatModel.getConversations).mockResolvedValue([]);
     const { result } = renderHook(() => useChatViewModel());
@@ -108,12 +113,14 @@ describe('useChatViewModel – bootstrap', () => {
     await waitFor(() => expect(result.current.activeConvId).toBe(99));
   });
 
+  //TU-F_214
   it('reindirizza a /unauthorized se getMe lancia un errore', async () => {
     vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('Unauthorized'));
     renderHook(() => useChatViewModel());
     await waitFor(() => expect(globalThis.location.href).toBe('/unauthorized'));
   });
 
+  //TU-F_215
   it('salva activeConvId nel localStorage al cambio', async () => {
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.activeConvId).toBe(1));
@@ -125,12 +132,14 @@ describe('useChatViewModel – bootstrap', () => {
 // Messaggi
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – messaggi', () => {
+  //TU-F_216
   it('carica i messaggi quando cambia la conversazione attiva', async () => {
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.messages).toHaveLength(2));
     expect(ChatModel.getMessages).toHaveBeenCalledWith(1);
   });
 
+  //TU-F_217
   it('imposta isLoadingMsgs=true durante il caricamento', async () => {
     let resolve!: (v: { id_conv: number; messages: any[] }) => void;
     vi.mocked(ChatModel.getMessages).mockReturnValue(
@@ -143,6 +152,7 @@ describe('useChatViewModel – messaggi', () => {
     await waitFor(() => expect(result.current.isLoadingMsgs).toBe(false));
   });
 
+  //TU-F_218
   it('imposta errore se getMessages fallisce', async () => {
     vi.mocked(ChatModel.getMessages).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
@@ -154,6 +164,7 @@ describe('useChatViewModel – messaggi', () => {
 // refreshCart
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – refreshCart', () => {
+  //TU-F_219
   it('non fa nulla se username è null – guard', async () => {
     vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
@@ -166,6 +177,7 @@ describe('useChatViewModel – refreshCart', () => {
     expect(vi.mocked(ChatModel.getCart).mock.calls.length).toBe(callsBefore);
   });
 
+  //TU-F_220
   it('aggiorna il carrello dopo invio di un messaggio', async () => {
     const cartAfterSend = { username: 'mario', products: [{ prod_id: 'P001', name: 'Latte', price: 1.5, measure_unit: 1, qty: 1 }] };
     vi.mocked(ChatModel.sendMessage).mockResolvedValue({ id_conv: 1, message: { id_messaggio: 10, mittente: 'Chatbot', contenuto: 'ok' } });
@@ -183,6 +195,7 @@ describe('useChatViewModel – refreshCart', () => {
 // selectConversation
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – selectConversation', () => {
+  //TU-F_221
   it('aggiorna activeConvId', async () => {
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.conversations).toHaveLength(2));
@@ -195,6 +208,7 @@ describe('useChatViewModel – selectConversation', () => {
 // createConversation
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – createConversation', () => {
+  //TU-F_222
   it('aggiunge la nuova conversazione in testa e la seleziona', async () => {
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.username).toBe('mario'));
@@ -203,6 +217,7 @@ describe('useChatViewModel – createConversation', () => {
     expect(result.current.activeConvId).toBe(99);
   });
 
+  //TU-F_223
   it('imposta errore se createConversation fallisce', async () => {
     vi.mocked(ChatModel.createConversation).mockRejectedValueOnce(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
@@ -212,6 +227,7 @@ describe('useChatViewModel – createConversation', () => {
     expect(result.current.error).toMatch(/creazione della conversazione/i);
   });
 
+  //TU-F_224
   it('non fa nulla se username è null', async () => {
     vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
@@ -226,6 +242,7 @@ describe('useChatViewModel – createConversation', () => {
 // renameConversation
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – renameConversation', () => {
+  //TU-F_225
   it('aggiorna il titolo della conversazione', async () => {
     vi.mocked(ChatModel.renameConversation).mockResolvedValue({ id_conv: 1, username: 'mario', titolo: 'Rinominata' });
     const { result } = renderHook(() => useChatViewModel());
@@ -234,6 +251,7 @@ describe('useChatViewModel – renameConversation', () => {
     expect(result.current.conversations.find(c => c.id_conv === 1)?.titolo).toBe('Rinominata');
   });
 
+  //TU-F_226
   it('non chiama il model se il titolo è vuoto', async () => {
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.username).toBe('mario'));
@@ -241,6 +259,7 @@ describe('useChatViewModel – renameConversation', () => {
     expect(ChatModel.renameConversation).not.toHaveBeenCalled();
   });
 
+  //TU-F_227
   it('imposta errore se renameConversation fallisce', async () => {
     vi.mocked(ChatModel.renameConversation).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
@@ -254,6 +273,7 @@ describe('useChatViewModel – renameConversation', () => {
 // deleteConversation
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – deleteConversation', () => {
+  //TU-F_228
   it('rimuove la conversazione eliminata dalla lista', async () => {
     vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
     const { result } = renderHook(() => useChatViewModel());
@@ -262,6 +282,7 @@ describe('useChatViewModel – deleteConversation', () => {
     expect(result.current.conversations.find(c => c.id_conv === 2)).toBeUndefined();
   });
 
+  //TU-F_229
   it('non cambia activeConvId se si elimina una conversazione non attiva', async () => {
     vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
     const { result } = renderHook(() => useChatViewModel());
@@ -271,6 +292,7 @@ describe('useChatViewModel – deleteConversation', () => {
     expect(result.current.conversations.map(c => c.id_conv)).toEqual([1]);
   });
 
+  //TU-F_230
   it('seleziona la prima conversazione rimanente se si elimina quella attiva', async () => {
     vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
     const { result } = renderHook(() => useChatViewModel());
@@ -279,6 +301,7 @@ describe('useChatViewModel – deleteConversation', () => {
     await waitFor(() => expect(result.current.activeConvId).toBe(2));
   });
 
+  //TU-F_231
   it('crea una nuova conversazione se si elimina l\'ultima', async () => {
     vi.mocked(ChatModel.getConversations).mockResolvedValue([{ id_conv: 1, username: 'mario', titolo: 'Unica' }]);
     vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
@@ -288,6 +311,7 @@ describe('useChatViewModel – deleteConversation', () => {
     await waitFor(() => expect(ChatModel.createConversation).toHaveBeenCalled());
   });
 
+  //TU-F_232
   it('imposta errore se deleteConversation fallisce', async () => {
     vi.mocked(ChatModel.deleteConversation).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
@@ -296,6 +320,7 @@ describe('useChatViewModel – deleteConversation', () => {
     expect(result.current.error).toMatch(/eliminazione/i);
   });
 
+  //TU-F_233
   it('imposta errore se createConversation fallisce dopo aver eliminato l\'ultima conversazione', async () => {
     vi.mocked(ChatModel.getConversations).mockResolvedValue([{ id_conv: 1, username: 'mario', titolo: 'Unica' }]);
     vi.mocked(ChatModel.deleteConversation).mockResolvedValue(undefined);
@@ -311,6 +336,7 @@ describe('useChatViewModel – deleteConversation', () => {
 // sendMessage
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – sendMessage', () => {
+  //TU-F_234
   it('aggiunge subito il messaggio utente (ottimistico)', async () => {
     vi.mocked(ChatModel.sendMessage).mockResolvedValue({ id_conv: 1, message: { id_messaggio: 10, mittente: 'Chatbot', contenuto: 'ok' } });
     vi.mocked(ChatModel.getMessages).mockResolvedValue({ id_conv: 1, messages: [...mockMessages, { id_messaggio: 10, mittente: 'Chatbot', contenuto: 'ok' }] });
@@ -321,6 +347,7 @@ describe('useChatViewModel – sendMessage', () => {
     expect(result.current.messages.some(m => m.contenuto === 'Messaggio di test')).toBe(true);
   });
 
+  //TU-F_235
   it('non invia se l\'input è vuoto', async () => {
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.username).toBe('mario'));
@@ -329,6 +356,7 @@ describe('useChatViewModel – sendMessage', () => {
     expect(ChatModel.sendMessage).not.toHaveBeenCalled();
   });
 
+  //TU-F_236
   it('rimuove il messaggio ottimistico in caso di errore di rete', async () => {
     vi.mocked(ChatModel.sendMessage).mockRejectedValue(new Error('Network error'));
     const { result } = renderHook(() => useChatViewModel());
@@ -340,6 +368,7 @@ describe('useChatViewModel – sendMessage', () => {
     });
   });
 
+  //TU-F_237
   it('svuota inputText dopo l\'invio', async () => {
     vi.mocked(ChatModel.sendMessage).mockResolvedValue({ id_conv: 1, message: { id_messaggio: 10, mittente: 'Chatbot', contenuto: 'ok' } });
     const { result } = renderHook(() => useChatViewModel());
@@ -354,6 +383,7 @@ describe('useChatViewModel – sendMessage', () => {
 // handleAudioAttach
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – handleAudioAttach', () => {
+  //TU-F_238
   it('imposta inputText con la trascrizione del file audio', async () => {
     vi.mocked(trascriviAudio).mockResolvedValue('testo trascritto da file');
     const { result } = renderHook(() => useChatViewModel());
@@ -367,6 +397,7 @@ describe('useChatViewModel – handleAudioAttach', () => {
     expect(result.current.isTranscribing).toBe(false);
   });
 
+  //TU-F_239
   it('imposta isTranscribing=true durante la trascrizione del file', async () => {
     let resolveTranscription!: (v: string) => void;
     vi.mocked(trascriviAudio).mockReturnValue(
@@ -383,6 +414,7 @@ describe('useChatViewModel – handleAudioAttach', () => {
     await waitFor(() => expect(result.current.isTranscribing).toBe(false));
   });
 
+  //TU-F_240
   it('imposta errore se la trascrizione del file fallisce (istanza Error)', async () => {
     vi.mocked(trascriviAudio).mockRejectedValue(new Error('Errore microfono'));
     const { result } = renderHook(() => useChatViewModel());
@@ -395,6 +427,7 @@ describe('useChatViewModel – handleAudioAttach', () => {
     expect(result.current.isTranscribing).toBe(false);
   });
 
+  //TU-F_241
   it('imposta errore generico se la trascrizione del file lancia un non-Error', async () => {
     vi.mocked(trascriviAudio).mockRejectedValue('errore stringa');
     const { result } = renderHook(() => useChatViewModel());
@@ -412,6 +445,7 @@ describe('useChatViewModel – handleAudioAttach', () => {
 // handleAudioRecord
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – handleAudioRecord', () => {
+  //TU-F_242
   it('imposta inputText con la trascrizione del blob audio', async () => {
     vi.mocked(trascriviAudio).mockResolvedValue('testo trascritto da blob');
     const { result } = renderHook(() => useChatViewModel());
@@ -425,6 +459,7 @@ describe('useChatViewModel – handleAudioRecord', () => {
     expect(result.current.isTranscribing).toBe(false);
   });
 
+  //TU-F_243
   it('imposta isTranscribing=true durante la trascrizione del blob', async () => {
     let resolveTranscription!: (v: string) => void;
     vi.mocked(trascriviAudio).mockReturnValue(
@@ -441,6 +476,7 @@ describe('useChatViewModel – handleAudioRecord', () => {
     await waitFor(() => expect(result.current.isTranscribing).toBe(false));
   });
 
+  //TU-F_244
   it('imposta errore se la trascrizione del blob fallisce (istanza Error)', async () => {
     vi.mocked(trascriviAudio).mockRejectedValue(new Error('Rete non disponibile'));
     const { result } = renderHook(() => useChatViewModel());
@@ -453,6 +489,7 @@ describe('useChatViewModel – handleAudioRecord', () => {
     expect(result.current.isTranscribing).toBe(false);
   });
 
+  //TU-F_245
   it('imposta errore generico se la trascrizione del blob lancia un non-Error', async () => {
     vi.mocked(trascriviAudio).mockRejectedValue(42);
     const { result } = renderHook(() => useChatViewModel());
@@ -465,6 +502,7 @@ describe('useChatViewModel – handleAudioRecord', () => {
     expect(result.current.isTranscribing).toBe(false);
   });
 
+  //TU-F_246
   it('converte la risposta di trascriviAudio in stringa tramite String()', async () => {
     vi.mocked(trascriviAudio).mockResolvedValue(12345 as unknown as string);
     const { result } = renderHook(() => useChatViewModel());
@@ -481,6 +519,7 @@ describe('useChatViewModel – handleAudioRecord', () => {
 // removeFromCart
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – removeFromCart', () => {
+  //TU-F_247
   it('rimuove il prodotto dal carrello locale', async () => {
     vi.mocked(ChatModel.getCart).mockResolvedValue({
       username: 'mario',
@@ -493,6 +532,7 @@ describe('useChatViewModel – removeFromCart', () => {
     expect(result.current.cartProducts).toHaveLength(0);
   });
 
+  //TU-F_248
   it('imposta errore se removeFromCart fallisce', async () => {
     vi.mocked(ChatModel.removeFromCart).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
@@ -501,6 +541,7 @@ describe('useChatViewModel – removeFromCart', () => {
     expect(result.current.error).toMatch(/rimozione dal carrello/i);
   });
 
+  //TU-F_249
   it('non fa nulla se username è null', async () => {
     vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
@@ -515,6 +556,7 @@ describe('useChatViewModel – removeFromCart', () => {
 // cartTotal
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – cartTotal', () => {
+  //TU-F_250
   it('calcola il totale correttamente', async () => {
     vi.mocked(ChatModel.getCart).mockResolvedValue({
       username: 'mario',
@@ -528,6 +570,7 @@ describe('useChatViewModel – cartTotal', () => {
     expect(result.current.cartTotal).toBe(5);
   });
 
+  //TU-F_251
   it('cartTotal è 0 con carrello vuoto', async () => {
     const { result } = renderHook(() => useChatViewModel());
     await waitFor(() => expect(result.current.username).toBe('mario'));
@@ -539,6 +582,7 @@ describe('useChatViewModel – cartTotal', () => {
 // logout
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – logout', () => {
+  //TU-F_252
   it('chiama ChatModel.logout e reindirizza a /', async () => {
     vi.mocked(ChatModel.logout).mockResolvedValue(undefined);
     const { result } = renderHook(() => useChatViewModel());
@@ -548,6 +592,7 @@ describe('useChatViewModel – logout', () => {
     expect(globalThis.location.href).toBe('/');
   });
 
+  //TU-F_253
   it('reindirizza a / anche se logout lancia un errore', async () => {
     vi.mocked(ChatModel.logout).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
@@ -561,6 +606,7 @@ describe('useChatViewModel – logout', () => {
 // setError
 // ════════════════════════════════════════════════════════════════════════════
 describe('useChatViewModel – setError', () => {
+  //TU-F_254
   it('espone setError per pulire manualmente l\'errore', async () => {
     vi.mocked(ChatModel.getMessages).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useChatViewModel());
@@ -572,6 +618,7 @@ describe('useChatViewModel – setError', () => {
 
 describe('useChatViewModel – invioOrdine', () => {
 
+  //TU-F_255
   it('happy path: chiama sendOrder e svuota cartProducts (righe 270-272)', async () => {
     vi.mocked(ChatModel.getCart).mockResolvedValue({
       username: 'mario',
@@ -588,6 +635,7 @@ describe('useChatViewModel – invioOrdine', () => {
     expect(result.current.cartProducts).toHaveLength(0);
   });
 
+  //TU-F_256
   it('error path: imposta errore se sendOrder lancia (righe 273-274)', async () => {
     vi.mocked(ChatModel.sendOrder).mockRejectedValue(new Error('fail'));
 
@@ -599,6 +647,7 @@ describe('useChatViewModel – invioOrdine', () => {
     expect(result.current.error).toMatch(/errore nell'invio dell'ordine/i);
   });
 
+  //TU-F_257
   it('guard username null: non chiama sendOrder (riga 269 – branch falso)', async () => {
     vi.mocked(ChatModel.getMe).mockRejectedValue(new Error('unauth'));
 

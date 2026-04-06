@@ -28,6 +28,7 @@ const PASSWORD_FIELDS: FieldConfig[] = [
 ];
 
 describe('FormView – rendering e interazioni', () => {
+  //TU-F_34
   it('mostra titolo, label campi e pulsante submit', () => {
     render(<Form title="Accedi" submitLabel="Invia" fields={BASE_FIELDS} vm={makeVM()} />);
     expect(screen.getByRole('heading', { name: /accedi/i })).toBeInTheDocument();
@@ -35,21 +36,25 @@ describe('FormView – rendering e interazioni', () => {
     expect(screen.getByRole('button', { name: /invia/i })).toBeInTheDocument();
   });
 
+  //TU-F_35
   it('loading=true: pulsante disabilitato con testo Caricamento', () => {
     render(<Form title="T" submitLabel="S" fields={BASE_FIELDS} vm={makeVM({ loading: true })} />);
     expect(screen.getByRole('button', { name: /caricamento/i })).toBeDisabled();
   });
 
+  //TU-F_36
   it('fieldErrors truthy: mostra errore inline', () => {
     render(<Form title="T" submitLabel="S" fields={BASE_FIELDS} vm={makeVM({ fieldErrors: { username: 'Errore' } })} />);
     expect(screen.getByText('Errore')).toBeInTheDocument();
   });
 
+  //TU-F_37
   it('fieldErrors falsy: nessun paragrafo errore', () => {
     render(<Form title="T" submitLabel="S" fields={BASE_FIELDS} vm={makeVM()} />);
     expect(document.querySelectorAll('p.text-sm')).toHaveLength(0);
   });
 
+  //TU-F_38
   it('handleChange chiamato al change', () => {
     const vm = makeVM();
     render(<Form title="T" submitLabel="S" fields={BASE_FIELDS} vm={vm} />);
@@ -57,6 +62,7 @@ describe('FormView – rendering e interazioni', () => {
     expect(vm.handleChange).toHaveBeenCalledWith('username', 'mario');
   });
 
+  //TU-F_39
   it('handleBlur chiamato al blur', () => {
     const vm = makeVM();
     render(<Form title="T" submitLabel="S" fields={BASE_FIELDS} vm={vm} />);
@@ -64,6 +70,7 @@ describe('FormView – rendering e interazioni', () => {
     expect(vm.handleBlur).toHaveBeenCalledWith('username');
   });
 
+  //TU-F_40
   it('handleSubmit chiamato al click submit', () => {
     const vm = makeVM();
     render(<Form title="T" submitLabel="Invia" fields={BASE_FIELDS} vm={vm} />);
@@ -71,6 +78,7 @@ describe('FormView – rendering e interazioni', () => {
     expect(vm.handleSubmit).toHaveBeenCalled();
   });
 
+  //TU-F_41
   it('toggle password: click cambia tipo da password a text e viceversa', () => {
     render(<Form title="T" submitLabel="S" fields={PASSWORD_FIELDS} vm={makeVM({ values: { password: '' } })} />);
     const passwordInput = screen.getAllByLabelText(/password/i)[0];
@@ -83,6 +91,7 @@ describe('FormView – rendering e interazioni', () => {
     expect(passwordInput).toHaveAttribute('type', 'password');
   });
 
+  //TU-F_42
   it('passa placeholder e autoComplete agli input', () => {
     const fieldsWithAttrs: FieldConfig[] = [
       { key: 'username', label: 'Username', type: 'text', placeholder: 'Inserisci username', autoComplete: 'username' },
@@ -93,6 +102,7 @@ describe('FormView – rendering e interazioni', () => {
     expect(input).toHaveAttribute('autocomplete', 'username');
   });
 
+  //TU-F_43
   it('cambia borderColor al focus e blurCapture', () => {
     render(<Form title="T" submitLabel="S" fields={BASE_FIELDS} vm={makeVM()} />);
     const input = screen.getByLabelText(/username/i);
@@ -105,6 +115,7 @@ describe('FormView – rendering e interazioni', () => {
     expect(input.style.borderColor).toBe('var(--border)');
   });
 
+  //TU-F_44
   it('cambia colore del toggle password al mouse enter/leave', () => {
     render(<Form title="T" submitLabel="S" fields={PASSWORD_FIELDS} vm={makeVM()} />);
     const toggle = screen.getByRole('button', { name: /mostra password/i });
@@ -116,6 +127,7 @@ describe('FormView – rendering e interazioni', () => {
     expect(toggle.style.color).toBe('var(--text-4)');
   });
 
+  //TU-F_45
   it('cambia colore e border del submit al mouse enter/leave', () => {
     render(<Form title="T" submitLabel="Invia" fields={BASE_FIELDS} vm={makeVM()} />);
     const btn = screen.getByRole('button', { name: /invia/i });
