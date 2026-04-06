@@ -271,7 +271,7 @@ export const ChatArea: React.FC<Props> = ({
         aria-live="polite"
         aria-label="Messaggi della conversazione"
       >
-        <div className="max-w-3xl mx-auto w-full">
+        <div className="max-w-4xl mx-auto w-full">
 
         {isLoading && (
           <output className="flex justify-center py-12" aria-label="Caricamento messaggi">
@@ -296,10 +296,11 @@ export const ChatArea: React.FC<Props> = ({
 
       {/* Input bar */}
       <div className={`border-t border-(--border) bg-(--bg-3) px-4 py-3 ${sidebarOpen ? 'sticky bottom-0 z-10' : ''}`}>
-        {/* Indicatore registrazione attiva */}
-        {isRecording && (
+        <div className="max-w-4xl mx-auto w-full">
+          {/* Indicatore registrazione attiva */}
+          {isRecording && (
           <output className="flex items-center gap-2 mb-2 px-1" aria-live="assertive">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" aria-hidden="true" />
+            <span className="w-2 h-2 rounded-full bg-(--error) animate-pulse" aria-hidden="true" />
             <span className="text-xs text-(--error) font-medium">
               Registrazione in corso… {recordingSeconds}s / 120s
             </span>
@@ -416,6 +417,7 @@ export const ChatArea: React.FC<Props> = ({
           <p className={`text-xs tabular-nums transition-colors ${counterColorClass}`}>
             {formattedCharCount}
           </p>
+        </div>
         </div>
       </div>
     </main>
