@@ -1,11 +1,12 @@
 from src.cart.CartSchemas import CartProduct
-from src.cart.adapters.CartRepoAdapter import CartRepoAdapter
-from src.enums import CartUpdateOperation
 from src.cart.exceptions import CartEmptyException
+from src.enums import CartUpdateOperation
+
+from backend.src.cart.ports.CartRepoPort import CartRepoPort
 
 
 class CartService:
-    def __init__(self, adapter: CartRepoAdapter) -> None:
+    def __init__(self, adapter: CartRepoPort) -> None:
         """
         @brief Inizializza il servizio carrello con il repository fornito
         @param repo Implementazione della porta repository per il carrello
@@ -56,7 +57,7 @@ class CartService:
         """
         product = self.adapter.remove_product(prod_id, username)
         return product
-    
+
     def send_order(self, username: str) -> None:
         """
         @brief invia l'ordine
@@ -68,4 +69,6 @@ class CartService:
         try:
             self.adapter.send_order(username)
         except CartEmptyException as e:
-            raise CartEmptyException(f"Impossibile inviare l'ordine: il carrello di '{username}' è vuoto") from e
+            raise CartEmptyException(
+                f"Impossibile inviare l'ordine: il carrello di '{username}' è vuoto"
+            ) from e
