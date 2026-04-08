@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { ChatModel } from '../../src/chat/ChatModel';
+import { useAuthStore } from '../../src/auth/authStore';
 
 function mockFetch(status: number, body: unknown): ReturnType<typeof vi.spyOn> {
   return vi.spyOn(globalThis, 'fetch').mockResolvedValue(
@@ -39,16 +40,22 @@ describe('ChatModel.getMe', () => {
     expect(options.credentials).toBe('include');
   });
 
-  //TU-F_143
-  it('lancia un errore HTTP in caso di risposta non ok', async () => {
+  // TU-F_143
+  it('aggiorna lo store a null se la risposta non è ok con detail', async () => {
     mockFetch(401, { detail: 'Non autenticato' });
-    await expect(ChatModel.getMe()).rejects.toThrow('Non autenticato');
+
+    const clearAuthSpy = vi.spyOn(useAuthStore.getState(), 'clearAuth');
+    await ChatModel.getMe();
+    expect(clearAuthSpy).toHaveBeenCalled();
   });
 
-  //TU-F_144
-  it('lancia un errore generico se non c\'è detail', async () => {
+  // TU-F_144
+  it('aggiorna lo store a null se la risposta non è ok senza detail', async () => {
     mockFetch(500, {});
-    await expect(ChatModel.getMe()).rejects.toThrow('HTTP 500');
+
+    const clearAuthSpy = vi.spyOn(useAuthStore.getState(), 'clearAuth');
+    await ChatModel.getMe();
+    expect(clearAuthSpy).toHaveBeenCalled();
   });
 });
 

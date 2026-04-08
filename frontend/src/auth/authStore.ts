@@ -19,7 +19,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   clearAuth:       () => set({ username: null, admin: null, isAuthenticated: false, loggedOut: true }),
   initAuth:        async () => {
     try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const res = await fetch('/api/auth/saveInStore', { credentials: 'include' });
       if (!res.ok) throw new Error("Errore autenticazione");
       const data = await res.json();
       set({ username: data.username, admin: data.admin, isAuthenticated: true, loggedOut: false });

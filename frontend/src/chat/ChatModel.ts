@@ -1,4 +1,5 @@
 // ── Tipi di dominio (nomi italiani, usati nel resto dell'app) ─────────────────
+import { useAuthStore } from '../auth/authStore';
 
 export type Mittente = 'Utente' | 'Chatbot';
 
@@ -95,16 +96,24 @@ async function handleResponse<T>(res: Response): Promise<T> {
 // ── ChatModel — layer di accesso ai dati ──────────────────────────────────────
 
 export const ChatModel = {
-  // Auth
+  async initAuth(): Promise<void> {
+    const authStore = useAuthStore.getState();
 
-  async getMe(): Promise<{ username: string }> {
-    /**
-     * @brief Ottiene le informazioni dell'utente autenticato
-     * @return Promise con username dell'utente
-     * @throws Error in caso di fallimento autenticazione
-     */
-    const res = await fetch(`/api/auth/me`, { credentials: 'include' });
-    return handleResponse(res);
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok) throw new Error("Errore autenticazione");
+
+      authStore.setAuth(data.username, data.admin);
+    } catch {
+      authStore.clearAuth();
+    }
+  },
+
+  async getMe(): Promise<{ username: string | null; admin: boolean | null }> {
+    await this.initAuth();
+    const { username, admin } = useAuthStore.getState();
+    return { username, admin };
   },
 
   async logout(): Promise<void> {
