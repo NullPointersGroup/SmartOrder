@@ -11,7 +11,7 @@ def make_cart_product(prod_id="ABC1", name="Prodotto 1", price=1.0, qty=1):
         measure_unit=MeasureUnitEnum.C,
     )
 
-# TU-B_169
+#TU-B_169
 def test_get_products_returns_empty_list(cart_service, mock_adapter):
     mock_adapter.get_products.return_value = []
     result = cart_service.get_cart_products(username="Tom")
@@ -19,7 +19,7 @@ def test_get_products_returns_empty_list(cart_service, mock_adapter):
     assert result == []
 
 
-# TU-B_170
+#TU-B_170
 def test_get_cart_products_returns_list(cart_service, mock_adapter):
     mock_adapter.get_products.return_value = [
         make_cart_product(prod_id="ABC1"),
@@ -33,7 +33,7 @@ def test_get_cart_products_returns_list(cart_service, mock_adapter):
     assert result[1].prod_id == "ABC2"
 
 
-# TU-B_171
+#TU-B_171
 def test_add_product_returns_cart_product(cart_service, mock_adapter):
     mock_adapter.add_product.return_value = make_cart_product()
 
@@ -42,7 +42,7 @@ def test_add_product_returns_cart_product(cart_service, mock_adapter):
     assert isinstance(result, CartProduct)
 
 
-# TU-B_172
+#TU-B_172
 def test_add_product_returns_correct_product(cart_service, mock_adapter):
     mock_adapter.add_product.return_value = make_cart_product(
         prod_id="ABC1", name="Prodotto 1", price=3.0, qty=2
@@ -56,7 +56,7 @@ def test_add_product_returns_correct_product(cart_service, mock_adapter):
     assert result.qty == 2
 
 
-# TU-B_173
+#TU-B_173
 def test_remove_product_returns_cart_product(cart_service, mock_adapter):
     mock_adapter.remove_product.return_value = make_cart_product()
 
@@ -65,7 +65,7 @@ def test_remove_product_returns_cart_product(cart_service, mock_adapter):
     assert isinstance(result, CartProduct)
 
 
-# TU-B_174
+#TU-B_174
 def test_remove_product_returns_correct_product(cart_service, mock_adapter):
     mock_adapter.remove_product.return_value = make_cart_product(
         prod_id="ABC1", name="Prodotto 1", price=2.0, qty=1
@@ -78,7 +78,7 @@ def test_remove_product_returns_correct_product(cart_service, mock_adapter):
     assert result.qty == 1
 
 
-# TU-B_175
+#TU-B_175
 def test_update_quantity_calls_repo_with_add(cart_service, mock_adapter):
     
     assert hasattr(mock_adapter, "update_quantity")
@@ -94,7 +94,7 @@ def test_update_quantity_calls_repo_with_add(cart_service, mock_adapter):
     )
 
 
-# TU-B_176
+#TU-B_176
 def test_update_quantity_calls_repo_with_subtract(cart_service, mock_adapter):
     mock_adapter.update_quantity.return_value = make_cart_product()
 
@@ -107,7 +107,7 @@ def test_update_quantity_calls_repo_with_subtract(cart_service, mock_adapter):
     )
 
 
-# TU-B_177
+#TU-B_177
 def test_update_quantity_returns_cart_product(cart_service, mock_adapter):
     mock_adapter.update_quantity.return_value = make_cart_product()
 
@@ -118,7 +118,7 @@ def test_update_quantity_returns_cart_product(cart_service, mock_adapter):
     assert isinstance(result, CartProduct)
 
 
-# TU-B_178
+#TU-B_178
 def test_update_quantity_returns_correct_product(cart_service, mock_adapter):
     mock_adapter.update_quantity.return_value = make_cart_product(prod_id="ABC1", qty=5)
 
@@ -129,7 +129,7 @@ def test_update_quantity_returns_correct_product(cart_service, mock_adapter):
     assert result.prod_id == "ABC1"
     assert result.qty == 5
 
-
+#TU-B_361
 def test_update_quantity_calls_repo_with_set(cart_service, mock_adapter):
     mock_adapter.update_quantity.return_value = make_cart_product(qty=7)
 

@@ -26,11 +26,13 @@ const VALID_NEW = 'NewPass2@';
 
 // Render base
 describe('PasswordResetForm – render base', () => {
+  //TU-F_302
   it('mostra il titolo "Reimposta password"', () => {
     renderForm();
     expect(screen.getByRole('heading', { name: /reimposta password/i })).toBeInTheDocument();
   });
 
+  //TU-F_303
   it('mostra i tre campi password', () => {
     renderForm();
     expect(screen.getByLabelText(/password attuale/i)).toBeInTheDocument();
@@ -38,12 +40,14 @@ describe('PasswordResetForm – render base', () => {
     expect(screen.getByLabelText(/conferma password/i)).toBeInTheDocument();
   });
 
+  //TU-F_304
   it('i campi sono di tipo password di default', () => {
     renderForm();
     const inputs = screen.getAllByDisplayValue('');
     inputs.forEach(i => expect(i).toHaveAttribute('type', 'password'));
   });
 
+  //TU-F_305
   it('mostra il bottone di submit', () => {
     renderForm();
     expect(screen.getByRole('button', { name: /reimposta password/i })).toBeInTheDocument();
@@ -52,12 +56,14 @@ describe('PasswordResetForm – render base', () => {
 
 // Toggle visibilità
 describe('PasswordResetForm – toggle visibilità', () => {
+  //TU-F_306
   it('mostra la password attuale al click sull\'occhio (campo 0)', () => {
     renderForm();
     fireEvent.click(getEyeButtons()[0]);
     expect(screen.getByLabelText(/password attuale/i)).toHaveAttribute('type', 'text');
   });
 
+  //TU-F_307
   it('nasconde di nuovo la password attuale al secondo click (campo 0)', () => {
     renderForm();
     fireEvent.click(getEyeButtons()[0]);
@@ -65,12 +71,14 @@ describe('PasswordResetForm – toggle visibilità', () => {
     expect(screen.getByLabelText(/password attuale/i)).toHaveAttribute('type', 'password');
   });
 
+  //TU-F_308
   it('mostra la nuova password al click sull\'occhio (campo 1)', () => {
     renderForm();
     fireEvent.click(getEyeButtons()[1]);
     expect(screen.getByLabelText(/^nuova password$/i)).toHaveAttribute('type', 'text');
   });
 
+  //TU-F_309
   it('nasconde di nuovo la nuova password al secondo click (campo 1)', () => {
     renderForm();
     fireEvent.click(getEyeButtons()[1]);
@@ -78,12 +86,14 @@ describe('PasswordResetForm – toggle visibilità', () => {
     expect(screen.getByLabelText(/^nuova password$/i)).toHaveAttribute('type', 'password');
   });
 
+  //TU-F_310
   it('mostra la conferma password al click sull\'occhio (campo 2)', () => {
     renderForm();
     fireEvent.click(getEyeButtons()[2]);
     expect(screen.getByLabelText(/conferma password/i)).toHaveAttribute('type', 'text');
   });
 
+  //TU-F_311
   it('nasconde di nuovo la conferma password al secondo click (campo 2)', () => {
     renderForm();
     fireEvent.click(getEyeButtons()[2]);
@@ -93,6 +103,7 @@ describe('PasswordResetForm – toggle visibilità', () => {
 });
 
 describe('PasswordResetForm – validazione campo vuoto', () => {
+  //TU-F_312
   it('mostra errore se la password attuale è vuota al submit', async () => {
     renderForm();
     submit();
@@ -101,6 +112,7 @@ describe('PasswordResetForm – validazione campo vuoto', () => {
     });
   });
 
+  //TU-F_313
   it('non chiama handleReset se i campi sono vuoti', async () => {
     const handleReset = vi.fn().mockResolvedValue(null);
     renderForm(handleReset);
@@ -110,6 +122,7 @@ describe('PasswordResetForm – validazione campo vuoto', () => {
 });
 
 describe('PasswordResetForm – validazione nuova password', () => {
+  //TU-F_314
   it('mostra errore se la nuova password non rispetta i requisiti', async () => {
     renderForm();
     fillForm(VALID_OLD, 'corta', 'corta');
@@ -119,6 +132,7 @@ describe('PasswordResetForm – validazione nuova password', () => {
     });
   });
 
+  //TU-F_315
   it('mostra errore se la nuova password è uguale a quella vecchia', async () => {
     renderForm();
     fillForm(VALID_OLD, VALID_OLD, VALID_OLD);
@@ -128,6 +142,7 @@ describe('PasswordResetForm – validazione nuova password', () => {
     });
   });
 
+  //TU-F_316
   it('mostra errore se le password non coincidono', async () => {
     renderForm();
     fillForm(VALID_OLD, VALID_NEW, 'DiversaPass3#');
@@ -139,6 +154,7 @@ describe('PasswordResetForm – validazione nuova password', () => {
 });
 
 describe('PasswordResetForm – indicatore conferma', () => {
+  //TU-F_317
   it('mostra "Le password coincidono" quando confirm === new', async () => {
     renderForm();
     fireEvent.change(screen.getByLabelText(/^nuova password$/i),  { target: { value: VALID_NEW } });
@@ -148,6 +164,7 @@ describe('PasswordResetForm – indicatore conferma', () => {
     });
   });
 
+  //TU-F_318
   it('mostra "Le password non coincidono" quando confirm !== new', async () => {
     renderForm();
     fireEvent.change(screen.getByLabelText(/^nuova password$/i),  { target: { value: VALID_NEW } });
@@ -157,6 +174,7 @@ describe('PasswordResetForm – indicatore conferma', () => {
     });
   });
 
+  //TU-F_319
   it('non mostra l\'indicatore se il campo conferma è vuoto', () => {
     renderForm();
     expect(screen.queryByText(/le password/i)).not.toBeInTheDocument();
@@ -165,6 +183,7 @@ describe('PasswordResetForm – indicatore conferma', () => {
 
 // Submit valido
 describe('PasswordResetForm – submit valido', () => {
+  //TU-F_320
   it('chiama handleReset con old e new password corrette', async () => {
     const handleReset = vi.fn().mockResolvedValue(null);
     renderForm(handleReset);
@@ -175,6 +194,7 @@ describe('PasswordResetForm – submit valido', () => {
     });
   });
 
+  //TU-F_321
   it('non mostra errori dopo un submit valido', async () => {
     const handleReset = vi.fn().mockResolvedValue(null);
     renderForm(handleReset);
@@ -188,6 +208,7 @@ describe('PasswordResetForm – submit valido', () => {
 
 // Errore server
 describe('PasswordResetForm – errore server', () => {
+  //TU-F_322
   it('mostra il messaggio di errore restituito dal server', async () => {
     const handleReset = vi.fn().mockResolvedValue('Password attuale errata');
     renderForm(handleReset);
@@ -198,6 +219,7 @@ describe('PasswordResetForm – errore server', () => {
     });
   });
 
+  //TU-F_323
   it('cancella l\'errore server quando si modifica un campo', async () => {
     const handleReset = vi.fn().mockResolvedValue('Password attuale errata');
     renderForm(handleReset);

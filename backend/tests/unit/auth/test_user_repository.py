@@ -49,19 +49,19 @@ def valid_registration():
 
 
 class TestFindByUsername:
-    # TU-B_112
+    #TU-B_112
     def test_returns_utente_when_found(self, repo, executor, mock_utente):
         executor.execute_one_raw.return_value = mock_utente
         result = repo.find_by_username("testuser")
         assert result is mock_utente
 
-    # TU-B_113
+    #TU-B_113
     def test_returns_none_when_not_found(self, repo, executor):
         executor.execute_one_raw.return_value = None
         result = repo.find_by_username("nonexistent")
         assert result is None
 
-    # TU-B_114
+    #TU-B_114
     def test_delegates_to_executor(self, repo, executor):
         executor.execute_one_raw.return_value = None
         repo.find_by_username("testuser")
@@ -74,19 +74,19 @@ class TestFindByUsername:
 
 
 class TestFindByEmail:
-    # TU-B_115
+    #TU-B_115
     def test_returns_utente_when_found(self, repo, executor, mock_utente):
         executor.execute_one_raw.return_value = mock_utente
         result = repo.find_by_email("test@test.com")
         assert result is mock_utente
 
-    # TU-B_116
+    #TU-B_116
     def test_returns_none_when_not_found(self, repo, executor):
         executor.execute_one_raw.return_value = None
         result = repo.find_by_email("nonexistent@test.com")
         assert result is None
 
-    # TU-B_117
+    #TU-B_117
     def test_delegates_to_executor(self, repo, executor):
         executor.execute_one_raw.return_value = None
         repo.find_by_email("test@test.com")
@@ -99,7 +99,7 @@ class TestFindByEmail:
 
 
 class TestSave:
-    # TU-B_118
+    #TU-B_118
     def test_returns_true_on_success(self, repo, executor, valid_registration):
         executor.mutate_raw.return_value = True
         with patch(
@@ -108,7 +108,7 @@ class TestSave:
         ):
             assert repo.save(valid_registration) is True
 
-    # TU-B_119
+    #TU-B_119
     def test_returns_false_on_failure(self, repo, executor, valid_registration):
         executor.mutate_raw.return_value = False
         with patch(
@@ -117,7 +117,7 @@ class TestSave:
         ):
             assert repo.save(valid_registration) is False
 
-    # TU-B_120
+    #TU-B_120
     def test_delegates_to_executor(self, repo, executor, valid_registration):
         executor.mutate_raw.return_value = True
         with patch(
@@ -127,7 +127,7 @@ class TestSave:
             repo.save(valid_registration)
         executor.mutate_raw.assert_called_once()
 
-    # TU-B_121
+    #TU-B_121
     def test_password_is_hashed(self, repo, executor, valid_registration):
         executor.mutate_raw.return_value = True
         with patch(

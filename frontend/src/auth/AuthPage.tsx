@@ -30,7 +30,7 @@ export default function AuthPage() {
    */
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
+  const { initAuth } = useAuthStore();
 
   usePageTitle(isLogin ? 'Autenticazione' : 'Registrazione');
 
@@ -76,10 +76,9 @@ export default function AuthPage() {
         <div className="p-8 px-9">
           {isLogin ? (
             <Login onLogin={async () => {
-              const res = await fetch(`/auth/me`, { credentials: 'include' });
-              const data = await res.json();
-              setAuth(data.username, data.admin);
-              navigate(data.admin? '/history' : '/home')
+              await initAuth();
+              const { admin } = useAuthStore.getState();
+              navigate(admin ? '/history' : '/home');
             }} />
           ) : (
             <Register onRegister={() => setIsLogin(true)} />

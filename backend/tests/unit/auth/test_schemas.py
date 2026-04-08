@@ -14,18 +14,18 @@ VALID_EMAIL = "test@test.com"
 
 
 class TestUserSchema:
-    # TU-B_62
+    #TU-B_62
     def test_valid(self):
         u = UserSchema(username=VALID_USERNAME, password=VALID_PASSWORD)
         assert u.username == VALID_USERNAME
         assert u.password == VALID_PASSWORD
 
-    # TU-B_63
+    #TU-B_63
     def test_missing_username(self):
         with pytest.raises(ValidationError):
             UserSchema(password=VALID_PASSWORD)
 
-    # TU-B_64
+    #TU-B_64
     def test_missing_password(self):
         with pytest.raises(ValidationError):
             UserSchema(username=VALID_USERNAME)
@@ -37,17 +37,17 @@ class TestUserSchema:
 
 
 class TestAuthResponse:
-    # TU-B_65
+    #TU-B_65
     def test_ok_no_token(self):
         r = AuthResponse(ok=True, errors=[])
         assert r.token is None
 
-    # TU-B_66
+    #TU-B_66
     def test_ok_with_token(self):
         r = AuthResponse(ok=True, errors=[], token="abc")
         assert r.token == "abc"
 
-    # TU-B_67
+    #TU-B_67
     def test_not_ok_with_errors(self):
         r = AuthResponse(ok=False, errors=["errore"])
         assert r.ok is False
@@ -60,7 +60,7 @@ class TestAuthResponse:
 
 
 class TestUsernameValidator:
-    # TU-B_68
+    #TU-B_68
     def test_valid(self):
         u = UserRegistrationSchema(
             username=VALID_USERNAME,
@@ -70,7 +70,7 @@ class TestUsernameValidator:
         )
         assert u.username == VALID_USERNAME
 
-    # TU-B_69
+    #TU-B_69
     def test_too_short(self):
         with pytest.raises(ValidationError, match="username"):
             UserRegistrationSchema(
@@ -80,7 +80,7 @@ class TestUsernameValidator:
                 confirmPwd=VALID_PASSWORD,
             )
 
-    # TU-B_70
+    #TU-B_70
     def test_too_long(self):
         with pytest.raises(ValidationError, match="username"):
             UserRegistrationSchema(
@@ -90,7 +90,7 @@ class TestUsernameValidator:
                 confirmPwd=VALID_PASSWORD,
             )
 
-    # TU-B_71
+    #TU-B_71
     def test_special_chars_not_allowed(self):
         with pytest.raises(ValidationError, match="username"):
             UserRegistrationSchema(
@@ -100,7 +100,7 @@ class TestUsernameValidator:
                 confirmPwd=VALID_PASSWORD,
             )
 
-    # TU-B_72
+    #TU-B_72
     def test_exactly_4_chars(self):
         u = UserRegistrationSchema(
             username="abcd",
@@ -110,7 +110,7 @@ class TestUsernameValidator:
         )
         assert u.username == "abcd"
 
-    # TU-B_73
+    #TU-B_73
     def test_exactly_24_chars(self):
         u = UserRegistrationSchema(
             username="a" * 24,
@@ -127,7 +127,7 @@ class TestUsernameValidator:
 
 
 class TestPasswordValidator:
-    # TU-B_74
+    #TU-B_74
     def test_valid(self):
         u = UserRegistrationSchema(
             username=VALID_USERNAME,
@@ -137,7 +137,7 @@ class TestPasswordValidator:
         )
         assert u.password == VALID_PASSWORD
 
-    # TU-B_75
+    #TU-B_75
     def test_too_short(self):
         with pytest.raises(ValidationError, match="password"):
             UserRegistrationSchema(
@@ -147,7 +147,7 @@ class TestPasswordValidator:
                 confirmPwd="Ab1!",
             )  # NOSONAR
 
-    # TU-B_76
+    #TU-B_76
     def test_too_long(self):
         with pytest.raises(ValidationError, match="password"):
             UserRegistrationSchema(
@@ -157,7 +157,7 @@ class TestPasswordValidator:
                 confirmPwd="Ab1!" + "a" * 21,
             )
 
-    # TU-B_77
+    #TU-B_77
     def test_missing_uppercase(self):
         with pytest.raises(ValidationError, match="password"):
             UserRegistrationSchema(
@@ -167,7 +167,7 @@ class TestPasswordValidator:
                 confirmPwd="password1!",
             )
 
-    # TU-B_78
+    #TU-B_78
     def test_missing_lowercase(self):
         with pytest.raises(ValidationError, match="password"):
             UserRegistrationSchema(
@@ -177,7 +177,7 @@ class TestPasswordValidator:
                 confirmPwd="PASSWORD1!",
             )
 
-    # TU-B_79
+    #TU-B_79
     def test_missing_digit(self):
         with pytest.raises(ValidationError, match="password"):
             UserRegistrationSchema(
@@ -187,7 +187,7 @@ class TestPasswordValidator:
                 confirmPwd="Password!",
             )
 
-    # TU-B_80
+    #TU-B_80
     def test_missing_special_char(self):
         with pytest.raises(ValidationError, match="password"):
             UserRegistrationSchema(
@@ -204,7 +204,7 @@ class TestPasswordValidator:
 
 
 class TestEmailValidator:
-    # TU-B_81
+    #TU-B_81
     def test_valid(self):
         u = UserRegistrationSchema(
             username=VALID_USERNAME,
@@ -214,7 +214,7 @@ class TestEmailValidator:
         )
         assert u.email == VALID_EMAIL
 
-    # TU-B_82
+    #TU-B_82
     def test_missing_at(self):
         with pytest.raises(ValidationError, match="email"):
             UserRegistrationSchema(
@@ -224,7 +224,7 @@ class TestEmailValidator:
                 confirmPwd=VALID_PASSWORD,
             )
 
-    # TU-B_83
+    #TU-B_83
     def test_missing_dot_in_domain(self):
         with pytest.raises(ValidationError, match="email"):
             UserRegistrationSchema(
@@ -234,7 +234,7 @@ class TestEmailValidator:
                 confirmPwd=VALID_PASSWORD,
             )
 
-    # TU-B_84
+    #TU-B_84
     def test_spaces_not_allowed(self):
         with pytest.raises(ValidationError, match="email"):
             UserRegistrationSchema(
@@ -251,7 +251,7 @@ class TestEmailValidator:
 
 
 class TestConfirmPasswordValidator:
-    # TU-B_85
+    #TU-B_85
     def test_passwords_match(self):
         u = UserRegistrationSchema(
             username=VALID_USERNAME,
@@ -261,7 +261,7 @@ class TestConfirmPasswordValidator:
         )
         assert u.confirmPwd == VALID_PASSWORD
 
-    # TU-B_86
+    #TU-B_86
     def test_passwords_mismatch(self):
         with pytest.raises(ValidationError, match="coincidono"):
             UserRegistrationSchema(

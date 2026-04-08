@@ -7,6 +7,7 @@ import { DettaglioModal } from './DettaglioModal';
 import { Paginazione } from './Paginazione';
 import { NavBar } from '../chat/NavBar';
 import { Profile } from '../chat/Profile';
+import { useNavigate } from 'react-router-dom';
 
 export const StoricoView: React.FC = () => {
   /**
@@ -31,8 +32,9 @@ export const StoricoView: React.FC = () => {
   const [dataInizio, setDataInizio] = useState('');
   const [dataFine, setDataFine] = useState('');
   const filtroRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
-  const title = admin === 'admin' ? 'Storico Ordini (Admin)' : 'Storico Ordini';
+  const title = admin ? 'Storico Ordini (Admin)' : 'Storico Ordini';
   usePageTitle(title);
 
   const {
@@ -82,9 +84,10 @@ export const StoricoView: React.FC = () => {
     caricaPagina(1, '', '');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    navigate('/');
     clearAuth();
-    globalThis.location.href = '/';
   };
 
   const handleProfile = () => {

@@ -3,7 +3,9 @@ import bcrypt
 
 from passlib.context import CryptContext
 
-SECRET_KEY: str = os.getenv("SECRET_KEY", "")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY non configurata!")
 ALGORITHM = "HS256"
 TOKEN_EXPIRY_HOURS = 24
 

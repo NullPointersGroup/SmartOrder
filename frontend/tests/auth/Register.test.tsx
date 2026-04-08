@@ -26,6 +26,7 @@ function renderInRouter(ui: React.ReactElement) {
 }
 
 describe('Register', () => {
+  //TU-F_58
   it('mostra titolo e 4 campi', () => {
     renderInRouter(<Register onRegister={vi.fn()} />);
     expect(screen.getByText(/crea account/i)).toBeInTheDocument();
@@ -33,6 +34,7 @@ describe('Register', () => {
     expect(screen.getAllByRole('textbox').length + document.querySelectorAll('input[type="password"]').length).toBe(4);
   });
 
+  //TU-F_59
   it('username < 4 char: mostra errore inline', async () => {
     renderInRouter(<Register onRegister={vi.fn()} />);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'ab' } });
@@ -40,6 +42,7 @@ describe('Register', () => {
     await waitFor(() => expect(screen.getByText(/tra 4 e 24/i)).toBeInTheDocument());
   });
 
+  //TU-F_60
   it('email non valida: mostra errore inline', async () => {
     renderInRouter(<Register onRegister={vi.fn()} />);
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nonvalida' } });
@@ -47,6 +50,7 @@ describe('Register', () => {
     await waitFor(() => expect(screen.getByText(/email non valida/i)).toBeInTheDocument());
   });
 
+  //TU-F_61
   it('password non conforme: mostra errore inline (RF-OB_11)', async () => {
     renderInRouter(<Register onRegister={vi.fn()} />);
     const [pwdField] = screen.getAllByLabelText(/password/i);
@@ -57,6 +61,7 @@ describe('Register', () => {
     );
   });
 
+  //TU-F_62
   it('password non coincide: mostra errore (RF-OB_16)', async () => {
     renderInRouter(<Register onRegister={vi.fn()} />);
     const [pwdField, confirmField] = screen.getAllByLabelText(/password/i);
@@ -66,6 +71,7 @@ describe('Register', () => {
     await waitFor(() => expect(screen.getByText(/non coincidono/i)).toBeInTheDocument());
   });
 
+  //TU-F_63
   it('ok=true: chiama onRegister (RF-OB_22)', async () => {
     const onRegister = vi.fn();
     const { register: registerApi } = await import('../../src/auth/AuthAPI');
@@ -82,6 +88,7 @@ describe('Register', () => {
     await waitFor(() => expect(onRegister).toHaveBeenCalled());
   });
 
+  //TU-F_64
   it('ok=false: mostra errore server (RF-OB_04)', async () => {
     const { register: registerApi } = await import('../../src/auth/AuthAPI');
     vi.mocked(registerApi).mockResolvedValue({ ok: false, errors: ['Username già esistente'] });

@@ -85,7 +85,7 @@ client = TestClient(app, raise_server_exceptions=False)
 # ─── GET /storico/miei ────────────────────────────────────────────────────────
 
 class TestGetStoricoCliente:
-
+    #TU-B_224
     def test_restituisce_ordini(self):
         service = mock_service()
         override_user()
@@ -99,7 +99,8 @@ class TestGetStoricoCliente:
         assert body["totale_pagine"] == 3
         assert len(body["ordini"]) == 1
         assert body["ordini"][0]["codice_ordine"] == "1"
-
+    
+    #TU-B_243
     def test_chiama_service_con_username_corretto(self):
         service = mock_service()
         override_user("mario")
@@ -109,6 +110,7 @@ class TestGetStoricoCliente:
 
         service.get_ordini_cliente.assert_called_once_with("mario", 2, 5, None, None)
 
+    #TU-B_244
     def test_404_se_nessun_ordine(self):
         service = mock_service()
         service.get_ordini_cliente.side_effect = OrdiniUsernameNotFoundException("mario")
@@ -119,6 +121,7 @@ class TestGetStoricoCliente:
 
         assert res.status_code == 404
 
+    #TU-B_245
     def test_pagina_minima_1(self):
         override_user()
         override_service(mock_service())
@@ -127,6 +130,7 @@ class TestGetStoricoCliente:
 
         assert res.status_code == 422
 
+    #TU-B_246
     def test_per_pagina_massimo_50(self):
         override_user()
         override_service(mock_service())
@@ -140,6 +144,7 @@ class TestGetStoricoCliente:
 
 class TestGetStoricoAdmin:
 
+    #TU-B_247
     def test_restituisce_tutti_gli_ordini(self):
         service = mock_service()
         override_admin(ok=True)
@@ -151,6 +156,7 @@ class TestGetStoricoAdmin:
         body = res.json()
         assert body["ordini"][0]["username"] == "cliente1"
 
+    #TU-B_248
     def test_chiama_service_con_paginazione(self):
         service = mock_service()
         override_admin(ok=True)
@@ -160,6 +166,7 @@ class TestGetStoricoAdmin:
 
         service.get_ordini_admin.assert_called_once_with(2, 20, None, None)
 
+    #TU-B_249
     def test_403_se_non_admin(self):
         override_admin(ok=False)
         override_service(mock_service())
@@ -168,6 +175,7 @@ class TestGetStoricoAdmin:
 
         assert res.status_code == 403
 
+    #TU-B_250
     def test_pagina_minima_1(self):
         override_admin(ok=True)
         override_service(mock_service())
@@ -181,6 +189,7 @@ class TestGetStoricoAdmin:
 
 class TestDuplicaOrdine:
 
+    #TU-B_251
     def test_duplica_con_successo(self):
         service = mock_service()
         override_user("mario")
@@ -191,6 +200,7 @@ class TestDuplicaOrdine:
         assert res.status_code == 201
         assert res.json() == {"detail": "Ordine duplicato con successo"}
 
+    #TU-B_252
     def test_chiama_service_con_parametri_corretti(self):
         service = mock_service()
         override_user("mario")
@@ -200,6 +210,7 @@ class TestDuplicaOrdine:
 
         service.duplica_ordine.assert_called_once_with("99", "mario")
 
+    #TU-B_253
     def test_404_se_ordine_non_trovato(self):
         service = mock_service()
         service.duplica_ordine.side_effect = OrdineNotFoundException("99")

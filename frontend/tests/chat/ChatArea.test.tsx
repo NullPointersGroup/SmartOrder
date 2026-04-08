@@ -50,11 +50,13 @@ function makeGetUserMediaMock(stream?: MediaStream) {
 // Render base
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – render base', () => {
+  //TU-F_93
   it('ha il ruolo main con aria-label "Area chat"', () => {
     renderChat();
     expect(screen.getByRole('main', { name: /area chat/i })).toBeInTheDocument();
   });
 
+  //TU-F_94
   it('mostra il log dei messaggi', () => {
     renderChat();
     expect(screen.getByRole('log')).toBeInTheDocument();
@@ -65,22 +67,26 @@ describe('ChatArea – render base', () => {
 // Messaggi
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – messaggi', () => {
+  //TU-F_95
   it('mostra tutti i messaggi', () => {
     renderChat({ messages: messages })
     expect(screen.getByText('Ciao chatbot!')).toBeInTheDocument();
     expect(screen.getByText('Come posso aiutarti?')).toBeInTheDocument();
   });
 
+  //TU-F_96
   it('mostra il messaggio "Nessun messaggio" se la lista è vuota', () => {
     renderChat({ messages: [], isLoading: false });
     expect(screen.getByText(/nessun messaggio ancora/i)).toBeInTheDocument();
   });
 
+  //TU-F_97
   it('i messaggi dell\'utente hanno aria-label corretto', () => {
     renderChat({ messages });
     expect(screen.getByRole('article', { name: /messaggio di te/i })).toBeInTheDocument();
   });
 
+  //TU-F_98
   it('i messaggi del chatbot hanno aria-label corretto', () => {
     renderChat({ messages });
     expect(screen.getByRole('article', { name: /messaggio di chatbot/i })).toBeInTheDocument();
@@ -91,26 +97,31 @@ describe('ChatArea – messaggi', () => {
 // Stati di loading
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – stati di loading', () => {
+  //TU-F_99
   it('mostra lo spinner di caricamento messaggi con isLoading=true', () => {
     renderChat({ isLoading: true });
     expect(screen.getByLabelText(/caricamento messaggi/i)).toBeInTheDocument();
   });
 
+  //TU-F_100
   it('non mostra lo spinner con isLoading=false', () => {
     renderChat({ isLoading: false });
     expect(screen.queryByLabelText(/caricamento messaggi/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_101
   it('mostra il typing indicator quando isSending=true', () => {
     renderChat({ isSending: true });
     expect(screen.getByLabelText(/il chatbot sta scrivendo/i)).toBeInTheDocument();
   });
 
+  //TU-F_102
   it('non mostra il typing indicator quando isSending=false', () => {
     renderChat({ isSending: false });
     expect(screen.queryByLabelText(/il chatbot sta scrivendo/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_103
   it('disabilita textarea e pulsanti durante isSending', () => {
     renderChat({ isSending: true, inputText: 'testo' });
     expect(screen.getByRole('textbox')).toBeDisabled();
@@ -122,32 +133,38 @@ describe('ChatArea – stati di loading', () => {
 // isTranscribing
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – isTranscribing', () => {
+  //TU-F_104
   it('mostra il placeholder "Trascrizione in corso…" durante la trascrizione', () => {
     renderChat({ isTranscribing: true });
     expect(screen.getByPlaceholderText(/trascrizione in corso/i)).toBeInTheDocument();
   });
 
+  //TU-F_105
   it('la textarea è disabilitata durante la trascrizione', () => {
     renderChat({ isTranscribing: true });
     expect(screen.getByRole('textbox')).toBeDisabled();
   });
 
+  //TU-F_106
   it('mostra il banner "Trascrizione in corso…" visibile nell\'UI durante isTranscribing=true', () => {
     renderChat({ isTranscribing: true });
     const banners = screen.getAllByText(/trascrizione in corso/i);
     expect(banners.length).toBeGreaterThanOrEqual(1);
   });
 
+  //TU-F_107
   it('non mostra il banner di trascrizione quando isTranscribing=false', () => {
     renderChat({ isTranscribing: false });
     expect(screen.queryByPlaceholderText(/trascrizione in corso/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_108
   it('il pulsante Invia rimane disabilitato durante la trascrizione anche con testo', () => {
     renderChat({ isTranscribing: true, inputText: 'testo precedente' });
     expect(screen.getByRole('textbox')).toBeDisabled();
   });
 
+  //TU-F_109
   it('useEffect mette il focus sulla textarea quando isTranscribing torna false e inputText è valorizzato', async () => {
     const focusSpy = vi.spyOn(HTMLTextAreaElement.prototype, 'focus');
 
@@ -173,6 +190,7 @@ describe('ChatArea – isTranscribing', () => {
     focusSpy.mockRestore();
   });
 
+  //TU-F_110
   it('useEffect NON mette il focus se inputText è vuoto anche quando isTranscribing=false', async () => {
     const focusSpy = vi.spyOn(HTMLTextAreaElement.prototype, 'focus');
 
@@ -208,6 +226,7 @@ describe('ChatArea – input e invio', () => {
     defaultProps.onSend = vi.fn();
   });
 
+  //TU-F_111
   it('chiama onInputChange quando si scrive nella textarea', () => {
     const onInputChange = vi.fn();
     renderChat({ onInputChange });
@@ -215,6 +234,7 @@ describe('ChatArea – input e invio', () => {
     expect(onInputChange).toHaveBeenCalledWith('Ciao');
   });
 
+  //TU-F_112
   it('chiama onSend al click del pulsante Invia', () => {
     const onSend = vi.fn();
     renderChat({ inputText: 'Ciao', onSend });
@@ -222,6 +242,7 @@ describe('ChatArea – input e invio', () => {
     expect(onSend).toHaveBeenCalledTimes(1);
   });
 
+  //TU-F_113
   it('chiama onSend premendo Invio nella textarea', () => {
     const onSend = vi.fn();
     renderChat({ inputText: 'Ciao', onSend });
@@ -229,6 +250,7 @@ describe('ChatArea – input e invio', () => {
     expect(onSend).toHaveBeenCalledTimes(1);
   });
 
+  //TU-F_114
   it('NON chiama onSend premendo Shift+Invio (va a capo)', () => {
     const onSend = vi.fn();
     renderChat({ inputText: 'Ciao', onSend });
@@ -241,17 +263,20 @@ describe('ChatArea – input e invio', () => {
 // Limite caratteri
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – limite caratteri', () => {
+  //TU-F_115
   it('mostra il contatore dei caratteri', () => {
     renderChat({ inputText: 'Ciao' });
     expect(screen.getByText(/4\.096|4096/)).toBeInTheDocument();
   });
 
+  //TU-F_116
   it('disabilita il pulsante Invia se si supera il limite di 4096 caratteri', () => {
     const longText = 'a'.repeat(4097);
     renderChat({ inputText: longText });
     expect(screen.getByRole('button', { name: /invia messaggio/i })).toBeDisabled();
   });
 
+  //TU-F_117
   it('il pulsante Invia è abilitato esattamente a 4096 caratteri', () => {
     const maxText = 'a'.repeat(4096);
     renderChat({ inputText: maxText });
@@ -263,12 +288,14 @@ describe('ChatArea – limite caratteri', () => {
 // sidebarOpen
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – sidebarOpen', () => {
+  //TU-F_118
   it('aggiunge classe sticky bottom-0 z-10 quando sidebarOpen=true', () => {
     const { container } = renderChat({ sidebarOpen: true });
     const inputBar = container.querySelector('.sticky');
     expect(inputBar).toBeInTheDocument();
   });
 
+  //TU-F_119
   it('non aggiunge classe sticky quando sidebarOpen=false (default)', () => {
     const { container } = renderChat({ sidebarOpen: false });
     const inputBar = container.querySelector('.sticky');
@@ -280,11 +307,13 @@ describe('ChatArea – sidebarOpen', () => {
 // Pulsanti audio
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – pulsanti audio', () => {
+  //TU-F_120
   it('mostra il pulsante microfono', () => {
     renderChat({  });
     expect(screen.getByRole('button', { name: /registra messaggio vocale/i })).toBeInTheDocument();
   });
 
+  //TU-F_121
   it('mostra il pulsante allega file audio', () => {
     renderChat({  });
     expect(screen.getByRole('button', { name: /allega file audio/i })).toBeInTheDocument();
@@ -312,6 +341,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     vi.restoreAllMocks();
   });
 
+  //TU-F_122
   it('non fa nulla se isSending=true (guard)', async () => {
     const { Ctor } = makeMediaRecorderMock();
     globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
@@ -326,6 +356,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     expect(Ctor).not.toHaveBeenCalled();
   });
 
+  //TU-F_123
   it('avvia la registrazione e mostra il banner "Registrazione in corso"', async () => {
     const { Ctor } = makeMediaRecorderMock();
     globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
@@ -342,6 +373,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     expect(screen.getByText(/registrazione in corso/i)).toBeInTheDocument();
   });
 
+  //TU-F_124
   it('dopo l\'avvio il pulsante cambia aria-label a "Ferma registrazione"', async () => {
     const { Ctor } = makeMediaRecorderMock();
     globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
@@ -358,6 +390,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     expect(screen.getByRole('button', { name: /ferma registrazione/i })).toBeInTheDocument();
   });
 
+  //TU-F_125
   it('chiama recorder.start() quando si avvia la registrazione', async () => {
     const { Ctor, instance } = makeMediaRecorderMock();
     globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
@@ -374,6 +407,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     expect(instance.start).toHaveBeenCalledTimes(1);
   });
 
+  //TU-F_126
   it('ferma la registrazione al secondo click e chiama recorder.stop()', async () => {
     const { Ctor, instance } = makeMediaRecorderMock();
     globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
@@ -394,6 +428,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     expect(screen.queryByText(/registrazione in corso/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_127
   it('onstop chiama onAudioRecord con il blob e ferma i track', async () => {
     const onAudioRecord = vi.fn();
     const stopTrack = vi.fn();
@@ -419,6 +454,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     expect(stopTrack).toHaveBeenCalled();
   });
 
+  //TU-F_128
   it('ondataavailable ignora chunk con size=0', async () => {
     const onAudioRecord = vi.fn();
     const { Ctor, instance } = makeMediaRecorderMock();
@@ -440,6 +476,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     expect(onAudioRecord).toHaveBeenCalledTimes(1);
   });
 
+  //TU-F_129
   it('mostra alert se getUserMedia fallisce', async () => {
     const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
     const { Ctor } = makeMediaRecorderMock();
@@ -457,6 +494,7 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
     );
   });
 
+  //TU-F_130
   it('auto-ferma la registrazione dopo 120 secondi e mostra errore', async () => {
     vi.useFakeTimers();
     const { Ctor, instance } = makeMediaRecorderMock();
@@ -487,13 +525,14 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
 // handleClipClick
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – handleClipClick', () => {
+  //TU-F_131
   it('non fa nulla se isSending=true (pulsante disabilitato)', () => {
     renderChat({ isSending: true });
     const btn = screen.getByRole('button', { name: /allega file audio/i });
     expect(btn).toBeDisabled();
   });
 
-  // ── NUOVA COPERTURA: righe 202-203 ────────────────────────────────────────
+  //TU-F_132
   it('chiama click() sull\'input file nascosto quando isSending=false (riga 202-203)', () => {
     const { container } = renderChat({ isSending: false });
 
@@ -537,6 +576,7 @@ describe('ChatArea – handleFileChange', () => {
     fireEvent.change(input);
   }
 
+  //TU-F_133
   it('ignora il change se non è selezionato nessun file', () => {
     const onAudioAttach = vi.fn();
     const { container } = renderChat({ onAudioAttach });
@@ -546,6 +586,7 @@ describe('ChatArea – handleFileChange', () => {
     expect(onAudioAttach).not.toHaveBeenCalled();
   });
 
+  //TU-F_134
   it('mostra alert e non chiama onAudioAttach se il file supera 10 MB', () => {
     const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
     const onAudioAttach = vi.fn();
@@ -556,6 +597,7 @@ describe('ChatArea – handleFileChange', () => {
     expect(onAudioAttach).not.toHaveBeenCalled();
   });
 
+  //TU-F_135
   it('chiama onAudioAttach con file valido (dimensione ok, durata ok)', () => {
     const onAudioAttach = vi.fn();
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
@@ -577,6 +619,7 @@ describe('ChatArea – handleFileChange', () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock');
   });
 
+  //TU-F_136
   it('mostra alert se la durata supera 120 minuti', () => {
     const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
     const onAudioAttach = vi.fn();
@@ -598,6 +641,7 @@ describe('ChatArea – handleFileChange', () => {
     expect(onAudioAttach).not.toHaveBeenCalled();
   });
 
+  //TU-F_137
   it('mostra alert se il file audio è corrotto (onerror)', () => {
     const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
@@ -622,16 +666,19 @@ describe('ChatArea – handleFileChange', () => {
 // Accessibilità
 // ════════════════════════════════════════════════════════════════════════════
 describe('ChatArea – accessibilità', () => {
+  //TU-F_138
   it('la textarea ha aria-label corretto', () => {
     renderChat({  });
     expect(screen.getByLabelText(/campo di testo per il messaggio/i)).toBeInTheDocument();
   });
 
+  //TU-F_139
   it('il pulsante Invia ha aria-label corretto', () => {
     renderChat({  });
     expect(screen.getByRole('button', { name: /invia messaggio/i })).toBeInTheDocument();
   });
 
+  //TU-F_140
   it('mostra hint per la shortcut Shift+Invio', () => {
     renderChat({  });
     expect(screen.getByText(/shift\+invio/i)).toBeInTheDocument();

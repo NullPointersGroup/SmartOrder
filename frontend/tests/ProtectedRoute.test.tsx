@@ -1,21 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ProtectedRoute } from '../src/ProtectedRoute';
 import { useAuthStore } from '../src/auth/authStore';
-
-function mockFetch(status: number, body: unknown) {
-  return vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-    new Response(JSON.stringify(body), {
-      status,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  );
-}
-
-function mockFetchReject(error: unknown) {
-  return vi.spyOn(globalThis, 'fetch').mockRejectedValue(error);
-}
 
 function renderProtectedRoute(children: React.ReactNode = <div>Contenuto protetto</div>) {
   return render(
@@ -28,67 +15,75 @@ function renderProtectedRoute(children: React.ReactNode = <div>Contenuto protett
 describe('ProtectedRoute', () => {
   afterEach(() => {
     vi.restoreAllMocks();
-    useAuthStore.setState({ username: null, isAuthenticated: false });
+    useAuthStore.setState({ username: null, isAuthenticated: false, admin: null, loggedOut: false });
   });
 
-  it('mostra il loading durante la verifica', () => {
-    mockFetch(200, { username: 'mario' });
+  //TU-F_03
+  it('renderizza i children se isAuthenticated=true', () => {
+    useAuthStore.setState({ isAuthenticated: true });
     renderProtectedRoute();
-    expect(screen.getByText(/verifica in corso/i)).toBeInTheDocument();
+    expect(screen.getByText('Contenuto protetto')).toBeInTheDocument();
   });
 
-  it('renderizza i children se /me risponde ok', async () => {
-    mockFetch(200, { username: 'mario' });
-    renderProtectedRoute(<div>Contenuto protetto</div>);
-    await waitFor(() => {
-      expect(screen.getByText('Contenuto protetto')).toBeInTheDocument();
-    });
-  });
-
-  it('reindirizza a /unauthorized se /me risponde con errore', async () => {
-    mockFetch(401, {});
+  //TU-F_04
+  it('reindirizza a /unauthorized se non autenticato e loggedOut=false', () => {
+    useAuthStore.setState({ isAuthenticated: false, loggedOut: false });
     renderProtectedRoute();
-    await waitFor(() => {
-      expect(screen.queryByText(/verifica in corso/i)).not.toBeInTheDocument();
-    });
-    // Navigate redirige — i children non devono essere presenti
     expect(screen.queryByText('Contenuto protetto')).not.toBeInTheDocument();
   });
 
-  it('reindirizza a /unauthorized se fetch lancia eccezione', async () => {
-    mockFetchReject(new TypeError('Failed to fetch'));
+  //TU-F_05
+  it('reindirizza a / se non autenticato e loggedOut=true', () => {
+    useAuthStore.setState({ isAuthenticated: false, loggedOut: true });
     renderProtectedRoute();
-    await waitFor(() => {
-      expect(screen.queryByText(/verifica in corso/i)).not.toBeInTheDocument();
-    });
     expect(screen.queryByText('Contenuto protetto')).not.toBeInTheDocument();
   });
 
-  it('chiama setAuth con lo username corretto', async () => {
-    mockFetch(200, { username: 'mario' });
-    renderProtectedRoute();
-    await waitFor(() => {
-      expect(useAuthStore.getState().username).toBe('mario');
-      expect(useAuthStore.getState().isAuthenticated).toBe(true);
-    });
+  //TU-F_06
+  it('non mostra i children se isAuthenticated=false', () => {
+    useAuthStore.setState({ isAuthenticated: false });
+    renderProtectedRoute(<div>Segreto</div>);
+    expect(screen.queryByText('Segreto')).not.toBeInTheDocument();
   });
 
-  it('chiama clearAuth in caso di errore', async () => {
-    useAuthStore.setState({ username: 'mario', isAuthenticated: true });
-    mockFetch(403, {});
-    renderProtectedRoute();
-    await waitFor(() => {
-      expect(useAuthStore.getState().username).toBeNull();
-      expect(useAuthStore.getState().isAuthenticated).toBe(false);
-    });
+  //TU-F_07
+  it('renderizza children diversi se autenticato', () => {
+    useAuthStore.setState({ isAuthenticated: true });
+    renderProtectedRoute(<span>Dashboard</span>);
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
-  it('chiama /auth/me con credentials include', async () => {
-    const spy = mockFetch(200, { username: 'mario' });
-    renderProtectedRoute();
-    await waitFor(() => screen.queryByText(/verifica in corso/i) === null);
-    const [url, options] = spy.mock.calls[0] as [string, RequestInit];
-    expect(url).toContain('/auth/me');
-    expect(options.credentials).toBe('include');
+  //TU-F_08
+  it('reindirizza effettivamente a /unauthorized', () => {
+    useAuthStore.setState({ isAuthenticated: false, loggedOut: false });
+
+    render(
+      <MemoryRouter initialEntries={['/protected']}>
+        <ProtectedRoute>
+          <div>Protetto</div>
+        </ProtectedRoute>
+        <div>Pagina Unauthorized</div>
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByText('Protetto')).not.toBeInTheDocument();
+    expect(screen.getByText('Pagina Unauthorized')).toBeInTheDocument();
+  });
+
+  //TU-F_09
+  it('reindirizza effettivamente a / quando loggedOut=true', () => {
+    useAuthStore.setState({ isAuthenticated: false, loggedOut: true });
+
+    render(
+      <MemoryRouter initialEntries={['/protected']}>
+        <ProtectedRoute>
+          <div>Protetto</div>
+        </ProtectedRoute>
+        <div>Home</div>
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByText('Protetto')).not.toBeInTheDocument();
+    expect(screen.getByText('Home')).toBeInTheDocument();
   });
 });

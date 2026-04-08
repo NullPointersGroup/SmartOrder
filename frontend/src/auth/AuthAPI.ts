@@ -51,9 +51,9 @@ async function authFetch(endpoint: string, body: object): Promise<AuthResponse> 
 /* Fanno una chiamata agli endpoint */
 
 export async function login(dto: LoginDto): Promise<AuthResponse> {
-  return authFetch('/auth/login', dto);
+  return authFetch('/api/auth/login', dto);
 }
 
 export async function register(dto: RegisterDto): Promise<AuthResponse> {
-  return authFetch('/auth/register', dto);
+  return authFetch('/api/auth/register', dto);
 }

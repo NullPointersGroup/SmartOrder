@@ -15,7 +15,7 @@ class FakeTool:
         self.invocations.append(args)
         return self._result
 
-
+#TU-B_225
 def test_get_tool_by_name_returns_matching_tool():
     target_tool = FakeTool(name="search", result="done")
     executor = ToolExecutor(tools=[target_tool, FakeTool(name="other", result="x")])
@@ -24,7 +24,7 @@ def test_get_tool_by_name_returns_matching_tool():
 
     assert result is target_tool
 
-
+#TU-B_226
 def test_execute_invokes_selected_tool_with_args():
     tool = FakeTool(name="search", result="done")
     executor = ToolExecutor(tools=[tool])
@@ -34,7 +34,7 @@ def test_execute_invokes_selected_tool_with_args():
     assert result == "done"
     assert tool.invocations == [{"query": "pasta"}]
 
-
+#TU-B_227
 def test_get_tool_by_name_raises_when_missing():
     executor = ToolExecutor(tools=[])
 
