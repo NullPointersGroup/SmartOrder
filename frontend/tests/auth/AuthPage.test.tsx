@@ -4,8 +4,21 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AuthPage from '../../src/auth/AuthPage';
 
-const mockNavigate = vi.fn();
-const mockSetAuth = vi.fn();
+const { mockNavigate, mockSetAuth, mockInitAuth, mockUseAuthStore } = vi.hoisted(() => {
+  const mockNavigate = vi.fn();
+  const mockSetAuth = vi.fn();
+  const mockInitAuth = vi.fn().mockResolvedValue(undefined);
+
+  const mockUseAuthStore = Object.assign(
+    vi.fn((selector?: (s: unknown) => unknown) => {
+      const state = { setAuth: mockSetAuth, initAuth: mockInitAuth };
+      return selector ? selector(state) : state;
+    }),
+    { getState: () => ({ admin: false }) }
+  );
+
+  return { mockNavigate, mockSetAuth, mockInitAuth, mockUseAuthStore };
+});
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
@@ -13,10 +26,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 vi.mock('../../src/auth/authStore', () => ({
-  useAuthStore: vi.fn((selector) => {
-    const state = { setAuth: mockSetAuth };
-    return selector ? selector(state) : state;
-  }),
+  useAuthStore: mockUseAuthStore,
 }));
 
 vi.mock('../../src/hooks/usePageTitle', () => ({ usePageTitle: vi.fn() }));
@@ -26,7 +36,6 @@ vi.mock('../../src/auth/AuthAPI', () => ({
   register: vi.fn(),
 }));
 
-// Mock di fetch con admin false
 vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
   ok: true,
   json: () => Promise.resolve({ username: 'mario', admin: false }),
@@ -40,11 +49,12 @@ describe('AuthPage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
     mockSetAuth.mockClear();
+    mockInitAuth.mockClear();
     vi.mocked(globalThis.fetch).mockClear();
   });
 
   //TU-F_22
-  it('onLogin ok: chiama /auth/me, setAuth con username e naviga a /home', async () => {
+  it('onLogin ok: chiama initAuth e naviga a /home', async () => {
     const { login: loginApi } = await import('../../src/auth/AuthAPI');
     vi.mocked(loginApi).mockResolvedValue({ ok: true, errors: [] });
 
@@ -54,13 +64,7 @@ describe('AuthPage', () => {
     fireEvent.click(screen.getByTestId('submit-btn'));
 
     await waitFor(() => {
-      // Verifica che la fetch a /auth/me sia stata chiamata
-      expect(globalThis.fetch).toHaveBeenCalledWith('/auth/me', expect.anything());
-    });
-
-    await waitFor(() => {
-      // Ora verifica che setAuth sia stato chiamato con username e admin false
-      expect(mockSetAuth).toHaveBeenCalledWith('mario', false);
+      expect(mockInitAuth).toHaveBeenCalledTimes(1);
       expect(mockNavigate).toHaveBeenCalledWith('/home');
     });
   });

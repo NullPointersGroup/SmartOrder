@@ -1,4 +1,3 @@
-// NavBar.tsx
 import { useRef, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../auth/authStore';

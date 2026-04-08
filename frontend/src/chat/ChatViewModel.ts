@@ -262,7 +262,7 @@ export function useChatViewModel() {
   // ── Logout ────────────────────────────────────────────────────────────────
   const logout = useCallback(async () => {
     await ChatModel.logout().catch(() => {});
-    clearAuth();   // setta loggedOut: true → ProtectedRoute manda a /
+    clearAuth();
   }, [clearAuth]);
 
   // ── Invia ordine ──────────────────────────────────────────────────────────

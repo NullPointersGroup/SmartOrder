@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 
 import { StoricoView } from '../../src/storico/StoricoView';
 
@@ -7,14 +7,22 @@ import { StoricoView } from '../../src/storico/StoricoView';
 
 const mockClearAuth = vi.fn();
 vi.mock('../../src/auth/authStore', () => ({
-  useAuthStore: vi.fn((selector: (s: AuthState) => unknown) =>
-    selector({
+  useAuthStore: vi.fn((selector?: (s: AuthState) => unknown) => {
+    const state = {
       username: 'mario',
       admin: null,
       clearAuth: mockClearAuth,
-    })
-  ),
+    };
+    return selector ? selector(state) : state;  // ← gestisce con e senza selector
+  }),
 }));
+
+const mockNavigate = vi.fn();
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return { ...actual, useNavigate: () => mockNavigate };
+});
 
 // ─── Mock usePageTitle ────────────────────────────────────────────────────────
 
@@ -154,6 +162,11 @@ vi.mock('../../src/storico/DettaglioModal', () => ({
   ),
 }));
 
+vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve({}),
+}));
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function renderView() {
@@ -163,12 +176,14 @@ function renderView() {
 // ─── Setup / Teardown ─────────────────────────────────────────────────────────
 
 beforeEach(() => {
+  vi.mocked(globalThis.fetch).mockClear();
   vmOverrides = {};
   mockCaricaPagina.mockReset();
   mockApriDettaglio.mockReset();
   mockChiudiDettaglio.mockReset();
   mockDuplicaOrdine.mockReset();
   mockClearAuth.mockReset();
+  mockNavigate.mockClear();
 });
 
 afterEach(() => vi.clearAllMocks());
@@ -435,28 +450,26 @@ describe('StoricoView – profilo', () => {
 // ─── Logout ───────────────────────────────────────────────────────────────────
 
 describe('StoricoView – logout', () => {
-  beforeEach(() => {
-    Object.defineProperty(globalThis, 'location', {
-      value:    { href: '' },
-      writable: true,
+
+  //TU-F_460
+  it('chiama clearAuth e reindirizza a "/" al click su logout nella NavBar', async () => {
+    renderView();
+    fireEvent.click(screen.getByTitle('Logout'));
+    await waitFor(() => {
+      expect(mockClearAuth).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 
-  //TU-F_460
-  it('chiama clearAuth e reindirizza a "/" al click su logout nella NavBar', () => {
-    renderView();
-    fireEvent.click(screen.getByTitle('Logout'));
-    expect(mockClearAuth).toHaveBeenCalledTimes(1);
-    expect(globalThis.location.href).toBe('/');
-  });
-
   //TU-F_461
-  it('logout funziona anche dal pannello profilo', () => {
+  it('logout funziona anche dal pannello profilo', async () => {
     renderView();
     fireEvent.click(screen.getByTitle('Apri profilo'));
     fireEvent.click(screen.getByText('logout profilo'));
-    expect(mockClearAuth).toHaveBeenCalledTimes(1);
-    expect(globalThis.location.href).toBe('/');
+    await waitFor(() => {
+      expect(mockClearAuth).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
   });
 });
 
