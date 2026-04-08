@@ -57,7 +57,7 @@ def make_cart_product(prod_id: str, name: str, qty: int) -> CartProduct:
         measure_unit=MeasureUnitEnum.C,
     )
 
-
+#TU-B_213
 def test_get_cart_items_tool_returns_empty_message():
     tool_service = DummyToolPort()
     tool_service.get_cart_items_mock.return_value = []
@@ -67,7 +67,7 @@ def test_get_cart_items_tool_returns_empty_message():
 
     assert result == "Il carrello è vuoto."
 
-
+#TU-B_214
 def test_get_cart_items_tool_formats_products():
     tool_service = DummyToolPort()
     tool_service.get_cart_items_mock.return_value = [
@@ -81,7 +81,7 @@ def test_get_cart_items_tool_formats_products():
     assert "- id: A1, nome: Acqua, quantità: 2" in result
     assert "- id: B2, nome: Birra, quantità: 3" in result
 
-
+#TU-B_215
 def test_add_to_cart_tool_handles_product_not_found():
     tool_service = DummyToolPort()
     tool_service.add_to_cart_mock.side_effect = ProductNotFoundException("A1")
@@ -91,7 +91,7 @@ def test_add_to_cart_tool_handles_product_not_found():
 
     assert result == "Prodotto non trovato nel catalogo."
 
-
+#TU-B_216
 def test_remove_from_cart_tool_handles_missing_product():
     tool_service = DummyToolPort()
     tool_service.remove_from_cart_mock.side_effect = ProductNotInCartException("A1", "u")
@@ -101,7 +101,7 @@ def test_remove_from_cart_tool_handles_missing_product():
 
     assert result == "Il prodotto non è presente nel carrello."
 
-
+#TU-B_217
 def test_update_cart_item_qty_tool_handles_set_operation():
     tool_service = DummyToolPort()
     tool_service.update_cart_item_qty_mock.return_value = make_cart_product("A1", "Acqua", 7)
@@ -115,7 +115,7 @@ def test_update_cart_item_qty_tool_handles_set_operation():
     assert "Quantità del prodotto 'Acqua' aggiornata" in result
     assert "operazione: Set" in result
 
-
+#TU-B_218
 def test_update_cart_item_qty_tool_handles_missing_product():
     tool_service = DummyToolPort()
     tool_service.update_cart_item_qty_mock.side_effect = ProductNotInCartException("A1", "u")

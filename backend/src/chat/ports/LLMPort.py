@@ -7,6 +7,3 @@ class LLMPort(ABC):
     @abstractmethod
     def invoke(self, request: LLMRequest) -> LLMResponse:
         raise NotImplementedError
-
-    def invoke_agent(self, request: LLMRequest) -> LLMResponse:
-        return self.invoke(request)

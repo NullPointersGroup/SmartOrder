@@ -55,6 +55,7 @@ beforeEach(() => {
 // ─── Apertura dialog ──────────────────────────────────────────────────────────
 
 describe('DettaglioModal – apertura', () => {
+  //TU-F_365
   it('chiama showModal al mount', () => {
     renderModal();
     expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(1);
@@ -64,17 +65,20 @@ describe('DettaglioModal – apertura', () => {
 // ─── Render base ─────────────────────────────────────────────────────────────
 
 describe('DettaglioModal – render base', () => {
+  //TU-F_366
   it('mostra il codice ordine nell\'header', () => {
     renderModal();
     expect(screen.getByText('ORD-001')).toBeInTheDocument();
   });
 
+  //TU-F_367
   it('mostra la data formattata in italiano (formato long)', () => {
     renderModal();
     expect(screen.getByText(/marzo/i)).toBeInTheDocument();
     expect(screen.getByText(/2024/)).toBeInTheDocument();
   });
 
+  //TU-F_368
   it('mostra la lista dei prodotti', () => {
     renderModal();
     expect(screen.getByText('Latte')).toBeInTheDocument();
@@ -82,12 +86,14 @@ describe('DettaglioModal – render base', () => {
     expect(screen.getByText('Yogurt')).toBeInTheDocument();
   });
 
+  //TU-F_369
   it('mostra la descrizione del prodotto se presente', () => {
     renderModal();
     expect(screen.getByText('Intero')).toBeInTheDocument();
     expect(screen.getByText('Greco')).toBeInTheDocument();
   });
 
+  //TU-F_370
   it('NON mostra la descrizione vuota', () => {
     renderModal();
     const paneNameEl = screen.getByText('Pane');
@@ -99,6 +105,7 @@ describe('DettaglioModal – render base', () => {
     expect(screen.getByText('Greco')).toBeInTheDocument();
   });
 
+  //TU-F_371
   it('mostra la quantità di ogni prodotto con "× N"', () => {
     renderModal();
     expect(screen.getByText('× 2')).toBeInTheDocument();
@@ -106,6 +113,7 @@ describe('DettaglioModal – render base', () => {
     expect(screen.getByText('× 4')).toBeInTheDocument();
   });
 
+  //TU-F_372
   it('ha il pulsante di chiusura con aria-label "Chiudi"', () => {
     renderModal();
     expect(screen.getByLabelText('Chiudi')).toBeInTheDocument();
@@ -115,16 +123,19 @@ describe('DettaglioModal – render base', () => {
 // ─── Vista admin ─────────────────────────────────────────────────────────────
 
 describe('DettaglioModal – vista admin', () => {
+  //TU-F_373
   it('mostra il campo "Cliente" con username se isAdmin=true e username presente', () => {
     renderModal({ ordine: ordineAdmin, isAdmin: true });
     expect(screen.getByText('mario')).toBeInTheDocument();
   });
 
+  //TU-F_374
   it('NON mostra il campo "Cliente" se isAdmin=false', () => {
     renderModal({ ordine: ordineAdmin, isAdmin: false });
     expect(screen.queryByText('mario')).not.toBeInTheDocument();
   });
 
+  //TU-F_375
   it('NON mostra il campo "Cliente" se username non è presente anche con isAdmin=true', () => {
     renderModal({ ordine: ordineBase, isAdmin: true });
     // ordineBase non ha username
@@ -135,17 +146,20 @@ describe('DettaglioModal – vista admin', () => {
 // ─── Sezione duplicazione (solo cliente) ──────────────────────────────────────
 
 describe('DettaglioModal – duplicazione (cliente, isAdmin=false)', () => {
+  //TU-F_376
   it('mostra il pulsante "Duplica ordine" inizialmente', () => {
     renderModal({ isAdmin: false });
     expect(screen.getByText(/duplica ordine/i)).toBeInTheDocument();
   });
 
+  //TU-F_377
   it('NON mostra la sezione duplicazione se isAdmin=true', () => {
     renderModal({ isAdmin: true });
     expect(screen.queryByText(/duplica ordine/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/conferma duplicazione/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_378
   it('al click su "Duplica ordine" mostra "Conferma duplicazione" e "Annulla"', () => {
     renderModal({ isAdmin: false });
     fireEvent.click(screen.getByText(/duplica ordine/i));
@@ -153,6 +167,7 @@ describe('DettaglioModal – duplicazione (cliente, isAdmin=false)', () => {
     expect(screen.getByText(/annulla/i)).toBeInTheDocument();
   });
 
+  //TU-F_379
   it('"Annulla" riporta al pulsante "Duplica ordine"', () => {
     renderModal({ isAdmin: false });
     fireEvent.click(screen.getByText(/duplica ordine/i));
@@ -161,6 +176,7 @@ describe('DettaglioModal – duplicazione (cliente, isAdmin=false)', () => {
     expect(screen.queryByText(/conferma duplicazione/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_380
   it('"Conferma duplicazione" chiama onDuplica con il codice ordine', () => {
     const onDuplica = vi.fn();
     renderModal({ isAdmin: false, onDuplica });
@@ -169,6 +185,7 @@ describe('DettaglioModal – duplicazione (cliente, isAdmin=false)', () => {
     expect(onDuplica).toHaveBeenCalledWith('ORD-001');
   });
 
+  //TU-F_381
   it('dopo "Conferma duplicazione" torna al pulsante iniziale (confermaDuplica reset)', () => {
     renderModal({ isAdmin: false });
     fireEvent.click(screen.getByText(/duplica ordine/i));
@@ -176,11 +193,13 @@ describe('DettaglioModal – duplicazione (cliente, isAdmin=false)', () => {
     expect(screen.getByText(/duplica ordine/i)).toBeInTheDocument();
   });
 
+  //TU-F_382
   it('mostra erroreDuplica se presente', () => {
     renderModal({ isAdmin: false, erroreDuplica: 'Prodotto non disponibile' });
     expect(screen.getByText('Prodotto non disponibile')).toBeInTheDocument();
   });
 
+  //TU-F_383
   it('NON mostra sezione errore se erroreDuplica è null', () => {
     renderModal({ isAdmin: false, erroreDuplica: null });
     expect(screen.queryByText(/prodotto non disponibile/i)).not.toBeInTheDocument();
@@ -190,6 +209,7 @@ describe('DettaglioModal – duplicazione (cliente, isAdmin=false)', () => {
 // ─── Chiusura dialog ──────────────────────────────────────────────────────────
 
 describe('DettaglioModal – chiusura', () => {
+  //TU-F_384
   it('chiama onChiudi quando il dialog emette l\'evento "close"', async () => {
     const onChiudi = vi.fn();
     renderModal({ onChiudi });
@@ -201,6 +221,7 @@ describe('DettaglioModal – chiusura', () => {
     await waitFor(() => expect(onChiudi).toHaveBeenCalledTimes(1));
   });
 
+  //TU-F_385
   it('chiama dialog.close() al click sul pulsante X', () => {
     renderModal();
     const closeSpy = vi.spyOn(HTMLDialogElement.prototype, 'close');
@@ -208,6 +229,7 @@ describe('DettaglioModal – chiusura', () => {
     expect(closeSpy).toHaveBeenCalled();
   });
 
+  //TU-F_386
   it('rimuove il listener "close" quando il componente si smonta (cleanup)', () => {
     const onChiudi = vi.fn();
     const { unmount } = renderModal({ onChiudi });

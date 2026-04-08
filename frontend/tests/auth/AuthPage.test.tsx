@@ -43,6 +43,7 @@ describe('AuthPage', () => {
     vi.mocked(globalThis.fetch).mockClear();
   });
 
+  //TU-F_22
   it('onLogin ok: chiama /auth/me, setAuth con username e naviga a /home', async () => {
     const { login: loginApi } = await import('../../src/auth/AuthAPI');
     vi.mocked(loginApi).mockResolvedValue({ ok: true, errors: [] });
@@ -64,19 +65,21 @@ describe('AuthPage', () => {
     });
   });
 
-   it('onLogin fallisce: NON naviga', async () => {
-   const { login: loginApi } = await import('../../src/auth/AuthAPI');
-   vi.mocked(loginApi).mockResolvedValue({ ok: false, errors: ['Errore'] });
+  //TU-F_23
+  it('onLogin fallisce: NON naviga', async () => {
+    const { login: loginApi } = await import('../../src/auth/AuthAPI');
+    vi.mocked(loginApi).mockResolvedValue({ ok: false, errors: ['Errore'] });
 
-   renderInRouter(<AuthPage />);
-   fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'mario' } });
-   fireEvent.change(screen.getAllByLabelText(/password/i)[0], { target: { value: 'Password1!' } });
-   fireEvent.click(screen.getByTestId('submit-btn'));
+    renderInRouter(<AuthPage />);
+    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'mario' } });
+    fireEvent.change(screen.getAllByLabelText(/password/i)[0], { target: { value: 'Password1!' } });
+    fireEvent.click(screen.getByTestId('submit-btn'));
 
-   await waitFor(() => expect(mockNavigate).not.toHaveBeenCalled());
-   });
+    await waitFor(() => expect(mockNavigate).not.toHaveBeenCalled());
+  });
 
-   it('onRegister ok: torna al tab login (RF-OB_22)', async () => {
+  //TU-F_24
+  it('onRegister ok: torna al tab login (RF-OB_22)', async () => {
     const { register: registerApi } = await import('../../src/auth/AuthAPI');
     vi.mocked(registerApi).mockResolvedValue({ ok: true, errors: [] });
 
@@ -94,5 +97,5 @@ describe('AuthPage', () => {
       expect(screen.getByRole('heading', { name: /accedi/i })).toBeInTheDocument();
       expect(globalThis.fetch).not.toHaveBeenCalledWith('/auth/me', expect.anything());
     });
-   });
+  });
 });

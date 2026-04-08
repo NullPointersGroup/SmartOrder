@@ -59,6 +59,7 @@ afterEach(() => vi.clearAllMocks());
 // ─── getStoricoCliente ────────────────────────────────────────────────────────
 
 describe('getStoricoCliente', () => {
+  //TU-F_412
   it('chiama il corretto endpoint GET /storico/miei con i parametri di default', async () => {
     mockFetchOk(mockPageResponse);
     await getStoricoCliente();
@@ -71,6 +72,7 @@ describe('getStoricoCliente', () => {
     expect(options.credentials).toBe('include');
   });
 
+  //TU-F_413
   it('passa pagina e perPagina personalizzati nella querystring', async () => {
     mockFetchOk(mockPageResponse);
     await getStoricoCliente(3, 5);
@@ -80,22 +82,26 @@ describe('getStoricoCliente', () => {
     expect(url).toContain('per_pagina=5');
   });
 
+  //TU-F_414
   it('restituisce il corpo JSON in caso di successo', async () => {
     mockFetchOk(mockPageResponse);
     const result = await getStoricoCliente(1, 10);
     expect(result).toEqual(mockPageResponse);
   });
 
+  //TU-F_415
   it('lancia errore con il messaggio "detail" dal server se la risposta non è ok', async () => {
     mockFetchError(403, 'Non autorizzato');
     await expect(getStoricoCliente()).rejects.toThrow('Non autorizzato');
   });
 
+  //TU-F_416
   it('lancia errore generico "Errore <status>" se il body non ha "detail"', async () => {
     mockFetchError(500);
     await expect(getStoricoCliente()).rejects.toThrow('Errore 500');
   });
 
+  //TU-F_417
   it('lancia "Errore <status>" se il parsing del body fallisce', async () => {
     mockFetchErrorJsonFail(502);
     await expect(getStoricoCliente()).rejects.toThrow('Errore 502');
@@ -105,6 +111,7 @@ describe('getStoricoCliente', () => {
 // ─── getStoricoAdmin ──────────────────────────────────────────────────────────
 
 describe('getStoricoAdmin', () => {
+  //TU-F_418
   it('chiama il corretto endpoint GET /storico/tutti con i parametri di default', async () => {
     mockFetchOk(mockPageResponse);
     await getStoricoAdmin();
@@ -117,6 +124,7 @@ describe('getStoricoAdmin', () => {
     expect(options.credentials).toBe('include');
   });
 
+  //TU-F_419
   it('passa pagina e perPagina personalizzati nella querystring', async () => {
     mockFetchOk(mockPageResponse);
     await getStoricoAdmin(2, 20);
@@ -126,22 +134,26 @@ describe('getStoricoAdmin', () => {
     expect(url).toContain('per_pagina=20');
   });
 
+  //TU-F_420
   it('restituisce il corpo JSON in caso di successo', async () => {
     mockFetchOk(mockPageResponse);
     const result = await getStoricoAdmin(1, 10);
     expect(result).toEqual(mockPageResponse);
   });
 
+  //TU-F_421
   it('lancia errore con il messaggio "detail" dal server se la risposta non è ok', async () => {
     mockFetchError(401, 'Solo admin');
     await expect(getStoricoAdmin()).rejects.toThrow('Solo admin');
   });
 
+  //TU-F_422
   it('lancia errore generico "Errore <status>" se il body non ha "detail"', async () => {
     mockFetchError(503);
     await expect(getStoricoAdmin()).rejects.toThrow('Errore 503');
   });
 
+  //TU-F_423
   it('lancia "Errore <status>" se il parsing del body fallisce', async () => {
     mockFetchErrorJsonFail(500);
     await expect(getStoricoAdmin()).rejects.toThrow('Errore 500');
@@ -151,6 +163,7 @@ describe('getStoricoAdmin', () => {
 // ─── duplicaOrdine ────────────────────────────────────────────────────────────
 
 describe('duplicaOrdine', () => {
+  //TU-F_424
   it('chiama POST /storico/duplica/{codice} con credentials=include', async () => {
     mockFetchOk({});
     await duplicaOrdine('ORD-001');
@@ -161,6 +174,7 @@ describe('duplicaOrdine', () => {
     expect(options.credentials).toBe('include');
   });
 
+  //TU-F_425
   it('codifica correttamente caratteri speciali nel codice ordine', async () => {
     mockFetchOk({});
     await duplicaOrdine('ORD 001/speciale');
@@ -169,21 +183,25 @@ describe('duplicaOrdine', () => {
     expect(url).toContain(encodeURIComponent('ORD 001/speciale'));
   });
 
+  //TU-F_426
   it('non lancia eccezione se la risposta è ok', async () => {
     mockFetchOk({});
     await expect(duplicaOrdine('ORD-001')).resolves.toBeUndefined();
   });
 
+  //TU-F_427
   it('lancia errore con il messaggio "detail" se la risposta non è ok', async () => {
     mockFetchError(409, 'Ordine già duplicato');
     await expect(duplicaOrdine('ORD-001')).rejects.toThrow('Ordine già duplicato');
   });
 
+  //TU-F_428
   it('lancia "Errore <status>" se il body non ha "detail"', async () => {
     mockFetchError(404);
     await expect(duplicaOrdine('ORD-999')).rejects.toThrow('Errore 404');
   });
 
+  //TU-F_429
   it('lancia "Errore <status>" se il parsing del body fallisce', async () => {
     mockFetchErrorJsonFail(500);
     await expect(duplicaOrdine('ORD-001')).rejects.toThrow('Errore 500');

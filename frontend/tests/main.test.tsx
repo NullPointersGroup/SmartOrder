@@ -6,6 +6,7 @@ describe('main.tsx bootstrap', () => {
     document.body.innerHTML = '<div id="root"></div>'
   })
 
+  //TU-F_02
   it('mounts the React app without crashing', async () => {
     const renderMock = vi.fn()
     const createRootMock = vi.fn(() => ({ render: renderMock }))

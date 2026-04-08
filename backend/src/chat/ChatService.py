@@ -71,7 +71,7 @@ class ChatService:
             chat_history=llm_history,
         )
 
-        llm_response = self.llm.invoke_agent(request)
+        llm_response = self.llm.invoke(request)
 
         # aggiunge risposta dell'LLM
         self.repo.add_message(conv_id, llm_response.content, SenderEnum.Chatbot)

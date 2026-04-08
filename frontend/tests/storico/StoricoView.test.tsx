@@ -176,21 +176,25 @@ afterEach(() => vi.clearAllMocks());
 // ─── Render base ──────────────────────────────────────────────────────────────
 
 describe('StoricoView – render base', () => {
+  //TU-F_430
   it('renderizza la NavBar', () => {
     renderView();
     expect(screen.getByTestId('navbar')).toBeInTheDocument();
   });
 
+  //TU-F_431
   it('chiama caricaPagina(1) all\'avvio (useEffect)', () => {
     renderView();
     expect(mockCaricaPagina).toHaveBeenCalledWith(1);
   });
 
+  //TU-F_432
   it('NON mostra il pannello profilo di default', () => {
     renderView();
     expect(screen.queryByTestId('profile-panel')).not.toBeInTheDocument();
   });
 
+  //TU-F_433
   it('NON mostra il DettaglioModal se ordineScelto è null', () => {
     renderView();
     expect(screen.queryByTestId('dettaglio-modal')).not.toBeInTheDocument();
@@ -200,33 +204,39 @@ describe('StoricoView – render base', () => {
 // ─── Intestazione ─────────────────────────────────────────────────────────────
 
 describe('StoricoView – intestazione', () => {
+  //TU-F_434
   it('mostra "Storico Ordini" come titolo principale', () => {
     renderView();
     expect(screen.getByRole('heading', { name: /storico ordini/i })).toBeInTheDocument();
   });
 
+  //TU-F_435
   it('mostra "Area Cliente" per utenti non admin', () => {
     renderView();
     expect(screen.getByText(/area cliente/i)).toBeInTheDocument();
   });
 
+  //TU-F_436
   it('mostra "Pannello Admin" per admin', () => {
     vmOverrides = { isAdmin: true };
     renderView();
     expect(screen.getByText(/pannello admin/i)).toBeInTheDocument();
   });
 
+  //TU-F_437
   it('mostra il testo "Visualizzazione completa" per admin', () => {
     vmOverrides = { isAdmin: true };
     renderView();
     expect(screen.getByText(/visualizzazione completa/i)).toBeInTheDocument();
   });
 
+  //TU-F_438
   it('NON mostra "Visualizzazione completa" per cliente', () => {
     renderView();
     expect(screen.queryByText(/visualizzazione completa/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_439
   it('mostra il badge pag.X/Y solo quando ci sono ordini e loading=false', () => {
     vmOverrides = {
       ordini:       [{ codice_ordine: 'ORD-001', numero_ordine: 1, data: '2024-01-01', prodotti: [] }],
@@ -238,6 +248,7 @@ describe('StoricoView – intestazione', () => {
     expect(screen.getByText(/pag\. 2 \/ 5/i)).toBeInTheDocument();
   });
 
+  //TU-F_440
   it('NON mostra il badge pag. durante il caricamento', () => {
     vmOverrides = { loading: true };
     renderView();
@@ -248,12 +259,14 @@ describe('StoricoView – intestazione', () => {
 // ─── Stato loading ────────────────────────────────────────────────────────────
 
 describe('StoricoView – stato loading', () => {
+  //TU-F_441
   it('mostra lo spinner di caricamento se loading=true', () => {
     vmOverrides = { loading: true };
     renderView();
     expect(screen.getByText(/caricamento/i)).toBeInTheDocument();
   });
 
+  //TU-F_442
   it('NON mostra lo spinner se loading=false', () => {
     vmOverrides = { loading: false };
     renderView();
@@ -264,12 +277,14 @@ describe('StoricoView – stato loading', () => {
 // ─── Stato errore ─────────────────────────────────────────────────────────────
 
 describe('StoricoView – stato errore', () => {
+  //TU-F_443
   it('mostra il messaggio di errore se errore è valorizzato', () => {
     vmOverrides = { errore: 'Connessione fallita' };
     renderView();
     expect(screen.getByText('Connessione fallita')).toBeInTheDocument();
   });
 
+  //TU-F_444
   it('NON mostra il messaggio di errore se errore è null', () => {
     vmOverrides = { errore: null };
     renderView();
@@ -280,12 +295,14 @@ describe('StoricoView – stato errore', () => {
 // ─── Lista vuota ──────────────────────────────────────────────────────────────
 
 describe('StoricoView – lista vuota', () => {
+  //TU-F_445
   it('mostra "Nessun ordine effettuato" se ordini=[] e loading=false e errore=null', () => {
     vmOverrides = { ordini: [], loading: false, errore: null };
     renderView();
     expect(screen.getByText(/nessun ordine effettuato/i)).toBeInTheDocument();
   });
 
+  //TU-F_446
   it('NON mostra la tabella se ordini è vuoto', () => {
     vmOverrides = { ordini: [] };
     renderView();
@@ -305,12 +322,14 @@ describe('StoricoView – tabella con ordini', () => {
     vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
   });
 
+  //TU-F_447
   it('renderizza una OrdineRow per ogni ordine', () => {
     renderView();
     expect(screen.getByTestId('ordine-row-ORD-001')).toBeInTheDocument();
     expect(screen.getByTestId('ordine-row-ORD-002')).toBeInTheDocument();
   });
 
+  //TU-F_448
   it('mostra la colonna "Cliente" nell\'header per admin', () => {
     vmOverrides = { ...vmOverrides, isAdmin: true };
     renderView();
@@ -319,6 +338,7 @@ describe('StoricoView – tabella con ordini', () => {
     expect(clienteTh).toBeTruthy();
   });
 
+  //TU-F_449
   it('NON mostra la colonna "Cliente" per utente normale', () => {
     vmOverrides = { ...vmOverrides, isAdmin: false };
     renderView();
@@ -327,6 +347,7 @@ describe('StoricoView – tabella con ordini', () => {
     expect(clienteTh).toBeUndefined();
   });
 
+  //TU-F_450
   it('mostra le intestazioni di colonna standard', () => {
     renderView();
     expect(screen.getByText(/codice/i)).toBeInTheDocument();
@@ -334,17 +355,20 @@ describe('StoricoView – tabella con ordini', () => {
     expect(screen.getByText(/prodotti/i)).toBeInTheDocument();
   });
 
+  //TU-F_451
   it('renderizza il componente Paginazione', () => {
     renderView();
     expect(screen.getByTestId('paginazione')).toBeInTheDocument();
   });
 
+  //TU-F_452
   it('la paginazione chiama caricaPagina con il numero corretto', () => {
     renderView();
     fireEvent.click(screen.getByText('pagina successiva'));
     expect(mockCaricaPagina).toHaveBeenCalledWith(2); // pagina(1) + 1
   });
 
+  //TU-F_453
   it('click su "Dettaglio" chiama apriDettaglio con l\'ordine', () => {
     renderView();
     fireEvent.click(screen.getByText('Dettaglio ORD-001'));
@@ -357,6 +381,7 @@ describe('StoricoView – tabella con ordini', () => {
 describe('StoricoView – DettaglioModal', () => {
   const ordine = { codice_ordine: 'ORD-001', numero_ordine: 1, data: '2024-01-01', prodotti: [] };
 
+  //TU-F_454
   it('mostra il DettaglioModal se ordineScelto è valorizzato', () => {
     vmOverrides = { ordineScelto: ordine };
     renderView();
@@ -364,6 +389,7 @@ describe('StoricoView – DettaglioModal', () => {
     expect(screen.getByText('ORD-001')).toBeInTheDocument();
   });
 
+  //TU-F_455
   it('chiama chiudiDettaglio al click su "chiudi modal"', () => {
     vmOverrides = { ordineScelto: ordine };
     renderView();
@@ -371,6 +397,7 @@ describe('StoricoView – DettaglioModal', () => {
     expect(mockChiudiDettaglio).toHaveBeenCalledTimes(1);
   });
 
+  //TU-F_456
   it('chiama duplicaOrdine al click su "duplica"', () => {
     vmOverrides = { ordineScelto: ordine };
     renderView();
@@ -378,6 +405,7 @@ describe('StoricoView – DettaglioModal', () => {
     expect(mockDuplicaOrdine).toHaveBeenCalledWith('ORD-001');
   });
 
+  //TU-F_457
   it('passa erroreDuplica al DettaglioModal', () => {
     vmOverrides = { ordineScelto: ordine, erroreDuplica: 'Errore test' };
     renderView();
@@ -388,12 +416,14 @@ describe('StoricoView – DettaglioModal', () => {
 // ─── Profilo ──────────────────────────────────────────────────────────────────
 
 describe('StoricoView – profilo', () => {
+  //TU-F_458
   it('apre il pannello profilo al click su "Apri profilo"', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Apri profilo'));
     expect(screen.getByTestId('profile-panel')).toBeInTheDocument();
   });
 
+  //TU-F_459
   it('chiude il pannello profilo al click su "chiudi profilo"', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Apri profilo'));
@@ -412,6 +442,7 @@ describe('StoricoView – logout', () => {
     });
   });
 
+  //TU-F_460
   it('chiama clearAuth e reindirizza a "/" al click su logout nella NavBar', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Logout'));
@@ -419,6 +450,7 @@ describe('StoricoView – logout', () => {
     expect(globalThis.location.href).toBe('/');
   });
 
+  //TU-F_461
   it('logout funziona anche dal pannello profilo', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Apri profilo'));
@@ -439,18 +471,21 @@ describe('StoricoView – filtro data', () => {
 
   // ── apertura/chiusura pannello ────────────────────────────────────────────
 
+  //TU-F_462
   it('il pannello filtro è chiuso di default', () => {
     vmOverrides = { ordini: mockOrdini };
     renderView();
     expect(screen.queryByText(/filtra per data/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_463
   it('apre il pannello filtro al click sull\'icona calendario', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
     expect(screen.getByText(/filtra per data/i)).toBeInTheDocument();
   });
 
+  //TU-F_464
   it('chiude il pannello filtro al secondo click sull\'icona (toggle)', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -458,6 +493,7 @@ describe('StoricoView – filtro data', () => {
     expect(screen.queryByText(/da/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_465
   it('chiude il pannello filtro cliccando fuori (useEffect clickOutside – riga 60-61)', async () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -470,6 +506,7 @@ describe('StoricoView – filtro data', () => {
     expect(screen.queryByText(/filtra per data/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_466
   it('il click dentro il pannello filtro NON lo chiude', async () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -484,6 +521,7 @@ describe('StoricoView – filtro data', () => {
 
   // ── campo "Da" ────────────────────────────────────────────────────────────
 
+  //TU-F_467
   it('impostare la data "Da" chiama caricaPagina(1, dataInizio, "")', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -497,6 +535,7 @@ describe('StoricoView – filtro data', () => {
 
   // ── campo "A" ─────────────────────────────────────────────────────────────
 
+  //TU-F_468
   it('impostare la data "A" chiama caricaPagina(1, "", dataFine)', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -510,6 +549,7 @@ describe('StoricoView – filtro data', () => {
 
   // ── filtro attivo: indicatore visuale ─────────────────────────────────────
 
+  //TU-F_469
   it('mostra il pallino indicatore quando il filtro è attivo', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -523,6 +563,7 @@ describe('StoricoView – filtro data', () => {
 
   // ── filtraggio lato client ────────────────────────────────────────────────
 
+  //TU-F_470
   it('filtra gli ordini per dataInizio: esclude ordini precedenti', () => {
     vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
     renderView();
@@ -536,6 +577,7 @@ describe('StoricoView – filtro data', () => {
     expect(screen.getByTestId('ordine-row-ORD-003')).toBeInTheDocument();
   });
 
+  //TU-F_471
   it('filtra gli ordini per dataFine: esclude ordini successivi', () => {
     vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
     renderView();
@@ -549,6 +591,7 @@ describe('StoricoView – filtro data', () => {
     expect(screen.queryByTestId('ordine-row-ORD-003')).not.toBeInTheDocument();
   });
 
+  //TU-F_472
   it('filtra con entrambe le date: mostra solo ordini nell\'intervallo', () => {
     vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
     renderView();
@@ -563,6 +606,7 @@ describe('StoricoView – filtro data', () => {
     expect(screen.queryByTestId('ordine-row-ORD-003')).not.toBeInTheDocument();
   });
 
+  //TU-F_473
   it('mostra "Nessun ordine corrisponde al filtro" quando filtroAttivo e lista filtrata è vuota', () => {
     vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
     renderView();
@@ -576,12 +620,14 @@ describe('StoricoView – filtro data', () => {
 
   // ── reset filtro (righe 80-82) ────────────────────────────────────────────
 
+  //TU-F_474
   it('il pulsante "Azzera" è nascosto quando il filtro non è attivo', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
     expect(screen.queryByText('Azzera')).not.toBeInTheDocument();
   });
 
+  //TU-F_475
   it('il pulsante "Azzera" compare quando il filtro è attivo (riga 80)', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -592,6 +638,7 @@ describe('StoricoView – filtro data', () => {
     expect(screen.getByText('Azzera')).toBeInTheDocument();
   });
 
+  //TU-F_476
   it('cliccando "Azzera" reimposta entrambe le date e chiama caricaPagina(1,"","") (riga 80-82)', () => {
     vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
     renderView();
@@ -607,6 +654,7 @@ describe('StoricoView – filtro data', () => {
     expect(screen.getByTestId('ordine-row-ORD-001')).toBeInTheDocument();
   });
 
+  //TU-F_477
   it('dopo "Azzera" il pulsante indicatore torna allo stile inattivo', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -621,6 +669,7 @@ describe('StoricoView – filtro data', () => {
 
   // ── testo hint nel pannello ────────────────────────────────────────────────
 
+  //TU-F_478
   it('mostra il testo di aiuto "Lascia A vuoto" nel pannello', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -629,6 +678,7 @@ describe('StoricoView – filtro data', () => {
 
   // ── constraint max/min sugli input ────────────────────────────────────────
 
+  //TU-F_479
   it('l\'input "Da" riceve l\'attributo max quando dataFine è impostata', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -639,6 +689,7 @@ describe('StoricoView – filtro data', () => {
     expect(inputDa).toHaveAttribute('max', '2024-12-31');
   });
 
+  //TU-F_480
   it('l\'input "A" riceve l\'attributo min quando dataInizio è impostata', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));

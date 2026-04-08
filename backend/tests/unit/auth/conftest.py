@@ -1,3 +1,6 @@
+import os
+os.environ.setdefault("SECRET_KEY", "test-secret-key")
+
 from unittest.mock import MagicMock
 
 import pytest

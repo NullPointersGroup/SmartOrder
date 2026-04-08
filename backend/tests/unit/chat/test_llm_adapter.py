@@ -6,7 +6,7 @@ pytest.importorskip("langchain_core")
 from src.chat.LLMModels import LLMRequest, LLMResponse
 from src.chat.adapters.LLMAdapter import LLMAdapter
 
-
+#TU-B_219
 def test_llm_adapter_invoke_delegates_to_agent():
     agent = MagicMock()
     expected = LLMResponse(content="ok")

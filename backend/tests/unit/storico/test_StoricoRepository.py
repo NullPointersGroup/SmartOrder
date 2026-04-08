@@ -124,6 +124,7 @@ def sample_data(session, clean_db):
 
 
 # ---------- Test Cases ----------
+#TU-B_254
 def test_get_ordini_by_username(session, sample_data):
     repo = StoricoRepository(session)
     ordini, totale = repo.get_ordini_by_username("user1", pagina=1, per_pagina=10)
@@ -140,7 +141,7 @@ def test_get_ordini_by_username(session, sample_data):
     assert totale == 0
     assert len(ordini) == 0
 
-
+#TU-B_255
 def test_get_all_ordini(session, sample_data):
     repo = StoricoRepository(session)
     ordini, totale = repo.get_all_ordini(pagina=1, per_pagina=10)
@@ -159,7 +160,7 @@ def test_get_all_ordini(session, sample_data):
     assert len(ordini) == 1
     assert ordini[0].id_ord == 1
 
-
+#TU-B_256
 def test_get_prodotti_by_ordine_ids(session, sample_data):
     repo = StoricoRepository(session)
     result = repo.get_prodotti_by_ordine_ids([1, 2])
@@ -172,13 +173,13 @@ def test_get_prodotti_by_ordine_ids(session, sample_data):
     assert repo.get_prodotti_by_ordine_ids([]) == []
     assert repo.get_prodotti_by_ordine_ids([999]) == []
 
-
+#TU-B_257
 def test_duplica_ordine_not_found(session, sample_data):
     repo = StoricoRepository(session)
     with pytest.raises(ValueError, match="Ordine '999' non trovato"):
         repo.duplica_ordine("999", "user1")
 
-
+#TU-B_258
 def test_duplica_ordine_crea_nuovo_ordine(session, sample_data):
     repo = StoricoRepository(session)
 
@@ -209,11 +210,13 @@ def test_duplica_ordine_crea_nuovo_ordine(session, sample_data):
         assert d_orig.cod_art == d_nuovo.cod_art
         assert d_orig.qta_ordinata == d_nuovo.qta_ordinata
 
+#TU-B_259
 def test_duplica_ordine_non_esiste(session, sample_data):
     repo = StoricoRepository(session)
     with pytest.raises(ValueError, match="Ordine '999' non trovato"):
         repo.duplica_ordine("999", "newuser")
 
+#TU-B_260
 def test_duplica_ordine_piu_volte_crea_id_unici(session, sample_data):
     repo = StoricoRepository(session)
     ordine_originale = sample_data["orders"][0]

@@ -10,17 +10,20 @@ vi.mock('react-router-dom', async (importOriginal) => ({
 }));
 
 describe('Unauthorized', () => {
+  //TU-F_344
   it('mostra il codice 401', () => {
     render(<MemoryRouter><Unauthorized /></MemoryRouter>);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('401');
   });
 
+  //TU-F_345
   it('mostra il titolo e il messaggio di errore', () => {
     render(<MemoryRouter><Unauthorized /></MemoryRouter>);
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(/non autorizzato/i);
     expect(screen.getByText(/sessione sia terminata/i)).toBeInTheDocument();
   });
 
+  //TU-F_346
   it('il bottone naviga verso /', () => {
     render(<MemoryRouter><Unauthorized /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: /torna al login/i }));
