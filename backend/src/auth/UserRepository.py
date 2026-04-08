@@ -2,7 +2,6 @@ from sqlmodel import Session, select, col
 from sqlalchemy import insert, delete
 
 from src.auth.models import UserRegistration, UserReset
-from src.auth.PasswordUtility import PasswordUtility
 from src.db.models import Utentiweb
 from src.db.queryExecutor import QueryExecutor
 
@@ -36,18 +35,19 @@ class UserRepository:
 
     def save(self, u: UserRegistration) -> bool:
         """
-        @brief Inserisce un nuovo utente nel DB con password hashata
-        @return restituisce true se l'operazione ha successo
+        @brief Inserisce un nuovo utente nel DB
+        @param u: utente con password già hashata
+        @return True se l'operazione ha successo
         """
         return self.executor.mutate_raw(
             insert(Utentiweb).values(
                 username=u.username,
-                password=PasswordUtility.hash_password(u.password),
+                password=u.password,
                 email=u.email,
-                admin=False
+                admin=False,
             )
         )
-        
+
     def delete(self, username: str) -> bool:
         """
         @brief Elimina un utente dal DB per username
@@ -56,15 +56,16 @@ class UserRepository:
         return self.executor.mutate_raw(
             delete(Utentiweb).where(col(Utentiweb.username) == username)
         )
-        
+
     def reset_password(self, u: UserReset) -> bool:
         """
         @brief Reimposta la password di un utente
+        @param u: oggetto con new_pwd già hashata
         @return Il risultato dell'operazione
         """
         from sqlalchemy import update
         return self.executor.mutate_raw(
             update(Utentiweb)
             .where(col(Utentiweb.username) == u.username)
-            .values(password=PasswordUtility.hash_password(u.new_pwd))
-        )    
+            .values(password=u.new_pwd)
+        )

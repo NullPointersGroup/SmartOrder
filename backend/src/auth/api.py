@@ -3,9 +3,14 @@ from typing import Annotated, Dict
 from fastapi import APIRouter, Depends, HTTPException, Response, Cookie, Request
 from pydantic import BaseModel
 from sqlmodel import Session
+
 from src.auth.TokenUtility import TokenUtility
-from src.auth.UserService import UserService
+from src.auth.CheckUserService import CheckUserService
+from src.auth.RegisterUserService import RegisterUserService
+from src.auth.ResetPasswordService import ResetPasswordService
+from src.auth.DeleteUserService import DeleteUserService
 from src.auth.UserRepoAdapter import UserRepoAdapter
+from src.auth.EmailValidationAdapter import EmailValidationAdapter
 from src.auth.schemas import (
     AuthResponse,
     UserSchema,
@@ -22,11 +27,9 @@ from src.auth.exceptions import (
     UserNotFoundError,
     UserDeletionError,
     UserResetError,
-    UserSamePasswordError
+    UserSamePasswordError,
 )
 from src.db.dbConnection import get_conn
-from src.auth.UserRepoAdapter import UserRepoAdapter
-from src.auth.EmailValidationAdapter import EmailValidationAdapter
 from src.auth.limiter import limiter
 from src.auth.blocklist import is_password_common
 
@@ -45,19 +48,34 @@ class ErrorResponse(BaseModel):
     errors: list[str]
 
 
-def get_user_service(db: Session = Depends(get_conn)) -> UserService:
-    """
-    @brief Crea e restituisce un'istanza di UserService con le dipendenze necessarie
-    @param db Sessione del database
-    @return UserService configurato
-    """
-    return UserService(
-        repo=UserRepoAdapter(db),
+# --- Dependency factories ---
+
+def get_check_user_service(db: Session = Depends(get_conn)) -> CheckUserService:
+    return CheckUserService(port=UserRepoAdapter(db))
+
+
+def get_register_user_service(db: Session = Depends(get_conn)) -> RegisterUserService:
+    return RegisterUserService(
+        port=UserRepoAdapter(db),
         email_validator=EmailValidationAdapter(),
     )
 
 
-UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+def get_reset_password_service(db: Session = Depends(get_conn)) -> ResetPasswordService:
+    return ResetPasswordService(port=UserRepoAdapter(db))
+
+
+def get_delete_user_service(db: Session = Depends(get_conn)) -> DeleteUserService:
+    return DeleteUserService(port=UserRepoAdapter(db))
+
+
+# --- Annotated deps ---
+
+CheckUserServiceDep = Annotated[CheckUserService, Depends(get_check_user_service)]
+RegisterUserServiceDep = Annotated[RegisterUserService, Depends(get_register_user_service)]
+ResetPasswordServiceDep = Annotated[ResetPasswordService, Depends(get_reset_password_service)]
+DeleteUserServiceDep = Annotated[DeleteUserService, Depends(get_delete_user_service)]
+
 
 def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
     """
@@ -74,28 +92,30 @@ def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
     return str(username)
 
 
+CurrentUserDep = Annotated[str, Depends(get_current_user)]
+
+
+# --- Endpoints ---
+
 @router.post(
     "/login",
     responses={
-        400: {"model": ErrorResponse, "description": "Username o password errati"}
+        400: {"model": ErrorResponse, "description": "Username o password errati"},
     },
 )
 @limiter.limit("10/minute")
 def login(
     request: Request,
     payload: UserSchema,
-    service: UserServiceDep,
-    response: Response
+    service: CheckUserServiceDep,
+    response: Response,
 ) -> LoginResponse:
     """
     @brief Autentica un utente e imposta il cookie di sessione
-    @param payload Credenziali utente (username, password)
-    @param service Servizio utente iniettato
-    @param response Oggetto Response per impostare il cookie
-    @return LoginResponse con ok=True se successo
-    @throws HTTPException 400 se credenziali errate
+    @req RF-OB_24
+    @req RF-OB_26
     """
-    u = User(username=payload.username, password=payload.password, admin = None)
+    u = User(username=payload.username, password=payload.password, admin=None)
 
     try:
         username = service.check_user(u)
@@ -129,7 +149,8 @@ def login(
     },
 )
 async def register(
-    payload: UserRegistrationSchema, service: UserServiceDep
+    payload: UserRegistrationSchema,
+    service: RegisterUserServiceDep,
 ) -> AuthResponse:
     """
     @brief Registrazione utente
@@ -141,17 +162,16 @@ async def register(
     @req RF-OB_18
     @req RF-OB_19
     """
-    
     if is_password_common(payload.password):
         raise HTTPException(
             status_code=400,
             detail={"ok": False, "errors": ["Password troppo comune, scegline una più sicura"]},
         )
-    
+
     u = UserRegistration(
         username=payload.username,
         password=payload.password,
-        admin = None,
+        admin=None,
         confirm_pwd=payload.confirmPwd,
         email=payload.email,
     )
@@ -182,8 +202,6 @@ async def register(
         )
 
 
-UserServiceCurrentUser = Annotated[str, Depends(get_current_user)]
-
 @router.post(
     "/reset",
     status_code=200,
@@ -192,38 +210,33 @@ UserServiceCurrentUser = Annotated[str, Depends(get_current_user)]
         401: {"model": ErrorResponse, "description": "Token non valido"},
         404: {"model": ErrorResponse, "description": "Utente non trovato"},
         500: {"model": ErrorResponse, "description": "Errore durante la reimpostazione"},
-    }
+    },
 )
 def reset_password(
     body: ResetPasswordRequest,
-    service: UserServiceDep,
-    current_user: UserServiceCurrentUser,
+    service: ResetPasswordServiceDep,
+    current_user: CurrentUserDep,
 ) -> AuthResponse:
     """
     @brief Reimposta la password di un utente autenticato
-    @param body Contiene old_password e new_password
-    @param service Servizio utente iniettato
-    @param current_user Username dell'utente autenticato
-    @return AuthResponse con ok=True se reimpostazione riuscita
-    @throws HTTPException 400, 401, 404, 500 in base all'errore
     """
-    
     if is_password_common(body.new_password):
         raise HTTPException(
             status_code=400,
             detail={"ok": False, "errors": ["Password troppo comune, scegline una più sicura"]},
         )
-    
+
     u = UserReset(
         username=current_user,
         password=body.old_password,
-        admin = None,
+        admin=None,
         new_pwd=body.new_password,
     )
+
     try:
-        service.check_user(u)
         service.reset_password(u)
         return AuthResponse(ok=True, errors=[])
+
     except UserNotFoundError:
         raise HTTPException(
             status_code=404,
@@ -244,7 +257,7 @@ def reset_password(
             status_code=500,
             detail={"ok": False, "errors": ["Errore durante la reimpostazione"]},
         )
-    
+
 
 @router.delete(
     "/delete",
@@ -256,14 +269,11 @@ def reset_password(
     },
 )
 def delete_account(
-    service: UserServiceDep, current_user: UserServiceCurrentUser
+    service: DeleteUserServiceDep,
+    current_user: CurrentUserDep,
 ) -> AuthResponse:
     """
     @brief Cancella l'account dell'utente autenticato
-    @param service Servizio utente iniettato
-    @param current_user Username dell'utente autenticato
-    @return AuthResponse con ok=True se cancellazione riuscita
-    @throws HTTPException 404 se utente non trovato, 500 per errori interni
     """
     try:
         service.delete_user(current_user)
@@ -280,6 +290,7 @@ def delete_account(
             detail={"ok": False, "errors": ["Errore durante la cancellazione"]},
         )
 
+
 @router.get(
     "/retrieve",
     responses={
@@ -288,14 +299,11 @@ def delete_account(
     },
 )
 def retrieve(
-    service: UserServiceDep, current_user: UserServiceCurrentUser
+    service: DeleteUserServiceDep,
+    current_user: CurrentUserDep,
 ) -> Dict[str, str | None]:
     """
     @brief Recupera i dati dell'utente autenticato
-    @param service Servizio utente iniettato
-    @param current_user Username dell'utente autenticato
-    @return Dizionario con username e email dell'utente
-    @throws HTTPException 404 se utente non trovato
     """
     try:
         user = service.get_user(current_user)
@@ -309,15 +317,15 @@ def retrieve(
             detail={"ok": False, "errors": [user_not_found]},
         )
 
+
 @router.post("/logout")
 def logout(response: Response) -> dict[str, bool]:
     """
     @brief Effettua il logout eliminando il cookie access_token
-    @param response Oggetto Response per eliminare il cookie
-    @return Dizionario con ok=True
     """
     response.delete_cookie("access_token")
     return {"ok": True}
+
 
 @router.get(
     "/saveInStore",
@@ -326,19 +334,14 @@ def logout(response: Response) -> dict[str, bool]:
     },
 )
 def save_in_store(
-    current_user: UserServiceCurrentUser,
-    service: UserServiceDep
+    current_user: CurrentUserDep,
+    service: DeleteUserServiceDep,
 ) -> dict[str, str | bool]:
     """
     @brief Restituisce username e ruolo admin dell'utente autenticato
-    @param current_user Username dell'utente autenticato
-    @param service Servizio utente iniettato
-    @return Dizionario con username e admin
-    @throws HTTPException 404 se utente non trovato
     """
     try:
         user = service.get_user(current_user)
-        print(bool(user.admin))
         return {
             "username": user.username or "",
             "admin": bool(user.admin),

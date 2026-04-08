@@ -2,7 +2,7 @@ from src.cart.CartSchemas import CartProduct
 from src.cart.exceptions import CartEmptyException
 from src.enums import CartUpdateOperation
 
-from backend.src.cart.ports.CartRepoPort import CartRepoPort
+from src.cart.ports.CartRepoPort import CartRepoPort
 
 
 class CartService:

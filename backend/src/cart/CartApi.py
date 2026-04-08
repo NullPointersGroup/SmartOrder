@@ -19,24 +19,8 @@ from src.cart.exceptions import (
 )
 from src.db.dbConnection import get_conn
 from src.auth.TokenUtility import TokenUtility
-from src.auth.UserService import UserService
-from src.auth.UserRepoAdapter import UserRepoAdapter
-from src.auth.EmailValidationAdapter import EmailValidationAdapter
 
 router = APIRouter(prefix="/cart", tags=["cart"])
-
-def get_user_service(db: Session = Depends(get_conn)) -> UserService:
-    """
-    @brief Crea e restituisce un'istanza di UserService con le dipendenze necessarie
-    @param db Sessione del database
-    @return UserService configurato
-    """
-    return UserService(
-        repo=UserRepoAdapter(db),
-        email_validator=EmailValidationAdapter(),
-    )
-
-UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
 def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
     """

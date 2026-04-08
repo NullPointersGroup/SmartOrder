@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class IEmailValidationPort(ABC):
+class EmailValidationPort(ABC):
     """
     @brief Porta secondaria verso la validazione del dominio email
     """

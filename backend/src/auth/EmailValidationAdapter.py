@@ -1,7 +1,7 @@
-from src.auth.IEmailValidationPort import IEmailValidationPort
+from src.auth.EmailValidationPort import EmailValidationPort
 import dns.resolver
 
-class EmailValidationAdapter(IEmailValidationPort):
+class EmailValidationAdapter(EmailValidationPort):
     """
     @brief Adapter verso la validazione DNS del dominio email
     """

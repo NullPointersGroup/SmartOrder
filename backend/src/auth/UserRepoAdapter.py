@@ -1,12 +1,12 @@
 from sqlmodel import Session
 
-from src.auth.IUserRepoPort import IUserRepoPort
+from src.auth.UserRepoPort import UserRepoPort
 from src.auth.UserRepository import UserRepository
 from src.auth.models import UserRegistration, UserReset
 from src.db.models import Utentiweb
 
 
-class UserRepoAdapter(IUserRepoPort):
+class UserRepoAdapter(UserRepoPort):
     """
     @brief Adapter verso la persistenza (DB)
     """
@@ -20,12 +20,6 @@ class UserRepoAdapter(IUserRepoPort):
         @req RF-OB_26
         """
         return self.repo.find_by_username(username)
-
-    def username_exists(self, username: str) -> bool:
-        """
-        @brief verifica che lo username esiste
-        """
-        return self.repo.find_by_username(username) is not None
 
     def email_exists(self, email: str) -> bool:
         """
