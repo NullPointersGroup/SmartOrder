@@ -49,7 +49,7 @@ export const NavBar: React.FC<Props> = ({ username, onLogout, onProfile }) => {
   const ref               = useRef<HTMLDivElement>(null);
   const location          = useLocation();
   const navigate          = useNavigate();
-  const role              = useAuthStore((s) => s.admin) as Role;
+  const role: Role = useAuthStore((s) => s.admin) ? 'admin' : 'cliente';
 
   const links = NAV_LINKS[role] ?? [];
   const initial = username ? username[0].toUpperCase() : '?';

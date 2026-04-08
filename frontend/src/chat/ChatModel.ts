@@ -103,7 +103,7 @@ export const ChatModel = {
      * @return Promise con username dell'utente
      * @throws Error in caso di fallimento autenticazione
      */
-    const res = await fetch(`/auth/me`, { credentials: 'include' });
+    const res = await fetch(`/api/auth/me`, { credentials: 'include' });
     return handleResponse(res);
   },
 
@@ -112,7 +112,7 @@ export const ChatModel = {
      * @brief Effettua il logout dell'utente corrente
      * @throws Error in caso di errore nella richiesta di logout
      */
-    const res = await fetch(`/auth/logout`, {
+    const res = await fetch(`/api/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -128,7 +128,7 @@ export const ChatModel = {
      * @return Promise con array di conversazioni
      * @throws Error se la richiesta fallisce
      */
-    const res = await fetch(`/conversations/${username}`, {
+    const res = await fetch(`/api/conversations/${username}`, {
       credentials: 'include',
     });
     return handleResponse(res);
@@ -142,7 +142,7 @@ export const ChatModel = {
      * @return Promise con la conversazione creata
      * @throws Error se la richiesta fallisce
      */
-    const res = await fetch(`/conversations/${username}`, {
+    const res = await fetch(`/api/conversations/${username}`, {
       method: 'POST',
       credentials: 'include',
       ...json({ titolo }),
@@ -158,7 +158,7 @@ export const ChatModel = {
      * @return Promise con la conversazione aggiornata
      * @throws Error se la richiesta fallisce
      */
-    const res = await fetch(`/conversations/${conv_id}`, {
+    const res = await fetch(`/api/conversations/${conv_id}`, {
       method: 'PATCH',
       credentials: 'include',
       ...json({ titolo }),
@@ -172,7 +172,7 @@ export const ChatModel = {
      * @param conv_id ID della conversazione da eliminare
      * @throws Error se la richiesta fallisce
      */
-    const res = await fetch(`/conversations/${conv_id}`, {
+    const res = await fetch(`/api/conversations/${conv_id}`, {
       method: 'DELETE',
       credentials: 'include',
     });
@@ -188,7 +188,7 @@ export const ChatModel = {
      * @return Promise con id conversazione e array di messaggi
      * @throws Error se la richiesta fallisce
      */
-    const res = await fetch(`/chat/${conv_id}/all`, { credentials: 'include' });
+    const res = await fetch(`/api/chat/${conv_id}/all`, { credentials: 'include' });
     const data = await handleResponse<RawChatApiResponse>(res);
 
     return {
@@ -205,7 +205,7 @@ export const ChatModel = {
      * @return Promise con id conversazione e messaggio inviato
      * @throws Error se la richiesta fallisce
      */
-    const res = await fetch(`/chat/${conv_id}`, {
+    const res = await fetch(`/api/chat/${conv_id}`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -228,7 +228,7 @@ export const ChatModel = {
      * @return Promise con username e lista prodotti nel carrello
      * @throws Error se la richiesta fallisce
      */
-    const res = await fetch(`/cart/${username}`, { credentials: 'include' });
+    const res = await fetch(`/api/cart/${username}`, { credentials: 'include' });
     return handleResponse(res);
   },
 
@@ -239,7 +239,7 @@ export const ChatModel = {
      * @param prod_id ID del prodotto da rimuovere
      * @throws Error se la richiesta fallisce
      */
-    const res = await fetch(`/cart/${username}`, {
+    const res = await fetch(`/api/cart/${username}`, {
       method: 'DELETE',
       credentials: 'include',
       ...json({ prod_id }),
@@ -253,7 +253,7 @@ export const ChatModel = {
      * @param username Nome dell'utente
      * @throws Error se la richiesta fallisce
      */
-    const res = await fetch(`/cart/${username}/sendOrder`, {
+    const res = await fetch(`/api/cart/${username}/sendOrder`, {
       method: 'POST',
       credentials: 'include',
     });

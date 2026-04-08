@@ -10,12 +10,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      '/auth': backendUrl,
-      '/chat': backendUrl,
-      '/conversations': backendUrl,
-      '/cart': backendUrl,
-      '/storico': backendUrl,
-      '/recording': backendUrl,
+      '/api': backendUrl,
     }
   },
   test: {

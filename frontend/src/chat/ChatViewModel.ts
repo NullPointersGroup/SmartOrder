@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChatModel } from './ChatModel';
 import type { Message, Conversation, CartProduct } from './ChatModel'
 import { trascriviAudio } from '../recording/RecordingAPI'
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../auth/authStore';
 
 export function useChatViewModel() {
   /**
@@ -9,7 +11,7 @@ export function useChatViewModel() {
    * @return Oggetto con stato e funzioni per la vista chat
   */
   // ── Stato ─────────────────────────────────────────────────────────────────
-  const [username, setUsername]           = useState<string | null>(null);
+  const { username } = useAuthStore();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvId, setActiveConvId]   = useState<number | null>(null);
   const [messages, setMessages]           = useState<Message[]>([]);
@@ -21,18 +23,20 @@ export function useChatViewModel() {
   const [isTranscribing, setIsTranscribing] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   // ── Scroll to bottom ──────────────────────────────────────────────────────
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ── Bootstrap: carica utente e sue conversazioni ──────────────────────────
+  // useEffect rimane quasi identico, togli solo getState()
   useEffect(() => {
     (async () => {
       try {
-        const { username } = await ChatModel.getMe();
-        setUsername(username);
+        if (!username) return;
 
         const [convs, cart] = await Promise.all([
           ChatModel.getConversations(username),
@@ -54,11 +58,12 @@ export function useChatViewModel() {
           setConversations([newConv]);
           setActiveConvId(newConv.id_conv);
         }
-      } catch {
-        globalThis.location.href = '/unauthorized';
-      }
+      } catch (error) {
+  console.error("Chat bootstrap error:", error);
+  navigate('/unauthorized');  // ← non ricarica la pagina, console rimane
+}
     })();
-  }, []);
+  }, [username, navigate]);
 
   // Salva l'ID nel localStorage ogni volta che cambia la chat attiva
   useEffect(() => {
@@ -256,12 +261,9 @@ export function useChatViewModel() {
 
   // ── Logout ────────────────────────────────────────────────────────────────
   const logout = useCallback(async () => {
-    /**
-     * @brief Effettua il logout e reindirizza alla home
-     */
     await ChatModel.logout().catch(() => {});
-    globalThis.location.href = '/';
-  }, []);
+    clearAuth();   // setta loggedOut: true → ProtectedRoute manda a /
+  }, [clearAuth]);
 
   // ── Invia ordine ──────────────────────────────────────────────────────────
   const invioOrdine = useCallback(async () => {
