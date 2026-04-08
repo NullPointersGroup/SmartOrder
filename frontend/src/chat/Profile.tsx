@@ -36,7 +36,7 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
 
   useEffect(() => {
     if (!username) return
-    fetch('/auth/retrieve', { credentials: 'include' })
+    fetch('/api/auth/retrieve', { credentials: 'include' })
       .then(r => r.text())
       .then(text => {
         const data = JSON.parse(text)
@@ -47,12 +47,12 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
   }, [username])
 
   const handleDelete = async () => {
-    await fetch('/auth/delete', { method: 'DELETE', credentials: 'include' })
+    await fetch('/api/auth/delete', { method: 'DELETE', credentials: 'include' })
     onLogout()
   }
 
   const handleReset = async (oldPassword: string, newPassword: string): Promise<string | null> => {
-    const res = await fetch('/auth/reset', {
+    const res = await fetch('/api/auth/reset', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },

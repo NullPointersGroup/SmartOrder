@@ -37,7 +37,7 @@ function renderNavBar(overrides: Partial<typeof defaultProps> = {}) {
 }
 
 // variabile condivisa tra mock e test
-let mockAdmin: string | null = null;
+let mockAdmin: boolean | null = null;
 
 vi.mock('../../src/auth/authStore', () => ({
   useAuthStore: vi.fn((selector) => {
@@ -181,27 +181,33 @@ describe('NavBar – edge case username', () => {
 describe('NavBar – visibilità Storico per ruolo cliente', () => {
   //TU-F_299
   it('mostra il pulsante Storico se il ruolo è "cliente"', async () => {
-  mockAdmin = 'cliente';
-  renderNavBar();
-  fireEvent.click(screen.getByText('mario'));
-  await waitFor(() => expect(screen.getByText('Storico')).toBeInTheDocument());
-});
+    mockAdmin = null;
+    renderNavBar();
+    fireEvent.click(screen.getByText('mario'));
+    await waitFor(() => expect(screen.getByText('Storico')).toBeInTheDocument());
+  });
 
-//TU-F_300
-it('NON mostra il pulsante Storico se il ruolo non è "cliente"', async () => {
-  renderNavBar();
-  fireEvent.click(screen.getByText('mario'));
-  await waitFor(() => expect(screen.getByText('Logout')).toBeInTheDocument());
-  expect(screen.queryByText('Storico')).not.toBeInTheDocument();
-});
+  //TU-F_300
+  it('NON mostra il pulsante Storico se il ruolo è admin', async () => {
+    mockAdmin = true; // admin
 
-//TU-F_301
-it('naviga verso /history al click su Storico', async () => {
-  mockAdmin = 'cliente';
-  renderNavBar();
-  fireEvent.click(screen.getByText('mario'));
-  await waitFor(() => expect(screen.getByText('Storico')).toBeInTheDocument());
-  fireEvent.click(screen.getByText('Storico'));
-  expect(mockNavigate).toHaveBeenCalledWith('/history');
-});
+    renderNavBar();
+    fireEvent.click(screen.getByText('mario'));
+
+    await screen.findByText('Logout');
+    expect(screen.queryByText('Storico')).not.toBeInTheDocument();
+  });
+
+  //TU-F_301
+  it('naviga verso /history al click su Storico', async () => {
+    mockAdmin = null; // cliente
+
+    renderNavBar();
+    fireEvent.click(screen.getByText('mario'));
+
+    const storico = await screen.findByText('Storico');
+    fireEvent.click(storico);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/history');
+  });
 });

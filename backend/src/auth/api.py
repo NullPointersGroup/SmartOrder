@@ -101,7 +101,6 @@ def login(
         username = service.check_user(u)
         token = TokenUtility.create_token(username)
 
-        # set cookie compatibile localhost + cross-origin
         response.set_cookie(
             key="access_token",
             value=token,
@@ -321,12 +320,12 @@ def logout(response: Response) -> dict[str, bool]:
     return {"ok": True}
 
 @router.get(
-    "/me",
+    "/saveInStore",
     responses={
         404: {"model": ErrorResponse, "description": "Utente non trovato"},
     },
 )
-def me(
+def save_in_store(
     current_user: UserServiceCurrentUser,
     service: UserServiceDep
 ) -> dict[str, str | bool]:

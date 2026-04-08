@@ -9,7 +9,7 @@ export async function trascriviAudio(blob: Blob, filename = 'audio.webm'): Promi
   const formData = new FormData()
   formData.append('file', blob, filename)
 
-  const res = await fetch('/recording/trascrivi', {
+  const res = await fetch('/api/recording/trascrivi', {
     method: 'POST',
     credentials: 'include',
     body: formData,

@@ -39,9 +39,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router)
-app.include_router(chat_router)
-app.include_router(cart_router)
-app.include_router(conversations_router)
-app.include_router(storico_router)
-app.include_router(recording_router)
+app.include_router(auth_router,          prefix="/api")
+app.include_router(chat_router,          prefix="/api")
+app.include_router(cart_router,          prefix="/api")
+app.include_router(conversations_router, prefix="/api")
+app.include_router(storico_router,       prefix="/api")
+app.include_router(recording_router,     prefix="/api")

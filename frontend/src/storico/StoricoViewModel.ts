@@ -31,9 +31,8 @@ export function useStoricoViewModel() {
   const [erroreDuplica, setErroreDuplica] = useState<string | null>(null)
   const [dataInizio, setDataInizio] = useState('');
   const [dataFine, setDataFine] = useState('');
-  const role = useAuthStore((s) => s.admin)
 
-  const isAdmin = role === 'admin'
+  const isAdmin = !!useAuthStore((s) => s.admin)
 
   const caricaPagina = useCallback(async (n: number, di?: string, df?: string) => {
     const inizio = di ?? dataInizio;
