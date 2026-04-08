@@ -1,6 +1,6 @@
 from typing import Annotated, Dict
 
-from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
+from fastapi import APIRouter, Depends, HTTPException, Response, Cookie, Request
 from pydantic import BaseModel
 from sqlmodel import Session
 from src.auth.TokenUtility import TokenUtility
@@ -27,6 +27,8 @@ from src.auth.exceptions import (
 from src.db.dbConnection import get_conn
 from src.auth.UserRepoAdapter import UserRepoAdapter
 from src.auth.EmailValidationAdapter import EmailValidationAdapter
+from src.auth.limiter import limiter
+from src.auth.blocklist import is_password_common
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -78,8 +80,12 @@ def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
         400: {"model": ErrorResponse, "description": "Username o password errati"}
     },
 )
+@limiter.limit("10/minute")
 def login(
-    payload: UserSchema, service: UserServiceDep, response: Response
+    request: Request,
+    payload: UserSchema,
+    service: UserServiceDep,
+    response: Response
 ) -> LoginResponse:
     """
     @brief Autentica un utente e imposta il cookie di sessione
@@ -136,6 +142,13 @@ async def register(
     @req RF-OB_18
     @req RF-OB_19
     """
+    
+    if is_password_common(payload.password):
+        raise HTTPException(
+            status_code=400,
+            detail={"ok": False, "errors": ["Password troppo comune, scegline una più sicura"]},
+        )
+    
     u = UserRegistration(
         username=payload.username,
         password=payload.password,
@@ -195,6 +208,13 @@ def reset_password(
     @return AuthResponse con ok=True se reimpostazione riuscita
     @throws HTTPException 400, 401, 404, 500 in base all'errore
     """
+    
+    if is_password_common(body.new_password):
+        raise HTTPException(
+            status_code=400,
+            detail={"ok": False, "errors": ["Password troppo comune, scegline una più sicura"]},
+        )
+    
     u = UserReset(
         username=current_user,
         password=body.old_password,

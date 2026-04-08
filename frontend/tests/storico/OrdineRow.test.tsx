@@ -4,9 +4,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { OrdineRow } from '../../src/storico/OrdineRow';
 import type { Ordine } from '../../src/storico/StoricoModel';
 
-// jsdom spesso non ha i dati ICU completi per 'it-IT',
-// il che causa timeout su toLocaleDateString con opzioni di formato.
-// Mocchiamo Date.prototype.toLocaleDateString per restituire valori prevedibili.
 const originalToLocaleDateString = Date.prototype.toLocaleDateString;
 beforeAll(() => {
   Date.prototype.toLocaleDateString = function (_locale?: string, _options?: Intl.DateTimeFormatOptions) {
@@ -73,11 +70,13 @@ beforeEach(() => vi.clearAllMocks());
 // ─── Render base ──────────────────────────────────────────────────────────────
 
 describe('OrdineRow – render base', () => {
+  //TU-F_387
   it('mostra il codice ordine', () => {
     renderRow(ordineCliente);
     expect(screen.getByText('ORD-001')).toBeInTheDocument();
   });
 
+  //TU-F_388
   it('mostra la data formattata in italiano', () => {
     renderRow(ordineCliente);
     const row = screen.getByRole('row');
@@ -85,21 +84,25 @@ describe('OrdineRow – render base', () => {
     expect(row).toHaveTextContent(/2024/);
   });
 
+  //TU-F_389
   it('mostra il badge con il numero di prodotti corretto (plurale)', () => {
     renderRow(ordineCliente);
     expect(screen.getByText('3 prodotti')).toBeInTheDocument();
   });
 
+  //TU-F_390
   it('mostra il badge con "1 prodotto" al singolare', () => {
     renderRow(ordineConUnProdotto);
     expect(screen.getByText('1 prodotto')).toBeInTheDocument();
   });
 
+  //TU-F_391
   it('ha il pulsante "Dettaglio →"', () => {
     renderRow(ordineCliente);
     expect(screen.getByRole('button', { name: /dettaglio/i })).toBeInTheDocument();
   });
 
+  //TU-F_392
   it('il pulsante ha aria-label con il codice ordine', () => {
     renderRow(ordineCliente);
     expect(
@@ -111,17 +114,20 @@ describe('OrdineRow – render base', () => {
 // ─── Vista admin ─────────────────────────────────────────────────────────────
 
 describe('OrdineRow – vista admin', () => {
+  //TU-F_393
   it('mostra la colonna username quando isAdmin=true', () => {
     renderRow(ordineAdmin, true);
     expect(screen.getByText('luigi')).toBeInTheDocument();
   });
 
+  //TU-F_394
   it('mostra "—" se username è undefined in vista admin', () => {
     const ordineNoUsername: Ordine = { ...ordineCliente, username: undefined };
     renderRow(ordineNoUsername, true);
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 
+  //TU-F_395
   it('NON mostra la colonna username quando isAdmin=false', () => {
     renderRow(ordineAdmin, false);
     expect(screen.queryByText('luigi')).not.toBeInTheDocument();
@@ -131,6 +137,7 @@ describe('OrdineRow – vista admin', () => {
 // ─── Click su dettaglio ───────────────────────────────────────────────────────
 
 describe('OrdineRow – interazione', () => {
+  //TU-F_396
   it('chiama onApriDettaglio con l\'ordine corretto al click sul pulsante', () => {
     const onApriDettaglio = vi.fn();
     renderRow(ordineCliente, false, onApriDettaglio);
@@ -140,6 +147,7 @@ describe('OrdineRow – interazione', () => {
     expect(onApriDettaglio).toHaveBeenCalledWith(ordineCliente);
   });
 
+  //TU-F_397
   it('chiama onApriDettaglio anche per un ordine admin', () => {
     const onApriDettaglio = vi.fn();
     renderRow(ordineAdmin, true, onApriDettaglio);

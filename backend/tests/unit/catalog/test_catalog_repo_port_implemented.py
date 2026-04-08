@@ -16,14 +16,14 @@ class ConcreteCatalogRepo(CatalogRepoPort):
         return []
 
 
-# TU-B_182
+#TU-B_182
 def test_get_product_can_be_implemented():
     catalog_repo = ConcreteCatalogRepo()
     result = catalog_repo.get_product("ABC1")
     assert isinstance(result, CatalogProduct)
 
 
-# TU-B_183
+#TU-B_183
 def test_get_full_catalog_can_be_implemented():
     catalog_repo = ConcreteCatalogRepo()
     result = catalog_repo.get_full_catalog()

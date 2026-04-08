@@ -15,7 +15,6 @@ def make_cart_product(prod_id: str, name: str, qty: int) -> CartProduct:
         measure_unit=MeasureUnitEnum.C,
     )
 
-
 def make_catalog_product(prod_id: str, name: str) -> CatalogProduct:
     return CatalogProduct(
         prod_id=prod_id,
@@ -24,7 +23,7 @@ def make_catalog_product(prod_id: str, name: str) -> CatalogProduct:
         measure_unit=MeasureUnitEnum.C,
     )
 
-
+#TU-B_228
 def test_get_cart_items_delegates_to_cart_service():
     cart_service = MagicMock()
     catalog_repo = MagicMock()
@@ -43,7 +42,7 @@ def test_get_cart_items_delegates_to_cart_service():
     cart_service.get_cart_products.assert_called_once_with("carlesso")
     assert [p.prod_id for p in result] == ["A1"]
 
-
+#TU-B_229
 def test_search_cart_maps_only_products_present_in_cart():
     cart_service = MagicMock()
     catalog_repo = MagicMock()
@@ -66,7 +65,7 @@ def test_search_cart_maps_only_products_present_in_cart():
     vec_db.search_cart.assert_called_once_with("carlesso", "acqua e birra", 0.8)
     assert [p.prod_id for p in result] == ["A1", "B2"]
 
-
+#TU-B_230
 def test_search_catalog_maps_only_existing_products():
     cart_service = MagicMock()
     catalog_repo = MagicMock()
@@ -90,7 +89,7 @@ def test_search_catalog_maps_only_existing_products():
     vec_db.search_catalog.assert_called_once_with("birra", 0.8)
     assert [p.prod_id for p in result] == ["A1", "B2"]
 
-
+#TU-B_231
 def test_update_cart_item_qty_delegates_with_username():
     cart_service = MagicMock()
     catalog_repo = MagicMock()

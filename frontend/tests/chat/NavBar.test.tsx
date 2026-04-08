@@ -55,26 +55,31 @@ beforeEach(() => {
 });
 
 describe('NavBar – render base', () => {
+  //TU-F_285
   it('mostra il brand "SmartOrder"', () => {
     renderNavBar();
     expect(screen.getByText(/smartorder/i)).toBeInTheDocument();
   });
 
+  //TU-F_286
   it('mostra lo username dell\'utente', () => {
     renderNavBar();
     expect(screen.getByText('mario')).toBeInTheDocument();
   });
 
+  //TU-F_287
   it('mostra l\'iniziale dell\'username come avatar', () => {
     renderNavBar();
     expect(screen.getByText('M')).toBeInTheDocument();
   });
 
+  //TU-F_288
   it('con username null mostra "?" come avatar e testo', () => {
     renderNavBar({ username: undefined });
     expect(screen.getAllByText('?').length).toBeGreaterThanOrEqual(1);
   });
 
+  //TU-F_289
   it('il dropdown è chiuso di default', () => {
     renderNavBar();
     expect(screen.queryByText('Profilo')).not.toBeInTheDocument();
@@ -83,6 +88,7 @@ describe('NavBar – render base', () => {
 });
 
 describe('NavBar – dropdown', () => {
+  //TU-F_290
   it('apre il dropdown al click sul bottone utente', async () => {
     renderNavBar();
     fireEvent.click(screen.getByText('mario'));
@@ -92,6 +98,7 @@ describe('NavBar – dropdown', () => {
     });
   });
 
+  //TU-F_291
   it('chiude il dropdown al secondo click', async () => {
     renderNavBar();
     const btn = screen.getByText('mario');
@@ -101,6 +108,7 @@ describe('NavBar – dropdown', () => {
     await waitFor(() => expect(screen.queryByText('Profilo')).not.toBeInTheDocument());
   });
 
+  //TU-F_292
   it('chiude il dropdown cliccando fuori', async () => {
     renderNavBar();
     fireEvent.click(screen.getByText('mario'));
@@ -109,6 +117,7 @@ describe('NavBar – dropdown', () => {
     await waitFor(() => expect(screen.queryByText('Profilo')).not.toBeInTheDocument());
   });
 
+  //TU-F_293
   it('NON chiude il dropdown cliccando dentro la navbar', async () => {
     renderNavBar();
     fireEvent.click(screen.getByText('mario'));
@@ -117,6 +126,7 @@ describe('NavBar – dropdown', () => {
     await waitFor(() => expect(screen.getByText('Profilo')).toBeInTheDocument());
   });
 
+  //TU-F_294
   it('mostra la sezione "Account" con lo username nel dropdown', async () => {
     renderNavBar();
     fireEvent.click(screen.getByText('mario'));
@@ -125,6 +135,7 @@ describe('NavBar – dropdown', () => {
     });
   });
 
+  //TU-F_295
   it('mostra "?" nell\'header del dropdown quando username è null', async () => {
     renderNavBar({ username: undefined });
     fireEvent.click(screen.getAllByText('?')[0]);
@@ -135,6 +146,7 @@ describe('NavBar – dropdown', () => {
 });
 
 describe('NavBar – azioni', () => {
+  //TU-F_296
   it('chiama onProfile e chiude il dropdown al click su "Profilo"', async () => {
     const onProfile = vi.fn();
     renderNavBar({ onProfile });
@@ -145,6 +157,7 @@ describe('NavBar – azioni', () => {
     await waitFor(() => expect(screen.queryByText('Profilo')).not.toBeInTheDocument());
   });
 
+  //TU-F_297
   it('chiama onLogout e chiude il dropdown al click su "Logout"', async () => {
     const onLogout = vi.fn();
     renderNavBar({ onLogout });
@@ -157,6 +170,7 @@ describe('NavBar – azioni', () => {
 });
 
 describe('NavBar – edge case username', () => {
+  //TU-F_298
   it('mostra correttamente username con caratteri non ASCII', () => {
     renderNavBar({ username: 'àlex' });
     expect(screen.getAllByText('àlex').length).toBeGreaterThanOrEqual(1);
@@ -165,6 +179,7 @@ describe('NavBar – edge case username', () => {
 });
 
 describe('NavBar – visibilità Storico per ruolo cliente', () => {
+  //TU-F_299
   it('mostra il pulsante Storico se il ruolo è "cliente"', async () => {
   mockAdmin = 'cliente';
   renderNavBar();
@@ -172,6 +187,7 @@ describe('NavBar – visibilità Storico per ruolo cliente', () => {
   await waitFor(() => expect(screen.getByText('Storico')).toBeInTheDocument());
 });
 
+//TU-F_300
 it('NON mostra il pulsante Storico se il ruolo non è "cliente"', async () => {
   renderNavBar();
   fireEvent.click(screen.getByText('mario'));
@@ -179,6 +195,7 @@ it('NON mostra il pulsante Storico se il ruolo non è "cliente"', async () => {
   expect(screen.queryByText('Storico')).not.toBeInTheDocument();
 });
 
+//TU-F_301
 it('naviga verso /history al click su Storico', async () => {
   mockAdmin = 'cliente';
   renderNavBar();

@@ -69,21 +69,25 @@ beforeEach(() => {
 });
 
 describe('ConversationSidebar – render base', () => {
+  //TU-F_258
   it('ha il ruolo aside con aria-label "Conversazioni"', () => {
     renderSidebar();
     expect(screen.getByRole('complementary', { name: /conversazioni/i })).toBeInTheDocument();
   });
 
+  //TU-F_259
   it('mostra il titolo "Conversazioni"', () => {
     renderSidebar();
     expect(screen.getByText(/conversazioni/i)).toBeInTheDocument();
   });
 
+  //TU-F_260
   it('ha il pulsante "Nuova conversazione"', () => {
     renderSidebar();
     expect(screen.getByTitle(/nuova conversazione/i)).toBeInTheDocument();
   });
 
+  //TU-F_261
   it('ha il pulsante di chiusura sidebar', () => {
     renderSidebar();
     expect(screen.getByTitle(/chiudi pannello conversazioni/i)).toBeInTheDocument();
@@ -92,11 +96,13 @@ describe('ConversationSidebar – render base', () => {
 
 // Lista vuota
 describe('ConversationSidebar – lista vuota', () => {
+  //TU-F_262
   it('mostra il messaggio di lista vuota', () => {
     renderSidebar({ conversations: [] });
     expect(screen.getByText(/nessuna conversazione/i)).toBeInTheDocument();
   });
 
+  //TU-F_263
   it('suggerisce di cliccare su + per iniziare', () => {
     renderSidebar({ conversations: [] });
     expect(screen.getByText(/clicca su \+ per iniziare/i)).toBeInTheDocument();
@@ -105,17 +111,20 @@ describe('ConversationSidebar – lista vuota', () => {
 
 // Lista con conversazioni
 describe('ConversationSidebar – con conversazioni', () => {
+  //TU-F_264
   it('mostra tutte le conversazioni', () => {
     renderSidebar();
     expect(screen.getByText('Prima conv')).toBeInTheDocument();
     expect(screen.getByText('Seconda conv')).toBeInTheDocument();
   });
 
+  //TU-F_265
   it('ha il nav con aria-label "Elenco conversazioni"', () => {
     renderSidebar();
     expect(screen.getByRole('navigation', { name: /elenco conversazioni/i })).toBeInTheDocument();
   });
 
+  //TU-F_266
   it('mostra il marker di conversazione attiva', () => {
     renderSidebar({ activeConvId: 1 as any });
     expect(screen.getByText('Prima conv')).toBeInTheDocument();
@@ -124,6 +133,7 @@ describe('ConversationSidebar – con conversazioni', () => {
 
 // Selezione
 describe('ConversationSidebar – selezione', () => {
+  //TU-F_267
   it('chiama onSelect con l\'id corretto', () => {
     const onSelect = vi.fn();
     renderSidebar({ onSelect });
@@ -132,6 +142,7 @@ describe('ConversationSidebar – selezione', () => {
     expect(onSelect).toHaveBeenCalledWith(1);
   });
 
+  //TU-F_268
   it('NON chiama onSelect quando si sta rinominando quella conversazione (isEditing=true)', async () => {
     const onSelect = vi.fn();
     renderSidebar({ onSelect });
@@ -151,6 +162,7 @@ describe('ConversationSidebar – selezione', () => {
 
 // Creazione
 describe('ConversationSidebar – creazione', () => {
+  //TU-F_269
   it('chiama onCreate', () => {
     const onCreate = vi.fn();
     renderSidebar({ onCreate });
@@ -162,6 +174,7 @@ describe('ConversationSidebar – creazione', () => {
 
 // Chiusura
 describe('ConversationSidebar – chiusura', () => {
+  //TU-F_270
   it('chiama onToggleSelf', () => {
     const onToggleSelf = vi.fn();
     renderSidebar({ onToggleSelf });
@@ -173,6 +186,7 @@ describe('ConversationSidebar – chiusura', () => {
 
 // Menu
 describe('ConversationSidebar – menu contestuale', () => {
+  //TU-F_271
   it('apre il menu', async () => {
     renderSidebar();
     fireEvent.click(getMenuButton());
@@ -183,6 +197,7 @@ describe('ConversationSidebar – menu contestuale', () => {
     });
   });
 
+  //TU-F_272
   it('chiude il menu al secondo click', async () => {
     renderSidebar();
     const btn = getMenuButton();
@@ -196,6 +211,7 @@ describe('ConversationSidebar – menu contestuale', () => {
     );
   });
 
+  //TU-F_273
   it('chiude il menu con click fuori (handleClickOutside)', async () => {
     renderSidebar();
     fireEvent.click(getMenuButton());
@@ -208,6 +224,7 @@ describe('ConversationSidebar – menu contestuale', () => {
     );
   });
 
+  //TU-F_274
   it('mouseDown fuori quando menu è chiuso non produce errori', () => {
     renderSidebar();
     expect(() => fireEvent.mouseDown(document.body)).not.toThrow();
@@ -216,11 +233,13 @@ describe('ConversationSidebar – menu contestuale', () => {
 
 // Rinomina
 describe('ConversationSidebar – rinomina', () => {
+  //TU-F_275
   it('mostra input', async () => {
     await openMenuAndClickRename();
     await waitFor(() => expect(screen.getByRole('textbox')).toBeInTheDocument());
   });
 
+  //TU-F_276
   it('chiama onRename con Enter', async () => {
     const onRename = vi.fn();
     renderSidebar({ onRename });
@@ -237,6 +256,7 @@ describe('ConversationSidebar – rinomina', () => {
     expect(onRename).toHaveBeenCalledWith(1, 'Nuovo titolo');
   });
 
+  //TU-F_277
   it('chiama onRename quando l\'input perde il focus (onBlur)', async () => {
     const onRename = vi.fn();
     renderSidebar({ onRename });
@@ -252,6 +272,7 @@ describe('ConversationSidebar – rinomina', () => {
     expect(onRename).toHaveBeenCalledWith(1, 'Titolo via blur');
   });
 
+  //TU-F_278
   it('NON chiama onRename se il valore è vuoto al blur', async () => {
     const onRename = vi.fn();
     renderSidebar({ onRename });
@@ -267,6 +288,7 @@ describe('ConversationSidebar – rinomina', () => {
     expect(onRename).not.toHaveBeenCalled();
   });
 
+  //TU-F_279
   it('annulla la rinomina premendo Escape', async () => {
     const onRename = vi.fn();
     renderSidebar({ onRename });
@@ -288,6 +310,7 @@ describe('ConversationSidebar – rinomina', () => {
 
 // Eliminazione
 describe('ConversationSidebar – eliminazione', () => {
+  //TU-F_280
   it('mostra dialog', async () => {
     await openMenuAndClickDelete();
 
@@ -296,6 +319,7 @@ describe('ConversationSidebar – eliminazione', () => {
     });
   });
 
+  //TU-F_281
   it('chiama onDelete', async () => {
     const onDelete = vi.fn();
     renderSidebar({ onDelete });
@@ -319,6 +343,7 @@ describe('ConversationSidebar – eliminazione', () => {
     expect(onDelete).toHaveBeenCalledWith(1);
   });
 
+  //TU-F_282
   it('chiude il dialog senza eliminare cliccando "Annulla"', async () => {
     const onDelete = vi.fn();
     renderSidebar({ onDelete });
@@ -339,6 +364,7 @@ describe('ConversationSidebar – eliminazione', () => {
     expect(onDelete).not.toHaveBeenCalled();
   });
 
+  //TU-F_283
   it('chiude il dialog cliccando lo sfondo (backdrop)', async () => {
     renderSidebar();
 
@@ -359,6 +385,7 @@ describe('ConversationSidebar – eliminazione', () => {
     );
   });
 
+  //TU-F_284
   it('confirmDeleteConv non chiama onDelete se confirmDeleteId è già null (branch falso riga 84)', async () => {
     const onDelete = vi.fn();
     renderSidebar({ onDelete });

@@ -55,7 +55,7 @@ def valid_registration():
 
 
 class TestCheckUser:
-    # TU-B_122
+    #TU-B_122
     def test_returns_username_with_valid_credentials(
         self, service, repo, valid_user, mock_utente
     ):
@@ -63,13 +63,13 @@ class TestCheckUser:
         with patch_verify(True):
             assert service.check_user(valid_user) == "testuser"
 
-    # TU-B_123
+    #TU-B_123
     def test_raises_when_user_not_found(self, service, repo, valid_user):
         repo.find_by_username.return_value = None
         with pytest.raises(InvalidCredentialsError):
             service.check_user(valid_user)
 
-    # TU-B_124
+    #TU-B_124
     def test_raises_when_password_wrong(self, service, repo, valid_user, mock_utente):
         repo.find_by_username.return_value = mock_utente
         with patch_verify(False):
@@ -78,7 +78,7 @@ class TestCheckUser:
 
 
 class TestRegisterUser:
-    # TU-B_125
+    #TU-B_125
     def test_succeeds_with_valid_data(
         self, service, repo, email_validator, valid_registration
     ):
@@ -88,13 +88,13 @@ class TestRegisterUser:
         email_validator.domain_exists.return_value = True
         service.register_user(valid_registration)
 
-    # TU-B_126
+    #TU-B_126
     def test_raises_when_username_exists(self, service, repo, valid_registration):
         repo.username_exists.return_value = True
         with pytest.raises(UsernameAlreadyExistsError):
             service.register_user(valid_registration)
 
-    # TU-B_127
+    #TU-B_127
     def test_raises_when_email_domain_invalid(
         self, service, repo, email_validator, valid_registration
     ):
@@ -103,7 +103,7 @@ class TestRegisterUser:
         with pytest.raises(InvalidEmailFormatError):
             service.register_user(valid_registration)
 
-    # TU-B_128
+    #TU-B_128
     def test_raises_when_email_exists(
         self, service, repo, email_validator, valid_registration
     ):
@@ -113,7 +113,7 @@ class TestRegisterUser:
         with pytest.raises(EmailAlreadyExistsError):
             service.register_user(valid_registration)
 
-    # TU-B_129
+    #TU-B_129
     def test_raises_when_add_user_fails(
         self, service, repo, email_validator, valid_registration
     ):
@@ -126,19 +126,19 @@ class TestRegisterUser:
 
 
 class TestDeleteUser:
-    # TU-B_130
+    #TU-B_130
     def test_succeeds_when_user_exists(self, service, repo, mock_utente):
         repo.find_by_username.return_value = mock_utente
         repo.delete_user.return_value = True
         service.delete_user("testuser")
 
-    # TU-B_131
+    #TU-B_131
     def test_raises_when_user_not_found(self, service, repo):
         repo.find_by_username.return_value = None
         with pytest.raises(UserNotFoundError):
             service.delete_user("testuser")
 
-    # TU-B_132
+    #TU-B_132
     def test_raises_when_delete_fails(self, service, repo, mock_utente):
         repo.find_by_username.return_value = mock_utente
         repo.delete_user.return_value = False
@@ -148,7 +148,7 @@ class TestDeleteUser:
 
 from unittest.mock import patch
 
-
+#TU-B_360
 def patch_verify(return_value: bool):
     return patch(
         "src.auth.UserService.PasswordUtility.verify_password",

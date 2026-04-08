@@ -33,6 +33,7 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 describe('Profile – render base', () => {
+  //TU-F_324
   it('mostra il titolo "Profilo"', async () => {
     mockFetchText(200, userInfo);
     await act(async () => {
@@ -43,12 +44,14 @@ describe('Profile – render base', () => {
     });
   });
 
+  //TU-F_325
   it('mostra lo stato di caricamento iniziale', () => {
     mockFetchText(200, userInfo);
     renderProfile();
     expect(screen.getByText(/caricamento/i)).toBeInTheDocument();
   });
 
+  //TU-F_326
   it('ha il bottone di chiusura ✕', async () => {
     mockFetchText(200, userInfo);
     await act(async () => {
@@ -62,6 +65,7 @@ describe('Profile – render base', () => {
 
 // Caricamento dati
 describe('Profile – dati utente', () => {
+  //TU-F_327
   it('mostra username ed email dopo il caricamento', async () => {
     mockFetchText(200, userInfo);
     await act(async () => {
@@ -73,6 +77,7 @@ describe('Profile – dati utente', () => {
     });
   });
 
+  //TU-F_328
   it('mostra il pulsante "Reimposta password"', async () => {
     mockFetchText(200, userInfo);
     await act(async () => {
@@ -83,6 +88,7 @@ describe('Profile – dati utente', () => {
     });
   });
 
+  //TU-F_329
   it('mostra il pulsante "Cancella account"', async () => {
     mockFetchText(200, userInfo);
     await act(async () => {
@@ -93,6 +99,7 @@ describe('Profile – dati utente', () => {
     });
   });
 
+  //TU-F_330
   it('mostra errore se il fetch fallisce', async () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network error'));
     await act(async () => {
@@ -103,6 +110,7 @@ describe('Profile – dati utente', () => {
     });
   });
 
+  //TU-F_331
   it('non fa il fetch se username è null', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
     renderProfile({ username: undefined });
@@ -111,6 +119,7 @@ describe('Profile – dati utente', () => {
 });
 
 describe('Profile – chiusura', () => {
+  //TU-F_332
   it('chiama onClose al click su ✕', async () => {
     mockFetchText(200, userInfo);
     const onClose = vi.fn();
@@ -122,6 +131,7 @@ describe('Profile – chiusura', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  //TU-F_333
   it('chiama onClose al click sullo sfondo scuro', async () => {
     mockFetchText(200, userInfo);
     const onClose = vi.fn();
@@ -136,6 +146,7 @@ describe('Profile – chiusura', () => {
 });
 
 describe('Profile – reset password dialog', () => {
+  //TU-F_334
   it('apre il dialog di reset password al click sul bottone', async () => {
     mockFetchText(200, userInfo);
     await act(async () => {
@@ -150,6 +161,7 @@ describe('Profile – reset password dialog', () => {
     });
   });
 
+  //TU-F_335
   it('chiude il dialog reset cliccando lo sfondo del dialog', async () => {
     mockFetchText(200, userInfo);
     await act(async () => {
@@ -168,6 +180,7 @@ describe('Profile – reset password dialog', () => {
     });
   });
 
+  //TU-F_336
   it('mostra il dialog di successo dopo reset ok', async () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch');
     fetchMock.mockResolvedValueOnce({
@@ -212,6 +225,7 @@ describe('Profile – reset password dialog', () => {
     });
   });
 
+  //TU-F_337
   it('mostra l\'errore del server se il reset fallisce (res.ok=false)', async () => {
     const errorBody = { detail: { errors: ['Password attuale errata'] } };
     const fetchMock = vi.spyOn(globalThis, 'fetch');
@@ -258,6 +272,7 @@ describe('Profile – reset password dialog', () => {
     expect(screen.queryByText(/password reimpostata/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_338
   it('chiude il dialog di successo cliccando lo sfondo', async () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch');
     fetchMock.mockResolvedValueOnce({
@@ -317,6 +332,7 @@ describe('Profile – reset password dialog', () => {
     );
   });
 
+  //TU-F_339
   it('chiude il dialog di successo cliccando OK', async () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch');
     fetchMock.mockResolvedValueOnce({
@@ -370,6 +386,7 @@ describe('Profile – reset password dialog', () => {
 
 // Cancella account
 describe('Profile – cancella account', () => {
+  //TU-F_340
   it('apre il dialog di conferma cancellazione', async () => {
     mockFetchText(200, userInfo);
     await act(async () => {
@@ -384,6 +401,7 @@ describe('Profile – cancella account', () => {
     });
   });
 
+  //TU-F_341
   it('chiude il dialog al click su "Annulla"', async () => {
     mockFetchText(200, userInfo);
     await act(async () => {
@@ -400,6 +418,7 @@ describe('Profile – cancella account', () => {
     await waitFor(() => expect(screen.queryByText(/sei sicuro/i)).not.toBeInTheDocument());
   });
 
+  //TU-F_342
   it('chiude il dialog di cancellazione cliccando lo sfondo (backdrop riga 139)', async () => {
     mockFetchText(200, userInfo);
     await act(async () => {
@@ -429,6 +448,7 @@ describe('Profile – cancella account', () => {
     );
   });
 
+  //TU-F_343
   it('chiama onLogout dopo la conferma di cancellazione', async () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch');
     fetchMock.mockResolvedValueOnce({

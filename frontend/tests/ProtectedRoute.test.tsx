@@ -31,12 +31,14 @@ describe('ProtectedRoute', () => {
     useAuthStore.setState({ username: null, isAuthenticated: false });
   });
 
+  //TU-F_03
   it('mostra il loading durante la verifica', () => {
     mockFetch(200, { username: 'mario' });
     renderProtectedRoute();
     expect(screen.getByText(/verifica in corso/i)).toBeInTheDocument();
   });
 
+  //TU-F_04
   it('renderizza i children se /me risponde ok', async () => {
     mockFetch(200, { username: 'mario' });
     renderProtectedRoute(<div>Contenuto protetto</div>);
@@ -45,6 +47,7 @@ describe('ProtectedRoute', () => {
     });
   });
 
+  //TU-F_05
   it('reindirizza a /unauthorized se /me risponde con errore', async () => {
     mockFetch(401, {});
     renderProtectedRoute();
@@ -55,6 +58,7 @@ describe('ProtectedRoute', () => {
     expect(screen.queryByText('Contenuto protetto')).not.toBeInTheDocument();
   });
 
+  //TU-F_06
   it('reindirizza a /unauthorized se fetch lancia eccezione', async () => {
     mockFetchReject(new TypeError('Failed to fetch'));
     renderProtectedRoute();
@@ -64,6 +68,7 @@ describe('ProtectedRoute', () => {
     expect(screen.queryByText('Contenuto protetto')).not.toBeInTheDocument();
   });
 
+  //TU-F_07
   it('chiama setAuth con lo username corretto', async () => {
     mockFetch(200, { username: 'mario' });
     renderProtectedRoute();
@@ -73,6 +78,7 @@ describe('ProtectedRoute', () => {
     });
   });
 
+  //TU-F_08
   it('chiama clearAuth in caso di errore', async () => {
     useAuthStore.setState({ username: 'mario', isAuthenticated: true });
     mockFetch(403, {});
@@ -83,6 +89,7 @@ describe('ProtectedRoute', () => {
     });
   });
 
+  //TU-F_09
   it('chiama /auth/me con credentials include', async () => {
     const spy = mockFetch(200, { username: 'mario' });
     renderProtectedRoute();
