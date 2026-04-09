@@ -82,6 +82,13 @@ class CartRepoAdapter(CartRepoPort):
             measure_unit=row.measure_unit,
             qty=row.qty,
         )
-        
+
     def send_order(self, username: str) -> None:
+        """
+        @brief invia l'ordine
+        @param username: il cliente che sta inviando l'ordine
+        @raise CartEmptyException se il carrello è vuoto
+        @return None
+        @req TODO
+        """
         self.repo.send_order(username)
