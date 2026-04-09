@@ -166,7 +166,7 @@ def test_register_user_creation_error(client, mock_register_service: MagicMock) 
 def test_login_success(client, mock_check_service: MagicMock) -> None:
     mock_check_service.check_user.return_value = "testuser"
 
-    with patch("src.auth.api.TokenUtility.create_token", return_value="fake-token"):
+    with patch("src.auth.api.create_token", return_value="fake-token"):
         response = client.post(
             "/api/auth/login",
             json={"username": "testuser", "password": "testpassword"},
@@ -226,14 +226,14 @@ class TestDependencies:
 class TestGetCurrentUser:
     #TU-B_13
     def test_valid_token_returns_username(self):
-        with patch("src.auth.api.TokenUtility.decode_token", return_value="testuser"):
+        with patch("src.auth.api.decode_token", return_value="testuser"):
             result = get_current_user("valid.token")
 
         assert result == "testuser"
 
     #TU-B_14
     def test_invalid_token_raises_401(self):
-        with patch("src.auth.api.TokenUtility.decode_token", return_value=None):
+        with patch("src.auth.api.decode_token", return_value=None):
             with pytest.raises(HTTPException) as exc:
                 get_current_user("invalid.token")
 
@@ -241,7 +241,7 @@ class TestGetCurrentUser:
 
     #TU-B_15
     def test_invalid_token_detail_message(self):
-        with patch("src.auth.api.TokenUtility.decode_token", return_value=None):
+        with patch("src.auth.api.decode_token", return_value=None):
             with pytest.raises(HTTPException) as exc:
                 get_current_user("invalid.token")
 

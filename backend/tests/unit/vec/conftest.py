@@ -5,6 +5,8 @@ import numpy as np
 from src.vec.adapters.VecDbAdapter import VecDbAdapter
 from src.vec.VecDbService import VecDbService
 
+
+
 DIMENSION = 4
 
 

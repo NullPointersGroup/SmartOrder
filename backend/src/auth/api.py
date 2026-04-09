@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, Response, Cookie, Request
 from pydantic import BaseModel
 from sqlmodel import Session
 
-from src.auth.TokenUtility import TokenUtility
 from src.auth.CheckUserService import CheckUserService
 from src.auth.RegisterUserService import RegisterUserService
 from src.auth.ResetPasswordService import ResetPasswordService
@@ -76,6 +75,29 @@ RegisterUserServiceDep = Annotated[RegisterUserService, Depends(get_register_use
 ResetPasswordServiceDep = Annotated[ResetPasswordService, Depends(get_reset_password_service)]
 DeleteUserServiceDep = Annotated[DeleteUserService, Depends(get_delete_user_service)]
 
+import os
+from datetime import datetime, timedelta, timezone
+
+from jose import jwt, JWTError
+from passlib.context import CryptContext
+
+SECRET_KEY: str = os.getenv("SECRET_KEY", "")
+ALGORITHM = "HS256"
+TOKEN_EXPIRY_HOURS = 24
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    
+def decode_token(token: str) -> str | None:
+        """
+        @brief Decodifica e verifica un JWT token
+        @param token: il token JWT da verificare
+        @return: lo username contenuto nel token, None se invalido
+        """
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            return payload.get("sub")
+        except JWTError:
+            return None
 
 def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
     """
@@ -86,7 +108,7 @@ def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
     """
     if access_token is None:
         raise HTTPException(status_code=401, detail="Non autenticato")
-    username = TokenUtility.decode_token(access_token)
+    username = decode_token(access_token)
     if username is None:
         raise HTTPException(status_code=401, detail="Token non valido")
     return str(username)
@@ -95,7 +117,22 @@ def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
 CurrentUserDep = Annotated[str, Depends(get_current_user)]
 
 
-# --- Endpoints ---
+# --------------------------------------------
+# ------------LoginController-----------------
+# --------------------------------------------
+
+def create_token(username: str) -> str:
+        """
+        @brief Genera un JWT token firmato per l'utente
+        @param username: lo username dell'utente autenticato
+        @return: il token JWT
+        """
+        exp_time = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
+        payload = {
+            "sub": username,
+            "exp": int(exp_time.timestamp()), 
+        }
+        return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 @router.post(
     "/login",
@@ -119,7 +156,7 @@ def login(
 
     try:
         username = service.check_user(u)
-        token = TokenUtility.create_token(username)
+        token = create_token(username)
 
         response.set_cookie(
             key="access_token",
@@ -139,6 +176,9 @@ def login(
             detail={"ok": False, "errors": ["Username o password errati"]},
         )
 
+# -----------------------------------------------
+# ------------RegisterController-----------------
+# -----------------------------------------------
 
 @router.post(
     "/register",
@@ -201,6 +241,9 @@ async def register(
             detail={"ok": False, "errors": ["Errore durante la registrazione"]},
         )
 
+# -----------------------------------------------
+# ---------------ResetController-----------------
+# -----------------------------------------------
 
 @router.post(
     "/reset",
@@ -257,6 +300,10 @@ def reset_password(
             status_code=500,
             detail={"ok": False, "errors": ["Errore durante la reimpostazione"]},
         )
+        
+# ---------------------------------------------
+# ------------DeleteController-----------------
+# ---------------------------------------------
 
 
 @router.delete(
@@ -290,6 +337,9 @@ def delete_account(
             detail={"ok": False, "errors": ["Errore durante la cancellazione"]},
         )
 
+# ---------------------------------------------
+# ------------GeneralController----------------
+# ---------------------------------------------
 
 @router.get(
     "/retrieve",

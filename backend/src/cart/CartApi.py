@@ -18,7 +18,7 @@ from src.cart.exceptions import (
     ProductNotInCartException,
 )
 from src.db.dbConnection import get_conn
-from src.auth.TokenUtility import TokenUtility
+from src.auth.api import decode_token
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 
@@ -31,7 +31,7 @@ def get_current_user(access_token: str | None = Cookie(default=None)) -> str:
     """
     if access_token is None:
         raise HTTPException(status_code=401, detail="Non autenticato")
-    username = TokenUtility.decode_token(access_token)
+    username = decode_token(access_token)
     if username is None:
         raise HTTPException(status_code=401, detail="Token non valido")
     return str(username)
