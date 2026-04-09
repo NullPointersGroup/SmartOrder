@@ -16,14 +16,16 @@ vi.mock('../../src/auth/authStore', () => ({
 
 vi.mock('../../src/hooks/usePageTitle', () => ({ usePageTitle: vi.fn() }));
 
-vi.mock('../../src/auth/FormModel', () => ({
-  FormModel: vi.fn().mockImplementation(() => ({
+vi.mock('../../src/auth/FormModel', async () => {
+  const actual = await vi.importActual<typeof import('../../src/auth/FormModel')>(
+    '../../src/auth/FormModel'
+  );
+  return {
+    ...actual,
     login: vi.fn(),
     register: vi.fn(),
-  })),
-  login: vi.fn(),
-  register: vi.fn(),
-}));
+  };
+});
 
 function renderInRouter(ui: React.ReactElement) {
   return render(<MemoryRouter>{ui}</MemoryRouter>);
