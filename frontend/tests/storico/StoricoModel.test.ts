@@ -4,7 +4,7 @@ import {
   getStoricoCliente,
   getStoricoAdmin,
   duplicaOrdine,
-} from '../../src/storico/StoricoAPI';
+} from '../../src/storico/StoricoModel';
 
 // ─── Mock fetch globale ───────────────────────────────────────────────────────
 

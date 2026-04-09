@@ -1268,7 +1268,7 @@
 											"top": 639,
 											"width": 396.6494140625,
 											"height": 13,
-											"text": "AuthAPI"
+											"text": "FormModel"
 										},
 										{
 											"_type": "LabelView",
@@ -8086,7 +8086,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "AuthAPI"
+					"name": "FormModel"
 				},
 				{
 					"_type": "UMLInterface",
@@ -8964,7 +8964,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "AuthAPI",
+					"name": "FormModel",
 					"ownedElements": [
 						{
 							"_type": "UMLDependency",

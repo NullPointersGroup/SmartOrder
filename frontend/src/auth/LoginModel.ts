@@ -1,5 +1,4 @@
-import { FormModel, type FieldConfig, type SubmitResult } from './FormModel'
-import { login, type LoginDto } from './AuthAPI';
+import { FormModel, type FieldConfig, type SubmitResult, login, type LoginDto  } from './FormModel'
 
 export class LoginModel extends FormModel {
   readonly fields: FieldConfig[] = [

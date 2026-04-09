@@ -31,10 +31,24 @@ vi.mock('../../src/auth/authStore', () => ({
 
 vi.mock('../../src/hooks/usePageTitle', () => ({ usePageTitle: vi.fn() }));
 
-vi.mock('../../src/auth/AuthAPI', () => ({
-  login: vi.fn(),
-  register: vi.fn(),
-}));
+vi.mock('../../src/auth/FormModel', () => {
+  class FormModel {
+    constructor() {}
+
+    validate() {
+      return {};
+    }
+  }
+
+  const login = vi.fn();
+  const register = vi.fn();
+
+  return {
+    FormModel,
+    login,
+    register,
+  };
+});
 
 vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
   ok: true,
@@ -55,7 +69,7 @@ describe('AuthPage', () => {
 
   //TU-F_22
   it('onLogin ok: chiama initAuth e naviga a /home', async () => {
-    const { login: loginApi } = await import('../../src/auth/AuthAPI');
+    const { login: loginApi } = await import('../../src/auth/FormModel');
     vi.mocked(loginApi).mockResolvedValue({ ok: true, errors: [] });
 
     renderInRouter(<AuthPage />);
@@ -71,7 +85,7 @@ describe('AuthPage', () => {
 
   //TU-F_23
   it('onLogin fallisce: NON naviga', async () => {
-    const { login: loginApi } = await import('../../src/auth/AuthAPI');
+    const { login: loginApi } = await import('../../src/auth/FormModel');
     vi.mocked(loginApi).mockResolvedValue({ ok: false, errors: ['Errore'] });
 
     renderInRouter(<AuthPage />);
@@ -84,7 +98,7 @@ describe('AuthPage', () => {
 
   //TU-F_24
   it('onRegister ok: torna al tab login (RF-OB_22)', async () => {
-    const { register: registerApi } = await import('../../src/auth/AuthAPI');
+    const { register: registerApi } = await import('../../src/auth/FormModel');
     vi.mocked(registerApi).mockResolvedValue({ ok: true, errors: [] });
 
     renderInRouter(<AuthPage />);
