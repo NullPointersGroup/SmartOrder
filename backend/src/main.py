@@ -12,7 +12,7 @@ from src.db.dbConnection import get_conn
 from src.vec.adapters.FaissCatalogDb import FaissCatalogDb
 from src.auth.limiter import limiter
 
-from typing import cast
+from typing import Any, AsyncIterator, cast
 from starlette.types import ExceptionHandler
 
 from src.auth.api import router as auth_router
@@ -31,10 +31,11 @@ from src.auth.blocklist import load_blocklist
 load_blocklist()
 
 _catalog_repo: CatalogRepoAdapter
+_embedded_catalog_service: EmbeddedCatalogService
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     global _catalog_repo, _embedded_catalog_service
 
     _catalog_repo = CatalogRepoAdapter(CatalogRepository(next(get_conn())))
@@ -48,8 +49,6 @@ async def lifespan(app: FastAPI):
     _embedded_catalog_service.load_catalog()
 
     yield  # app in esecuzione
-
-    _catalog_repo = None
 
 
 app = FastAPI(lifespan=lifespan)

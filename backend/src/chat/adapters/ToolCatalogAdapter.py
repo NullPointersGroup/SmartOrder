@@ -1,4 +1,4 @@
-from backend.src.chat.ports.ToolCatalogPortIn import ToolCatalogPortIn
+from src.chat.ports.ToolCatalogPortIn import ToolCatalogPortIn
 from src.chat.tools.ToolCatalogService import ToolCatalogService
 from src.catalog.CatalogSchemas import CatalogProduct
 

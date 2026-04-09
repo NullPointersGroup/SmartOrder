@@ -1,4 +1,4 @@
-from backend.src.chat.ports.ToolCartPortIn import ToolCartPortIn
+from src.chat.ports.ToolCartPortIn import ToolCartPortIn
 from src.chat.tools.ToolCartService import ToolCartService
 from src.cart.CartSchemas import CartProduct
 from src.enums import CartUpdateOperation

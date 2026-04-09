@@ -3,7 +3,7 @@ from datetime import date
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field, ConfigDict
 
-from src.chat.ports.ToolPort import ToolPortIn
+from src.chat.ports.ToolOrderPortIn import ToolOrderPortIn
 from src.storico.exceptions import OrdiniUsernameNotFoundException
 
 
@@ -31,7 +31,7 @@ class GetOrdiniTool(BaseTool):
         "inizio/fine e paginazione."
     )
     args_schema: type[BaseModel] = GetOrdiniInput
-    tool_service: ToolPortIn
+    tool_adapter: ToolOrderPortIn
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -51,7 +51,7 @@ class GetOrdiniTool(BaseTool):
         pagina: int = 1,
     ) -> str:
         try:
-            result = self.tool_service.get_ordini(
+            result = self.tool_adapter.get_ordini(
                 pagina=pagina,
                 data_inizio=self._parse_date(data_inizio),
                 data_fine=self._parse_date(data_fine),

@@ -3,15 +3,14 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from langchain.tools import BaseTool
 from sqlmodel import Session
-from backend.src.chat.adapters.ToolCartAdapter import ToolCartAdapter
-from backend.src.chat.adapters.ToolCatalogAdapter import ToolCatalogAdapter
-from backend.src.chat.adapters.ToolOrderAdapter import ToolOrderAdapter
-from backend.src.chat.tools.ToolOrderService import ToolOrderService
+from src.chat.adapters.ToolCartAdapter import ToolCartAdapter
+from src.chat.adapters.ToolCatalogAdapter import ToolCatalogAdapter
+from src.chat.adapters.ToolOrderAdapter import ToolOrderAdapter
+from src.chat.tools.ToolOrderService import ToolOrderService
 from src.cart.ports.CartRepoPort import CartRepoPort
 from src.chat.tools.ToolCartService import ToolCartService
 from src.chat.tools.ToolCatalogService import ToolCatalogService
 from src.vec.EmbeddedCartService import EmbeddedCartService
-from src.vec.EmbeddedCatalogService import EmbeddedCatalogService
 from src.vec.SentenceTransformerEmbedder import SentenceTransformerEmbedder
 from src.vec.adapters.FaissCartDb import FaissCartDb
 from src.auth.api import get_current_user
@@ -19,11 +18,9 @@ from src.cart.adapters.CartRepoAdapter import CartRepoAdapter
 from src.cart.adapters.CartRepository import CartRepository
 from src.cart.CartService import CartService
 from src.catalog.adapters.CatalogRepoAdapter import CatalogRepoAdapter
-from src.catalog.CatalogRepository import CatalogRepository
 from src.chat.adapters.ChatRepoAdapter import ChatRepoAdapter
 from src.chat.adapters.ChatRepository import ChatRepository
 from src.chat.adapters.LLMAdapter import LLMAdapter
-from src.chat.adapters.ToolAdapter import ToolAdapter
 from src.chat.ChatSchemas import ChatResponse, MessageRequest, MessageResponse
 from src.chat.ChatService import ChatService
 from src.chat.exceptions import ConversationNotFoundException, ToolNotFoundException
@@ -34,18 +31,12 @@ from src.chat.tools.GetOrdini import GetOrdiniTool
 from src.chat.tools.RemoveFromCart import RemoveFromCartTool
 from src.chat.tools.SearchCart import SearchCartTool
 from src.chat.tools.SearchCatalog import SearchCatalogTool
-from src.chat.tools.ToolService import ToolService
 from src.chat.tools.UpdateCartItemQty import UpdateCartItemQty
 from src.db.dbConnection import get_conn
 from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
 from src.storico.StoricoService import StoricoService
-from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
 from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
-from src.vec.adapters.FaissCatalogDb import FaissCatalogDb
 from src.vec.adapters.CartVecDbAdapter import CartVecDbAdapter
-from src.vec.adapters.VecDbAdapter import VecDbAdapter
-from src.vec.ports.VecDbPortIn import VecDbPortIn
-from src.vec.VecDbService import VecDbService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -53,7 +44,6 @@ embedded_cart_service: EmbeddedCartService | None = None
 catalog_repo: CatalogRepoAdapter | None = None
 
 
-# DA TOGLIERE: NO SINGLETON
 def get_cart_services() -> tuple[CartService, CartRepoPort]:
 
     cart_service = CartService(
@@ -97,13 +87,13 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
     tool_order_adapter = ToolOrderAdapter(tool_order_service)
 
     tools: list[BaseTool] = [
-        GetCartItemsTool(tool_service=tool_adapter),
-        AddToCartTool(tool_service=tool_adapter),
-        RemoveFromCartTool(tool_service=tool_adapter),
-        UpdateCartItemQty(tool_service=tool_adapter),
-        GetOrdiniTool(tool_service=tool_adapter),
-        SearchCartTool(tool_service=tool_adapter),
-        SearchCatalogTool(tool_service=tool_adapter),
+        GetCartItemsTool(tool_adapter=tool_cart_adapter),
+        AddToCartTool(tool_adapter=tool_cart_adapter),
+        RemoveFromCartTool(tool_adapter=tool_cart_adapter),
+        UpdateCartItemQty(tool_adapter=tool_cart_adapter),
+        GetOrdiniTool(tool_adapter=tool_order_adapter),
+        SearchCartTool(tool_adapter=tool_cart_adapter),
+        SearchCatalogTool(tool_adapter=tool_catalog_adapter),
     ]
 
     return tools
