@@ -4,7 +4,7 @@ from src.db.models import Ordine, OrdCliDet, Anaart
 from datetime import date
 
 
-class StoricoRepoPort(ABC):
+class StoricoAdapterPort(ABC):
 
     @abstractmethod
     def get_ordini_by_username(
