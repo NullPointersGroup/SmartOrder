@@ -65,7 +65,7 @@ def catalog_service(
 
 
 @pytest.fixture
-def cart_service_embedded(
+def cart_service(
     mock_cart_vect: MagicMock,
     mock_cart_repo: MagicMock,
     mock_embedder: MagicMock,
@@ -75,3 +75,8 @@ def cart_service_embedded(
         cart_repo=mock_cart_repo,
         embedder=mock_embedder,
     )
+
+
+@pytest.fixture
+def cart_service_embedded(cart_service: EmbeddedCartService) -> EmbeddedCartService:
+    return cart_service

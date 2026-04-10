@@ -1,5 +1,3 @@
-from typing import cast
-from sqlmodel import Session
 from unittest.mock import MagicMock
 
 from src.vec.EmbeddedCatalogService import EmbeddedCatalogService
@@ -12,66 +10,66 @@ from src.vec.adapters.FaissCartDb import FaissCartDb
 
 # TI_16
 def test_load_catalog_indexes_correct_count(
-    catalog_service: EmbeddedCatalogService,
+    real_catalog_service: EmbeddedCatalogService,
     catalog_faiss: FaissCatalogDb,
 ):
-    catalog_service.load_catalog()
+    real_catalog_service.load_catalog()
     assert len(catalog_faiss.prod_ids) == 4
 
 
 # TI_17
 def test_load_catalog_indexes_all_prod_ids(
-    catalog_service: EmbeddedCatalogService,
+    real_catalog_service: EmbeddedCatalogService,
     catalog_faiss: FaissCatalogDb,
 ):
-    catalog_service.load_catalog()
+    real_catalog_service.load_catalog()
     assert set(catalog_faiss.prod_ids) == {"ABC1", "ABC2", "ABC3", "ABC4"}
 
 
 # TI_18
 def test_search_catalog_before_load_returns_empty(
-    catalog_service: EmbeddedCatalogService,
+    real_catalog_service: EmbeddedCatalogService,
 ):
-    result = catalog_service.search_catalog("Pasta Barilla 1.2", 1.0)
+    result = real_catalog_service.search_catalog("Pasta Barilla 1.2", 1.0)
     assert result == []
 
 
 # TI_19
 def test_search_catalog_returns_indexed_product(
-    catalog_service: EmbeddedCatalogService,
+    real_catalog_service: EmbeddedCatalogService,
 ):
-    catalog_service.load_catalog()
-    result = catalog_service.search_catalog("Pasta Barilla 1.2", 1.0)
+    real_catalog_service.load_catalog()
+    result = real_catalog_service.search_catalog("Pasta Barilla 1.2", 1.0)
     assert "ABC1" in result
 
 
 # TI_20
 def test_search_catalog_finds_each_product_by_exact_text(
-    catalog_service: EmbeddedCatalogService,
+    real_catalog_service: EmbeddedCatalogService,
 ):
-    catalog_service.load_catalog()
-    assert "ABC1" in catalog_service.search_catalog("Pasta Barilla 1.2", 1.0)
-    assert "ABC2" in catalog_service.search_catalog("Acqua Naturale 0.5", 1.0)
-    assert "ABC3" in catalog_service.search_catalog("Vino Rosso 5.0", 1.0)
-    assert "ABC4" in catalog_service.search_catalog("Olio Extravergine 8.0", 1.0)
+    real_catalog_service.load_catalog()
+    assert "ABC1" in real_catalog_service.search_catalog("Pasta Barilla 1.2", 1.0)
+    assert "ABC2" in real_catalog_service.search_catalog("Acqua Naturale 0.5", 1.0)
+    assert "ABC3" in real_catalog_service.search_catalog("Vino Rosso 5.0", 1.0)
+    assert "ABC4" in real_catalog_service.search_catalog("Olio Extravergine 8.0", 1.0)
 
 
 # TI_21
 def test_search_catalog_returns_results_within_threshold(
-    catalog_service: EmbeddedCatalogService,
+    real_catalog_service: EmbeddedCatalogService,
 ):
-    catalog_service.load_catalog()
-    result = catalog_service.search_catalog("Pasta Barilla 1.2", 1.0)
+    real_catalog_service.load_catalog()
+    result = real_catalog_service.search_catalog("Pasta Barilla 1.2", 1.0)
     assert len(result) > 0
 
 
 # TI_22
 def test_search_catalog_exact_text_has_distance_zero(
-    catalog_service: EmbeddedCatalogService,
+    real_catalog_service: EmbeddedCatalogService,
     catalog_faiss: FaissCatalogDb,
 ):
-    catalog_service.load_catalog()
-    result = catalog_service.search_catalog("Pasta Barilla 1.2", 1.0)
+    real_catalog_service.load_catalog()
+    result = real_catalog_service.search_catalog("Pasta Barilla 1.2", 1.0)
     assert "ABC1" in result
 
 
@@ -80,10 +78,10 @@ def test_search_catalog_exact_text_has_distance_zero(
 # TI_23
 def test_load_cart_indexes_products(
     cart_service: EmbeddedCartService,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
     cart_faiss: FaissCartDb,
 ):
-    mock_cart_service.get_products.return_value = [
+    mock_cart_repo.get_products.return_value = [
         _make_cart_product("ABC1", "Pasta Barilla", 1.2),
         _make_cart_product("ABC2", "Acqua Naturale", 0.5),
     ]
@@ -94,10 +92,10 @@ def test_load_cart_indexes_products(
 # TI_24
 def test_load_cart_indexes_correct_prod_ids(
     cart_service: EmbeddedCartService,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
     cart_faiss: FaissCartDb,
 ):
-    mock_cart_service.get_products.return_value = [
+    mock_cart_repo.get_products.return_value = [
         _make_cart_product("ABC1", "Pasta Barilla", 1.2),
         _make_cart_product("ABC2", "Acqua Naturale", 0.5),
     ]
@@ -118,9 +116,9 @@ def test_search_cart_before_load_returns_empty(
 # TI_26
 def test_search_cart_returns_indexed_product(
     cart_service: EmbeddedCartService,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
 ):
-    mock_cart_service.get_products.return_value = [
+    mock_cart_repo.get_products.return_value = [
         _make_cart_product("ABC1", "Pasta Barilla", 1.2),
     ]
     result = cart_service.search_cart("mario", "Pasta Barilla 1.2", 1.0)
@@ -129,17 +127,17 @@ def test_search_cart_returns_indexed_product(
 
 # TI_27
 def test_catalog_and_cart_indexes_are_independent(
-    catalog_service: EmbeddedCatalogService,
+    real_catalog_service: EmbeddedCatalogService,
     cart_service: EmbeddedCartService,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
     catalog_faiss: FaissCatalogDb,
     cart_faiss: FaissCartDb,
 ):
-    mock_cart_service.get_products.return_value = [
+    mock_cart_repo.get_products.return_value = [
         _make_cart_product("ABC1", "Pasta Barilla", 1.2),
     ]
 
-    catalog_service.load_catalog()
+    real_catalog_service.load_catalog()
     cart_service.load_cart("mario")
 
     assert len(catalog_faiss.prod_ids) == 4
@@ -148,12 +146,11 @@ def test_catalog_and_cart_indexes_are_independent(
 
 # TI_28
 def test_catalog_not_affected_by_cart_load(
-    catalog_service: EmbeddedCatalogService,
     cart_service: EmbeddedCartService,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
     catalog_faiss: FaissCatalogDb,
 ):
-    mock_cart_service.get_products.return_value = [
+    mock_cart_repo.get_products.return_value = [
         _make_cart_product("ABC1", "Pasta Barilla", 1.2),
     ]
 

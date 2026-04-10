@@ -96,11 +96,11 @@ def test_search_catalog_returns_results(
 # TU-B_332
 def test_load_cart_resets_cart_vect_before_reindex(
     cart_service: EmbeddedCartService,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
     mock_embedder: MagicMock,
     mock_cart_vect: MagicMock,
 ):
-    mock_cart_service.get_products.return_value = [
+    mock_cart_repo.get_products.return_value = [
         make_product("ABC1", "Pasta", 1.20),
     ]
     mock_embedder.embed.return_value = make_vector([1.0, 0.0, 0.0, 0.0])
@@ -108,7 +108,7 @@ def test_load_cart_resets_cart_vect_before_reindex(
     cart_service.load_cart("mario")
 
     mock_cart_vect.reset.assert_called_once()
-    mock_cart_service.get_products.assert_called_once_with("mario")
+    mock_cart_repo.get_products.assert_called_once_with("mario")
     mock_cart_vect.add.assert_called_once_with(
         "ABC1", mock_embedder.embed.return_value
     )
@@ -117,10 +117,10 @@ def test_load_cart_resets_cart_vect_before_reindex(
 # TU-B_333
 def test_load_cart_embeds_only_product_name(
     cart_service: EmbeddedCartService,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
     mock_embedder: MagicMock,
 ):
-    mock_cart_service.get_products.return_value = [
+    mock_cart_repo.get_products.return_value = [
         make_product("ABC1", "Acqua", 0.50),
     ]
     mock_embedder.embed.return_value = make_vector([1.0, 0.0, 0.0, 0.0])
@@ -135,9 +135,9 @@ def test_search_cart_reloads_cart_and_uses_given_threshold(
     cart_service: EmbeddedCartService,
     mock_embedder: MagicMock,
     mock_cart_vect: MagicMock,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
 ):
-    mock_cart_service.get_products.return_value = []
+    mock_cart_repo.get_products.return_value = []
     vector = make_vector([1.0, 0.0, 0.0, 0.0])
     mock_embedder.embed.return_value = vector
     mock_cart_vect.search.return_value = []
@@ -145,7 +145,7 @@ def test_search_cart_reloads_cart_and_uses_given_threshold(
     cart_service.search_cart("mario", "birre peroni", 0.9)
 
     mock_cart_vect.reset.assert_called_once()
-    mock_cart_service.get_products.assert_called_once_with("mario")
+    mock_cart_repo.get_products.assert_called_once_with("mario")
     mock_cart_vect.search.assert_called_once_with(
         vector,
         n=cart_service.CART_SEARCH_LIMIT,
@@ -158,9 +158,9 @@ def test_search_cart_returns_results(
     cart_service: EmbeddedCartService,
     mock_embedder: MagicMock,
     mock_cart_vect: MagicMock,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
 ):
-    mock_cart_service.get_products.return_value = []
+    mock_cart_repo.get_products.return_value = []
     mock_embedder.embed.return_value = make_vector([1.0, 0.0, 0.0, 0.0])
     mock_cart_vect.search.return_value = ["ABC1"]
 

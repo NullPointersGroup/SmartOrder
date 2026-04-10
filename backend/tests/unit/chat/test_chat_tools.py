@@ -6,7 +6,7 @@ pytest.importorskip("langchain")
 
 from src.cart.CartSchemas import CartProduct
 from src.cart.exceptions import ProductNotFoundException, ProductNotInCartException
-from src.chat.ports.ToolPort import ToolPortIn
+from src.chat.ports.ToolCartPortIn import ToolCartPortIn
 from src.chat.tools.AddToCart import AddToCartTool
 from src.chat.tools.GetCartItems import GetCartItemsTool
 from src.chat.tools.RemoveFromCart import RemoveFromCartTool
@@ -14,7 +14,7 @@ from src.chat.tools.UpdateCartItemQty import UpdateCartItemQty
 from src.enums import CartUpdateOperation, MeasureUnitEnum
 
 
-class DummyToolPort(ToolPortIn):
+class DummyToolPort(ToolCartPortIn):
     def __init__(self) -> None:
         self.get_cart_items_mock = MagicMock()
         self.add_to_cart_mock = MagicMock()
@@ -26,9 +26,6 @@ class DummyToolPort(ToolPortIn):
 
     def get_cart_items(self):
         return self.get_cart_items_mock()
-
-    def search_catalog(self, query: str, threshold: float):
-        return self.search_catalog_mock(query, threshold)
 
     def search_cart(self, query: str, threshold: float):
         return self.search_cart_mock(query, threshold)
@@ -43,10 +40,6 @@ class DummyToolPort(ToolPortIn):
         self, prod_id: str, qty: int, operation: CartUpdateOperation
     ):
         return self.update_cart_item_qty_mock(prod_id, qty, operation)
-
-    def get_ordini(self, pagina=1, data_inizio=None, data_fine=None):
-        return self.get_ordini_mock(pagina, data_inizio, data_fine)
-
 
 def make_cart_product(prod_id: str, name: str, qty: int) -> CartProduct:
     return CartProduct(

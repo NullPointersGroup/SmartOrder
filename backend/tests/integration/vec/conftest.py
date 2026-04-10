@@ -130,7 +130,7 @@ def catalog_service(
 
 
 @pytest.fixture
-def cart_service_embedded(
+def cart_service(
     cart_faiss: FaissCartDb,
     mock_embedder: MagicMock,
     mock_cart_repo: MagicMock,
@@ -140,6 +140,11 @@ def cart_service_embedded(
         cart_repo=mock_cart_repo,
         embedder=mock_embedder,
     )
+
+
+@pytest.fixture
+def cart_service_embedded(cart_service: EmbeddedCartService) -> EmbeddedCartService:
+    return cart_service
 
 
 @pytest.fixture

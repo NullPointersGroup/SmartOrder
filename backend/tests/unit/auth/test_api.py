@@ -2,11 +2,9 @@ import os
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 
 from unittest.mock import MagicMock, patch
-from typing import cast
 
 import pytest
 from fastapi import HTTPException
-from fastapi.testclient import TestClient
 
 from src.auth.api import (
     get_check_user_service,
@@ -29,58 +27,12 @@ from src.auth.exceptions import (
 )
 
 from src.auth.schemas import UserRegistrationSchema
-from src.main import app
-
-
 VALID_USER = {
     "username": "testuser",
     "password": "Password1!",
     "email": "test@test.com",
     "confirmPwd": "Password1!",
 }
-
-
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
-@pytest.fixture
-def mock_check_service():
-    return MagicMock(spec=CheckUserService)
-
-
-@pytest.fixture
-def mock_register_service():
-    return MagicMock(spec=RegisterUserService)
-
-
-@pytest.fixture
-def mock_reset_service():
-    return MagicMock(spec=ResetPasswordService)
-
-
-@pytest.fixture
-def mock_delete_service():
-    return MagicMock(spec=DeleteUserService)
-
-
-@pytest.fixture
-def client(
-    mock_check_service,
-    mock_register_service,
-    mock_reset_service,
-    mock_delete_service,
-):
-    app.dependency_overrides[get_check_user_service] = lambda: mock_check_service
-    app.dependency_overrides[get_register_user_service] = lambda: mock_register_service
-    app.dependency_overrides[get_reset_password_service] = lambda: mock_reset_service
-    app.dependency_overrides[get_delete_user_service] = lambda: mock_delete_service
-    app.dependency_overrides[get_current_user] = lambda: "testuser"
-
-    with TestClient(app) as c:
-        yield c
-
-    app.dependency_overrides.clear()
 
 
 # ---------------------------------------------------------------------------
@@ -254,7 +206,7 @@ class TestGetCurrentUser:
 
 class TestDeleteAccount:
     #TU-B_16
-    def test_delete_account_success(self, client: TestClient, mock_delete_service: MagicMock):
+    def test_delete_account_success(self, client, mock_delete_service: MagicMock):
         mock_delete_service.delete_user.return_value = None
 
         response = client.delete("/api/auth/delete")

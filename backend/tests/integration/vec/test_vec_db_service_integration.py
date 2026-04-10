@@ -65,9 +65,9 @@ def test_search_catalog_returns_closest(
 # TI_33
 def test_load_and_search_cart(
     cart_service: EmbeddedCartService,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
 ):
-    mock_cart_service.get_products.return_value = [
+    mock_cart_repo.get_products.return_value = [
         make_product("ABC1", "Pasta", 1.2),
     ]
     cart_service.load_cart("mario")
@@ -78,10 +78,10 @@ def test_load_and_search_cart(
 # TI_34
 def test_load_cart_indexes_all_products(
     cart_service: EmbeddedCartService,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
     cart_faiss: FaissCartDb,
 ):
-    mock_cart_service.get_products.return_value = [
+    mock_cart_repo.get_products.return_value = [
         make_product("ABC1", "Pasta", 1.2),
         make_product("ABC2", "Acqua", 0.5),
     ]
@@ -102,14 +102,14 @@ def test_catalog_and_cart_indexes_are_independent(
     catalog_service: EmbeddedCatalogService,
     cart_service: EmbeddedCartService,
     mock_catalog_repo: MagicMock,
-    mock_cart_service: MagicMock,
+    mock_cart_repo: MagicMock,
     catalog_faiss: FaissCatalogDb,
     cart_faiss: FaissCartDb,
 ):
     mock_catalog_repo.get_full_catalog.return_value = [
         make_product("ABC1", "Pasta", 1.2),
     ]
-    mock_cart_service.get_products.return_value = [
+    mock_cart_repo.get_products.return_value = [
         make_product("ABC2", "Acqua", 0.5),
     ]
 
