@@ -13,9 +13,9 @@ function reset(): void {
 describe('authStore – stato iniziale', () => {
   beforeEach(reset);
 
-  // TU-F_25
+  //TU-F_25
   it('username è null', () => expect(useAuthStore.getState().username).toBeNull());
-  // TU-F_26
+  //TU-F_26
   it('isAuthenticated è false', () => expect(useAuthStore.getState().isAuthenticated).toBe(false));
   it('admin è null', () => expect(useAuthStore.getState().admin).toBeNull());
   it('loggedOut è false', () => expect(useAuthStore.getState().loggedOut).toBe(false));
@@ -24,7 +24,7 @@ describe('authStore – stato iniziale', () => {
 describe('authStore – setAuth', () => {
   beforeEach(reset);
 
-  // TU-F_27
+  //TU-F_27
   it('imposta username, admin e isAuthenticated=true', () => {
     useAuthStore.getState().setAuth('mario', false);
     const { username, admin, isAuthenticated } = useAuthStore.getState();
@@ -33,12 +33,13 @@ describe('authStore – setAuth', () => {
     expect(isAuthenticated).toBe(true);
   });
 
+  //TU-F_503
   it('imposta admin=true per un amministratore', () => {
     useAuthStore.getState().setAuth('admin', true);
     expect(useAuthStore.getState().admin).toBe(true);
   });
 
-  // TU-F_28
+  //TU-F_28
   it('sovrascrive un setAuth precedente', () => {
     useAuthStore.getState().setAuth('mario', false);
     useAuthStore.getState().setAuth('luigi', true);
@@ -54,7 +55,7 @@ describe('authStore – clearAuth', () => {
     useAuthStore.getState().setAuth('mario', false);
   });
 
-  // TU-F_29
+  //TU-F_29
   it('azzera username, admin e isAuthenticated; imposta loggedOut=true (RF-OB_29, RF-OB_31)', () => {
     useAuthStore.getState().clearAuth();
     const { username, admin, isAuthenticated, loggedOut } = useAuthStore.getState();
@@ -64,7 +65,7 @@ describe('authStore – clearAuth', () => {
     expect(loggedOut).toBe(true);
   });
 
-  // TU-F_30
+  //TU-F_30
   it('è idempotente', () => {
     useAuthStore.getState().clearAuth();
     expect(() => useAuthStore.getState().clearAuth()).not.toThrow();
@@ -75,7 +76,7 @@ describe('authStore – clearAuth', () => {
 describe('authStore – ciclo setAuth → clearAuth → setAuth', () => {
   beforeEach(reset);
 
-  // TU-F_31
+  //TU-F_31
   it('secondo login dopo logout funziona correttamente', () => {
     useAuthStore.getState().setAuth('mario', false);
     useAuthStore.getState().clearAuth();
