@@ -16,9 +16,8 @@ export async function trascriviAudio(blob: Blob, filename = 'audio.webm'): Promi
   })
 
   if (!res.ok) {
-    const text = await res.text() // usa text() invece di json() per vedere tutto
-    console.error('Backend error:', res.status, text)
-    throw new Error(text || 'Errore nella trascrizione audio')
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.detail ?? 'Errore nella trascrizione audio')
   }
 
   const data = await res.json()

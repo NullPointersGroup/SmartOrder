@@ -1,7 +1,7 @@
-from .IRecordingRepoPort import IRecordingRepoPort
+from .RecordingRepoPort import RecordingRepoPort
 from .RecordingRepository import RecordingRepository
 
-class RecordingRepoAdapter(IRecordingRepoPort):
+class RecordingRepoAdapter(RecordingRepoPort):
     """
     @brief Adapter che delega la trascrizione al RecordingRepository.
     """
