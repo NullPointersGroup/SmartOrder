@@ -10733,9 +10733,9 @@
 											"parentStyle": true,
 											"left": 701,
 											"top": 1159,
-											"width": 88.87060546875,
+											"width": 111.98876953125,
 											"height": 13,
-											"text": "ToolOrderPort"
+											"text": "ToolOrderAdapter"
 										},
 										{
 											"_type": "LabelView",
@@ -10771,7 +10771,7 @@
 									"parentStyle": true,
 									"left": 696,
 									"top": 1152,
-									"width": 98.87060546875,
+									"width": 121.98876953125,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGdbEpGPXECsok="
@@ -10799,7 +10799,7 @@
 									"parentStyle": true,
 									"left": 696,
 									"top": 1177,
-									"width": 98.87060546875,
+									"width": 121.98876953125,
 									"height": 10
 								},
 								{
@@ -10815,7 +10815,7 @@
 									"parentStyle": true,
 									"left": 696,
 									"top": 1187,
-									"width": 98.87060546875,
+									"width": 121.98876953125,
 									"height": 10
 								},
 								{
@@ -10858,7 +10858,7 @@
 							"containerChangeable": true,
 							"left": 696,
 							"top": 1152,
-							"width": 97.87060546875,
+							"width": 120.98876953125,
 							"height": 45,
 							"nameCompartment": {
 								"$ref": "AAAAAAGdbEpGPXEBMcY="
@@ -12480,7 +12480,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 874,
+									"left": 886,
 									"top": 1135,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -12502,7 +12502,7 @@
 									"visible": null,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 874,
+									"left": 886,
 									"top": 1120,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -12524,7 +12524,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 874,
+									"left": 886,
 									"top": 1165,
 									"height": 13,
 									"alpha": -1.5707963267948966,
@@ -12543,7 +12543,7 @@
 							"tail": {
 								"$ref": "AAAAAAGdbEpGPXEAeJg="
 							},
-							"points": "794:1156;955.607177734375:1156",
+							"points": "817:1156;955.607177734375:1156",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAGdbV6NjuP9l08="
@@ -16728,7 +16728,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "ToolOrderPort",
+					"name": "ToolOrderAdapter",
 					"ownedElements": [
 						{
 							"_type": "UMLAssociation",

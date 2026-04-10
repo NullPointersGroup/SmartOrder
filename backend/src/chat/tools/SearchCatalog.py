@@ -1,6 +1,6 @@
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field, ConfigDict
-from src.chat.ports.ToolPort import ToolPortIn
+from src.chat.ports.ToolCatalogPortIn import ToolCatalogPortIn
 
 
 class SearchCatalogInput(BaseModel):
@@ -14,16 +14,18 @@ class SearchCatalogInput(BaseModel):
 
 class SearchCatalogTool(BaseTool):
     name: str = "cerca_in_catalogo"
-    description: str = "Cerca prodotti nel catalogo per nome o descrizione. Restituisce i prodotti trovati con id, nome e prezzo."
+    description: str = (
+        "Cerca prodotti nel catalogo per nome o descrizione. Restituisce i prodotti trovati con id, nome e prezzo."
+    )
     args_schema: type[BaseModel] = SearchCatalogInput
-    tool_service: ToolPortIn
+    tool_adapter: ToolCatalogPortIn
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def _run(self, query: str, threshold: float = 1.5) -> str:
         msg = f"[DEBUG] L'AI usa il threshold: {threshold} per cercare il prodotto: {query} nel catalogo"
         print(f"\033[30;43m  {msg}  \033[0m")
-        products = self.tool_service.search_catalog(query, threshold)
+        products = self.tool_adapter.search_catalog(query, threshold)
         if not products:
             return "Nessun prodotto trovato nel catalogo."
         return "\n".join(

@@ -1,11 +1,43 @@
 import os
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 
+import sys
+import types
 from unittest.mock import MagicMock
 
 import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
+
+if "slowapi" not in sys.modules:
+    slowapi_module = types.ModuleType("slowapi")
+    slowapi_errors = types.ModuleType("slowapi.errors")
+    slowapi_util = types.ModuleType("slowapi.util")
+
+    class DummyLimiter:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def limit(self, *args, **kwargs):
+            def decorator(func):
+                return func
+
+            return decorator
+
+    class RateLimitExceeded(Exception):
+        pass
+
+    slowapi_module.Limiter = DummyLimiter
+    slowapi_module._rate_limit_exceeded_handler = lambda *args, **kwargs: None
+    slowapi_errors.RateLimitExceeded = RateLimitExceeded
+    slowapi_util.get_remote_address = lambda request: "test"
+
+    sys.modules["slowapi"] = slowapi_module
+    sys.modules["slowapi.errors"] = slowapi_errors
+    sys.modules["slowapi.util"] = slowapi_util
+
 from src.auth.api import (
+    router as auth_router,
     get_check_user_service,
     get_register_user_service,
     get_reset_password_service,
@@ -14,7 +46,7 @@ from src.auth.api import (
 )
 from src.auth.schemas import UserSchema, UserRegistrationSchema
 from src.db.models import Utentiweb 
-from src.main import app
+from src.auth.limiter import limiter
 from src.auth.CheckUserService import CheckUserService
 from src.auth.RegisterUserService import RegisterUserService
 from src.auth.DeleteUserService import DeleteUserService
@@ -67,6 +99,10 @@ def client(
     mock_delete_service,
     mock_reset_service,
 ):
+    app = FastAPI()
+    app.include_router(auth_router, prefix="/api")
+    app.state.limiter = limiter
+
     app.dependency_overrides[get_check_user_service] = lambda: mock_check_service
     app.dependency_overrides[get_register_user_service] = lambda: mock_register_service
     app.dependency_overrides[get_delete_user_service] = lambda: mock_delete_service
