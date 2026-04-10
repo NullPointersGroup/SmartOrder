@@ -40,7 +40,7 @@ export default function AuthPage() {
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8">
         <img
-          src="./../../public/logoSmartOrder.jpeg"
+          src="./../../logoSmartOrder.jpeg"
           alt="Logo SmartOrder"
           className="w-20 h-15"
         />
