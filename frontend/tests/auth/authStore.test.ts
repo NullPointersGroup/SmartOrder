@@ -92,6 +92,7 @@ describe('authStore – initAuth', () => {
   beforeEach(reset);
   afterEach(() => vi.restoreAllMocks());
 
+  //TU-F_504
   it('fetch ok: imposta username, admin, isAuthenticated=true, loggedOut=false', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
@@ -106,6 +107,7 @@ describe('authStore – initAuth', () => {
     expect(loggedOut).toBe(false);
   });
 
+  //TU-F_505
   it('fetch non ok: azzera lo stato', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
 
@@ -116,6 +118,7 @@ describe('authStore – initAuth', () => {
     expect(isAuthenticated).toBe(false);
   });
 
+  //TU-F_506
   it('fetch lancia eccezione: azzera lo stato', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network error')));
 
