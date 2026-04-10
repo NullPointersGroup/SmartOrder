@@ -46,14 +46,14 @@ class RecordingService:
             audio = File(tmp_path)
 
             if audio is None or not hasattr(audio, "info") or not hasattr(audio.info, "length"):
-                raise ValueError("Formato audio non supportato.")
-
-            durata = float(audio.info.length)
-
-            print(f"Durata rilevata: {durata}s")
-            
-            if durata > MAX_DURATION_SEC:
-                raise ValueError(f"Il file audio non può superare i {MAX_DURATION_SEC} secondi.")
+                # mutagen non riesce a leggere il formato (es. webm/opus)
+                # salta la validazione della durata e procedi
+                durata = None
+            else:
+                durata = float(audio.info.length)
+                print(f"Durata rilevata: {durata}s")
+                if durata > MAX_DURATION_SEC:
+                    raise ValueError(f"Il file audio non può superare i {MAX_DURATION_SEC} secondi.")
         finally:
             os.unlink(tmp_path)
 
