@@ -17,6 +17,7 @@ class EmbeddedCatalogService:
         self.embedder = embedder
 
     def load_catalog(self) -> None:
+        print("\033[93mCaricando il Catalogo\033[0m")
         products = self.catalog_repo.get_full_catalog()
         for p in products:
             vector = self.embedder.embed(p.name)

@@ -1,6 +1,6 @@
 from src.cart.CartSchemas import CartProduct
-from src.enums import CartUpdateOperation
 from src.cart.ports.CartRepoPort import CartRepoPort
+from src.enums import CartUpdateOperation
 from src.vec.EmbeddedCartService import EmbeddedCartService
 
 
@@ -25,12 +25,12 @@ class ToolCartService:
         return [cart_map[pid] for pid in prod_ids if pid in cart_map]
 
     def add_to_cart(self, prod_id: str, qty: int) -> CartProduct:
-        return self.cart_repo.add_product(self.username, prod_id, qty)
+        return self.cart_repo.add_product(prod_id, self.username, qty)
 
     def remove_from_cart(self, prod_id: str) -> CartProduct:
-        return self.cart_repo.remove_product(self.username, prod_id)
+        return self.cart_repo.remove_product(prod_id, self.username)
 
     def update_cart_item_qty(
         self, prod_id: str, qty: int, operation: CartUpdateOperation
     ) -> CartProduct:
-        return self.cart_repo.update_quantity(self.username, prod_id, qty, operation)
+        return self.cart_repo.update_quantity(prod_id, self.username, qty, operation)

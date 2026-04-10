@@ -3,24 +3,19 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from langchain.tools import BaseTool
 from sqlmodel import Session
-from src.chat.adapters.ToolCartAdapter import ToolCartAdapter
-from src.chat.adapters.ToolCatalogAdapter import ToolCatalogAdapter
-from src.chat.adapters.ToolOrderAdapter import ToolOrderAdapter
-from src.chat.tools.ToolOrderService import ToolOrderService
-from src.cart.ports.CartRepoPort import CartRepoPort
-from src.chat.tools.ToolCartService import ToolCartService
-from src.chat.tools.ToolCatalogService import ToolCatalogService
-from src.vec.EmbeddedCartService import EmbeddedCartService
-from src.vec.SentenceTransformerEmbedder import SentenceTransformerEmbedder
-from src.vec.adapters.FaissCartDb import FaissCartDb
+from src import dependencies
 from src.auth.api import get_current_user
 from src.cart.adapters.CartRepoAdapter import CartRepoAdapter
 from src.cart.adapters.CartRepository import CartRepository
 from src.cart.CartService import CartService
+from src.cart.ports.CartRepoPort import CartRepoPort
 from src.catalog.adapters.CatalogRepoAdapter import CatalogRepoAdapter
 from src.chat.adapters.ChatRepoAdapter import ChatRepoAdapter
 from src.chat.adapters.ChatRepository import ChatRepository
 from src.chat.adapters.LLMAdapter import LLMAdapter
+from src.chat.adapters.ToolCartAdapter import ToolCartAdapter
+from src.chat.adapters.ToolCatalogAdapter import ToolCatalogAdapter
+from src.chat.adapters.ToolOrderAdapter import ToolOrderAdapter
 from src.chat.ChatSchemas import ChatResponse, MessageRequest, MessageResponse
 from src.chat.ChatService import ChatService
 from src.chat.exceptions import ConversationNotFoundException, ToolNotFoundException
@@ -31,17 +26,22 @@ from src.chat.tools.GetOrdini import GetOrdiniTool
 from src.chat.tools.RemoveFromCart import RemoveFromCartTool
 from src.chat.tools.SearchCart import SearchCartTool
 from src.chat.tools.SearchCatalog import SearchCatalogTool
+from src.chat.tools.ToolCartService import ToolCartService
+from src.chat.tools.ToolCatalogService import ToolCatalogService
+from src.chat.tools.ToolOrderService import ToolOrderService
 from src.chat.tools.UpdateCartItemQty import UpdateCartItemQty
 from src.db.dbConnection import get_conn
 from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
 from src.storico.StoricoService import StoricoService
-from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
 from src.vec.adapters.CartVecDbAdapter import CartVecDbAdapter
+from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
+from src.vec.adapters.FaissCartDb import FaissCartDb
+from src.vec.EmbeddedCartService import EmbeddedCartService
+from src.vec.SentenceTransformerEmbedder import SentenceTransformerEmbedder
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 embedded_cart_service: EmbeddedCartService | None = None
-catalog_repo: CatalogRepoAdapter | None = None
 
 
 def get_cart_services() -> tuple[CartService, CartRepoPort]:
@@ -56,7 +56,6 @@ def get_cart_services() -> tuple[CartService, CartRepoPort]:
 
 
 def build_tools(username: str, db: Session) -> list[BaseTool]:
-    from main import _catalog_repo, _embedded_catalog_service
 
     cart_service, cart_repo = get_cart_services()
     embedded_cart_service: EmbeddedCartService = EmbeddedCartService(
@@ -66,8 +65,8 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
             sentence_transformer_embedder=SentenceTransformerEmbedder()
         ),
     )
-    shared_catalog_repo = _catalog_repo
-    shared_embedded_catalog = _embedded_catalog_service
+    shared_catalog_repo = dependencies.catalog_repo
+    shared_embedded_catalog = dependencies.embedded_catalog_service
     storico_service = StoricoService(GetOrdiniAdapter(db))
     preferred_product_frequency = {
         prod_id: frequency
@@ -145,4 +144,3 @@ def send_message(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
-

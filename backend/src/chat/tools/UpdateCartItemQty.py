@@ -1,7 +1,7 @@
 from langchain.tools import BaseTool
-from pydantic import BaseModel, Field, ConfigDict
-from src.chat.ports.ToolCartPortIn import ToolCartPortIn
+from pydantic import BaseModel, ConfigDict, Field
 from src.cart.exceptions import ProductNotInCartException
+from src.chat.ports.ToolCartPortIn import ToolCartPortIn
 from src.enums import CartUpdateOperation
 
 
@@ -17,15 +17,15 @@ class UpdateCartItemQtyInput(BaseModel):
 
 class UpdateCartItemQty(BaseTool):
     name: str = "update_cart_item_qty"
-    description: str = (
-        "Aggiorna la quantità di un prodotto già presente nel carrello aggiungendo, rimuovendo oppure impostando la quantità indicata."
-    )
+    description: str = "Aggiorna la quantità di un prodotto già presente nel carrello aggiungendo, rimuovendo oppure impostando la quantità indicata."
     args_schema: type[BaseModel] = UpdateCartItemQtyInput
     tool_adapter: ToolCartPortIn
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def _run(self, prod_id: str, qty: int, operation: CartUpdateOperation) -> str:
+        msg = f"[DEBUG] Aggiornamento di {prod_id}"
+        print(f"\033[30;43m  {msg}  \033[0m")
         try:
             product = self.tool_adapter.update_cart_item_qty(prod_id, qty, operation)
         except ProductNotInCartException:

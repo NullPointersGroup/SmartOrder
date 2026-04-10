@@ -1,60 +1,53 @@
+from contextlib import asynccontextmanager
+from typing import Any, AsyncIterator, cast
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-
-from src.vec.EmbeddedCatalogService import EmbeddedCatalogService
-from src.vec.SentenceTransformerEmbedder import SentenceTransformerEmbedder
-from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
-from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
-from src.db.dbConnection import get_conn
-from src.vec.adapters.FaissCatalogDb import FaissCatalogDb
-from src.auth.limiter import limiter
-
-from typing import Any, AsyncIterator, cast
 from starlette.types import ExceptionHandler
 
+from src import dependencies
 from src.auth.api import router as auth_router
-from src.catalog.adapters.CatalogRepoAdapter import CatalogRepoAdapter
-from src.chat.ChatApi import router as chat_router
-from src.cart.CartApi import router as cart_router
-from src.catalog.CatalogRepository import CatalogRepository
-from src.conversations.ConversationsApi import router as conversations_router
-from src.storico.StoricoApi import router as storico_router
-from src.recording.RecordingApi import router as recording_router
-
-from fastapi import FastAPI
-from contextlib import asynccontextmanager
 from src.auth.blocklist import load_blocklist
+from src.auth.limiter import limiter
+from src.cart.CartApi import router as cart_router
+from src.catalog.adapters.CatalogRepoAdapter import CatalogRepoAdapter
+from src.catalog.CatalogRepository import CatalogRepository
+from src.chat.ChatApi import router as chat_router
+from src.conversations.ConversationsApi import router as conversations_router
+from src.db.dbConnection import get_conn
+from src.recording.RecordingApi import router as recording_router
+from src.storico.StoricoApi import router as storico_router
+from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
+from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
+from src.vec.adapters.FaissCatalogDb import FaissCatalogDb
+from src.vec.EmbeddedCatalogService import EmbeddedCatalogService
+from src.vec.SentenceTransformerEmbedder import SentenceTransformerEmbedder
 
 load_blocklist()
-
-_catalog_repo: CatalogRepoAdapter
-_embedded_catalog_service: EmbeddedCatalogService
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    global _catalog_repo, _embedded_catalog_service
+    print("\033[93mAvviato il lifespan\033[0m")
+    global catalog_repo, embedded_catalog_service
 
-    _catalog_repo = CatalogRepoAdapter(CatalogRepository(next(get_conn())))
+    dependencies.catalog_repo = CatalogRepoAdapter(CatalogRepository(next(get_conn())))
 
     # VecDb + load_catalog una sola volta
-    _embedded_catalog_service = EmbeddedCatalogService(
+    dependencies.embedded_catalog_service = EmbeddedCatalogService(
         catalog_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
-        catalog_repo=_catalog_repo,
+        catalog_repo=dependencies.catalog_repo,
         embedder=EmbedderAdapter(SentenceTransformerEmbedder()),
     )
-    _embedded_catalog_service.load_catalog()
+    dependencies.embedded_catalog_service.load_catalog()
 
     yield  # app in esecuzione
 
 
 app = FastAPI(lifespan=lifespan)
-
-
-app = FastAPI()
+print("\033[93mAvviato il lifespan\033[0m")
 
 app.state.limiter = limiter
 
@@ -76,4 +69,3 @@ app.include_router(cart_router, prefix="/api")
 app.include_router(conversations_router, prefix="/api")
 app.include_router(storico_router, prefix="/api")
 app.include_router(recording_router, prefix="/api")
-

@@ -4,7 +4,6 @@ from src.vec.ports.VecDbPortOut import VecDbPortOut
 
 
 class EmbeddedCartService:
-
     CART_SEARCH_LIMIT = 5
 
     def __init__(
@@ -18,6 +17,7 @@ class EmbeddedCartService:
         self.cart_repo = cart_repo
 
     def load_cart(self, username: str) -> None:
+        print("\033[93mCaricando il carrello\033[0m")
         self.cart_vect.reset()
         products = self.cart_repo.get_products(username)
         for p in products:

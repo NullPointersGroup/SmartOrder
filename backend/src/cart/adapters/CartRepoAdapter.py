@@ -1,5 +1,5 @@
-from src.cart.CartSchemas import CartProduct
 from src.cart.adapters.CartRepository import CartRepository
+from src.cart.CartSchemas import CartProduct
 from src.cart.ports.CartRepoPort import CartRepoPort
 from src.enums import CartUpdateOperation
 
@@ -74,6 +74,8 @@ class CartRepoAdapter(CartRepoPort):
         @param operation Tipo di operazione (increase, decrease, set)
         @return CartProduct aggiornato convertito dal risultato del repository
         """
+        msg = f"[DEBUG] Aggiunta di {prod_id} nel repository"
+        print(f"\033[30;43m  {msg}  \033[0m")
         row = self.repo.update_quantity(username, prod_id, qty, operation)
         return CartProduct(
             prod_id=row.id_prod,
