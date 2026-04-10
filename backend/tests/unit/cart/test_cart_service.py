@@ -14,7 +14,7 @@ def make_cart_product(prod_id="ABC1", name="Prodotto 1", price=1.0, qty=1):
         measure_unit=MeasureUnitEnum.C,
     )
 
-#TU-B_169
+#TU-B_176
 def test_get_products_returns_empty_list(cart_service, mock_adapter):
     mock_adapter.get_products.return_value = []
     result = cart_service.get_cart_products(username="Tom")
@@ -22,7 +22,7 @@ def test_get_products_returns_empty_list(cart_service, mock_adapter):
     assert result == []
 
 
-#TU-B_170
+#TU-B_177
 def test_get_cart_products_returns_list(cart_service, mock_adapter):
     mock_adapter.get_products.return_value = [
         make_cart_product(prod_id="ABC1"),
@@ -36,14 +36,14 @@ def test_get_cart_products_returns_list(cart_service, mock_adapter):
     assert result[1].prod_id == "ABC2"
 
 
-# TU-B_171
+#TU-B_178
 def test_send_order_delegates_to_adapter(cart_service, mock_adapter):
     cart_service.send_order(username="Tom")
 
     mock_adapter.send_order.assert_called_once_with("Tom")
 
 
-# TU-B_172
+#TU-B_179
 def test_send_order_propagates_success_without_return_value(cart_service, mock_adapter):
     mock_adapter.send_order.return_value = None
 
@@ -52,7 +52,7 @@ def test_send_order_propagates_success_without_return_value(cart_service, mock_a
     assert result is None
 
 
-# TU-B_173
+#TU-B_180
 def test_send_order_raises_cart_empty_exception(cart_service, mock_adapter):
     mock_adapter.send_order.side_effect = CartEmptyException("empty")
 

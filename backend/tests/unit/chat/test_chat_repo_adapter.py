@@ -11,7 +11,7 @@ def make_db_row(id_mess: int, content: str, sender: SenderEnum):
     row.mittente = sender
     return row
 
-#TU-B_187
+#TU-B_189
 def test_get_messages_returns_mapped_messages(adapter, mock_repo):
     mock_repo.get_messages.return_value = [
         make_db_row(1, "Hello", SenderEnum.Utente),
@@ -28,7 +28,7 @@ def test_get_messages_returns_mapped_messages(adapter, mock_repo):
     assert result[1].sender == SenderEnum.Chatbot
     mock_repo.get_messages.assert_called_once_with(1)
 
-#TU-B_188
+#TU-B_190
 def test_get_messages_returns_empty_list(adapter, mock_repo):
     mock_repo.get_messages.return_value = []
 
@@ -37,7 +37,7 @@ def test_get_messages_returns_empty_list(adapter, mock_repo):
     assert result == []
     mock_repo.get_messages.assert_called_once_with(99)
 
-#TU-B_189
+#TU-B_191
 def test_add_message_returns_mapped_message(adapter, mock_repo):
     mock_repo.add_message.return_value = make_db_row(1, "Hello", SenderEnum.Utente)
 
@@ -49,7 +49,7 @@ def test_add_message_returns_mapped_message(adapter, mock_repo):
     assert result.sender == SenderEnum.Utente
     mock_repo.add_message.assert_called_once_with(1, "Hello", SenderEnum.Utente)
 
-#TU-B_190
+#TU-B_192
 def test_add_message_chatbot_sender(adapter, mock_repo):
     mock_repo.add_message.return_value = make_db_row(
         2, "LLm answer", SenderEnum.Chatbot
@@ -62,7 +62,7 @@ def test_add_message_chatbot_sender(adapter, mock_repo):
     assert result.sender == SenderEnum.Chatbot
     assert result.content == "LLm answer"
 
-#TU-B_191
+#TU-B_193
 def test_conversation_exist_return_true(mock_repo):
     mock_repo.get_conversation.return_value = MagicMock()
     adapter = ChatRepoAdapter(mock_repo)
@@ -72,7 +72,7 @@ def test_conversation_exist_return_true(mock_repo):
     assert result is True
     mock_repo.get_conversation.assert_called_once_with(1)
 
-#TU-B_192
+#TU-B_194
 def test_conversation_exist_return_false(mock_repo):
     mock_repo.get_conversation.return_value = None
     adapter = ChatRepoAdapter(mock_repo)
@@ -80,7 +80,7 @@ def test_conversation_exist_return_false(mock_repo):
     assert result is False
     mock_repo.get_conversation.assert_called_once_with(1)
 
-#TU-B_193
+#TU-B_195
 def test_create_conversation(adapter, mock_repo):
     adapter.create_conversation("test_user")
     mock_repo.create_conversation.assert_called_once_with("test_user")
