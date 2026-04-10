@@ -57,7 +57,7 @@ def get_cart_services() -> tuple[CartService, CartRepoPort]:
 
 def build_tools(username: str, db: Session) -> list[BaseTool]:
 
-    cart_service, cart_repo = get_cart_services()
+    _, cart_repo = get_cart_services()
     embedded_cart_service: EmbeddedCartService = EmbeddedCartService(
         CartVecDbAdapter(faiss_db=FaissCartDb(), username=username),
         cart_repo=cart_repo,
@@ -75,9 +75,10 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
         )
     }
 
-    tool_catalog_service = ToolCatalogService(
-        shared_embedded_catalog, shared_catalog_repo, preferred_product_frequency
-    )
+    if shared_embedded_catalog is not None and shared_catalog_repo is not None:
+        tool_catalog_service = ToolCatalogService(
+            shared_embedded_catalog, shared_catalog_repo, preferred_product_frequency
+        )
     tool_cart_service = ToolCartService(username, cart_repo, embedded_cart_service)
     tool_order_service = ToolOrderService(username, storico_service)
 

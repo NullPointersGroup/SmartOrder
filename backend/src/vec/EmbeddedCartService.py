@@ -30,15 +30,3 @@ class EmbeddedCartService:
         return self.cart_vect.search(
             vector, n=self.CART_SEARCH_LIMIT, threshold=threshold
         )
-
-    # @staticmethod
-    # def _classify_query(query: str) -> str:
-    #     normalized = " ".join(query.lower().split())
-    #     tokens = normalized.split()
-    #     has_digits = any(ch.isdigit() for ch in normalized)
-    #
-    #     if has_digits or len(tokens) >= 4 or len(normalized) >= 24:
-    #         return "specific"
-    #     if len(tokens) >= 2 or len(normalized) >= 10:
-    #         return "medium"
-    #     return "generic"
