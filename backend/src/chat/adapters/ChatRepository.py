@@ -9,7 +9,6 @@ class ChatRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
-    ## TODO spostare Conversazioni negli schemi della chat
     def get_conversation(self, conv_id: int) -> Conversazioni | None:
         return self.db.get(Conversazioni, conv_id)
 
@@ -28,7 +27,7 @@ class ChatRepository:
             raise ConversationNotFoundException(conv_id)
         stmt = select(Messaggi).where(
             Messaggi.id_conv == conv_id
-        )
+        ).order_by(col(Messaggi.id_messaggio).asc())
         return list(self.db.exec(stmt).all())
 
     def get_chat_history(self, conv_id: int, max_messages: int = 20) -> list[Messaggi]:

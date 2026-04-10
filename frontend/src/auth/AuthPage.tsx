@@ -39,8 +39,18 @@ export default function AuthPage() {
 
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8">
-        <span className="auth-brand-icon text-4xl">🛒</span>
-        <span className="font-serif text-2xl font-bold tracking-[0.05em]" style={{ color: 'var(--text-1)' }}>SmartOrder</span>
+        <img
+          src="./../../logoSmartOrder.jpeg"
+          alt="Logo SmartOrder"
+          className="w-20 h-15"
+        />
+
+        <span
+          className="font-serif text-2xl font-bold tracking-[0.05em]"
+          style={{ color: 'var(--text-1)' }}
+        >
+          SmartOrder
+        </span>
       </div>
 
       <div className="w-full max-w-md rounded-full mb-3 p-3" style={{ backgroundColor: 'var(--bg-2)', border: '1px solid var(--border)' }}>

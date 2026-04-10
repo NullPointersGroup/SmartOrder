@@ -16,9 +16,6 @@ export abstract class FormModel {
   abstract readonly fields: FieldConfig[];
   abstract submit(values: Record<string, string>): Promise<SubmitResult>;
 
-  protected static readonly USERNAME_REGEX: RegExp = /^\w{4,24}$/;
-  protected static readonly PASSWORD_REGEX: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~])[A-Za-z\d!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~]{8,24}$/;
-
   validate(values: Record<string, string>): Record<string, string> {
     /**
      * @brief se un campo è vuoto chiede l'inserimento obbligatorio

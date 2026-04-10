@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class IRecordingRepoPort(ABC):
+class RecordingPort(ABC):
     """
     @brief Porta per la trascrizione di audio tramite servizio esterno.
     """
