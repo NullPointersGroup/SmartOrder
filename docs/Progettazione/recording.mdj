@@ -46,13 +46,13 @@
 											"_parent": {
 												"$ref": "AAAAAAGdTbfvTotfQ1U="
 											},
+											"visible": false,
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 245,
 											"top": 597,
 											"width": 390.09228515625,
-											"height": 13,
-											"text": "«controller»"
+											"height": 13
 										},
 										{
 											"_type": "LabelView",
@@ -63,10 +63,10 @@
 											"font": "Arial;13;1",
 											"parentStyle": true,
 											"left": 245,
-											"top": 612,
-											"width": 390.09228515625,
+											"top": 599,
+											"width": 336.59423828125,
 											"height": 13,
-											"text": "RecordingRouter"
+											"text": "RecordingController"
 										},
 										{
 											"_type": "LabelView",
@@ -102,8 +102,8 @@
 									"parentStyle": true,
 									"left": 240,
 									"top": 592,
-									"width": 400.09228515625,
-									"height": 38,
+									"width": 346.59423828125,
+									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGdTbfvTotgEIY="
 									},
@@ -129,8 +129,8 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 240,
-									"top": 630,
-									"width": 400.09228515625,
+									"top": 617,
+									"width": 346.59423828125,
 									"height": 10
 								},
 								{
@@ -155,8 +155,8 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 245,
-											"top": 645,
-											"width": 390.09228515625,
+											"top": 632,
+											"width": 336.59423828125,
 											"height": 13,
 											"text": "+get_service(): RecordingService",
 											"horizontalAlignment": 0
@@ -173,18 +173,18 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 245,
-											"top": 660,
-											"width": 390.09228515625,
+											"top": 647,
+											"width": 336.59423828125,
 											"height": 13,
-											"text": "+transcribe_audio(file: UploadFile, service: RecordingService): Map",
+											"text": "+trascrivi_audio(file: UploadFile, service: ServiceDep): str*",
 											"horizontalAlignment": 0
 										}
 									],
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 240,
-									"top": 640,
-									"width": 400.09228515625,
+									"top": 627,
+									"width": 346.59423828125,
 									"height": 38
 								},
 								{
@@ -227,8 +227,8 @@
 							"containerChangeable": true,
 							"left": 240,
 							"top": 592,
-							"width": 399.09228515625,
-							"height": 86,
+							"width": 345.59423828125,
+							"height": 73,
 							"nameCompartment": {
 								"$ref": "AAAAAAGdTbfvTotfQ1U="
 							},
@@ -275,7 +275,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 32,
-											"top": 176,
+											"top": 160,
 											"height": 13
 										},
 										{
@@ -287,7 +287,7 @@
 											"font": "Arial;13;1",
 											"parentStyle": true,
 											"left": 245,
-											"top": 767,
+											"top": 759,
 											"width": 360.49951171875,
 											"height": 13,
 											"text": "RecordingService"
@@ -302,7 +302,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 32,
-											"top": 176,
+											"top": 160,
 											"width": 73.67724609375,
 											"height": 13,
 											"text": "(from Model)"
@@ -317,7 +317,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 32,
-											"top": 176,
+											"top": 160,
 											"height": 13,
 											"horizontalAlignment": 1
 										}
@@ -325,7 +325,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 240,
-									"top": 760,
+									"top": 752,
 									"width": 370.49951171875,
 									"height": 25,
 									"stereotypeLabel": {
@@ -363,10 +363,10 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 245,
-											"top": 790,
+											"top": 782,
 											"width": 360.49951171875,
 											"height": 13,
-											"text": "-MAX_DURATION: int",
+											"text": "-MAX_DURATION_SEC: int",
 											"horizontalAlignment": 0
 										},
 										{
@@ -381,19 +381,37 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 245,
-											"top": 805,
+											"top": 797,
 											"width": 360.49951171875,
 											"height": 13,
 											"text": "-MAX_SIZE_BYTES: int",
+											"horizontalAlignment": 0
+										},
+										{
+											"_type": "UMLAttributeView",
+											"_id": "AAAAAAGdd4x93BxmhyA=",
+											"_parent": {
+												"$ref": "AAAAAAGdTbgTNYuPGHA="
+											},
+											"model": {
+												"$ref": "AAAAAAGdd4x92RxjQnM="
+											},
+											"font": "Arial;13;0",
+											"parentStyle": true,
+											"left": 245,
+											"top": 812,
+											"width": 360.49951171875,
+											"height": 13,
+											"text": "-repo: RecordingPort",
 											"horizontalAlignment": 0
 										}
 									],
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 240,
-									"top": 785,
+									"top": 777,
 									"width": 370.49951171875,
-									"height": 38
+									"height": 53
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -407,6 +425,24 @@
 									"subViews": [
 										{
 											"_type": "UMLOperationView",
+											"_id": "AAAAAAGdd4v1mBlzU4Q=",
+											"_parent": {
+												"$ref": "AAAAAAGdTbgTNYuQjyA="
+											},
+											"model": {
+												"$ref": "AAAAAAGdd4v1jhlwRuU="
+											},
+											"font": "Arial;13;0",
+											"parentStyle": true,
+											"left": 245,
+											"top": 835,
+											"width": 360.49951171875,
+											"height": 13,
+											"text": "+__init__(repo: RecordingRepoPort)",
+											"horizontalAlignment": 0
+										},
+										{
+											"_type": "UMLOperationView",
 											"_id": "AAAAAAGdaJ570XS7n70=",
 											"_parent": {
 												"$ref": "AAAAAAGdTbgTNYuQjyA="
@@ -417,19 +453,19 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 245,
-											"top": 828,
+											"top": 850,
 											"width": 360.49951171875,
 											"height": 13,
-											"text": "+transcribe_audio(audio_bytes: bytes, filename: String): String",
+											"text": "+trascrivi_audio(audio_bytes: bytes, filename: string): string",
 											"horizontalAlignment": 0
 										}
 									],
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 240,
-									"top": 823,
+									"top": 830,
 									"width": 370.49951171875,
-									"height": 23
+									"height": 38
 								},
 								{
 									"_type": "UMLReceptionCompartmentView",
@@ -444,7 +480,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 16,
-									"top": 88,
+									"top": 80,
 									"width": 10,
 									"height": 10
 								},
@@ -461,7 +497,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 16,
-									"top": 88,
+									"top": 80,
 									"width": 10,
 									"height": 10
 								}
@@ -470,9 +506,9 @@
 							"parentStyle": false,
 							"containerChangeable": true,
 							"left": 240,
-							"top": 760,
+							"top": 752,
 							"width": 369.49951171875,
-							"height": 86,
+							"height": 116,
 							"nameCompartment": {
 								"$ref": "AAAAAAGdTbgTNYuKIoE="
 							},
@@ -536,7 +572,7 @@
 											"top": 809,
 											"width": 321.46142578125,
 											"height": 13,
-											"text": "IRecordingRepoPort"
+											"text": "RecordingPort"
 										},
 										{
 											"_type": "LabelView",
@@ -629,7 +665,7 @@
 											"top": 832,
 											"width": 321.46142578125,
 											"height": 13,
-											"text": "+transcribe(audio_bytes: bytes, filename: String): String",
+											"text": "+trascrivi(audio_bytes: bytes, filename: string): string",
 											"horizontalAlignment": 0
 										}
 									],
@@ -743,7 +779,7 @@
 											"parentStyle": true,
 											"left": 989,
 											"top": 775,
-											"width": 114.40087890625,
+											"width": 159.96435546875,
 											"height": 13,
 											"text": "RecordingAdapter"
 										},
@@ -781,7 +817,7 @@
 									"parentStyle": true,
 									"left": 984,
 									"top": 768,
-									"width": 124.40087890625,
+									"width": 169.96435546875,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGdTbhARovfwks="
@@ -805,12 +841,32 @@
 									"model": {
 										"$ref": "AAAAAAGdTbhARovb048="
 									},
+									"subViews": [
+										{
+											"_type": "UMLAttributeView",
+											"_id": "AAAAAAGdd46mGh4Jw3U=",
+											"_parent": {
+												"$ref": "AAAAAAGdTbhARovjSQQ="
+											},
+											"model": {
+												"$ref": "AAAAAAGdd46mEx4GMsU="
+											},
+											"font": "Arial;13;0",
+											"parentStyle": true,
+											"left": 989,
+											"top": 798,
+											"width": 159.96435546875,
+											"height": 13,
+											"text": "-repo: RecordingRepository",
+											"horizontalAlignment": 0
+										}
+									],
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 984,
 									"top": 793,
-									"width": 124.40087890625,
-									"height": 10
+									"width": 169.96435546875,
+									"height": 23
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -824,8 +880,8 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 984,
-									"top": 803,
-									"width": 124.40087890625,
+									"top": 816,
+									"width": 169.96435546875,
 									"height": 10
 								},
 								{
@@ -868,8 +924,8 @@
 							"containerChangeable": true,
 							"left": 984,
 							"top": 768,
-							"width": 123.40087890625,
-							"height": 45,
+							"width": 168.96435546875,
+							"height": 58,
 							"nameCompartment": {
 								"$ref": "AAAAAAGdTbhARove88A="
 							},
@@ -915,7 +971,7 @@
 											"visible": false,
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": 48,
+											"left": 176,
 											"top": 480,
 											"height": 13
 										},
@@ -927,7 +983,7 @@
 											},
 											"font": "Arial;13;1",
 											"parentStyle": true,
-											"left": 1173,
+											"left": 1237,
 											"top": 775,
 											"width": 321.46142578125,
 											"height": 13,
@@ -942,7 +998,7 @@
 											"visible": false,
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": 48,
+											"left": 176,
 											"top": 480,
 											"width": 73.67724609375,
 											"height": 13,
@@ -957,7 +1013,7 @@
 											"visible": false,
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": 48,
+											"left": 176,
 											"top": 480,
 											"height": 13,
 											"horizontalAlignment": 1
@@ -965,7 +1021,7 @@
 									],
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1168,
+									"left": 1232,
 									"top": 768,
 									"width": 331.46142578125,
 									"height": 25,
@@ -991,12 +1047,32 @@
 									"model": {
 										"$ref": "AAAAAAGdTbheS4wF5+o="
 									},
+									"subViews": [
+										{
+											"_type": "UMLAttributeView",
+											"_id": "AAAAAAGdd48Olx9zxac=",
+											"_parent": {
+												"$ref": "AAAAAAGdTbheS4wNT2w="
+											},
+											"model": {
+												"$ref": "AAAAAAGdd48Okx9wKZE="
+											},
+											"font": "Arial;13;0",
+											"parentStyle": true,
+											"left": 1237,
+											"top": 798,
+											"width": 321.46142578125,
+											"height": 13,
+											"text": "-client: AsyncOpenAI",
+											"horizontalAlignment": 0
+										}
+									],
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1168,
+									"left": 1232,
 									"top": 793,
 									"width": 331.46142578125,
-									"height": 10
+									"height": 23
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -1019,18 +1095,18 @@
 											},
 											"font": "Arial;13;0",
 											"parentStyle": true,
-											"left": 1173,
-											"top": 808,
+											"left": 1237,
+											"top": 821,
 											"width": 321.46142578125,
 											"height": 13,
-											"text": "+transcribe(audio_bytes: bytes, filename: String): String",
+											"text": "+trascrivi(audio_bytes: bytes, filename: string): string",
 											"horizontalAlignment": 0
 										}
 									],
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 1168,
-									"top": 803,
+									"left": 1232,
+									"top": 816,
 									"width": 331.46142578125,
 									"height": 23
 								},
@@ -1046,7 +1122,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 24,
+									"left": 88,
 									"top": 240,
 									"width": 10,
 									"height": 10
@@ -1063,7 +1139,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": true,
-									"left": 24,
+									"left": 88,
 									"top": 240,
 									"width": 10,
 									"height": 10
@@ -1072,10 +1148,10 @@
 							"font": "Arial;13;0",
 							"parentStyle": false,
 							"containerChangeable": true,
-							"left": 1168,
+							"left": 1232,
 							"top": 768,
 							"width": 330.46142578125,
-							"height": 58,
+							"height": 71,
 							"nameCompartment": {
 								"$ref": "AAAAAAGdTbheS4wIqzE="
 							},
@@ -1114,7 +1190,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 1137,
+									"left": 1192,
 									"top": 777,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -1136,7 +1212,7 @@
 									"visible": null,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 1137,
+									"left": 1192,
 									"top": 762,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -1158,7 +1234,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 1137,
+									"left": 1192,
 									"top": 807,
 									"height": 13,
 									"alpha": -1.5707963267948966,
@@ -1180,7 +1256,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 1132,
+									"left": 1178,
 									"top": 777,
 									"height": 13,
 									"alpha": 0.5235987755982988,
@@ -1202,7 +1278,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 1135,
+									"left": 1181,
 									"top": 763,
 									"height": 13,
 									"alpha": 0.7853981633974483,
@@ -1224,7 +1300,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 1128,
+									"left": 1174,
 									"top": 804,
 									"height": 13,
 									"alpha": -0.5235987755982988,
@@ -1246,7 +1322,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 1142,
+									"left": 1206,
 									"top": 777,
 									"height": 13,
 									"alpha": -0.5235987755982988,
@@ -1267,7 +1343,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 1139,
+									"left": 1203,
 									"top": 763,
 									"height": 13,
 									"alpha": -0.7853981633974483,
@@ -1288,7 +1364,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 1146,
+									"left": 1210,
 									"top": 804,
 									"height": 13,
 									"alpha": 0.5235987755982988,
@@ -1340,7 +1416,7 @@
 							"tail": {
 								"$ref": "AAAAAAGdTbhARovdclw="
 							},
-							"points": "1107:798;1168:798",
+							"points": "1153:798;1232:798",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAGdTbiO24w3mjM="
@@ -1781,8 +1857,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 445,
-									"top": 714,
+									"left": 429,
+									"top": 701,
 									"height": 13,
 									"alpha": 1.5707963267948966,
 									"distance": 15,
@@ -1803,8 +1879,8 @@
 									"visible": null,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 460,
-									"top": 715,
+									"left": 444,
+									"top": 701,
 									"height": 13,
 									"alpha": 1.5707963267948966,
 									"distance": 30,
@@ -1825,8 +1901,8 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"parentStyle": false,
-									"left": 416,
-									"top": 711,
+									"left": 400,
+									"top": 702,
 									"height": 13,
 									"alpha": -1.5707963267948966,
 									"distance": 15,
@@ -1844,8 +1920,7 @@
 							"tail": {
 								"$ref": "AAAAAAGdTbfvTote8MU="
 							},
-							"lineStyle": 1,
-							"points": "435:679;428:759",
+							"points": "415:665;415:752",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAGdTbuWo5EkWtc="
@@ -1865,7 +1940,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "RecordingRouter",
+					"name": "RecordingController",
 					"ownedElements": [
 						{
 							"_type": "UMLDependency",
@@ -1881,7 +1956,6 @@
 							}
 						}
 					],
-					"stereotype": "controller",
 					"operations": [
 						{
 							"_type": "UMLOperation",
@@ -1910,7 +1984,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGdTbfvTYtcTLc="
 							},
-							"name": "transcribe_audio",
+							"name": "trascrivi_audio",
 							"parameters": [
 								{
 									"_type": "UMLParameter",
@@ -1927,7 +2001,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGdaKRdD68y6Uk="
 									},
-									"type": "Map",
+									"type": "str*",
 									"direction": "return"
 								},
 								{
@@ -1937,9 +2011,7 @@
 										"$ref": "AAAAAAGdaKRdD68y6Uk="
 									},
 									"name": "service",
-									"type": {
-										"$ref": "AAAAAAGdTbgTNYuHDVk="
-									}
+									"type": "ServiceDep"
 								}
 							]
 						}
@@ -1989,7 +2061,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGdTbgTNYuHDVk="
 							},
-							"name": "MAX_DURATION",
+							"name": "MAX_DURATION_SEC",
 							"visibility": "private",
 							"type": "int"
 						},
@@ -2002,16 +2074,47 @@
 							"name": "MAX_SIZE_BYTES",
 							"visibility": "private",
 							"type": "int"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGdd4x92RxjQnM=",
+							"_parent": {
+								"$ref": "AAAAAAGdTbgTNYuHDVk="
+							},
+							"name": "repo",
+							"visibility": "private",
+							"type": {
+								"$ref": "AAAAAAGdTbgpeYuxpO4="
+							}
 						}
 					],
 					"operations": [
+						{
+							"_type": "UMLOperation",
+							"_id": "AAAAAAGdd4v1jhlwRuU=",
+							"_parent": {
+								"$ref": "AAAAAAGdTbgTNYuHDVk="
+							},
+							"name": "__init__",
+							"parameters": [
+								{
+									"_type": "UMLParameter",
+									"_id": "AAAAAAGdd4wvlRn8pbY=",
+									"_parent": {
+										"$ref": "AAAAAAGdd4v1jhlwRuU="
+									},
+									"name": "repo",
+									"type": "RecordingRepoPort"
+								}
+							]
+						},
 						{
 							"_type": "UMLOperation",
 							"_id": "AAAAAAGdaJ57znS4SVI=",
 							"_parent": {
 								"$ref": "AAAAAAGdTbgTNYuHDVk="
 							},
-							"name": "transcribe_audio",
+							"name": "trascrivi_audio",
 							"parameters": [
 								{
 									"_type": "UMLParameter",
@@ -2029,7 +2132,7 @@
 										"$ref": "AAAAAAGdaJ57znS4SVI="
 									},
 									"name": "filename",
-									"type": "String"
+									"type": "string"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2037,7 +2140,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGdaJ57znS4SVI="
 									},
-									"type": "String",
+									"type": "string",
 									"direction": "return"
 								}
 							]
@@ -2050,7 +2153,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "IRecordingRepoPort",
+					"name": "RecordingPort",
 					"operations": [
 						{
 							"_type": "UMLOperation",
@@ -2058,7 +2161,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGdTbgpeYuxpO4="
 							},
-							"name": "transcribe",
+							"name": "trascrivi",
 							"parameters": [
 								{
 									"_type": "UMLParameter",
@@ -2076,7 +2179,7 @@
 										"$ref": "AAAAAAGdaKCpuob7hA4="
 									},
 									"name": "filename",
-									"type": "String"
+									"type": "string"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2084,7 +2187,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGdaKCpuob7hA4="
 									},
-									"type": "String",
+									"type": "string",
 									"direction": "return"
 								}
 							]
@@ -2140,6 +2243,20 @@
 								"$ref": "AAAAAAGdTbgpeYuxpO4="
 							}
 						}
+					],
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGdd46mEx4GMsU=",
+							"_parent": {
+								"$ref": "AAAAAAGdTbhARovb048="
+							},
+							"name": "repo",
+							"visibility": "private",
+							"type": {
+								"$ref": "AAAAAAGdTbheS4wF5+o="
+							}
+						}
 					]
 				},
 				{
@@ -2149,6 +2266,18 @@
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
 					"name": "RecordingRepository",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGdd48Okx9wKZE=",
+							"_parent": {
+								"$ref": "AAAAAAGdTbheS4wF5+o="
+							},
+							"name": "client",
+							"visibility": "private",
+							"type": "AsyncOpenAI"
+						}
+					],
 					"operations": [
 						{
 							"_type": "UMLOperation",
@@ -2156,7 +2285,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGdTbheS4wF5+o="
 							},
-							"name": "transcribe",
+							"name": "trascrivi",
 							"parameters": [
 								{
 									"_type": "UMLParameter",
@@ -2174,7 +2303,7 @@
 										"$ref": "AAAAAAGdaKIR5ZnGoEA="
 									},
 									"name": "filename",
-									"type": "String"
+									"type": "string"
 								},
 								{
 									"_type": "UMLParameter",
@@ -2182,7 +2311,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGdaKIR5ZnGoEA="
 									},
-									"type": "String",
+									"type": "string",
 									"direction": "return"
 								}
 							]

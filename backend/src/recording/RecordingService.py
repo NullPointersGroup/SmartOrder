@@ -1,4 +1,4 @@
-from .RecordingRepoPort import RecordingRepoPort
+from .RecordingPort import RecordingPort
 from mutagen import File #type: ignore
 import tempfile
 import os
@@ -13,7 +13,7 @@ class RecordingService:
     @brief Service per la gestione della trascrizione audio.
     """
 
-    def __init__(self, repo: RecordingRepoPort):
+    def __init__(self, repo: RecordingPort):
         """
         @brief Inizializza il service con la porta di trascrizione.
         @param repo Implementazione di IRecordingRepoPort.
