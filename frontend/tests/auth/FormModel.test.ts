@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import type { LoginDto, RegisterDto} from '../../src/auth/AuthAPI';
-import { login, register } from '../../src/auth/AuthAPI'
+import type { LoginDto, RegisterDto} from '../../src/auth/FormModel';
+import { login, register } from '../../src/auth/FormModel'
 
 function makeJwt(payload: Record<string, unknown>): string {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));

@@ -1,13 +1,13 @@
 import pytest
 
-from src.storico.ports.StoricoRepoPort import StoricoRepoPort
+from src.storico.ports.StoricoAdapterPort import StoricoAdapterPort
 from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
 
-#TU-B_232
+# TU-B_232
 def test_adapter_implementa_port():
-    assert issubclass(GetOrdiniAdapter, StoricoRepoPort)
+    assert issubclass(GetOrdiniAdapter, StoricoAdapterPort)
 
-#TU-B_233
+# TU-B_233
 def test_adapter_non_e_astratto():
     # se mancasse un metodo astratto, l'istanziazione lancerebbe TypeError
     from unittest.mock import MagicMock

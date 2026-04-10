@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import List
 from datetime import date
 
-from src.storico.ports.StoricoRepoPort import StoricoRepoPort
+from src.storico.ports.StoricoAdapterPort import StoricoAdapterPort
 from src.db.models import Ordine
 from src.storico.StoricoSchemas import OrdineSchema, ProdottoSchema, StoricoPageSchema
 from src.storico.exceptions import OrdiniNotFoundException, OrdineNotFoundException, OrdiniUsernameNotFoundException
@@ -13,7 +13,7 @@ PER_PAGINA_DEFAULT = 10
 
 class StoricoService:
 
-    def __init__(self, adapter: StoricoRepoPort):
+    def __init__(self, adapter: StoricoAdapterPort):
         """
         @brief Inizializza il servizio storico con il repository fornito
         @param repo Implementazione del porto repository per lo storico

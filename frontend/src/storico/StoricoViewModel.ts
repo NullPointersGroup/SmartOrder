@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import type { Ordine } from './StoricoModel'
 import { useAuthStore } from '../auth/authStore'
-import { getStoricoCliente, getStoricoAdmin, duplicaOrdine as apiDuplicaOrdine } from './StoricoAPI'
+import { getStoricoCliente, getStoricoAdmin, duplicaOrdine as apiDuplicaOrdine } from './StoricoModel'
 
 export function useStoricoViewModel() {
   /**

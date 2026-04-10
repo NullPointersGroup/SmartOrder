@@ -1,12 +1,12 @@
 from typing import List, Tuple
 from sqlmodel import Session
-from src.storico.ports.StoricoRepoPort import StoricoRepoPort
+from src.storico.ports.StoricoAdapterPort import StoricoAdapterPort
 from src.storico.StoricoRepository import StoricoRepository
 from src.db.models import Ordine, OrdCliDet, Anaart
 from datetime import date
 
 
-class GetOrdiniAdapter(StoricoRepoPort):
+class GetOrdiniAdapter(StoricoAdapterPort):
     
     """
     @brief classe che si occupa di delegare alla classe repository i compiti
@@ -60,4 +60,9 @@ class GetOrdiniAdapter(StoricoRepoPort):
         return self.repository.duplica_ordine(codice_ordine, username)
 
     def get_all_products_by_username(self, username: str) -> List[Tuple[str, str, int]]:
+        """
+        @brief Recupera i prodotti associati ad uno username
+        @param username: il nome dello username
+        @return Lista di tuple contenente id prodotto, descrizione prodotto e quantità
+        """
         return self.repository.get_all_products_by_username(username)

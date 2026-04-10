@@ -16,10 +16,16 @@ vi.mock('../../src/auth/authStore', () => ({
 
 vi.mock('../../src/hooks/usePageTitle', () => ({ usePageTitle: vi.fn() }));
 
-vi.mock('../../src/auth/AuthAPI', () => ({
-  login:    vi.fn().mockResolvedValue({ ok: true, errors: [] }),
-  register: vi.fn().mockResolvedValue({ ok: true, errors: [] }),
-}));
+vi.mock('../../src/auth/FormModel', async () => {
+  const actual = await vi.importActual<typeof import('../../src/auth/FormModel')>(
+    '../../src/auth/FormModel'
+  );
+  return {
+    ...actual,
+    login: vi.fn(),
+    register: vi.fn(),
+  };
+});
 
 function renderInRouter(ui: React.ReactElement) {
   return render(<MemoryRouter>{ui}</MemoryRouter>);
@@ -74,7 +80,7 @@ describe('Register', () => {
   //TU-F_63
   it('ok=true: chiama onRegister (RF-OB_22)', async () => {
     const onRegister = vi.fn();
-    const { register: registerApi } = await import('../../src/auth/AuthAPI');
+    const { register: registerApi } = await import('../../src/auth/FormModel');
     vi.mocked(registerApi).mockResolvedValue({ ok: true, errors: [] });
 
     renderInRouter(<Register onRegister={onRegister} />);
@@ -90,7 +96,7 @@ describe('Register', () => {
 
   //TU-F_64
   it('ok=false: mostra errore server (RF-OB_04)', async () => {
-    const { register: registerApi } = await import('../../src/auth/AuthAPI');
+    const { register: registerApi } = await import('../../src/auth/FormModel');
     vi.mocked(registerApi).mockResolvedValue({ ok: false, errors: ['Username già esistente'] });
 
     renderInRouter(<Register onRegister={vi.fn()} />);

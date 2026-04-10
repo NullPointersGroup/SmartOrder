@@ -10,8 +10,6 @@ from typing import Any, Generator
 import pytest
 from sqlmodel import Session, create_engine
 from sqlalchemy import text
-from src.db.dbConnection import get_conn
-from src.main import app
 
 TEST_DATABASE_URL = os.getenv(
     "TEST_DATABASE_URL", "postgresql://postgres:postgres@localhost:5433/smartorder_test"

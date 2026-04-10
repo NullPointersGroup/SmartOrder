@@ -15,7 +15,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   admin:           null,
   loggedOut:       false,
-  setAuth:         (username, admin) => set({ username, admin, isAuthenticated: true }),
+  setAuth:         (username, admin) => set({ username, admin, isAuthenticated: true, loggedOut: false }),
   clearAuth:       () => set({ username: null, admin: null, isAuthenticated: false, loggedOut: true }),
   initAuth:        async () => {
     try {

@@ -3,7 +3,7 @@ from src.auth.models import UserRegistration, UserReset
 from src.db.models import Utentiweb
 
 
-class IUserRepoPort(ABC):
+class UserRepoPort(ABC):
     """
     @brief Porta secondaria verso la persistenza utenti
     """
@@ -11,10 +11,6 @@ class IUserRepoPort(ABC):
     @abstractmethod
     def find_by_username(self, username: str) -> Utentiweb | None:
         """@brief Recupera un utente per username"""
-
-    @abstractmethod
-    def username_exists(self, username: str) -> bool:
-        """@brief Controlla se lo username è già nel DB"""
 
     @abstractmethod
     def email_exists(self, email: str) -> bool:

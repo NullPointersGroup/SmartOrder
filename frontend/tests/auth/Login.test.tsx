@@ -16,10 +16,16 @@ vi.mock('../../src/auth/authStore', () => ({
 
 vi.mock('../../src/hooks/usePageTitle', () => ({ usePageTitle: vi.fn() }));
 
-vi.mock('../../src/auth/AuthAPI', () => ({
-  login:    vi.fn().mockResolvedValue({ ok: true, errors: [] }),
-  register: vi.fn().mockResolvedValue({ ok: true, errors: [] }),
-}));
+vi.mock('../../src/auth/FormModel', async () => {
+  const actual = await vi.importActual<typeof import('../../src/auth/FormModel')>(
+    '../../src/auth/FormModel'
+  );
+  return {
+    ...actual,
+    login: vi.fn(),
+    register: vi.fn(),
+  };
+});
 
 function renderInRouter(ui: React.ReactElement) {
   return render(<MemoryRouter>{ui}</MemoryRouter>);
@@ -37,7 +43,7 @@ describe('Login', () => {
   //TU-F_56
   it('ok=true: chiama onLogin', async () => {
     const onLogin = vi.fn();
-    const { login: loginApi } = await import('../../src/auth/AuthAPI');
+    const { login: loginApi } = await import('../../src/auth/FormModel');
     vi.mocked(loginApi).mockResolvedValue({ ok: true, errors: [] });
 
     renderInRouter(<Login onLogin={onLogin} />);
@@ -51,7 +57,7 @@ describe('Login', () => {
   //TU-F_57
   it('ok=false: mostra errore, NON chiama onLogin (RF-OB_28)', async () => {
     const onLogin = vi.fn();
-    const { login: loginApi } = await import('../../src/auth/AuthAPI');
+    const { login: loginApi } = await import('../../src/auth/FormModel');
     vi.mocked(loginApi).mockResolvedValue({ ok: false, errors: ['Username o password errati'] });
 
     renderInRouter(<Login onLogin={onLogin} />);
