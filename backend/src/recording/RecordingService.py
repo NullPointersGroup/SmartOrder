@@ -13,12 +13,12 @@ class RecordingService:
     @brief Service per la gestione della trascrizione audio.
     """
 
-    def __init__(self, repo: RecordingPort):
+    def __init__(self, adapter: RecordingPort):
         """
         @brief Inizializza il service con la porta di trascrizione.
         @param repo Implementazione di IRecordingRepoPort.
         """
-        self._repo = repo
+        self.adapter = adapter
 
     async def trascrivi_audio(self, audio_bytes: bytes, filename: str) -> str:
         """
@@ -57,5 +57,5 @@ class RecordingService:
         finally:
             os.unlink(tmp_path)
 
-        testo = await self._repo.trascrivi(audio_bytes, filename)
+        testo = await self.adapter.trascrivi(audio_bytes, filename)
         return testo

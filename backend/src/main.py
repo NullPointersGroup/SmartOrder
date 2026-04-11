@@ -69,3 +69,7 @@ app.include_router(cart_router, prefix="/api")
 app.include_router(conversations_router, prefix="/api")
 app.include_router(storico_router, prefix="/api")
 app.include_router(recording_router, prefix="/api")
+
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}
