@@ -1922,7 +1922,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": false,
 									"left": 1799,
-									"top": 941,
+									"top": 931,
 									"height": 13,
 									"alpha": 0.5235987755982988,
 									"distance": 30,
@@ -1944,7 +1944,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": false,
 									"left": 1812,
-									"top": 944,
+									"top": 934,
 									"height": 13,
 									"alpha": 0.7853981633974483,
 									"distance": 40,
@@ -1966,7 +1966,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": false,
 									"left": 1771,
-									"top": 937,
+									"top": 927,
 									"height": 13,
 									"alpha": -0.5235987755982988,
 									"distance": 25,
@@ -2081,7 +2081,7 @@
 							"tail": {
 								"$ref": "AAAAAAGdcWvgqENjNa0="
 							},
-							"points": "1784:922;1784:976;1754:976",
+							"points": "1784:912;1784:976;1754:976",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAGdLHYn7Vg/miQ="
@@ -2226,24 +2226,6 @@
 									"subViews": [
 										{
 											"_type": "UMLAttributeView",
-											"_id": "AAAAAAGdfP7IHcLocxI=",
-											"_parent": {
-												"$ref": "AAAAAAGdcWvgqENpt+g="
-											},
-											"model": {
-												"$ref": "AAAAAAGdfOX3i0BWmXE="
-											},
-											"font": "Arial;13;0",
-											"parentStyle": true,
-											"left": 1645,
-											"top": 806,
-											"width": 511.50390625,
-											"height": 13,
-											"text": "+CART_SEARCH_LIMIT: int = 5",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
 											"_id": "AAAAAAGdfP7IHcLrBcY=",
 											"_parent": {
 												"$ref": "AAAAAAGdcWvgqENpt+g="
@@ -2254,7 +2236,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1645,
-											"top": 821,
+											"top": 806,
 											"width": 511.50390625,
 											"height": 13,
 											"text": "-cart_vect: VecDbPortOut",
@@ -2272,7 +2254,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1645,
-											"top": 836,
+											"top": 821,
 											"width": 511.50390625,
 											"height": 13,
 											"text": "-cart_repo: CartRepoPort",
@@ -2290,7 +2272,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1645,
-											"top": 851,
+											"top": 836,
 											"width": 511.50390625,
 											"height": 13,
 											"text": "-embedder: EmbedderPort",
@@ -2302,7 +2284,7 @@
 									"left": 1640,
 									"top": 801,
 									"width": 521.50390625,
-									"height": 68
+									"height": 53
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -2326,7 +2308,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1645,
-											"top": 874,
+											"top": 859,
 											"width": 511.50390625,
 											"height": 13,
 											"text": "+__init__(cart_vect: VecDbPortOut, cart_repo: CartRepoPort, embedder: EmbedderPort)",
@@ -2344,7 +2326,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1645,
-											"top": 889,
+											"top": 874,
 											"width": 511.50390625,
 											"height": 13,
 											"text": "+load_cart(username: string)",
@@ -2362,7 +2344,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1645,
-											"top": 904,
+											"top": 889,
 											"width": 511.50390625,
 											"height": 13,
 											"text": "+search_cart(username: str, query: str, threshold: float): String*",
@@ -2372,7 +2354,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 1640,
-									"top": 869,
+									"top": 854,
 									"width": 521.50390625,
 									"height": 53
 								},
@@ -2417,7 +2399,7 @@
 							"left": 1640,
 							"top": 776,
 							"width": 520.50390625,
-							"height": 146,
+							"height": 136,
 							"nameCompartment": {
 								"$ref": "AAAAAAGdcWvgqENkGYA="
 							},
@@ -2542,24 +2524,6 @@
 									"subViews": [
 										{
 											"_type": "UMLAttributeView",
-											"_id": "AAAAAAGdfJtV3EpCH14=",
-											"_parent": {
-												"$ref": "AAAAAAGdcWzqRhQZrOo="
-											},
-											"model": {
-												"$ref": "PYGEN_EmbeddedCatalogService_attr_CATALOG_SEARCH_LIMIT"
-											},
-											"font": "Arial;13;0",
-											"parentStyle": true,
-											"left": 1997,
-											"top": 1006,
-											"width": 572.2509765625,
-											"height": 13,
-											"text": "-CATALOG_SEARCH_LIMIT: int",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
 											"_id": "AAAAAAGdfJtV3UpFqNc=",
 											"_parent": {
 												"$ref": "AAAAAAGdcWzqRhQZrOo="
@@ -2570,7 +2534,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1997,
-											"top": 1021,
+											"top": 1006,
 											"width": 572.2509765625,
 											"height": 13,
 											"text": "-catalog_vect: VecDbPortOut",
@@ -2588,7 +2552,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1997,
-											"top": 1036,
+											"top": 1021,
 											"width": 572.2509765625,
 											"height": 13,
 											"text": "-catalog_repo: CatalogRepoPort",
@@ -2606,7 +2570,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1997,
-											"top": 1051,
+											"top": 1036,
 											"width": 572.2509765625,
 											"height": 13,
 											"text": "-embedder: EmbedderPort",
@@ -2618,7 +2582,7 @@
 									"left": 1992,
 									"top": 1001,
 									"width": 582.2509765625,
-									"height": 68
+									"height": 53
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -2642,7 +2606,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1997,
-											"top": 1074,
+											"top": 1059,
 											"width": 572.2509765625,
 											"height": 13,
 											"text": "+__init__(catalog_vect: VecDbPortOut, catalog_repo: CatalogRepoPort, embedder: EmbedderPort)",
@@ -2660,7 +2624,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1997,
-											"top": 1089,
+											"top": 1074,
 											"width": 572.2509765625,
 											"height": 13,
 											"text": "+search_catalog(query: String, threshold: float): String*",
@@ -2678,7 +2642,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 1997,
-											"top": 1104,
+											"top": 1089,
 											"width": 572.2509765625,
 											"height": 13,
 											"text": "+load_catalog()",
@@ -2688,7 +2652,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 1992,
-									"top": 1069,
+									"top": 1054,
 									"width": 582.2509765625,
 									"height": 53
 								},
@@ -2733,7 +2697,7 @@
 							"left": 1992,
 							"top": 976,
 							"width": 581.2509765625,
-							"height": 146,
+							"height": 131,
 							"nameCompartment": {
 								"$ref": "AAAAAAGdcWzqRhQUNLw="
 							},
@@ -4789,7 +4753,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": false,
 									"left": 2066,
-									"top": 1141,
+									"top": 1126,
 									"height": 13,
 									"alpha": -0.5235987755982988,
 									"distance": 30,
@@ -4810,7 +4774,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": false,
 									"left": 2052,
-									"top": 1144,
+									"top": 1129,
 									"height": 13,
 									"alpha": -0.7853981633974483,
 									"distance": 40,
@@ -4831,7 +4795,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": false,
 									"left": 2093,
-									"top": 1137,
+									"top": 1122,
 									"height": 13,
 									"alpha": 0.5235987755982988,
 									"distance": 25,
@@ -4878,7 +4842,7 @@
 							"tail": {
 								"$ref": "AAAAAAGdcXAIJ7DlrKQ="
 							},
-							"points": "2208:1192;2081:1192;2081:1122",
+							"points": "2208:1192;2081:1192;2081:1107",
 							"showVisibility": true,
 							"nameLabel": {
 								"$ref": "AAAAAAGdcXL23hwxNyc="
@@ -7176,22 +7140,6 @@
 						},
 						{
 							"_type": "UMLNoteView",
-							"_id": "AAAAAAGde2f6EfUgTGo=",
-							"_parent": {
-								"$ref": "AAAAAAGdADHzCJm5nUU="
-							},
-							"font": "Arial;20;0",
-							"parentStyle": false,
-							"left": 1096,
-							"top": 1360,
-							"width": 1684.228515625,
-							"height": 186,
-							"autoResize": true,
-							"text": "\\textbf come attributo e funzione\n\\textit all'interno\nEsempio:\n\\item \\textbf{duplica\\_ordine(codice\\_ordine: str, username: Username, service: ServiceDep): dict} - endpoint \\textit{POST /storico/duplica/\\{codice\\_ordine\\}} che duplica un ordine esistente.\nstring al posto di str (sia UML che specifica)\nnelle funzioni va sempre messo il tipo dei parametri\ntipo di ritorno void non va segnato\nTuo file: Laura.tex",
-							"wordWrap": false
-						},
-						{
-							"_type": "UMLNoteView",
 							"_id": "AAAAAAGde2qXBQ52+88=",
 							"_parent": {
 								"$ref": "AAAAAAGdADHzCJm5nUU="
@@ -7220,7 +7168,7 @@
 								"$ref": "AAAAAAGde2qXBQ52+88="
 							},
 							"lineStyle": 1,
-							"points": "1832:707;1865:775"
+							"points": "1833:707;1866:775"
 						},
 						{
 							"_type": "UMLTextView",
@@ -11854,16 +11802,6 @@
 					"attributes": [
 						{
 							"_type": "UMLAttribute",
-							"_id": "AAAAAAGdfOX3i0BWmXE=",
-							"_parent": {
-								"$ref": "AAAAAAGdcWvgqENhems="
-							},
-							"name": "CART_SEARCH_LIMIT",
-							"type": "int",
-							"defaultValue": "5"
-						},
-						{
-							"_type": "UMLAttribute",
 							"_id": "AAAAAAGdfOYGPUDtqXI=",
 							"_parent": {
 								"$ref": "AAAAAAGdcWvgqENhems="
@@ -12132,16 +12070,6 @@
 						}
 					],
 					"attributes": [
-						{
-							"_type": "UMLAttribute",
-							"_id": "PYGEN_EmbeddedCatalogService_attr_CATALOG_SEARCH_LIMIT",
-							"_parent": {
-								"$ref": "AAAAAAGdcWzqRRQRIRU="
-							},
-							"name": "CATALOG_SEARCH_LIMIT",
-							"visibility": "private",
-							"type": "int"
-						},
 						{
 							"_type": "UMLAttribute",
 							"_id": "PYGEN_EmbeddedCatalogService_attr_catalog_vect",
