@@ -11849,6 +11849,22 @@
 							"headQualifiersCompartment": {
 								"$ref": "AAAAAAGdeCIPm8FMQT4="
 							}
+						},
+						{
+							"_type": "UMLNoteView",
+							"_id": "AAAAAAGde3DFzz8T1is=",
+							"_parent": {
+								"$ref": "AAAAAAFF+qBtyKM79qY="
+							},
+							"font": "Arial;13;0",
+							"parentStyle": false,
+							"left": 520,
+							"top": 2280,
+							"width": 1101.74853515625,
+							"height": 235,
+							"autoResize": true,
+							"text": "\\textbf come attributo e funzione\n\\textit all'interno\nEsempio:\n\\item \\textbf{duplica\\_ordine(codice\\_ordine: str, username: Username, service: ServiceDep): dict} - endpoint \\textit{POST /storico/duplica/\\{codice\\_ordine\\}} che duplica un ordine esistente.\nstring al posto di str (sia UML che specifica)\nnelle funzioni va sempre messo il tipo dei parametri\ntipo di ritorno void non va segnato\n\n\ncome gestire i diversi tipi:\nList[int] -> int*\nTuple [str, str] -> str*\nTuple [str, str, int] -> omettiamo per semplicità\n\nTuo file: Tommaso.tex",
+							"wordWrap": false
 						}
 					]
 				},
@@ -16159,7 +16175,8 @@
 									"_parent": {
 										"$ref": "AAAAAAGdeDUW6DfHKNw="
 									},
-									"name": "self"
+									"name": "self",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
@@ -16185,7 +16202,8 @@
 									"_parent": {
 										"$ref": "AAAAAAGdeDUW6DfHKNw="
 									},
-									"name": "data_fine"
+									"name": "data_fine",
+									"type": ""
 								},
 								{
 									"_type": "UMLParameter",
