@@ -71,5 +71,5 @@ app.include_router(storico_router, prefix="/api")
 app.include_router(recording_router, prefix="/api")
 
 @app.get("/api/health")
-def health():
+def health() -> dict[str, str]:
     return {"status": "ok"}
