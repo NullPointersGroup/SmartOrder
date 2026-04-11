@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import { Paginazione } from '../../src/storico/Paginazione';
 
@@ -117,7 +116,7 @@ describe('Paginazione – interazione', () => {
   it('non chiama onCambia se "Precedente" è disabilitato', async () => {
     const onCambia = vi.fn();
     renderPaginazione(1, 5, onCambia);
-    await userEvent.click(screen.getByRole('button', { name: /precedente/i }));
+    fireEvent.click(screen.getByRole('button', { name: /precedente/i }));
     expect(onCambia).not.toHaveBeenCalled();
   });
 
@@ -125,7 +124,7 @@ describe('Paginazione – interazione', () => {
   it('non chiama onCambia se "Successivo" è disabilitato', async () => {
     const onCambia = vi.fn();
     renderPaginazione(5, 5, onCambia);
-    await userEvent.click(screen.getByRole('button', { name: /successivo/i }));
+    fireEvent.click(screen.getByRole('button', { name: /successivo/i }));
     expect(onCambia).not.toHaveBeenCalled();
   });
 
