@@ -96,12 +96,12 @@ class TestDeleteUser:
 
 
 class TestResetPassword:
-    #TU-B_XXX
+    #TU-B_110
     def test_returns_true_on_success(self, repo, db, valid_reset):
         repo.repo.reset_password = MagicMock(return_value=True)
         assert repo.reset_password(valid_reset) is True
 
-    #TU-B_XXX
+    #TU-B_111
     def test_returns_false_on_failure(self, repo, db, valid_reset):
         repo.repo.reset_password = MagicMock(return_value=False)
         assert repo.reset_password(valid_reset) is False

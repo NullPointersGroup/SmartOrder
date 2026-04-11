@@ -132,12 +132,12 @@ class TestDelete:
         executor.mutate_raw.return_value = True
         assert repo.delete("testuser") is True
 
-    #TU-B_XXX
+    #TU-B_122
     def test_returns_false_on_failure(self, repo, executor):
         executor.mutate_raw.return_value = False
         assert repo.delete("testuser") is False
 
-    #TU-B_XXX
+    #TU-B_123
     def test_delegates_to_executor(self, repo, executor):
         executor.mutate_raw.return_value = True
         repo.delete("testuser")
@@ -149,17 +149,17 @@ class TestDelete:
 # ---------------------------------------------------------------------------
 
 class TestResetPassword:
-    #TU-B_XXX
+    #TU-B_124
     def test_returns_true_on_success(self, repo, executor, valid_reset):
         executor.mutate_raw.return_value = True
         assert repo.reset_password(valid_reset) is True
 
-    #TU-B_XXX
+    #TU-B_125
     def test_returns_false_on_failure(self, repo, executor, valid_reset):
         executor.mutate_raw.return_value = False
         assert repo.reset_password(valid_reset) is False
 
-    #TU-B_XXX
+    #TU-B_126
     def test_delegates_to_executor(self, repo, executor, valid_reset):
         executor.mutate_raw.return_value = True
         repo.reset_password(valid_reset)

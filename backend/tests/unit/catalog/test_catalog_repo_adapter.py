@@ -22,7 +22,7 @@ def make_catalog_row(
     )
 
 
-#TU-B_179
+#TU-B_181
 def test_get_product_returns_mapped_catalog_product():
     mock_repo = MagicMock()
     mock_repo.get_product.return_value = make_catalog_row(
@@ -45,7 +45,7 @@ def test_get_product_returns_mapped_catalog_product():
     mock_repo.get_product.assert_called_once_with("AC002")
 
 
-#TU-B_180
+#TU-B_182
 def test_get_product_returns_none_when_missing():
     mock_repo = MagicMock()
     mock_repo.get_product.return_value = None
@@ -57,7 +57,7 @@ def test_get_product_returns_none_when_missing():
     mock_repo.get_product.assert_called_once_with("MISSING")
 
 
-#TU-B_181
+#TU-B_183
 def test_get_full_catalog_returns_mapped_products():
     mock_repo = MagicMock()
     mock_repo.get_full_catalog.return_value = [

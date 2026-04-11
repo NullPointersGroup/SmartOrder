@@ -38,28 +38,28 @@ class ConcreteCartRepo(CartRepoPort):
         return None
 
 
-#TU-B_143
+#TU-B_160
 def test_get_products_can_be_implemented():
     cart_repo = ConcreteCartRepo()
     result = cart_repo.get_products("Tom")
     assert isinstance(result, list)
 
 
-#TU-B_144
+#TU-B_161
 def test_add_products_can_be_implemented():
     cart_repo = ConcreteCartRepo()
     result = cart_repo.add_product("ABC1", "Tom", 2)
     assert isinstance(result, CartProduct)
 
 
-#TU-B_145
+#TU-B_162
 def test_remove_product_can_be_implemented():
     cart_repo = ConcreteCartRepo()
     result = cart_repo.remove_product("ABC1", "Tom")
     assert isinstance(result, CartProduct)
 
 
-#TU-B_146
+#TU-B_163
 def test_update_quantity_can_be_implemented():
     cart_repo = ConcreteCartRepo()
     result = cart_repo.update_quantity("ABC1", "Tom", 2, CartUpdateOperation.Add)
