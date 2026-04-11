@@ -2,8 +2,8 @@ import pytest
 from unittest.mock import MagicMock, patch
 from sqlmodel import Session
 
-from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
-from src.db.models import Ordine, OrdCliDet, Anaart
+from src.history.adapters.GetOrdersAdapter import GetOrdersAdapter
+from src.db.models import Order, OrdCliDet, Anaart
 
 
 # ─── Fixtures ─────────────────────────────────────────────────────────────────
@@ -16,19 +16,19 @@ def mock_repo():
 @pytest.fixture
 def adapter(mock_repo):
     with patch(
-        "src.storico.adapters.GetOrdiniAdapter.StoricoRepository",
+        "src.history.adapters.GetOrdersAdapter.HistoryRepository",
         return_value=mock_repo,
     ):
-        return GetOrdiniAdapter(MagicMock(spec=Session)), mock_repo
+        return GetOrdersAdapter(MagicMock(spec=Session)), mock_repo
 
 
 # ─── get_ordini_by_username ───────────────────────────────────────────────────
 
-class TestGetOrdiniByUsername:
-#TU-B_234
+class TestGetOrdersByUsername:
+#TU-B_237
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
-        ordine = MagicMock(spec=Ordine)
+        ordine = MagicMock(spec=Order)
         repo.get_ordini_by_username.return_value = ([ordine], 1)
 
         result = sut.get_ordini_by_username("mario", 1, 10, None, None)
@@ -36,7 +36,7 @@ class TestGetOrdiniByUsername:
         repo.get_ordini_by_username.assert_called_once_with("mario", 1, 10, None, None)
         assert result == ([ordine], 1)
 
-#TU-B_235
+#TU-B_238
     def test_propaga_paginazione(self, adapter):
         sut, repo = adapter
         repo.get_ordini_by_username.return_value = ([], 0)
@@ -49,17 +49,17 @@ class TestGetOrdiniByUsername:
 # ─── get_all_ordini ───────────────────────────────────────────────────────────
 
 class TestGetAllOrdini:
-#TU-B_236
+#TU-B_239
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
-        ordine = MagicMock(spec=Ordine)
+        ordine = MagicMock(spec=Order)
         repo.get_all_ordini.return_value = ([ordine], 1)
 
         result = sut.get_all_ordini(1, 10, None, None)
 
         repo.get_all_ordini.assert_called_once_with(1, 10, None, None)
         assert result == ([ordine], 1)
-#TU-B_237
+#TU-B_240
     def test_propaga_paginazione(self, adapter):
         sut, repo = adapter
         repo.get_all_ordini.return_value = ([], 0)
@@ -72,7 +72,7 @@ class TestGetAllOrdini:
 # ─── get_prodotti_by_ordine_ids ───────────────────────────────────────────────
 
 class TestGetProdottiByOrdineIds:
-#TU-B_238
+#TU-B_241
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
         coppia = (MagicMock(spec=OrdCliDet), MagicMock(spec=Anaart))
@@ -83,7 +83,7 @@ class TestGetProdottiByOrdineIds:
         repo.get_prodotti_by_ordine_ids.assert_called_once_with([1, 2, 3])
         assert result == [coppia]
 
-#TU-B_239
+#TU-B_242
     def test_lista_vuota(self, adapter):
         sut, repo = adapter
         repo.get_prodotti_by_ordine_ids.return_value = []
@@ -97,10 +97,10 @@ class TestGetProdottiByOrdineIds:
 # ─── duplica_ordine ───────────────────────────────────────────────────────────
 
 class TestDuplicaOrdine:
-#TU-B_240
+#TU-B_243
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
-        nuovo = MagicMock(spec=Ordine)
+        nuovo = MagicMock(spec=Order)
         repo.duplica_ordine.return_value = nuovo
 
         result = sut.duplica_ordine("42", "mario")
@@ -108,7 +108,7 @@ class TestDuplicaOrdine:
         repo.duplica_ordine.assert_called_once_with("42", "mario")
         assert result == nuovo
 
-#TU-B_241
+#TU-B_244
     def test_propaga_value_error(self, adapter):
         sut, repo = adapter
         repo.duplica_ordine.side_effect = ValueError("non trovato")

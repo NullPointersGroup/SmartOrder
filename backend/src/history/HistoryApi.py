@@ -4,15 +4,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status, Cookie
 from sqlmodel import Session, select
 
 from src.db.dbConnection import get_conn
-from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
-from src.storico.StoricoService import StoricoService
-from src.storico.StoricoSchemas import StoricoPageSchema
-from src.storico.exceptions import (
-    OrdiniUsernameNotFoundException,
-    OrdineNotFoundException,
-    StoricoAccessDeniedException,
+from src.history.adapters.GetOrdersAdapter import GetOrdersAdapter
+from src.history.HistoryService import HistoryService
+from src.history.HistorySchemas import HistoryPageSchema
+from src.history.exceptions import (
+    UserOrdersNotFoundException,
+    OrderNotFoundException,
+    HistoryAccessDeniedException,
 )
-from src.db.models import Utentiweb
+from src.db.models import WebUser
 from src.auth.api import get_current_user
 
 Username = Annotated[str, Depends(get_current_user)]
@@ -24,16 +24,16 @@ Pagina = Annotated[int, Query(ge=1)]
 PerPagina = Annotated[int, Query(ge=1, le=50)]
 
 
-def get_service(db: DBSession) -> StoricoService:
+def get_service(db: DBSession) -> HistoryService:
     """
     @brief ritorna la classe Service
     @return la classe Service
     """
-    adapter = GetOrdiniAdapter(db)
-    return StoricoService(adapter)
+    adapter = GetOrdersAdapter(db)
+    return HistoryService(adapter)
 
 
-ServiceDep = Annotated[StoricoService, Depends(get_service)]
+ServiceDep = Annotated[HistoryService, Depends(get_service)]
 
 
 def require_admin(username: Username, db: DBSession) -> str:
@@ -42,7 +42,7 @@ def require_admin(username: Username, db: DBSession) -> str:
     @raise HTTPException: accesso riservato agli amministratori
     @return se l'utente è un admin, ritorna lo username
     """
-    utente = db.exec(select(Utentiweb).where(Utentiweb.username == username)).first()
+    utente = db.exec(select(WebUser).where(WebUser.username == username)).first()
     if utente is None or not utente.admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -59,7 +59,7 @@ def get_storico_cliente(
     per_pagina: PerPagina = 10,
     data_inizio: date | None = None,
     data_fine: date | None = None,
-) -> StoricoPageSchema:
+) -> HistoryPageSchema:
     """
     @brief ritorna gli ordini di un cliente
     @raise HTTPException cliente npon trovato
@@ -67,7 +67,7 @@ def get_storico_cliente(
     """
     try:
         return service.get_ordini_cliente(username, pagina, per_pagina, data_inizio, data_fine)
-    except OrdiniUsernameNotFoundException as e:
+    except UserOrdersNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
 
 
@@ -78,7 +78,7 @@ def get_storico_admin(
     per_pagina: PerPagina = 10,
     data_inizio: date | None = None,
     data_fine: date | None = None,
-) -> StoricoPageSchema:
+) -> HistoryPageSchema:
     """
     @brief ritorna tutti gli ordini
     @raise HTTPException accesso non consentito
@@ -86,7 +86,7 @@ def get_storico_admin(
     """
     try:
         return service.get_ordini_admin(pagina, per_pagina, data_inizio, data_fine)
-    except StoricoAccessDeniedException as e:
+    except HistoryAccessDeniedException as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.message)
 
 
@@ -104,5 +104,5 @@ def duplica_ordine(
     try:
         service.duplica_ordine(codice_ordine, username)
         return {"detail": "Ordine duplicato con successo"}
-    except OrdineNotFoundException as e:
+    except OrderNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)

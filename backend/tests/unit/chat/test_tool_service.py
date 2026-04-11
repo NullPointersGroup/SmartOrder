@@ -6,7 +6,7 @@ from src.chat.tools.ToolCartService import ToolCartService
 from src.chat.tools.ToolCatalogService import ToolCatalogService
 from src.chat.tools.ToolOrderService import ToolOrderService
 from src.enums import CartUpdateOperation, MeasureUnitEnum
-from src.storico.StoricoSchemas import StoricoPageSchema
+from src.history.HistorySchemas import HistoryPageSchema
 
 
 def make_cart_product(prod_id: str, name: str, qty: int) -> CartProduct:
@@ -27,7 +27,7 @@ def make_catalog_product(prod_id: str, name: str) -> CatalogProduct:
     )
 
 
-# TU-B_228
+#TU-B_230
 def test_get_cart_items_delegates_to_cart_service():
     cart_repo = MagicMock()
     embedded_cart = MagicMock()
@@ -44,7 +44,7 @@ def test_get_cart_items_delegates_to_cart_service():
     assert [p.prod_id for p in result] == ["A1"]
 
 
-# TU-B_229
+#TU-B_231
 def test_search_cart_maps_only_products_present_in_cart():
     cart_repo = MagicMock()
     embedded_cart = MagicMock()
@@ -66,7 +66,7 @@ def test_search_cart_maps_only_products_present_in_cart():
     assert [p.prod_id for p in result] == ["A1", "B2"]
 
 
-# TU-B_230
+#TU-B_232
 def test_search_catalog_maps_only_existing_products():
     catalog_repo = MagicMock()
     embedded_catalog = MagicMock()
@@ -87,7 +87,7 @@ def test_search_catalog_maps_only_existing_products():
     assert [p.prod_id for p in result] == ["A1", "B2"]
 
 
-# TU-B_231
+#TU-B_233
 def test_update_cart_item_qty_delegates_with_username():
     cart_repo = MagicMock()
     embedded_cart = MagicMock()
@@ -103,10 +103,10 @@ def test_update_cart_item_qty_delegates_with_username():
         "A1", "carlesso", 4, CartUpdateOperation.Set
     )
 
-
+#TU-B_234
 def test_get_ordini_delegates_to_storico_service_with_default_page_size():
     storico_service = MagicMock()
-    page = StoricoPageSchema(ordini=[], pagina_corrente=2, totale_pagine=5)
+    page = HistoryPageSchema(ordini=[], pagina_corrente=2, totale_pagine=5)
     storico_service.get_ordini_cliente.return_value = page
     tool_service = ToolOrderService(
         username="carlesso",

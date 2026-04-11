@@ -1,12 +1,12 @@
 from typing import List, Tuple
 from sqlmodel import Session
-from src.storico.ports.StoricoAdapterPort import StoricoAdapterPort
-from src.storico.StoricoRepository import StoricoRepository
-from src.db.models import Ordine, OrdCliDet, Anaart
+from src.history.ports.HistoryAdapterPort import HistoryAdapterPort
+from src.history.HistoryRepository import HistoryRepository
+from src.db.models import Order, OrdCliDet, Anaart
 from datetime import date
 
 
-class GetOrdiniAdapter(StoricoAdapterPort):
+class GetOrdersAdapter(HistoryAdapterPort):
     
     """
     @brief classe che si occupa di delegare alla classe repository i compiti
@@ -17,11 +17,11 @@ class GetOrdiniAdapter(StoricoAdapterPort):
         @brief Inizializza l'adapter con la sessione del database
         @param db Sessione SQLModel per le operazioni sul database
         """
-        self.repository = StoricoRepository(db)
+        self.repository = HistoryRepository(db)
 
     def get_ordini_by_username(
         self, username: str, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
-    ) -> Tuple[List[Ordine], int]:
+    ) -> Tuple[List[Order], int]:
         """
         @brief Recupera gli ordini di un utente specifico con paginazione
         @param username Nome dell'utente
@@ -33,7 +33,7 @@ class GetOrdiniAdapter(StoricoAdapterPort):
 
     def get_all_ordini(
         self, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
-    ) -> Tuple[List[Ordine], int]:
+    ) -> Tuple[List[Order], int]:
         """
         @brief Recupera tutti gli ordini (vista admin) con paginazione
         @param pagina Numero della pagina richiesta
@@ -50,7 +50,7 @@ class GetOrdiniAdapter(StoricoAdapterPort):
         """
         return self.repository.get_prodotti_by_ordine_ids(ordine_ids)
 
-    def duplica_ordine(self, codice_ordine: str, username: str) -> Ordine:
+    def duplica_ordine(self, codice_ordine: str, username: str) -> Order:
         """
         @brief Duplica un ordine esistente per un utente
         @param codice_ordine Codice dell'ordine da duplicare

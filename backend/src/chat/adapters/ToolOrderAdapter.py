@@ -1,7 +1,7 @@
 from datetime import date
 from src.chat.ports.ToolOrderPortIn import ToolOrderPortIn
 from src.chat.tools.ToolOrderService import ToolOrderService
-from src.storico.StoricoSchemas import StoricoPageSchema
+from src.history.HistorySchemas import HistoryPageSchema
 
 
 class ToolOrderAdapter(ToolOrderPortIn):
@@ -14,5 +14,5 @@ class ToolOrderAdapter(ToolOrderPortIn):
         pagina: int = 1,
         data_inizio: date | None = None,
         data_fine: date | None = None,
-    ) -> StoricoPageSchema:
+    ) -> HistoryPageSchema:
         return self.tool_order_service.get_ordini(pagina, data_inizio, data_fine)

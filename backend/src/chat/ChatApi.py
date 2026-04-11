@@ -22,7 +22,7 @@ from src.chat.exceptions import ConversationNotFoundException, ToolNotFoundExcep
 from src.chat.LLMAgent import LLMAgent
 from src.chat.tools.AddToCart import AddToCartTool
 from src.chat.tools.GetCartItems import GetCartItemsTool
-from src.chat.tools.GetOrdini import GetOrdiniTool
+from src.chat.tools.GetOrders import GetOrdersTool
 from src.chat.tools.RemoveFromCart import RemoveFromCartTool
 from src.chat.tools.SearchCart import SearchCartTool
 from src.chat.tools.SearchCatalog import SearchCatalogTool
@@ -31,8 +31,8 @@ from src.chat.tools.ToolCatalogService import ToolCatalogService
 from src.chat.tools.ToolOrderService import ToolOrderService
 from src.chat.tools.UpdateCartItemQty import UpdateCartItemQty
 from src.db.dbConnection import get_conn
-from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
-from src.storico.StoricoService import StoricoService
+from src.history.adapters.GetOrdersAdapter import GetOrdersAdapter
+from src.history.HistoryService import HistoryService
 from src.vec.adapters.CartVecDbAdapter import CartVecDbAdapter
 from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
 from src.vec.adapters.FaissCartDb import FaissCartDb
@@ -67,7 +67,7 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
     )
     shared_catalog_repo = dependencies.catalog_repo
     shared_embedded_catalog = dependencies.embedded_catalog_service
-    storico_service = StoricoService(GetOrdiniAdapter(db))
+    storico_service = HistoryService(GetOrdersAdapter(db))
     preferred_product_frequency = {
         prod_id: frequency
         for prod_id, _, frequency in storico_service.get_user_product_preferences(
@@ -91,7 +91,7 @@ def build_tools(username: str, db: Session) -> list[BaseTool]:
         AddToCartTool(tool_adapter=tool_cart_adapter),
         RemoveFromCartTool(tool_adapter=tool_cart_adapter),
         UpdateCartItemQty(tool_adapter=tool_cart_adapter),
-        GetOrdiniTool(tool_adapter=tool_order_adapter),
+        GetOrdersTool(tool_adapter=tool_order_adapter),
         SearchCartTool(tool_adapter=tool_cart_adapter),
         SearchCatalogTool(tool_adapter=tool_catalog_adapter),
     ]
@@ -105,7 +105,7 @@ def get_chat_service(
     from src.chat.ToolExecutor import ToolExecutor
 
     repo = ChatRepoAdapter(ChatRepository(db))
-    storico_service = StoricoService(GetOrdiniAdapter(db))
+    storico_service = HistoryService(GetOrdersAdapter(db))
     tool_executor = ToolExecutor(tools=build_tools(username, db))
     agent = LLMAgent(tool_executor=tool_executor)
     llm = LLMAdapter(agent=agent)

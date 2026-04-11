@@ -1,6 +1,6 @@
 from src.auth.UserRepoPort import UserRepoPort
 from src.auth.exceptions import UserNotFoundError, UserDeletionError
-from src.db.models import Utentiweb
+from src.db.models import WebUser
 
 
 class DeleteUserService:
@@ -24,7 +24,7 @@ class DeleteUserService:
         if not self.port.delete_user(username):
             raise UserDeletionError()
 
-    def get_user(self, username: str) -> Utentiweb:
+    def get_user(self, username: str) -> WebUser:
         """
         @brief Recupera i dati di un utente
         @param username: username dell'utente

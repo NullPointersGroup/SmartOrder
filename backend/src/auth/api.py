@@ -164,7 +164,7 @@ def login(
             httponly=True,
             secure=False,
             samesite="lax",
-            max_age=3600,
+            max_age=86400,
             path="/",
         )
 

@@ -148,7 +148,7 @@ describe('useChatViewModel – bootstrap', () => {
     await waitFor(() => expect(result.current.activeConvId).toBe(99));
   });
 
-  // TU-F_214
+  //TU-F_214
   it('non carica nulla se username è null', async () => {
     mockUsername = null;
     await new Promise(r => setTimeout(r, 50));

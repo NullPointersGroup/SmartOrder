@@ -14,9 +14,14 @@ describe('main.tsx bootstrap', () => {
     vi.doMock('react-dom/client', () => ({
       createRoot: createRootMock,
     }))
+    vi.doMock('../src/App.tsx', () => ({
+      default: () => null,
+    }))
+    vi.doMock('../src/style.css', () => ({}))
 
     await import('../src/main')
 
     expect(createRootMock).toHaveBeenCalled()
+    expect(renderMock).toHaveBeenCalled()
   })
 })

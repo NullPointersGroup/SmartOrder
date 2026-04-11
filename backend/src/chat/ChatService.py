@@ -3,7 +3,7 @@ from src.chat.LLMModels import LLMRequest, UserPreference
 from src.chat.LLMModels import Message as LLMMessage
 from src.chat.ports.ChatRepoPort import ChatRepoPort
 from src.chat.ports.LLMPort import LLMPort
-from src.storico.StoricoService import StoricoService
+from src.history.HistoryService import HistoryService
 from src.enums import SenderEnum
 
 
@@ -12,7 +12,7 @@ class ChatService:
         self,
         repo: ChatRepoPort,
         llm: LLMPort,
-        storico_service: StoricoService | None = None,
+        storico_service: HistoryService | None = None,
     ) -> None:
         self.repo = repo
         self.llm = llm

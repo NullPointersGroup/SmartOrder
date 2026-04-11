@@ -7,7 +7,7 @@ class RecordingAdapter(RecordingPort):
     """
 
     def __init__(self, repo: RecordingRepository) -> None:
-        self._repo = repo
+        self.repo = repo
 
     async def trascrivi(self, audio_bytes: bytes, filename: str) -> str:
         """
@@ -16,4 +16,4 @@ class RecordingAdapter(RecordingPort):
         @param filename    Nome del file con estensione.
         @return Testo trascritto.
         """
-        return await self._repo.trascrivi(audio_bytes, filename)
+        return await self.repo.trascrivi(audio_bytes, filename)

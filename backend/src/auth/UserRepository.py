@@ -2,7 +2,7 @@ from sqlmodel import Session, select, col
 from sqlalchemy import insert, delete
 
 from src.auth.models import UserRegistration, UserReset
-from src.db.models import Utentiweb
+from src.db.models import WebUser
 from src.db.queryExecutor import QueryExecutor
 
 
@@ -15,22 +15,22 @@ class UserRepository:
     def __init__(self, db: Session) -> None:
         self.executor = QueryExecutor(db)
 
-    def find_by_username(self, username: str) -> Utentiweb | None:
+    def find_by_username(self, username: str) -> WebUser | None:
         """
         @brief Recupera un utente dal DB per username
         @return l'Utente se esiste
         """
         return self.executor.execute_one_raw(
-            select(Utentiweb).where(Utentiweb.username == username)
+            select(WebUser).where(WebUser.username == username)
         )
 
-    def find_by_email(self, email: str) -> Utentiweb | None:
+    def find_by_email(self, email: str) -> WebUser | None:
         """
         @brief Recupera un utente dal DB per email
         @return l'Utente se esiste
         """
         return self.executor.execute_one_raw(
-            select(Utentiweb).where(Utentiweb.email == email)
+            select(WebUser).where(WebUser.email == email)
         )
 
     def save(self, u: UserRegistration) -> bool:
@@ -40,7 +40,7 @@ class UserRepository:
         @return True se l'operazione ha successo
         """
         return self.executor.mutate_raw(
-            insert(Utentiweb).values(
+            insert(WebUser).values(
                 username=u.username,
                 password=u.password,
                 email=u.email,
@@ -54,7 +54,7 @@ class UserRepository:
         @return Il risultato dell'operazione
         """
         return self.executor.mutate_raw(
-            delete(Utentiweb).where(col(Utentiweb.username) == username)
+            delete(WebUser).where(col(WebUser.username) == username)
         )
 
     def reset_password(self, u: UserReset) -> bool:
@@ -65,7 +65,7 @@ class UserRepository:
         """
         from sqlalchemy import update
         return self.executor.mutate_raw(
-            update(Utentiweb)
-            .where(col(Utentiweb.username) == u.username)
+            update(WebUser)
+            .where(col(WebUser.username) == u.username)
             .values(password=u.new_pwd)
         )

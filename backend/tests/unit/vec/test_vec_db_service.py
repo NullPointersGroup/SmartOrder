@@ -55,7 +55,7 @@ def test_load_catalog_adds_to_catalog_vect(
     assert mock_catalog_vect.add.call_count == 2
 
 
-# TU-B_334
+# TU-B_332
 def test_search_catalog_embeds_query_and_uses_given_threshold(
     catalog_service: EmbeddedCatalogService,
     mock_embedder: MagicMock,
@@ -75,7 +75,7 @@ def test_search_catalog_embeds_query_and_uses_given_threshold(
     )
 
 
-# TU-B_335
+# TU-B_333
 def test_search_catalog_returns_results(
     catalog_service: EmbeddedCatalogService,
     mock_embedder: MagicMock,
@@ -93,7 +93,7 @@ def test_search_catalog_returns_results(
 # CART
 # =========================
 
-# TU-B_332
+# TU-B_334
 def test_load_cart_resets_cart_vect_before_reindex(
     cart_service: EmbeddedCartService,
     mock_cart_repo: MagicMock,
@@ -114,7 +114,7 @@ def test_load_cart_resets_cart_vect_before_reindex(
     )
 
 
-# TU-B_333
+# TU-B_335
 def test_load_cart_embeds_only_product_name(
     cart_service: EmbeddedCartService,
     mock_cart_repo: MagicMock,
