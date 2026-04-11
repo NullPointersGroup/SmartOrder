@@ -37,7 +37,7 @@ from src.auth.exceptions import (
     UserResetError,
     UserSamePasswordError,
 )
-from src.db.models import Utentiweb
+from src.db.models import WebUser
 
 
 @pytest.fixture
@@ -57,7 +57,7 @@ def valid_user():
 
 @pytest.fixture
 def mock_utente():
-    u = MagicMock(spec=Utentiweb)
+    u = MagicMock(spec=WebUser)
     u.username = "testuser"
     u.password = "hashed_password"
     return u

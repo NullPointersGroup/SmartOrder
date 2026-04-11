@@ -5,13 +5,13 @@ from sqlmodel import create_engine, Session, select, func
 from datetime import date
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
-from src.db.models import Ordine, OrdCliDet, Anaart
-from src.storico.StoricoRepository import StoricoRepository
+from src.db.models import Order, OrdCliDet, Anaart
+from src.history.HistoryRepository import HistoryRepository
 from src.enums import MeasureUnitEnum
 
 # Import user model if available (adjust path as needed)
 try:
-    from src.db.models import Utentiweb
+    from src.db.models import WebUser
     USER_MODEL_AVAILABLE = True
 except ImportError:
     USER_MODEL_AVAILABLE = False
@@ -62,9 +62,9 @@ def sample_data(session, clean_db):
     """Insert test data and return references."""
     # 1. Users
     if USER_MODEL_AVAILABLE:
-        user1 = Utentiweb(username="user1", password="dummy", email="user1@test.com")
-        user2 = Utentiweb(username="user2", password="dummy", email="user2@test.com")
-        user3 = Utentiweb(username="newuser", password="dummy", email="newuser@test.com")
+        user1 = WebUser(username="user1", password="dummy", email="user1@test.com")
+        user2 = WebUser(username="user2", password="dummy", email="user2@test.com")
+        user3 = WebUser(username="newuser", password="dummy", email="newuser@test.com")
         session.add_all([user1, user2, user3])
     else:
         session.execute(text(
@@ -102,9 +102,9 @@ def sample_data(session, clean_db):
     session.flush()
 
     # 3. Orders
-    order1 = Ordine(id_ord=1, username="user1", data=date(2023, 1, 1))
-    order2 = Ordine(id_ord=2, username="user1", data=date(2023, 2, 1))
-    order3 = Ordine(id_ord=3, username="user2", data=date(2023, 3, 1))
+    order1 = Order(id_ord=1, username="user1", data=date(2023, 1, 1))
+    order2 = Order(id_ord=2, username="user1", data=date(2023, 2, 1))
+    order3 = Order(id_ord=3, username="user2", data=date(2023, 3, 1))
     session.add_all([order1, order2, order3])
     session.flush()
 
@@ -126,7 +126,7 @@ def sample_data(session, clean_db):
 # ---------- Test Cases ----------
 #TU-B_257
 def test_get_ordini_by_username(session, sample_data):
-    repo = StoricoRepository(session)
+    repo = HistoryRepository(session)
     ordini, totale = repo.get_ordini_by_username("user1", pagina=1, per_pagina=10)
     assert totale == 2
     assert len(ordini) == 2
@@ -143,7 +143,7 @@ def test_get_ordini_by_username(session, sample_data):
 
 #TU-B_258
 def test_get_all_ordini(session, sample_data):
-    repo = StoricoRepository(session)
+    repo = HistoryRepository(session)
     ordini, totale = repo.get_all_ordini(pagina=1, per_pagina=10)
     assert totale == 3
     assert len(ordini) == 3
@@ -162,7 +162,7 @@ def test_get_all_ordini(session, sample_data):
 
 #TU-B_259
 def test_get_prodotti_by_ordine_ids(session, sample_data):
-    repo = StoricoRepository(session)
+    repo = HistoryRepository(session)
     result = repo.get_prodotti_by_ordine_ids([1, 2])
     assert len(result) == 3
     for det, prod in result:
@@ -175,13 +175,13 @@ def test_get_prodotti_by_ordine_ids(session, sample_data):
 
 #TU-B_260
 def test_duplica_ordine_not_found(session, sample_data):
-    repo = StoricoRepository(session)
+    repo = HistoryRepository(session)
     with pytest.raises(ValueError, match="Ordine '999' non trovato"):
         repo.duplica_ordine("999", "user1")
 
 #TU-B_261
 def test_duplica_ordine_crea_nuovo_ordine(session, sample_data):
-    repo = StoricoRepository(session)
+    repo = HistoryRepository(session)
 
     # Ordine originale
     originale = sample_data["orders"][0]
@@ -212,13 +212,13 @@ def test_duplica_ordine_crea_nuovo_ordine(session, sample_data):
 
 #TU-B_262
 def test_duplica_ordine_non_esiste(session, sample_data):
-    repo = StoricoRepository(session)
+    repo = HistoryRepository(session)
     with pytest.raises(ValueError, match="Ordine '999' non trovato"):
         repo.duplica_ordine("999", "newuser")
 
 #TU-B_263
 def test_duplica_ordine_piu_volte_crea_id_unici(session, sample_data):
-    repo = StoricoRepository(session)
+    repo = HistoryRepository(session)
     ordine_originale = sample_data["orders"][0]
 
     ordine1 = repo.duplica_ordine(str(ordine_originale.id_ord), "user1")

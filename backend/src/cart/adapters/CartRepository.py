@@ -4,12 +4,12 @@ from src.cart.exceptions import (
     ProductNotInCartException,
 )
 from src.enums import CartUpdateOperation
-from src.db.models import Anaart, Carrello
+from src.db.models import Anaart, Cart
 from src.enums import MeasureUnitEnum
 from src.cart.adapters.CartProductRepository import CartProductRepository
 from datetime import date
 from src.cart.exceptions import CartEmptyException
-from src.db.models import Ordine, OrdCliDet
+from src.db.models import Order, OrdCliDet
 from typing import Any
 
 class CartRepository:
@@ -28,13 +28,13 @@ class CartRepository:
         @return Lista di CartProductRepository con dati prodotto e quantità
         """
         stmt = (
-            select(Carrello, Anaart)
+            select(Cart, Anaart)
             .join(
                 Anaart,
-                col(Carrello.cod_art)
+                col(Cart.cod_art)
                 == col(Anaart.prod_id),
             )
-            .where(Carrello.username == username)
+            .where(Cart.username == username)
         )
         result = self.db.exec(stmt).all()
         return [
@@ -68,9 +68,9 @@ class CartRepository:
         assert result is not None
 
         # Cerca se esiste già nel carrello
-        stmt_cart = select(Carrello).where(
-            Carrello.username == username,
-            Carrello.cod_art == prod_id,
+        stmt_cart = select(Cart).where(
+            Cart.username == username,
+            Cart.cod_art == prod_id,
         )
         existing_item = self.db.exec(stmt_cart).first()
 
@@ -80,7 +80,7 @@ class CartRepository:
             self.db.add(existing_item)
         else:
             # INSERT: crea nuovo elemento
-            existing_item = Carrello(
+            existing_item = Cart(
                 username=username, cod_art=prod_id, quantita=qty
             )
             self.db.add(existing_item)
@@ -105,23 +105,23 @@ class CartRepository:
         @throws ProductNotInCartException se il prodotto non è presente nel carrello
         """
         stmt = (
-            select(Carrello, Anaart)
+            select(Cart, Anaart)
             .join(
                 Anaart,
-                col(Carrello.cod_art)
+                col(Cart.cod_art)
                 == col(Anaart.prod_id),
             )
-            .where(col(Carrello.username) == username)
-            .where(col(Carrello.cod_art) == prod_id)
+            .where(col(Cart.username) == username)
+            .where(col(Cart.cod_art) == prod_id)
         )
         result = self.db.exec(stmt).first()
         if not result:
             raise ProductNotInCartException(prod_id, username)
         cart, catalog = result
         delete_stmt = (
-            delete(Carrello)
-            .where(col(Carrello.username) == username)
-            .where(col(Carrello.cod_art) == prod_id)
+            delete(Cart)
+            .where(col(Cart.username) == username)
+            .where(col(Cart.cod_art) == prod_id)
         )
 
         self.db.exec(delete_stmt)
@@ -148,14 +148,14 @@ class CartRepository:
         @throws ProductNotInCartException se il prodotto non è presente nel carrello
         """
         stmt = (
-            select(Carrello, Anaart)
+            select(Cart, Anaart)
             .join(
                 Anaart,
-                col(Carrello.cod_art)
+                col(Cart.cod_art)
                 == col(Anaart.prod_id),
             )
-            .where(col(Carrello.username) == username)
-            .where(col(Carrello.cod_art) == prod_id)
+            .where(col(Cart.username) == username)
+            .where(col(Cart.cod_art) == prod_id)
         )
         result = self.db.exec(stmt).first()
         if not result:
@@ -163,18 +163,18 @@ class CartRepository:
         assert result is not None
         cart, catalog = result
         if operation == CartUpdateOperation.Add:
-            new_qty: Any = col(Carrello.quantita) + qty
+            new_qty: Any = col(Cart.quantita) + qty
             result_qty = cart.quantita + qty
         elif operation == CartUpdateOperation.Remove:
-            new_qty = col(Carrello.quantita) - qty
+            new_qty = col(Cart.quantita) - qty
             result_qty = cart.quantita - qty
         else:
             new_qty = qty
             result_qty = qty
         update_stmt = (
-            update(Carrello)
-            .where(col(Carrello.username) == username)
-            .where(col(Carrello.cod_art) == prod_id)
+            update(Cart)
+            .where(col(Cart.username) == username)
+            .where(col(Cart.cod_art) == prod_id)
             .values(quantita=new_qty)
         )
         self.db.exec(update_stmt)
@@ -195,22 +195,22 @@ class CartRepository:
         @throws CartEmptyException se il carrello è vuoto
         """
         items = list(self.db.exec(
-            select(Carrello).where(col(Carrello.username) == username)
+            select(Cart).where(col(Cart.username) == username)
         ).all())
 
         if not items:
             raise CartEmptyException(username)
 
-        max_id = self.db.exec(select(func.max(Ordine.id_ord))).one()
+        max_id = self.db.exec(select(func.max(Order.id_ord))).one()
         nuovo_id = (max_id or 0) + 1
 
-        ordine = Ordine(id_ord=nuovo_id, username=username, data=date.today())
+        ordine = Order(id_ord=nuovo_id, username=username, data=date.today())
         self.db.add(ordine)
         self.db.flush()
 
         for item in items:
             self.db.add(OrdCliDet(id_ord=nuovo_id, cod_art=item.cod_art, qta_ordinata=item.quantita))
 
-        delete_stmt = delete(Carrello).where(col(Carrello.username) == username)
+        delete_stmt = delete(Cart).where(col(Cart.username) == username)
         self.db.exec(delete_stmt)
         self.db.commit()

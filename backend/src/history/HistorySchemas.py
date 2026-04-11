@@ -2,18 +2,18 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-class ProdottoSchema(BaseModel):
+class ProductSchema(BaseModel):
     nome: str
     quantita: float
 
-class OrdineSchema(BaseModel):
+class OrderSchema(BaseModel):
     codice_ordine: str
     data: Optional[str] = None
     username: Optional[str] = None
-    prodotti: List[ProdottoSchema] = []
+    prodotti: List[ProductSchema] = []
 
 
-class StoricoPageSchema(BaseModel):
-    ordini: List[OrdineSchema]
+class HistoryPageSchema(BaseModel):
+    ordini: List[OrderSchema]
     pagina_corrente: int
     totale_pagine: int

@@ -2,8 +2,8 @@ import pytest
 from unittest.mock import MagicMock, patch
 from sqlmodel import Session
 
-from src.storico.adapters.GetOrdiniAdapter import GetOrdiniAdapter
-from src.db.models import Ordine, OrdCliDet, Anaart
+from src.history.adapters.GetOrdersAdapter import GetOrdersAdapter
+from src.db.models import Order, OrdCliDet, Anaart
 
 
 # ─── Fixtures ─────────────────────────────────────────────────────────────────
@@ -16,19 +16,19 @@ def mock_repo():
 @pytest.fixture
 def adapter(mock_repo):
     with patch(
-        "src.storico.adapters.GetOrdiniAdapter.StoricoRepository",
+        "src.history.adapters.GetOrdersAdapter.HistoryRepository",
         return_value=mock_repo,
     ):
-        return GetOrdiniAdapter(MagicMock(spec=Session)), mock_repo
+        return GetOrdersAdapter(MagicMock(spec=Session)), mock_repo
 
 
 # ─── get_ordini_by_username ───────────────────────────────────────────────────
 
-class TestGetOrdiniByUsername:
+class TestGetOrdersByUsername:
 #TU-B_237
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
-        ordine = MagicMock(spec=Ordine)
+        ordine = MagicMock(spec=Order)
         repo.get_ordini_by_username.return_value = ([ordine], 1)
 
         result = sut.get_ordini_by_username("mario", 1, 10, None, None)
@@ -52,7 +52,7 @@ class TestGetAllOrdini:
 #TU-B_239
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
-        ordine = MagicMock(spec=Ordine)
+        ordine = MagicMock(spec=Order)
         repo.get_all_ordini.return_value = ([ordine], 1)
 
         result = sut.get_all_ordini(1, 10, None, None)
@@ -100,7 +100,7 @@ class TestDuplicaOrdine:
 #TU-B_243
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
-        nuovo = MagicMock(spec=Ordine)
+        nuovo = MagicMock(spec=Order)
         repo.duplica_ordine.return_value = nuovo
 
         result = sut.duplica_ordine("42", "mario")

@@ -1,22 +1,22 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
-from src.db.models import Ordine, OrdCliDet, Anaart
+from src.db.models import Order, OrdCliDet, Anaart
 from datetime import date
 
 
-class StoricoAdapterPort(ABC):
+class HistoryAdapterPort(ABC):
 
     @abstractmethod
     def get_ordini_by_username(
         self, username: str, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
-    ) -> Tuple[List[Ordine], int]:
+    ) -> Tuple[List[Order], int]:
         """Restituisce gli ordini di un utente (paginati) e il totale."""
         raise NotImplementedError
 
     @abstractmethod
     def get_all_ordini(
         self, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
-    ) -> Tuple[List[Ordine], int]:
+    ) -> Tuple[List[Order], int]:
         """Restituisce tutti gli ordini (admin, paginati) e il totale."""
         raise NotImplementedError
 
@@ -26,7 +26,7 @@ class StoricoAdapterPort(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def duplica_ordine(self, codice_ordine: str, username: str) -> Ordine:
+    def duplica_ordine(self, codice_ordine: str, username: str) -> Order:
         """Duplica un ordine esistente per username e restituisce il nuovo ordine."""
         raise NotImplementedError
 

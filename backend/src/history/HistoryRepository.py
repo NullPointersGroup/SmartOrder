@@ -1,10 +1,10 @@
 from datetime import date
 from typing import List, Tuple
 from sqlmodel import Session, select, func, col
-from src.db.models import Ordine, OrdCliDet, Anaart
+from src.db.models import Order, OrdCliDet, Anaart
 
 
-class StoricoRepository:
+class HistoryRepository:
 
     def __init__(self, db: Session):
         """
@@ -14,7 +14,7 @@ class StoricoRepository:
         self.db = db
 
     def get_ordini_by_username(self, username: str, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
-    ) -> Tuple[List[Ordine], int]:
+    ) -> Tuple[List[Order], int]:
         """
         @brief Recupera gli ordini di un cliente specifico con paginazione.
         @param username Username del cliente di cui recuperare gli ordini.
@@ -22,41 +22,41 @@ class StoricoRepository:
         @param per_pagina Numero di ordini per pagina.
         @return Tupla (lista di Ordine, totale ordini del cliente).
         """
-        count_statement = select(func.count()).select_from(Ordine).where(Ordine.username == username)
-        statement = select(Ordine).where(Ordine.username == username)
+        count_statement = select(func.count()).select_from(Order).where(Order.username == username)
+        statement = select(Order).where(Order.username == username)
 
         if data_inizio:
-            count_statement = count_statement.where(col(Ordine.data) >= data_inizio)
-            statement = statement.where(col(Ordine.data) >= data_inizio)
+            count_statement = count_statement.where(col(Order.data) >= data_inizio)
+            statement = statement.where(col(Order.data) >= data_inizio)
         if data_fine:
-            count_statement = count_statement.where(col(Ordine.data) <= data_fine)
-            statement = statement.where(col(Ordine.data) <= data_fine)
+            count_statement = count_statement.where(col(Order.data) <= data_fine)
+            statement = statement.where(col(Order.data) <= data_fine)
 
         totale = self.db.exec(count_statement).one()
         ordini = list(self.db.exec(
-            statement.order_by(col(Ordine.id_ord).desc())
+            statement.order_by(col(Order.id_ord).desc())
             .offset((pagina - 1) * per_pagina)
             .limit(per_pagina)
         ).all())
         return ordini, totale
 
     def get_all_ordini(self, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
-    ) -> Tuple[List[Ordine], int]:
+    ) -> Tuple[List[Order], int]:
         """
         @brief Recupera tutti gli ordini di tutti i clienti con paginazione.
         @param pagina     Numero della pagina richiesta (base 1).
         @param per_pagina Numero di ordini per pagina.
         @return Tupla (lista di Ordine, totale ordini nel sistema).
         """
-        statement = select(Ordine)
+        statement = select(Order)
         if data_inizio:
-            statement = statement.where(col(Ordine.data) >= data_inizio)
+            statement = statement.where(col(Order.data) >= data_inizio)
         if data_fine:
-            statement = statement.where(col(Ordine.data) <= data_fine)
+            statement = statement.where(col(Order.data) <= data_fine)
 
         totale = self.db.exec(select(func.count()).select_from(statement.subquery())).one()
         ordini = list(self.db.exec(
-            statement.order_by(col(Ordine.id_ord).desc())
+            statement.order_by(col(Order.id_ord).desc())
             .offset((pagina - 1) * per_pagina)
             .limit(per_pagina)
         ).all())
@@ -76,7 +76,7 @@ class StoricoRepository:
             .where(col(OrdCliDet.id_ord).in_(ordine_ids))
         ).all())
 
-    def duplica_ordine(self, codice_ordine: str, username: str) -> Ordine:
+    def duplica_ordine(self, codice_ordine: str, username: str) -> Order:
         """
         @brief Duplica un ordine esistente assegnandolo all'utente indicato con la data odierna.
         @param codice_ordine Codice (id) dell'ordine da duplicare.
@@ -85,7 +85,7 @@ class StoricoRepository:
         @return Il nuovo Ordine creato e persistito.
         """
         id_ord = int(codice_ordine)
-        originale = self.db.get(Ordine, id_ord)
+        originale = self.db.get(Order, id_ord)
         if originale is None:
             raise ValueError(f"Ordine '{codice_ordine}' non trovato")
 
@@ -93,10 +93,10 @@ class StoricoRepository:
             select(OrdCliDet).where(OrdCliDet.id_ord == id_ord)
         ).all())
 
-        max_id = self.db.exec(select(func.max(Ordine.id_ord))).one()
+        max_id = self.db.exec(select(func.max(Order.id_ord))).one()
         nuovo_id = (max_id or 0) + 1
 
-        nuovo_ordine = Ordine(id_ord=nuovo_id, username=username, data=date.today())
+        nuovo_ordine = Order(id_ord=nuovo_id, username=username, data=date.today())
         self.db.add(nuovo_ordine)
         self.db.flush()
 
@@ -115,8 +115,8 @@ class StoricoRepository:
                 func.count(col(OrdCliDet.cod_art)).label("freq"),
             )
             .join(OrdCliDet, col(OrdCliDet.cod_art) == col(Anaart.prod_id))
-            .join(Ordine, col(OrdCliDet.id_ord) == col(Ordine.id_ord))
-            .where(Ordine.username == username)
+            .join(Order, col(OrdCliDet.id_ord) == col(Order.id_ord))
+            .where(Order.username == username)
             .group_by(col(Anaart.prod_id), col(Anaart.prod_des))
             .order_by(func.count(col(OrdCliDet.cod_art)).desc(), col(Anaart.prod_des).asc())
         ).all()

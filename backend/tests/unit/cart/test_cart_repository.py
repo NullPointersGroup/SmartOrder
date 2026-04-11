@@ -5,7 +5,7 @@ from src.cart.exceptions import (
     ProductNotFoundException,
     ProductNotInCartException,
 )
-from src.db.models import Carrello, Anaart
+from src.db.models import Cart, Anaart
 from src.enums import CartUpdateOperation, MeasureUnitEnum
 
 
@@ -19,7 +19,7 @@ def make_catalog(prod_id="ABC2", prod_des="Prodotto 2", price=2.0):
 
 
 def make_cart(username="Tom", cod_art="ABC2", quantita=1):
-    return Carrello(username=username, cod_art=cod_art, quantita=quantita)
+    return Cart(username=username, cod_art=cod_art, quantita=quantita)
 
 
 #TU-B_164
@@ -32,7 +32,7 @@ def test_get_products_calls_db(cart_repository, mock_db):
 
 #TU-B_165
 def test_get_products_returns_list(cart_repository, mock_db):
-    cart1 = Carrello(username="Tom", cod_art="ABC1", quantita=1)
+    cart1 = Cart(username="Tom", cod_art="ABC1", quantita=1)
     catalog1 = Anaart(
         prod_id="ABC1",
         prod_des="Prodotto 1",
@@ -40,7 +40,7 @@ def test_get_products_returns_list(cart_repository, mock_db):
         measure_unit_type=MeasureUnitEnum.C,
     )
 
-    cart2 = Carrello(username="Tom", cod_art="ABC2", quantita=1)
+    cart2 = Cart(username="Tom", cod_art="ABC2", quantita=1)
     catalog2 = Anaart(
         prod_id="ABC2",
         prod_des="Prodotto 2",

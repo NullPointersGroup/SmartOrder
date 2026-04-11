@@ -3,15 +3,15 @@ from datetime import date
 from unittest.mock import MagicMock
 
 from typing import Optional
-from src.storico.StoricoService import StoricoService
-from src.db.models import Ordine, OrdCliDet
-from src.storico.exceptions import OrdiniUsernameNotFoundException, OrdineNotFoundException, OrdiniNotFoundException
+from src.history.HistoryService import HistoryService
+from src.db.models import Order, OrdCliDet
+from src.history.exceptions import UserOrdersNotFoundException, OrderNotFoundException, OrdersNotFoundException
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
 
-def make_ordine(id_ord: int, username: str = "mario", data: date = date(2024, 1, 1)) -> Ordine:
-    o = Ordine()
+def make_ordine(id_ord: int, username: str = "mario", data: date = date(2024, 1, 1)) -> Order:
+    o = Order()
     o.id_ord = id_ord
     o.username = username
     o.data = data
@@ -55,7 +55,7 @@ class TestBuildPage:
         ordine = make_ordine(1)
         det, art = make_det_art(1)
         repo = make_repo(ordini=[ordine], prodotti=[(det, art)])
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         result = service.get_ordini_cliente("mario", 1, 10)
 
@@ -70,7 +70,7 @@ class TestBuildPage:
         det, art = make_det_art(1, qta=3.0)
         art.prod_des = "Farina"
         repo = make_repo(ordini=[ordine], prodotti=[(det, art)])
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         result = service.get_ordini_cliente("mario", 1, 10)
 
@@ -86,7 +86,7 @@ class TestBuildPage:
         det1b, art1b = make_det_art(1, "ART02")
         det2,  art2  = make_det_art(2, "ART03")
         repo = make_repo(ordini=[o1, o2], totale=2, prodotti=[(det1a, art1a), (det1b, art1b), (det2, art2)])
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         result = service.get_ordini_admin(1, 10)
 
@@ -99,7 +99,7 @@ class TestBuildPage:
         ordine = make_ordine(1)
         ordine.data = None
         repo = make_repo(ordini=[ordine])
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         result = service.get_ordini_cliente("mario", 1, 10)
 
@@ -109,7 +109,7 @@ class TestBuildPage:
     def test_ordine_senza_prodotti(self):
         ordine = make_ordine(1)
         repo = make_repo(ordini=[ordine], prodotti=[])
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         result = service.get_ordini_cliente("mario", 1, 10)
 
@@ -119,7 +119,7 @@ class TestBuildPage:
     def test_calcolo_totale_pagine(self):
         ordini = [make_ordine(i) for i in range(1, 6)]
         repo = make_repo(ordini=ordini, totale=25)
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         result = service.get_ordini_cliente("mario", 1, 5)
 
@@ -128,7 +128,7 @@ class TestBuildPage:
     #TU-B_270
     def test_totale_pagine_minimo_1(self):
         repo = make_repo(ordini=[make_ordine(1)], totale=1)
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         result = service.get_ordini_cliente("mario", 1, 10)
 
@@ -138,7 +138,7 @@ class TestBuildPage:
     def test_pagina_corrente_propagata(self):
         ordini = [make_ordine(i) for i in range(1, 4)]
         repo = make_repo(ordini=ordini, totale=30)
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         result = service.get_ordini_cliente("mario", 3, 10)
 
@@ -152,7 +152,7 @@ class TestGetOrdiniCliente:
     #TU-B_272
     def test_chiama_repo_con_parametri_corretti(self):
         repo = make_repo(ordini=[make_ordine(1)])
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         service.get_ordini_cliente("mario", 2, 5, None, None)
 
@@ -163,15 +163,15 @@ class TestGetOrdiniCliente:
     #TU-B_273
     def test_lancia_eccezione_se_totale_zero(self):
         repo = make_repo(ordini=[], totale=0)
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
-        with pytest.raises(OrdiniUsernameNotFoundException):
+        with pytest.raises(UserOrdersNotFoundException):
             service.get_ordini_cliente("mario", 1, 10, None, None)
 
     #TU-B_274
     def test_username_non_incluso(self):
         repo = make_repo(ordini=[make_ordine(1, username="mario")])
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         result = service.get_ordini_cliente("mario", 1, 10, None, None)
 
@@ -185,7 +185,7 @@ class TestGetOrdiniAdmin:
     #TU-B_275
     def test_chiama_repo_con_parametri_corretti(self):
         repo = make_repo(ordini=[make_ordine(1)])
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         service.get_ordini_admin(2, 20, None, None)
 
@@ -196,7 +196,7 @@ class TestGetOrdiniAdmin:
     #TU-B_276
     def test_username_incluso(self):
         repo = make_repo(ordini=[make_ordine(1, username="luigi")])
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         result = service.get_ordini_admin(1, 10, None, None)
 
@@ -205,9 +205,9 @@ class TestGetOrdiniAdmin:
     #TU-B_277
     def test_lista_vuota_lancia_eccezione(self):
         repo = make_repo(ordini=[], totale=0)
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
-        with pytest.raises(OrdiniNotFoundException):
+        with pytest.raises(OrdersNotFoundException):
             service.get_ordini_admin(1, 10, None, None)
 
 
@@ -217,7 +217,7 @@ class TestDuplicaOrdine:
     #TU-B_278
     def test_chiama_repo_con_parametri_corretti(self):
         repo = make_repo()
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
         service.duplica_ordine("42", "mario")
 
@@ -227,22 +227,22 @@ class TestDuplicaOrdine:
     def test_lancia_eccezione_se_ordine_non_trovato(self):
         repo = make_repo()
         repo.duplica_ordine.side_effect = ValueError("non trovato")
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
-        with pytest.raises(OrdineNotFoundException):
+        with pytest.raises(OrderNotFoundException):
             service.duplica_ordine("99", "mario")
 
     #TU-B_280
     def test_non_rilancia_value_error_direttamente(self):
         repo = make_repo()
         repo.duplica_ordine.side_effect = ValueError("non trovato")
-        service = StoricoService(repo)
+        service = HistoryService(repo)
 
-        with pytest.raises(OrdineNotFoundException):
+        with pytest.raises(OrderNotFoundException):
             service.duplica_ordine("99", "mario")
 
         # verifica che sia OrdineNotFoundException e non ValueError
         try:
             service.duplica_ordine("99", "mario")
-        except OrdineNotFoundException as e:
+        except OrderNotFoundException as e:
             assert isinstance(e.__cause__, ValueError)

@@ -3,10 +3,10 @@ from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
 
-from src.storico.StoricoApi import router, get_service, require_admin
+from src.history.HistoryApi import router, get_service, require_admin
 from src.auth.api import get_current_user
-from src.storico.StoricoSchemas import StoricoPageSchema, OrdineSchema, ProdottoSchema
-from src.storico.exceptions import OrdiniUsernameNotFoundException, OrdineNotFoundException
+from src.history.HistorySchemas import HistoryPageSchema, OrderSchema, ProductSchema
+from src.history.exceptions import UserOrdersNotFoundException, OrderNotFoundException
 
 # ─── App di test ─────────────────────────────────────────────────────────────
 
@@ -15,13 +15,13 @@ app.include_router(router)
 
 # ─── Fixtures ────────────────────────────────────────────────────────────────
 
-PAGINA_VUOTA = StoricoPageSchema(ordini=[], pagina_corrente=1, totale_pagine=1)
+PAGINA_VUOTA = HistoryPageSchema(ordini=[], pagina_corrente=1, totale_pagine=1)
 
-PRODOTTO = ProdottoSchema(nome="Prodotto A", quantita=2)
+PRODOTTO = ProductSchema(nome="Prodotto A", quantita=2)
 
-PAGINA_CON_ORDINI = StoricoPageSchema(
+PAGINA_CON_ORDINI = HistoryPageSchema(
     ordini=[
-        OrdineSchema(
+        OrderSchema(
             codice_ordine="1",
             data="2024-01-01",
             username=None,
@@ -32,9 +32,9 @@ PAGINA_CON_ORDINI = StoricoPageSchema(
     totale_pagine=3,
 )
 
-PAGINA_ADMIN = StoricoPageSchema(
+PAGINA_ADMIN = HistoryPageSchema(
     ordini=[
-        OrdineSchema(
+        OrderSchema(
             codice_ordine="2",
             data="2024-02-01",
             username="cliente1",
@@ -46,7 +46,7 @@ PAGINA_ADMIN = StoricoPageSchema(
 )
 
 
-def mock_service(page: StoricoPageSchema = PAGINA_CON_ORDINI) -> MagicMock:
+def mock_service(page: HistoryPageSchema = PAGINA_CON_ORDINI) -> MagicMock:
     service = MagicMock()
     service.get_ordini_cliente.return_value = page
     service.get_ordini_admin.return_value = PAGINA_ADMIN
@@ -113,7 +113,7 @@ class TestGetStoricoCliente:
     #TU-B_247
     def test_404_se_nessun_ordine(self):
         service = mock_service()
-        service.get_ordini_cliente.side_effect = OrdiniUsernameNotFoundException("mario")
+        service.get_ordini_cliente.side_effect = UserOrdersNotFoundException("mario")
         override_user("mario")
         override_service(service)
 
@@ -213,7 +213,7 @@ class TestDuplicaOrdine:
     #TU-B_256
     def test_404_se_ordine_non_trovato(self):
         service = mock_service()
-        service.duplica_ordine.side_effect = OrdineNotFoundException("99")
+        service.duplica_ordine.side_effect = OrderNotFoundException("99")
         override_user("mario")
         override_service(service)
 

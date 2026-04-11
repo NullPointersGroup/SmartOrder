@@ -6,7 +6,7 @@ from src.chat.tools.ToolCartService import ToolCartService
 from src.chat.tools.ToolCatalogService import ToolCatalogService
 from src.chat.tools.ToolOrderService import ToolOrderService
 from src.enums import CartUpdateOperation, MeasureUnitEnum
-from src.storico.StoricoSchemas import StoricoPageSchema
+from src.history.HistorySchemas import HistoryPageSchema
 
 
 def make_cart_product(prod_id: str, name: str, qty: int) -> CartProduct:
@@ -106,7 +106,7 @@ def test_update_cart_item_qty_delegates_with_username():
 #TU-B_234
 def test_get_ordini_delegates_to_storico_service_with_default_page_size():
     storico_service = MagicMock()
-    page = StoricoPageSchema(ordini=[], pagina_corrente=2, totale_pagine=5)
+    page = HistoryPageSchema(ordini=[], pagina_corrente=2, totale_pagine=5)
     storico_service.get_ordini_cliente.return_value = page
     tool_service = ToolOrderService(
         username="carlesso",
