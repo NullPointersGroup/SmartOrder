@@ -18,7 +18,7 @@ from src.chat.ChatApi import router as chat_router
 from src.conversations.ConversationsApi import router as conversations_router
 from src.db.dbConnection import get_conn
 from src.recording.RecordingApi import router as recording_router
-from src.storico.StoricoApi import router as storico_router
+from src.history.HistoryApi import router as storico_router
 from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
 from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
 from src.vec.adapters.FaissCatalogDb import FaissCatalogDb
@@ -69,3 +69,7 @@ app.include_router(cart_router, prefix="/api")
 app.include_router(conversations_router, prefix="/api")
 app.include_router(storico_router, prefix="/api")
 app.include_router(recording_router, prefix="/api")
+
+@app.get("/api/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}

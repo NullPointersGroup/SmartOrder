@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from src.auth.models import UserRegistration, UserReset
-from src.db.models import Utentiweb
+from src.db.models import WebUser
 
 
 class UserRepoPort(ABC):
@@ -9,7 +9,7 @@ class UserRepoPort(ABC):
     """
 
     @abstractmethod
-    def find_by_username(self, username: str) -> Utentiweb | None:
+    def find_by_username(self, username: str) -> WebUser | None:
         """@brief Recupera un utente per username"""
 
     @abstractmethod

@@ -3,7 +3,7 @@ from sqlmodel import Session
 from src.auth.UserRepoPort import UserRepoPort
 from src.auth.UserRepository import UserRepository
 from src.auth.models import UserRegistration, UserReset
-from src.db.models import Utentiweb
+from src.db.models import WebUser
 
 
 class UserRepoAdapter(UserRepoPort):
@@ -14,7 +14,7 @@ class UserRepoAdapter(UserRepoPort):
     def __init__(self, db: Session) -> None:
         self.repo = UserRepository(db)
 
-    def find_by_username(self, username: str) -> Utentiweb | None:
+    def find_by_username(self, username: str) -> WebUser | None:
         """
         @req RF-OB_24
         @req RF-OB_26

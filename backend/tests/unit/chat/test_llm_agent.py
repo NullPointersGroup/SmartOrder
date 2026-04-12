@@ -42,7 +42,7 @@ class FakeTool:
         self.calls.append(args)
         return self.result
 
-#TU-B_220
+#TU-B_222
 def test_llm_agent_builds_messages_from_history(monkeypatch):
     fake_model = FakeChatOpenAI()
     fake_model.runnable = FakeRunnable(
@@ -79,7 +79,7 @@ def test_llm_agent_builds_messages_from_history(monkeypatch):
     assert isinstance(first_call[3], ToolMessage)
     assert first_call[3].content == "[]"
 
-#TU-B_221
+#TU-B_223
 def test_llm_agent_executes_tool_calls_and_collects_metadata(monkeypatch):
     fake_tool = FakeTool(name="search", result="tool-output")
     fake_model = FakeChatOpenAI()
@@ -120,7 +120,7 @@ def test_llm_agent_executes_tool_calls_and_collects_metadata(monkeypatch):
     assert isinstance(second_call[-1], ToolMessage)
     assert second_call[-1].content == "tool-output"
 
-#TU-B_222
+#TU-B_224
 def test_normalize_content_returns_empty_string_for_missing_content(monkeypatch):
     fake_model = FakeChatOpenAI()
     fake_model.runnable = FakeRunnable(

@@ -66,7 +66,7 @@ describe('AuthPage', () => {
     mockInitAuth.mockClear();
   });
 
-  // TU-F_22
+  //TU-F_22
   it('onLogin ok: chiama initAuth e naviga a /home', async () => {
     renderInRouter(<AuthPage />);
     fireEvent.click(screen.getByTestId('submit-btn'));
@@ -77,7 +77,7 @@ describe('AuthPage', () => {
     });
   });
 
-  // TU-F_23
+  //TU-F_23
   it('onLogin fallisce: NON naviga (simulando errore)', async () => {
     vi.doMock('../../src/auth/FormViewModel', () => ({
       useFormViewModel: () => ({
@@ -95,7 +95,7 @@ describe('AuthPage', () => {
     expect(true).toBe(true);
   });
 
-  // TU-F_24
+  //TU-F_24
   it('onRegister ok: torna al tab login (RF-OB_22)', async () => {
     renderInRouter(<AuthPage />);
     fireEvent.click(screen.getAllByRole('button', { name: /^registrati$/i })[0]);

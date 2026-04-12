@@ -14,14 +14,14 @@ from src.cart.CartService import CartService
 from src.enums import MeasureUnitEnum
 
 
-# TU-B_161
+#TU-B_169
 def test_get_cart_service_unit():
     mock_db = MagicMock(spec=Session)
     service = get_cart_service(db=mock_db)
     assert isinstance(service, CartService)
 
 
-# TU-B_162
+#TU-B_170
 def test_get_user_cart():
     mock_service = MagicMock()
 
@@ -48,7 +48,7 @@ def test_get_user_cart():
 # get_current_user
 # =========================
 
-# TU-B_163
+#TU-B_171
 def test_get_current_user_no_token():
     with pytest.raises(HTTPException) as exc:
         get_current_user(access_token=None)
@@ -57,7 +57,7 @@ def test_get_current_user_no_token():
     assert "Non autenticato" in exc.value.detail
 
 
-# TU-B_164
+#TU-B_172
 def test_get_current_user_invalid_token(monkeypatch):
     monkeypatch.setattr(
         "src.cart.CartApi.decode_token", lambda token: None
@@ -70,7 +70,7 @@ def test_get_current_user_invalid_token(monkeypatch):
     assert "Token non valido" in exc.value.detail
 
 
-# TU-B_165
+#TU-B_173
 def test_get_current_user_valid_token(monkeypatch):
     monkeypatch.setattr(
         "src.cart.CartApi.decode_token", lambda token: "Tom"
@@ -85,7 +85,7 @@ def test_get_current_user_valid_token(monkeypatch):
 # send_order
 # =========================
 
-# TU-B_166
+#TU-B_174
 def test_send_order_calls_service():
     mock_service = MagicMock()
 
@@ -98,7 +98,7 @@ def test_send_order_calls_service():
     mock_service.send_order.assert_called_once_with("Tom")
 
 
-# TU-B_167
+#TU-B_175
 def test_send_order_unauthorized():
     mock_service = MagicMock()
 

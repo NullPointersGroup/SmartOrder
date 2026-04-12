@@ -45,7 +45,7 @@ from src.auth.api import (
     get_current_user
 )
 from src.auth.schemas import UserSchema, UserRegistrationSchema
-from src.db.models import Utentiweb 
+from src.db.models import WebUser 
 from src.auth.limiter import limiter
 from src.auth.CheckUserService import CheckUserService
 from src.auth.RegisterUserService import RegisterUserService
@@ -69,7 +69,7 @@ def mock_user_registration() -> UserRegistrationSchema:
 
 
 @pytest.fixture
-def mock_session(mock_utente: Utentiweb) -> MagicMock:
+def mock_session(mock_utente: WebUser) -> MagicMock:
     session = MagicMock()
     session.exec.return_value.all.return_value = [mock_utente]
     return session

@@ -219,8 +219,8 @@ export const ChatArea: React.FC<Props> = ({
     const audio = new Audio(url)
 
     audio.onloadedmetadata = () => {
-      if (audio.duration > 120 * 60) {
-        alert('La durata non può superare 120 minuti')
+      if (audio.duration > 120) {
+        alert('La durata non può superare 120 secondi')
         URL.revokeObjectURL(url)
         e.target.value = ''
         return

@@ -9,7 +9,7 @@ from src.enums import MeasureUnitEnum, SenderEnum
 @brief Questo file definisce tutte le tabelle presenti nel DB
 """
 
-class Utentiweb(SQLModel, table=True):
+class WebUser(SQLModel, table=True):
     __tablename__: ClassVar[str] = "utentiweb"
 
     username: Optional[str] = Field(default=None, max_length=24, primary_key=True)
@@ -18,7 +18,7 @@ class Utentiweb(SQLModel, table=True):
     admin: bool = Field(default=False)
 
 
-class Conversazioni(SQLModel, table=True):
+class Conversations(SQLModel, table=True):
     __tablename__: ClassVar[str] = "conversazioni"
     id_conv: int = Field(
         default=None, primary_key=True, sa_column_kwargs={"autoincrement": True}
@@ -26,7 +26,7 @@ class Conversazioni(SQLModel, table=True):
     username: str = Field(..., max_length=24)
     titolo: str = Field(..., max_length=24)
 
-class Carrello(SQLModel, table=True):
+class Cart(SQLModel, table=True):
     __tablename__: ClassVar[str] = "carrello"
     username: str = Field(
         max_length=24, foreign_key="utentiweb.username", primary_key=True
@@ -76,7 +76,7 @@ class Anaart(SQLModel, table=True):
         sa_column=Column("prezzo", Float),
     )
     
-class Messaggi(SQLModel, table=True):
+class Messages(SQLModel, table=True):
     __tablename__: ClassVar[str] = "messaggi"
 
     id_conv: int = Field(foreign_key="conversazioni.id_conv", primary_key=True)
@@ -90,7 +90,7 @@ class Messaggi(SQLModel, table=True):
     mittente: SenderEnum
     contenuto: str
     
-class Ordine(SQLModel, table=True):
+class Order(SQLModel, table=True):
     __tablename__: ClassVar[str] = "ordine"
     id_ord:   Optional[int]  = Field(default=None, primary_key=True, sa_column_kwargs={"autoincrement": True})
     username: Optional[str]  = Field(default=None, foreign_key="utentiweb.username")

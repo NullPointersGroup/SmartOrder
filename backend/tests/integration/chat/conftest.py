@@ -4,7 +4,7 @@ import types
 import pytest
 from sqlmodel import create_engine, Session, text
 from fastapi.testclient import TestClient
-from src.db.models import Utentiweb, Conversazioni
+from src.db.models import WebUser, Conversations
 
 if "slowapi" not in sys.modules:
     slowapi_module = types.ModuleType("slowapi")
@@ -45,12 +45,12 @@ def chat_repository(seeded_db):
 
 @pytest.fixture
 def seeded_db(db_session: Session) -> Generator[Session, Any, None]:
-    utente = Utentiweb(
+    utente = WebUser(
         username="mario", email="mario@test.it", password="secret" #NOSONAR
     )
     db_session.add(utente)
     db_session.commit()
-    conv = Conversazioni(username="mario", titolo="test")
+    conv = Conversations(username="mario", titolo="test")
     db_session.add(conv)
     db_session.commit()
     yield db_session

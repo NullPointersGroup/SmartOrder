@@ -3,7 +3,7 @@ import pytest
 
 from src.auth.models import UserRegistration, UserReset
 from src.auth.UserRepository import UserRepository
-from src.db.models import Utentiweb
+from src.db.models import WebUser
 
 
 # ---------------------------------------------------------------------------
@@ -24,7 +24,7 @@ def repo(executor):
 
 @pytest.fixture
 def mock_utente():
-    u = MagicMock(spec=Utentiweb)
+    u = MagicMock(spec=WebUser)
     u.username = "testuser"
     u.password = "hashed_password"
     u.email = "test@test.com"
@@ -132,12 +132,12 @@ class TestDelete:
         executor.mutate_raw.return_value = True
         assert repo.delete("testuser") is True
 
-    #TU-B_XXX
+    #TU-B_122
     def test_returns_false_on_failure(self, repo, executor):
         executor.mutate_raw.return_value = False
         assert repo.delete("testuser") is False
 
-    #TU-B_XXX
+    #TU-B_123
     def test_delegates_to_executor(self, repo, executor):
         executor.mutate_raw.return_value = True
         repo.delete("testuser")
@@ -149,17 +149,17 @@ class TestDelete:
 # ---------------------------------------------------------------------------
 
 class TestResetPassword:
-    #TU-B_XXX
+    #TU-B_124
     def test_returns_true_on_success(self, repo, executor, valid_reset):
         executor.mutate_raw.return_value = True
         assert repo.reset_password(valid_reset) is True
 
-    #TU-B_XXX
+    #TU-B_125
     def test_returns_false_on_failure(self, repo, executor, valid_reset):
         executor.mutate_raw.return_value = False
         assert repo.reset_password(valid_reset) is False
 
-    #TU-B_XXX
+    #TU-B_126
     def test_delegates_to_executor(self, repo, executor, valid_reset):
         executor.mutate_raw.return_value = True
         repo.reset_password(valid_reset)

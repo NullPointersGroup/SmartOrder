@@ -40,7 +40,7 @@ describe('ChatModel.getMe', () => {
     expect(options.credentials).toBe('include');
   });
 
-  // TU-F_143
+  //TU-F_143
   it('aggiorna lo store a null se la risposta non è ok con detail', async () => {
     mockFetch(401, { detail: 'Non autenticato' });
 
@@ -49,7 +49,7 @@ describe('ChatModel.getMe', () => {
     expect(clearAuthSpy).toHaveBeenCalled();
   });
 
-  // TU-F_144
+  //TU-F_144
   it('aggiorna lo store a null se la risposta non è ok senza detail', async () => {
     mockFetch(500, {});
 

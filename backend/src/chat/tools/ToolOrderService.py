@@ -1,6 +1,6 @@
 from datetime import date
-from src.storico.StoricoSchemas import StoricoPageSchema
-from src.storico.StoricoService import StoricoService
+from src.history.HistorySchemas import HistoryPageSchema
+from src.history.HistoryService import HistoryService
 
 
 class ToolOrderService:
@@ -8,7 +8,7 @@ class ToolOrderService:
     def __init__(
         self,
         username: str,
-        storico_service: StoricoService,
+        storico_service: HistoryService,
     ) -> None:
         self.username = username
         self.storico_service = storico_service
@@ -18,11 +18,11 @@ class ToolOrderService:
         pagina: int = 1,
         data_inizio: date | None = None,
         data_fine: date | None = None,
-    ) -> StoricoPageSchema:
-        return self.storico_service.get_ordini_cliente(
+    ) -> HistoryPageSchema:
+        return self.storico_service.get_orders_customer(
             username=self.username,
-            pagina=pagina,
-            per_pagina=10,
-            data_inizio=data_inizio,
-            data_fine=data_fine,
+            page=pagina,
+            per_page=10,
+            start_date=data_inizio,
+            end_date=data_fine,
         )

@@ -1,0 +1,209 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+import {
+  getHistoryCustomer,
+  getHistoryAdmin,
+  duplicateOrder,
+} from '../../src/history/HistoryModel';
+
+// ─── Mock fetch globale ───────────────────────────────────────────────────────
+
+const mockFetch = vi.fn();
+Object.defineProperty(globalThis, 'fetch', { value: mockFetch, writable: true });
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function mockFetchOk(body: unknown) {
+  mockFetch.mockResolvedValue({
+    ok:   true,
+    json: () => Promise.resolve(body),
+  });
+}
+
+function mockFetchError(status: number, detail?: string) {
+  mockFetch.mockResolvedValue({
+    ok:     false,
+    status,
+    json:   () => Promise.resolve(detail ? { detail } : {}),
+  });
+}
+
+function mockFetchErrorJsonFail(status: number) {
+  mockFetch.mockResolvedValue({
+    ok:     false,
+    status,
+    json:   () => Promise.reject(new Error('JSON parse error')),
+  });
+}
+
+// ─── Fixture risposta ─────────────────────────────────────────────────────────
+
+const mockPageResponse = {
+  ordini: [
+    {
+      codice_ordine: 'ORD-001',
+      data:          '2024-03-15T10:30:00',
+      prodotti:      [{ nome: 'Latte', quantita: 2 }],
+    },
+  ],
+  pagina_corrente: 1,
+  totale_pagine:   4,
+};
+
+beforeEach(() => {
+  mockFetch.mockReset();
+});
+
+afterEach(() => vi.clearAllMocks());
+
+// ─── getHistoryCustomer ────────────────────────────────────────────────────────
+
+describe('getHistoryCustomer', () => {
+  //TU-F_412
+  it('chiama il corretto endpoint GET /history/miei con i parametri di default', async () => {
+    mockFetchOk(mockPageResponse);
+    await getHistoryCustomer();
+
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain('/history/miei');
+    expect(url).toContain('pagina=1');
+    expect(url).toContain('per_pagina=10');
+    expect(options.method).toBe('GET');
+    expect(options.credentials).toBe('include');
+  });
+
+  //TU-F_413
+  it('passa pagina e perPagina personalizzati nella querystring', async () => {
+    mockFetchOk(mockPageResponse);
+    await getHistoryCustomer(3, 5);
+
+    const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain('page=3');
+    expect(url).toContain('per_pagina=5');
+  });
+
+  //TU-F_414
+  it('restituisce il corpo JSON in caso di successo', async () => {
+    mockFetchOk(mockPageResponse);
+    const result = await getHistoryCustomer(1, 10);
+    expect(result).toEqual(mockPageResponse);
+  });
+
+  //TU-F_415
+  it('lancia errore con il messaggio "detail" dal server se la risposta non è ok', async () => {
+    mockFetchError(403, 'Non autorizzato');
+    await expect(getHistoryCustomer()).rejects.toThrow('Non autorizzato');
+  });
+
+  //TU-F_416
+  it('lancia errore generico "Errore <status>" se il body non ha "detail"', async () => {
+    mockFetchError(500);
+    await expect(getHistoryCustomer()).rejects.toThrow('Errore 500');
+  });
+
+  //TU-F_417
+  it('lancia "Errore <status>" se il parsing del body fallisce', async () => {
+    mockFetchErrorJsonFail(502);
+    await expect(getHistoryCustomer()).rejects.toThrow('Errore 502');
+  });
+});
+
+// ─── getHistoryAdmin ──────────────────────────────────────────────────────────
+
+describe('getHistoryAdmin', () => {
+  //TU-F_418
+  it('chiama il corretto endpoint GET /history/tutti con i parametri di default', async () => {
+    mockFetchOk(mockPageResponse);
+    await getHistoryAdmin();
+
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain('/history/tutti');
+    expect(url).toContain('pagina=1');
+    expect(url).toContain('per_pagina=10');
+    expect(options.method).toBe('GET');
+    expect(options.credentials).toBe('include');
+  });
+
+  //TU-F_419
+  it('passa pagina e perPagina personalizzati nella querystring', async () => {
+    mockFetchOk(mockPageResponse);
+    await getHistoryAdmin(2, 20);
+
+    const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain('pagina=2');
+    expect(url).toContain('per_pagina=20');
+  });
+
+  //TU-F_420
+  it('restituisce il corpo JSON in caso di successo', async () => {
+    mockFetchOk(mockPageResponse);
+    const result = await getHistoryAdmin(1, 10);
+    expect(result).toEqual(mockPageResponse);
+  });
+
+  //TU-F_421
+  it('lancia errore con il messaggio "detail" dal server se la risposta non è ok', async () => {
+    mockFetchError(401, 'Solo admin');
+    await expect(getHistoryAdmin()).rejects.toThrow('Solo admin');
+  });
+
+  //TU-F_422
+  it('lancia errore generico "Errore <status>" se il body non ha "detail"', async () => {
+    mockFetchError(503);
+    await expect(getHistoryAdmin()).rejects.toThrow('Errore 503');
+  });
+
+  //TU-F_423
+  it('lancia "Errore <status>" se il parsing del body fallisce', async () => {
+    mockFetchErrorJsonFail(500);
+    await expect(getHistoryAdmin()).rejects.toThrow('Errore 500');
+  });
+});
+
+// ─── duplicateOrder ────────────────────────────────────────────────────────────
+
+describe('duplicateOrder', () => {
+  //TU-F_424
+  it('chiama POST /history/duplicate_order/{codice} con credentials=include', async () => {
+    mockFetchOk({});
+    await duplicateOrder('ORD-001');
+
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain('/history/duplicate_order/ORD-001');
+    expect(options.method).toBe('POST');
+    expect(options.credentials).toBe('include');
+  });
+
+  //TU-F_425
+  it('codifica correttamente caratteri speciali nel codice ordine', async () => {
+    mockFetchOk({});
+    await duplicateOrder('ORD 001/speciale');
+
+    const [url] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain(encodeURIComponent('ORD 001/speciale'));
+  });
+
+  //TU-F_426
+  it('non lancia eccezione se la risposta è ok', async () => {
+    mockFetchOk({});
+    await expect(duplicateOrder('ORD-001')).resolves.toBeUndefined();
+  });
+
+  //TU-F_427
+  it('lancia errore con il messaggio "detail" se la risposta non è ok', async () => {
+    mockFetchError(409, 'Ordine già duplicato');
+    await expect(duplicateOrder('ORD-001')).rejects.toThrow('Ordine già duplicato');
+  });
+
+  //TU-F_428
+  it('lancia "Errore <status>" se il body non ha "detail"', async () => {
+    mockFetchError(404);
+    await expect(duplicateOrder('ORD-999')).rejects.toThrow('Errore 404');
+  });
+
+  //TU-F_429
+  it('lancia "Errore <status>" se il parsing del body fallisce', async () => {
+    mockFetchErrorJsonFail(500);
+    await expect(duplicateOrder('ORD-001')).rejects.toThrow('Errore 500');
+  });
+});
