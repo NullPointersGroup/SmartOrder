@@ -1,13 +1,13 @@
 import React from 'react'
-import type { Ordine } from './StoricoModel'
+import type { Order } from './HistoryModel'
 
-interface OrdineRowProps {
-  readonly ordine: Ordine
+interface OrderRowProps {
+  readonly ordine: Order
   readonly isAdmin: boolean
-  readonly onApriDettaglio: (o: Ordine) => void
+  readonly onApriDettaglio: (o: Order) => void
 }
 
-export const OrdineRow: React.FC<OrdineRowProps> = ({
+export const OrderRow: React.FC<OrderRowProps> = ({
   ordine,
   isAdmin,
   onApriDettaglio,

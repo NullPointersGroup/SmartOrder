@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
-import { useStoricoViewModel } from '../../src/storico/StoricoViewModel';
-import * as StoricoAPI from '../../src/storico/StoricoModel';
+import { useHistoryViewModel } from '../../src/history/HistoryViewModel';
+import * as StoricoAPI from '../../src/history/HistoryModel';
 import { useAuthStore } from '../../src/auth/authStore';
 
 // ─── Mock StoricoAPI ──────────────────────────────────────────────────────────
 
-vi.mock('../../src/storico/StoricoModel', () => ({
+vi.mock('../../src/history/HistoryModel', () => ({
   getStoricoCliente: vi.fn(),
   getStoricoAdmin:   vi.fn(),
   duplicaOrdine:     vi.fn(),
@@ -74,7 +74,7 @@ afterEach(() => vi.clearAllMocks());
 describe('useStoricoViewModel – stato iniziale', () => {
   //TU-F_481
   it('ha pagina=1, ordini=[], totalePagine=1, ordineScelto=null, loading=false, errore=null, erroreDuplica=null', () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     expect(result.current.pagina).toBe(1);
     expect(result.current.ordini).toEqual([]);
     expect(result.current.totalePagine).toBe(1);
@@ -87,14 +87,14 @@ describe('useStoricoViewModel – stato iniziale', () => {
   //TU-F_482
   it('isAdmin=false quando il ruolo non è "admin"', () => {
     setupClienteRole();
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     expect(result.current.isAdmin).toBe(false);
   });
 
   //TU-F_483
   it('isAdmin=true quando il ruolo è "admin"', () => {
     setupAdminRole();
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     expect(result.current.isAdmin).toBe(true);
   });
 });
@@ -104,7 +104,7 @@ describe('useStoricoViewModel – stato iniziale', () => {
 describe('useStoricoViewModel – caricaPagina (cliente)', () => {
   //TU-F_484
   it('chiama getStoricoCliente con pagina e perPagina=10', async () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.caricaPagina(1); });
     expect(StoricoAPI.getStoricoCliente).toHaveBeenCalledWith(1, 10, expect.anything(), expect.anything());
     expect(StoricoAPI.getStoricoAdmin).not.toHaveBeenCalled();
@@ -112,7 +112,7 @@ describe('useStoricoViewModel – caricaPagina (cliente)', () => {
 
   //TU-F_485
   it('popola ordini, totalePagine e pagina dopo il caricamento', async () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.caricaPagina(1); });
     expect(result.current.ordini).toHaveLength(2);
     expect(result.current.totalePagine).toBe(3);
@@ -125,7 +125,7 @@ describe('useStoricoViewModel – caricaPagina (cliente)', () => {
     vi.mocked(StoricoAPI.getStoricoCliente).mockReturnValue(
       new Promise<typeof mockPageCliente>(r => { resolve = r; })
     );
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
 
     act(() => { result.current.caricaPagina(1); });
     expect(result.current.loading).toBe(true);
@@ -137,7 +137,7 @@ describe('useStoricoViewModel – caricaPagina (cliente)', () => {
   //TU-F_487
   it('azzera l\'errore prima di ogni caricamento', async () => {
     vi.mocked(StoricoAPI.getStoricoCliente).mockRejectedValueOnce(new Error('fail1'));
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.caricaPagina(1); });
     expect(result.current.errore).not.toBeNull();
 
@@ -149,7 +149,7 @@ describe('useStoricoViewModel – caricaPagina (cliente)', () => {
   //TU-F_488
   it('imposta errore se getStoricoCliente lancia un Error', async () => {
     vi.mocked(StoricoAPI.getStoricoCliente).mockRejectedValue(new Error('Connessione rifiutata'));
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.caricaPagina(1); });
     expect(result.current.errore).toBe('Connessione rifiutata');
   });
@@ -157,14 +157,14 @@ describe('useStoricoViewModel – caricaPagina (cliente)', () => {
   //TU-F_489
   it('imposta messaggio generico se l\'errore non è un Error', async () => {
     vi.mocked(StoricoAPI.getStoricoCliente).mockRejectedValue('stringa-errore');
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.caricaPagina(1); });
     expect(result.current.errore).toMatch(/errore nel caricamento/i);
   });
 
   //TU-F_490
   it('carica pagine diverse passando il numero corretto', async () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.caricaPagina(3); });
     expect(StoricoAPI.getStoricoCliente).toHaveBeenCalledWith(3, 10, expect.anything(), expect.anything());
     expect(result.current.pagina).toBe(3);
@@ -178,7 +178,7 @@ describe('useStoricoViewModel – caricaPagina (admin)', () => {
 
   //TU-F_491
   it('chiama getStoricoAdmin invece di getStoricoCliente', async () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.caricaPagina(2); });
     expect(StoricoAPI.getStoricoAdmin).toHaveBeenCalledWith(2, 10, expect.anything(), expect.anything());
     expect(StoricoAPI.getStoricoCliente).not.toHaveBeenCalled();
@@ -186,7 +186,7 @@ describe('useStoricoViewModel – caricaPagina (admin)', () => {
 
   //TU-F_492
   it('popola ordini, totalePagine e pagina con i dati admin', async () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.caricaPagina(2); });
     expect(result.current.ordini).toHaveLength(2);
     expect(result.current.totalePagine).toBe(5);
@@ -196,7 +196,7 @@ describe('useStoricoViewModel – caricaPagina (admin)', () => {
   //TU-F_493
   it('imposta errore se getStoricoAdmin fallisce', async () => {
     vi.mocked(StoricoAPI.getStoricoAdmin).mockRejectedValue(new Error('Permesso negato'));
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.caricaPagina(1); });
     expect(result.current.errore).toBe('Permesso negato');
   });
@@ -207,7 +207,7 @@ describe('useStoricoViewModel – caricaPagina (admin)', () => {
 describe('useStoricoViewModel – apriDettaglio / chiudiDettaglio', () => {
   //TU-F_494
   it('apriDettaglio imposta ordineScelto', () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     const ordine = mockOrdini[0];
     act(() => { result.current.apriDettaglio(ordine); });
     expect(result.current.ordineScelto).toEqual(ordine);
@@ -215,7 +215,7 @@ describe('useStoricoViewModel – apriDettaglio / chiudiDettaglio', () => {
 
   //TU-F_495
   it('chiudiDettaglio azzera ordineScelto', () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     act(() => { result.current.apriDettaglio(mockOrdini[0]); });
     act(() => { result.current.chiudiDettaglio(); });
     expect(result.current.ordineScelto).toBeNull();
@@ -223,7 +223,7 @@ describe('useStoricoViewModel – apriDettaglio / chiudiDettaglio', () => {
 
   //TU-F_496
   it('apriDettaglio sostituisce un ordine precedentemente selezionato', () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     act(() => { result.current.apriDettaglio(mockOrdini[0]); });
     act(() => { result.current.apriDettaglio(mockOrdini[1]); });
     expect(result.current.ordineScelto?.codice_ordine).toBe('ORD-002');
@@ -235,7 +235,7 @@ describe('useStoricoViewModel – apriDettaglio / chiudiDettaglio', () => {
 describe('useStoricoViewModel – duplicaOrdine', () => {
   //TU-F_497
   it('chiama apiDuplicaOrdine con il codice corretto', async () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.duplicaOrdine('ORD-001'); });
     expect(StoricoAPI.duplicaOrdine).toHaveBeenCalledWith('ORD-001');
   });
@@ -243,7 +243,7 @@ describe('useStoricoViewModel – duplicaOrdine', () => {
   //TU-F_498
   it('azzera erroreDuplica prima della chiamata', async () => {
     vi.mocked(StoricoAPI.duplicaOrdine).mockRejectedValueOnce(new Error('fail1'));
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.duplicaOrdine('ORD-001'); });
     expect(result.current.erroreDuplica).not.toBeNull();
 
@@ -254,7 +254,7 @@ describe('useStoricoViewModel – duplicaOrdine', () => {
 
   //TU-F_499
   it('non imposta erroreDuplica se duplicaOrdine ha successo', async () => {
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.duplicaOrdine('ORD-001'); });
     expect(result.current.erroreDuplica).toBeNull();
   });
@@ -262,7 +262,7 @@ describe('useStoricoViewModel – duplicaOrdine', () => {
   //TU-F_500
   it('imposta erroreDuplica se duplicaOrdine lancia un Error', async () => {
     vi.mocked(StoricoAPI.duplicaOrdine).mockRejectedValue(new Error('Ordine non trovato'));
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.duplicaOrdine('ORD-999'); });
     expect(result.current.erroreDuplica).toBe('Ordine non trovato');
   });
@@ -270,7 +270,7 @@ describe('useStoricoViewModel – duplicaOrdine', () => {
   //TU-F_501
   it('imposta messaggio generico se l\'errore non è un Error', async () => {
     vi.mocked(StoricoAPI.duplicaOrdine).mockRejectedValue('unknown');
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.duplicaOrdine('ORD-001'); });
     expect(result.current.erroreDuplica).toMatch(/errore nella duplicazione/i);
   });
@@ -282,7 +282,7 @@ describe('useStoricoViewModel – loading sempre false dopo la chiamata', () => 
   //TU-F_502
   it('loading=false anche in caso di errore (branch finally)', async () => {
     vi.mocked(StoricoAPI.getStoricoCliente).mockRejectedValue(new Error('fail'));
-    const { result } = renderHook(() => useStoricoViewModel());
+    const { result } = renderHook(() => useHistoryViewModel());
     await act(async () => { await result.current.caricaPagina(1); });
     expect(result.current.loading).toBe(false);
   });

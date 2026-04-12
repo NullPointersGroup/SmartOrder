@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
-import type { Ordine } from './StoricoModel'
+import type { Order } from './HistoryModel'
 
-interface DettaglioModalProps {
-  readonly ordine: Ordine
+interface OrderDetailsModalProps {
+  readonly ordine: Order
   readonly isAdmin: boolean
   readonly onChiudi: () => void
   readonly onDuplica: (codice: string) => void
@@ -10,7 +10,7 @@ interface DettaglioModalProps {
   readonly onRefresh: () => void
 }
 
-export const DettaglioModal: React.FC<DettaglioModalProps> = ({
+export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   ordine,
   isAdmin,
   onChiudi,

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthPage from './auth/AuthPage';
 import { ChatView } from './chat/ChatView';
-import { StoricoView } from './storico/StoricoView';
+import { HistoryView } from './history/HistoryView';
 import { ProtectedRoute } from './ProtectedRoute';
 import { Unauthorized } from './HTTPError/401';
 import { NotFound } from './HTTPError/404';
@@ -46,7 +46,7 @@ export default function App() {
           path="/history"
           element={
             <ProtectedRoute>
-              <StoricoView />
+              <HistoryView />
             </ProtectedRoute>
           }
         />

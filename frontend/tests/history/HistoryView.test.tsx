@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 
-import { StoricoView } from '../../src/storico/StoricoView';
+import { HistoryView } from '../../src/history/HistoryView';
 
 // ─── Mock authStore ───────────────────────────────────────────────────────────
 
@@ -82,8 +82,8 @@ const baseVm: StoricoVm = {
 
 let vmOverrides: Partial<StoricoVm> = {};
 
-vi.mock('../../src/storico/StoricoViewModel', () => ({
-  useStoricoViewModel: (): StoricoVm => ({ ...baseVm, ...vmOverrides }),
+vi.mock('../../src/history/HistoryViewModel', () => ({
+  useHistoryViewModel: (): StoricoVm => ({ ...baseVm, ...vmOverrides }),
 }));
 
 // ─── Mock componenti figli ────────────────────────────────────────────────────
@@ -106,8 +106,8 @@ vi.mock('../../src/chat/Profile', () => ({
   ),
 }));
 
-vi.mock('../../src/storico/OrdineRow', () => ({
-  OrdineRow: ({
+vi.mock('../../src/history/OrderRow', () => ({
+  OrderRow: ({
     ordine,
     onApriDettaglio,
   }: {
@@ -124,8 +124,8 @@ vi.mock('../../src/storico/OrdineRow', () => ({
   ),
 }));
 
-vi.mock('../../src/storico/Paginazione', () => ({
-  Paginazione: ({
+vi.mock('../../src/history/Pagination', () => ({
+  Pagination: ({
     pagina,
     totalePagine,
     onCambia,
@@ -141,8 +141,8 @@ vi.mock('../../src/storico/Paginazione', () => ({
   ),
 }));
 
-vi.mock('../../src/storico/DettaglioModal', () => ({
-  DettaglioModal: ({
+vi.mock('../../src/history/OrderDetailsModal', () => ({
+  OrderDetailsModal: ({
     ordine,
     onChiudi,
     onDuplica,
@@ -170,7 +170,7 @@ vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function renderView() {
-  return render(<StoricoView />);
+  return render(<HistoryView />);
 }
 
 // ─── Setup / Teardown ─────────────────────────────────────────────────────────

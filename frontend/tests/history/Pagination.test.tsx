@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
-import { Paginazione } from '../../src/storico/Paginazione';
+import { Pagination } from '../../src/history/Pagination';
 
 function renderPaginazione(
   pagina: number,
@@ -9,7 +9,7 @@ function renderPaginazione(
   onCambia = vi.fn()
 ) {
   return render(
-    <Paginazione
+    <Pagination
       pagina={pagina}
       totalePagine={totalePagine}
       onCambia={onCambia}

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
-import { DettaglioModal } from '../../src/storico/DettaglioModal';
-import type { Ordine } from '../../src/storico/StoricoModel';
+import { OrderDetailsModal } from '../../src/history/OrderDetailsModal';
+import type { Order } from '../../src/history/HistoryModel';
 
 // ─── Mock <dialog> per jsdom ─────────────────────────────────────────────────
 
@@ -15,7 +15,7 @@ beforeEach(() => {
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const ordineBase: Ordine = {
+const ordineBase: Order = {
   codice_ordine: 'ORD-001',
   numero_ordine: 1,
   data:          '2024-03-15T10:30:00',
@@ -26,7 +26,7 @@ const ordineBase: Ordine = {
   ],
 };
 
-const ordineAdmin: Ordine = {
+const ordineAdmin: Order = {
   codice_ordine: 'ORD-002',
   numero_ordine: 2,
   data:          '2024-06-01T08:00:00',
@@ -43,7 +43,7 @@ const defaultProps = {
 };
 
 function renderModal(overrides: Partial<typeof defaultProps> = {}) {
-  return render(<DettaglioModal {...defaultProps} {...overrides} />);
+  return render(<OrderDetailsModal {...defaultProps} {...overrides} />);
 }
 
 beforeEach(() => {

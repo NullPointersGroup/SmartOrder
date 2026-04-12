@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../auth/authStore';
-import { useStoricoViewModel } from './StoricoViewModel';
+import { useHistoryViewModel } from './HistoryViewModel';
 import { usePageTitle } from '../hooks/usePageTitle';
-import { OrdineRow } from './OrdineRow';
-import { DettaglioModal } from './DettaglioModal';
-import { Paginazione } from './Paginazione';
+import { OrderRow } from './OrderRow';
+import { OrderDetailsModal } from './OrderDetailsModal';
+import { Pagination } from './Pagination';
 import { NavBar } from '../chat/NavBar';
 import { Profile } from '../chat/Profile';
 import { useNavigate } from 'react-router-dom';
 
-export const StoricoView: React.FC = () => {
+export const HistoryView: React.FC = () => {
   /**
   @brief mostra la pagina dello storico
   @req RF-OB_79
@@ -50,7 +50,7 @@ export const StoricoView: React.FC = () => {
     apriDettaglio,
     chiudiDettaglio,
     duplicaOrdine,
-  } = useStoricoViewModel();
+  } = useHistoryViewModel();
 
   useEffect(() => {
     caricaPagina(1);
@@ -147,7 +147,7 @@ export const StoricoView: React.FC = () => {
             </thead>
             <tbody>
               {ordiniFiltrati.map((ordine) => (
-                <OrdineRow
+                <OrderRow
                   key={ordine.codice_ordine}
                   ordine={ordine}
                   isAdmin={isAdmin}
@@ -158,7 +158,7 @@ export const StoricoView: React.FC = () => {
           </table>
         </div>
 
-        <Paginazione
+        <Pagination
           pagina={pagina}
           totalePagine={totalePagine}
           onCambia={caricaPagina}
@@ -295,7 +295,7 @@ export const StoricoView: React.FC = () => {
       </div>
 
       {ordineScelto && (
-        <DettaglioModal
+        <OrderDetailsModal
           ordine={ordineScelto}
           isAdmin={isAdmin}
           onChiudi={chiudiDettaglio}

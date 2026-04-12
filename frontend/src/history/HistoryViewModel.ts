@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react'
-import type { Ordine } from './StoricoModel'
+import type { Order } from './HistoryModel'
 import { useAuthStore } from '../auth/authStore'
-import { getStoricoCliente, getStoricoAdmin, duplicaOrdine as apiDuplicaOrdine } from './StoricoModel'
+import { getStoricoCliente, getStoricoAdmin, duplicaOrdine as apiDuplicaOrdine } from './HistoryModel'
 
-export function useStoricoViewModel() {
+export function useHistoryViewModel() {
   /**
    * @brief ViewModel per la gestione dello storico ordini.
    *   Espone stato e azioni per caricare, visualizzare e duplicare ordini,
@@ -23,9 +23,9 @@ export function useStoricoViewModel() {
    *   - duplicaOrdine: funzione asincrona per duplicare un ordine tramite codice
    */
   const [pagina, setPagina] = useState(1)
-  const [ordini, setOrdini] = useState<Ordine[]>([])
+  const [ordini, setOrdini] = useState<Order[]>([])
   const [totalePagine, setTotalePagine] = useState(1)
-  const [ordineScelto, setOrdineScelto] = useState<Ordine | null>(null)
+  const [ordineScelto, setOrdineScelto] = useState<Order | null>(null)
   const [loading, setLoading] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const [erroreDuplica, setErroreDuplica] = useState<string | null>(null)
@@ -48,7 +48,7 @@ export function useStoricoViewModel() {
         ? await getStoricoAdmin(n, 10, inizio, fine)
         : await getStoricoCliente(n, 10, inizio, fine);
 
-      setOrdini(data.ordini as Ordine[]);
+      setOrdini(data.ordini as Order[]);
       setTotalePagine(data.totale_pagine);
       setPagina(n);
     } catch (e) {
@@ -58,7 +58,7 @@ export function useStoricoViewModel() {
     }
   }, [isAdmin, dataInizio, dataFine]);
 
-  const apriDettaglio = (ordine: Ordine) => setOrdineScelto(ordine)
+  const apriDettaglio = (ordine: Order) => setOrdineScelto(ordine)
   const chiudiDettaglio = () => setOrdineScelto(null)
 
   const duplicaOrdine = async (codice: string) => {

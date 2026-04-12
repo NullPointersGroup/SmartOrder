@@ -65,7 +65,7 @@
 											"top": 447,
 											"width": 647.39453125,
 											"height": 13,
-											"text": "StoricoModel"
+											"text": "HistoryModel"
 										},
 										{
 											"_type": "LabelView",
@@ -305,7 +305,7 @@
 											"top": 423,
 											"width": 263.6533203125,
 											"height": 13,
-											"text": "StoricoViewModel"
+											"text": "HistoryViewModel"
 										},
 										{
 											"_type": "LabelView",
@@ -565,7 +565,7 @@
 											"top": 423,
 											"width": 130.67626953125,
 											"height": 13,
-											"text": "StoricoView"
+											"text": "HistoryView"
 										},
 										{
 											"_type": "LabelView",
@@ -1416,7 +1416,7 @@
 											"top": 1463,
 											"width": 612.76171875,
 											"height": 13,
-											"text": "StoricoRepository"
+											"text": "HistoryRepository"
 										},
 										{
 											"_type": "LabelView",
@@ -1714,7 +1714,7 @@
 											"top": 1287,
 											"width": 218.1533203125,
 											"height": 13,
-											"text": "GetOrdiniAdapter"
+											"text": "GetOrdersAdapter"
 										},
 										{
 											"_type": "LabelView",
@@ -1790,7 +1790,7 @@
 											"top": 1310,
 											"width": 218.1533203125,
 											"height": 13,
-											"text": "-repository: StoricoRepository",
+											"text": "-repository: HistoryRepository",
 											"horizontalAlignment": 0
 										}
 									],
@@ -1940,7 +1940,7 @@
 											"top": 1255,
 											"width": 697.30615234375,
 											"height": 13,
-											"text": "StoricoService"
+											"text": "HistoryService"
 										},
 										{
 											"_type": "LabelView",
@@ -2258,7 +2258,7 @@
 											"top": 1527,
 											"width": 664.0634765625,
 											"height": 13,
-											"text": "StoricoAdapterPort"
+											"text": "HistoryAdapterPort"
 										},
 										{
 											"_type": "LabelView",
@@ -3209,7 +3209,7 @@
 											"top": 287,
 											"width": 149.05908203125,
 											"height": 13,
-											"text": "ComponentPaginazione"
+											"text": "ComponentPagination"
 										},
 										{
 											"_type": "LabelView",
@@ -3416,7 +3416,7 @@
 											"top": 423,
 											"width": 189.9697265625,
 											"height": 13,
-											"text": "ComponentDettaglioModal"
+											"text": "ComponentOrderDetailsModal"
 										},
 										{
 											"_type": "LabelView",
@@ -3640,7 +3640,7 @@
 											"top": 551,
 											"width": 142.54638671875,
 											"height": 13,
-											"text": "ComponentOrdineRow"
+											"text": "ComponentOrderRow"
 										},
 										{
 											"_type": "LabelView",
@@ -4684,7 +4684,7 @@
 											"top": 1031,
 											"width": 854.7978515625,
 											"height": 13,
-											"text": "StoricoController"
+											"text": "HistoryController"
 										},
 										{
 											"_type": "LabelView",
@@ -4778,7 +4778,7 @@
 											"top": 1069,
 											"width": 854.7978515625,
 											"height": 13,
-											"text": "+ServiceDep: StoricoService",
+											"text": "+ServiceDep: HistoryService",
 											"horizontalAlignment": 0
 										}
 									],
@@ -4814,7 +4814,7 @@
 											"top": 1092,
 											"width": 854.7978515625,
 											"height": 13,
-											"text": "+get_service(db: DbSession): StoricoService",
+											"text": "+get_service(db: DbSession): HistoryService",
 											"horizontalAlignment": 0
 										},
 										{
@@ -5998,7 +5998,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "StoricoModel",
+					"name": "HistoryModel",
 					"ownedElements": [
 						{
 							"_type": "UMLDependency",
@@ -6180,7 +6180,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "StoricoViewModel",
+					"name": "HistoryViewModel",
 					"ownedElements": [
 						{
 							"_type": "UMLAssociation",
@@ -6305,7 +6305,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "StoricoView",
+					"name": "HistoryView",
 					"ownedElements": [
 						{
 							"_type": "UMLAssociation",
@@ -6513,7 +6513,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "StoricoRepository",
+					"name": "HistoryRepository",
 					"ownedElements": [
 						{
 							"_type": "UMLAssociation",
@@ -7098,7 +7098,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "GetOrdiniAdapter",
+					"name": "GetOrdersAdapter",
 					"ownedElements": [
 						{
 							"_type": "UMLInterfaceRealization",
@@ -7233,7 +7233,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "StoricoService",
+					"name": "HistoryService",
 					"ownedElements": [
 						{
 							"_type": "UMLDependency",
@@ -7639,7 +7639,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "StoricoAdapterPort",
+					"name": "HistoryAdapterPort",
 					"operations": [
 						{
 							"_type": "UMLOperation",
@@ -7854,7 +7854,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "ComponentPaginazione",
+					"name": "ComponentPagination",
 					"operations": [
 						{
 							"_type": "UMLOperation",
@@ -7872,7 +7872,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "ComponentDettaglioModal",
+					"name": "ComponentOrderDetailsModal",
 					"operations": [
 						{
 							"_type": "UMLOperation",
@@ -7909,7 +7909,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "ComponentOrdineRow"
+					"name": "ComponentOrderRow"
 				},
 				{
 					"_type": "UMLClass",
@@ -7925,7 +7925,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "StoricoController",
+					"name": "HistoryController",
 					"ownedElements": [
 						{
 							"_type": "UMLDependency",
@@ -8451,7 +8451,7 @@
 									"parentStyle": true,
 									"left": -37,
 									"top": 605,
-									"width": 656.39453125,
+									"width": 598.1328125,
 									"height": 53
 								},
 								{
@@ -8711,7 +8711,7 @@
 									"parentStyle": true,
 									"left": 619,
 									"top": 589,
-									"width": 272.6533203125,
+									"width": 251.8330078125,
 									"height": 68
 								},
 								{
@@ -11671,7 +11671,7 @@
 											"top": 1051,
 											"width": 612.76171875,
 											"height": 13,
-											"text": "StoricoRepository"
+											"text": "HistoryRepository"
 										},
 										{
 											"_type": "LabelView",
@@ -11969,7 +11969,7 @@
 											"top": 875,
 											"width": 218.1533203125,
 											"height": 13,
-											"text": "GetOrdiniAdapter"
+											"text": "GetOrdersAdapter"
 										},
 										{
 											"_type": "LabelView",
@@ -12045,7 +12045,7 @@
 											"top": 898,
 											"width": 218.1533203125,
 											"height": 13,
-											"text": "-repository: StoricoRepository",
+											"text": "-repository: HistoryRepository",
 											"horizontalAlignment": 0
 										}
 									],
@@ -12195,7 +12195,7 @@
 											"top": 843,
 											"width": 697.30615234375,
 											"height": 13,
-											"text": "StoricoService"
+											"text": "HistoryService"
 										},
 										{
 											"_type": "LabelView",
@@ -12513,7 +12513,7 @@
 											"top": 1115,
 											"width": 664.0634765625,
 											"height": 13,
-											"text": "StoricoAdapterPort"
+											"text": "HistoryAdapterPort"
 										},
 										{
 											"_type": "LabelView",
@@ -13464,7 +13464,7 @@
 											"top": 619,
 											"width": 854.7978515625,
 											"height": 13,
-											"text": "StoricoController"
+											"text": "HistoryController"
 										},
 										{
 											"_type": "LabelView",
@@ -13558,7 +13558,7 @@
 											"top": 657,
 											"width": 854.7978515625,
 											"height": 13,
-											"text": "+ServiceDep: StoricoService",
+											"text": "+ServiceDep: HistoryService",
 											"horizontalAlignment": 0
 										}
 									],
@@ -13594,7 +13594,7 @@
 											"top": 680,
 											"width": 854.7978515625,
 											"height": 13,
-											"text": "+get_service(db: DbSession): StoricoService",
+											"text": "+get_service(db: DbSession): HistoryService",
 											"horizontalAlignment": 0
 										},
 										{

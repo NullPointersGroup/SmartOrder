@@ -1,12 +1,12 @@
 import React from 'react'
 
-interface PaginazioneProps {
+interface PaginationProps {
   readonly pagina: number
   readonly totalePagine: number
   readonly onCambia: (n: number) => void
 }
 
-export const Paginazione: React.FC<PaginazioneProps> = ({
+export const Pagination: React.FC<PaginationProps> = ({
   pagina,
   totalePagine,
   onCambia,

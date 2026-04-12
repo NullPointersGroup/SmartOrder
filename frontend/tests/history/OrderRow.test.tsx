@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
-import { OrdineRow } from '../../src/storico/OrdineRow';
-import type { Ordine } from '../../src/storico/StoricoModel';
+import { OrderRow } from '../../src/history/OrderRow';
+import type { Order } from '../../src/history/HistoryModel';
 
 const originalToLocaleDateString = Date.prototype.toLocaleDateString;
 beforeAll(() => {
@@ -21,7 +21,7 @@ afterAll(() => {
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
-const ordineCliente: Ordine = {
+const ordineCliente: Order = {
   codice_ordine: 'ORD-001',
   numero_ordine: 1,
   data:          '2024-03-15T10:30:00',
@@ -32,7 +32,7 @@ const ordineCliente: Ordine = {
   ],
 };
 
-const ordineAdmin: Ordine = {
+const ordineAdmin: Order = {
   codice_ordine: 'ORD-002',
   numero_ordine: 2,
   data:          '2024-06-01T08:00:00',
@@ -40,7 +40,7 @@ const ordineAdmin: Ordine = {
   prodotti: [{ nome: 'Pane', descrizione: 'Integrale', quantita: 1 }],
 };
 
-const ordineConUnProdotto: Ordine = {
+const ordineConUnProdotto: Order = {
   codice_ordine: 'ORD-003',
   numero_ordine: 3,
   data:          '2024-07-10T12:00:00',
@@ -48,14 +48,14 @@ const ordineConUnProdotto: Ordine = {
 };
 
 function renderRow(
-  ordine: Ordine,
+  ordine: Order,
   isAdmin = false,
   onApriDettaglio = vi.fn()
 ) {
   return render(
     <table>
       <tbody>
-        <OrdineRow
+        <OrderRow
           ordine={ordine}
           isAdmin={isAdmin}
           onApriDettaglio={onApriDettaglio}
@@ -122,7 +122,7 @@ describe('OrdineRow – vista admin', () => {
 
   //TU-F_394
   it('mostra "—" se username è undefined in vista admin', () => {
-    const ordineNoUsername: Ordine = { ...ordineCliente, username: undefined };
+    const ordineNoUsername: Order = { ...ordineCliente, username: undefined };
     renderRow(ordineNoUsername, true);
     expect(screen.getByText('—')).toBeInTheDocument();
   });
