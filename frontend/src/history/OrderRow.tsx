@@ -4,13 +4,13 @@ import type { Order } from './HistoryModel'
 interface OrderRowProps {
   readonly ordine: Order
   readonly isAdmin: boolean
-  readonly onApriDettaglio: (o: Order) => void
+  readonly onopenDetail: (o: Order) => void
 }
 
 export const OrderRow: React.FC<OrderRowProps> = ({
   ordine,
   isAdmin,
-  onApriDettaglio,
+  onopenDetail,
 }) => {
   /**
   @brief mostra l'ordine singolo
@@ -46,7 +46,7 @@ export const OrderRow: React.FC<OrderRowProps> = ({
       <td className="py-3.5 px-5 text-right">
         <button
           type="button"
-          onClick={() => onApriDettaglio(ordine)}
+          onClick={() => onopenDetail(ordine)}
           aria-label={`Apri dettaglio ordine ${ordine.codice_ordine}`}
           className="
             text-xs font-medium text-(--text-3) hover:text-(--color-2)

@@ -17,11 +17,11 @@ from src.auth.api import get_current_user
 
 Username = Annotated[str, Depends(get_current_user)]
 
-router = APIRouter(prefix="/storico", tags=["Storico Ordini"])
+router = APIRouter(prefix="/history", tags=["Storico Ordini"])
 
 DBSession = Annotated[Session, Depends(get_conn)]
-Pagina = Annotated[int, Query(ge=1)]
-PerPagina = Annotated[int, Query(ge=1, le=50)]
+Page = Annotated[int, Query(ge=1)]
+PerPage = Annotated[int, Query(ge=1, le=50)]
 
 
 def get_service(db: DBSession) -> HistoryService:
@@ -52,47 +52,47 @@ def require_admin(username: Username, db: DBSession) -> str:
 
 
 @router.get("/miei")
-def get_storico_cliente(
+def get_history_customer(
     username: Username,
     service: ServiceDep,
-    pagina: Pagina = 1,
-    per_pagina: PerPagina = 10,
-    data_inizio: date | None = None,
-    data_fine: date | None = None,
+    page: Page = 1,
+    per_page: PerPage = 10,
+    start_date: date | None = None,
+    end_date: date | None = None,
 ) -> HistoryPageSchema:
     """
     @brief ritorna gli ordini di un cliente
     @raise HTTPException cliente npon trovato
-    @return StoricoPageSchema: lista degli ordini, la pagina corrente e il totale delle pagine
+    @return HistoryPageSchema: lista degli ordini, la pagina corrente e il totale delle pagine
     """
     try:
-        return service.get_ordini_cliente(username, pagina, per_pagina, data_inizio, data_fine)
+        return service.get_orders_customer(username, page, per_page, start_date, end_date)
     except UserOrdersNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
 
 
 @router.get("/tutti", dependencies=[Depends(require_admin)])
-def get_storico_admin(
+def get_history_admin(
     service: ServiceDep,
-    pagina: Pagina = 1,
-    per_pagina: PerPagina = 10,
-    data_inizio: date | None = None,
-    data_fine: date | None = None,
+    page: Page = 1,
+    per_page: PerPage = 10,
+    start_date: date | None = None,
+    end_date: date | None = None,
 ) -> HistoryPageSchema:
     """
     @brief ritorna tutti gli ordini
     @raise HTTPException accesso non consentito
-    @return StoricoPageSchema: lista degli ordini, la pagina corrente e il totale delle pagine
+    @return HistoryPageSchema: lista degli ordini, la pagina corrente e il totale delle pagine
     """
     try:
-        return service.get_ordini_admin(pagina, per_pagina, data_inizio, data_fine)
+        return service.get_orders_admin(page, per_page, start_date, end_date)
     except HistoryAccessDeniedException as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.message)
 
 
-@router.post("/duplica/{codice_ordine}", status_code=status.HTTP_201_CREATED)
-def duplica_ordine(
-    codice_ordine: str,
+@router.post("/duplicate_order/{code_order}", status_code=status.HTTP_201_CREATED)
+def duplicate_order(
+    code_order: str,
     username: Username,
     service: ServiceDep,
 ) -> dict[str, str]:
@@ -102,7 +102,7 @@ def duplica_ordine(
     @return il risultato dell'operazione
     """
     try:
-        service.duplica_ordine(codice_ordine, username)
+        service.duplicate_order(code_order, username)
         return {"detail": "Ordine duplicato con successo"}
     except OrderNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)

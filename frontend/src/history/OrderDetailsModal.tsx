@@ -56,7 +56,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     dialogRef.current?.close();
   };
 
-  const contenutoDuplica = () => {
+  const duplicateContent = () => {
     if (confermaDuplica) {
       return (
         <div className="flex gap-2">
@@ -200,7 +200,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               {erroreDuplica}
             </p>
           )}
-          {contenutoDuplica()}
+          {duplicateContent()}
         </div>
       )}
     </div>

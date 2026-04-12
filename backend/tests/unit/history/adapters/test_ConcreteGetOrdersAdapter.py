@@ -22,96 +22,96 @@ def adapter(mock_repo):
         return GetOrdersAdapter(MagicMock(spec=Session)), mock_repo
 
 
-# ─── get_ordini_by_username ───────────────────────────────────────────────────
+# ─── get_orders_by_username ───────────────────────────────────────────────────
 
 class TestGetOrdersByUsername:
 #TU-B_237
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
         ordine = MagicMock(spec=Order)
-        repo.get_ordini_by_username.return_value = ([ordine], 1)
+        repo.get_orders_by_username.return_value = ([ordine], 1)
 
-        result = sut.get_ordini_by_username("mario", 1, 10, None, None)
+        result = sut.get_orders_by_username("mario", 1, 10, None, None)
 
-        repo.get_ordini_by_username.assert_called_once_with("mario", 1, 10, None, None)
+        repo.get_orders_by_username.assert_called_once_with("mario", 1, 10, None, None)
         assert result == ([ordine], 1)
 
 #TU-B_238
     def test_propaga_paginazione(self, adapter):
         sut, repo = adapter
-        repo.get_ordini_by_username.return_value = ([], 0)
+        repo.get_orders_by_username.return_value = ([], 0)
 
-        sut.get_ordini_by_username("mario", 3, 5)
+        sut.get_orders_by_username("mario", 3, 5)
 
-        repo.get_ordini_by_username.assert_called_once_with("mario", 3, 5, None, None)
+        repo.get_orders_by_username.assert_called_once_with("mario", 3, 5, None, None)
 
 
-# ─── get_all_ordini ───────────────────────────────────────────────────────────
+# ─── get_all_orders ───────────────────────────────────────────────────────────
 
 class TestGetAllOrdini:
 #TU-B_239
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
         ordine = MagicMock(spec=Order)
-        repo.get_all_ordini.return_value = ([ordine], 1)
+        repo.get_all_orders.return_value = ([ordine], 1)
 
-        result = sut.get_all_ordini(1, 10, None, None)
+        result = sut.get_all_orders(1, 10, None, None)
 
-        repo.get_all_ordini.assert_called_once_with(1, 10, None, None)
+        repo.get_all_orders.assert_called_once_with(1, 10, None, None)
         assert result == ([ordine], 1)
 #TU-B_240
     def test_propaga_paginazione(self, adapter):
         sut, repo = adapter
-        repo.get_all_ordini.return_value = ([], 0)
+        repo.get_all_orders.return_value = ([], 0)
 
-        sut.get_all_ordini(2, 20, None, None)
+        sut.get_all_orders(2, 20, None, None)
 
-        repo.get_all_ordini.assert_called_once_with(2, 20, None, None)
+        repo.get_all_orders.assert_called_once_with(2, 20, None, None)
 
 
-# ─── get_prodotti_by_ordine_ids ───────────────────────────────────────────────
+# ─── get_products_by_order_ids ───────────────────────────────────────────────
 
 class TestGetProdottiByOrdineIds:
 #TU-B_241
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
         coppia = (MagicMock(spec=OrdCliDet), MagicMock(spec=Anaart))
-        repo.get_prodotti_by_ordine_ids.return_value = [coppia]
+        repo.get_products_by_order_ids.return_value = [coppia]
 
-        result = sut.get_prodotti_by_ordine_ids([1, 2, 3])
+        result = sut.get_products_by_order_ids([1, 2, 3])
 
-        repo.get_prodotti_by_ordine_ids.assert_called_once_with([1, 2, 3])
+        repo.get_products_by_order_ids.assert_called_once_with([1, 2, 3])
         assert result == [coppia]
 
 #TU-B_242
     def test_lista_vuota(self, adapter):
         sut, repo = adapter
-        repo.get_prodotti_by_ordine_ids.return_value = []
+        repo.get_products_by_order_ids.return_value = []
 
-        result = sut.get_prodotti_by_ordine_ids([])
+        result = sut.get_products_by_order_ids([])
 
-        repo.get_prodotti_by_ordine_ids.assert_called_once_with([])
+        repo.get_products_by_order_ids.assert_called_once_with([])
         assert result == []
 
 
-# ─── duplica_ordine ───────────────────────────────────────────────────────────
+# ─── duplicate_order ───────────────────────────────────────────────────────────
 
-class TestDuplicaOrdine:
+class TestduplicateOrder:
 #TU-B_243
     def test_delega_al_repository(self, adapter):
         sut, repo = adapter
         nuovo = MagicMock(spec=Order)
-        repo.duplica_ordine.return_value = nuovo
+        repo.duplicate_order.return_value = nuovo
 
-        result = sut.duplica_ordine("42", "mario")
+        result = sut.duplicate_order("42", "mario")
 
-        repo.duplica_ordine.assert_called_once_with("42", "mario")
+        repo.duplicate_order.assert_called_once_with("42", "mario")
         assert result == nuovo
 
 #TU-B_244
     def test_propaga_value_error(self, adapter):
         sut, repo = adapter
-        repo.duplica_ordine.side_effect = ValueError("non trovato")
+        repo.duplicate_order.side_effect = ValueError("non trovato")
 
         with pytest.raises(ValueError):
-            sut.duplica_ordine("99", "mario")
+            sut.duplicate_order("99", "mario")

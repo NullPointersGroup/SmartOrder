@@ -107,7 +107,7 @@ def test_update_cart_item_qty_delegates_with_username():
 def test_get_ordini_delegates_to_storico_service_with_default_page_size():
     storico_service = MagicMock()
     page = HistoryPageSchema(ordini=[], pagina_corrente=2, totale_pagine=5)
-    storico_service.get_ordini_cliente.return_value = page
+    storico_service.get_orders_customer.return_value = page
     tool_service = ToolOrderService(
         username="carlesso",
         storico_service=storico_service,
@@ -115,11 +115,11 @@ def test_get_ordini_delegates_to_storico_service_with_default_page_size():
 
     result = tool_service.get_ordini(pagina=2)
 
-    storico_service.get_ordini_cliente.assert_called_once_with(
+    storico_service.get_orders_customer.assert_called_once_with(
         username="carlesso",
-        pagina=2,
-        per_pagina=10,
-        data_inizio=None,
-        data_fine=None,
+        page=2,
+        per_page=10,
+        start_date=None,
+        end_date=None,
     )
     assert result == page

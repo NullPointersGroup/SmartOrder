@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import type { Order } from './HistoryModel'
 import { useAuthStore } from '../auth/authStore'
-import { getStoricoCliente, getStoricoAdmin, duplicaOrdine as apiDuplicaOrdine } from './HistoryModel'
+import { getHistoryCustomer, getHistoryAdmin, duplicateOrder as apiduplicateOrder } from './HistoryModel'
 
 export function useHistoryViewModel() {
   /**
@@ -17,10 +17,10 @@ export function useHistoryViewModel() {
    *   - errore: messaggio di errore del caricamento, null se assente
    *   - erroreDuplica: messaggio di errore della duplicazione, null se assente
    *   - isAdmin: true se l'utente autenticato ha ruolo admin
-   *   - caricaPagina: funzione asincrona per caricare una pagina di ordini
-   *   - apriDettaglio: funzione per selezionare un ordine e aprirne il dettaglio
-   *   - chiudiDettaglio: funzione per deselezionare l'ordine e chiudere il dettaglio
-   *   - duplicaOrdine: funzione asincrona per duplicare un ordine tramite codice
+   *   - loadPage: funzione asincrona per caricare una pagina di ordini
+   *   - openDetail: funzione per selezionare un ordine e aprirne il dettaglio
+   *   - closeDetail: funzione per deselezionare l'ordine e chiudere il dettaglio
+   *   - duplicateOrder: funzione asincrona per duplicare un ordine tramite codice
    */
   const [pagina, setPagina] = useState(1)
   const [ordini, setOrdini] = useState<Order[]>([])
@@ -29,24 +29,24 @@ export function useHistoryViewModel() {
   const [loading, setLoading] = useState(false)
   const [errore, setErrore] = useState<string | null>(null)
   const [erroreDuplica, setErroreDuplica] = useState<string | null>(null)
-  const [dataInizio, setDataInizio] = useState('');
-  const [dataFine, setDataFine] = useState('');
+  const [startDate, setstartDate] = useState('');
+  const [endDate, setendDate] = useState('');
 
   const isAdmin = !!useAuthStore((s) => s.admin)
 
-  const caricaPagina = useCallback(async (n: number, di?: string, df?: string) => {
-    const inizio = di ?? dataInizio;
-    const fine = df ?? dataFine;
+  const loadPage = useCallback(async (n: number, di?: string, df?: string) => {
+    const inizio = di ?? startDate;
+    const fine = df ?? endDate;
 
-    if (di !== undefined) setDataInizio(di);
-    if (df !== undefined) setDataFine(df);
+    if (di !== undefined) setstartDate(di);
+    if (df !== undefined) setendDate(df);
 
     setLoading(true);
     setErrore(null);
     try {
       const data = isAdmin
-        ? await getStoricoAdmin(n, 10, inizio, fine)
-        : await getStoricoCliente(n, 10, inizio, fine);
+        ? await getHistoryAdmin(n, 10, inizio, fine)
+        : await getHistoryCustomer(n, 10, inizio, fine);
 
       setOrdini(data.ordini as Order[]);
       setTotalePagine(data.totale_pagine);
@@ -56,15 +56,15 @@ export function useHistoryViewModel() {
     } finally {
       setLoading(false);
     }
-  }, [isAdmin, dataInizio, dataFine]);
+  }, [isAdmin, startDate, endDate]);
 
-  const apriDettaglio = (ordine: Order) => setOrdineScelto(ordine)
-  const chiudiDettaglio = () => setOrdineScelto(null)
+  const openDetail = (order: Order) => setOrdineScelto(order)
+  const closeDetail = () => setOrdineScelto(null)
 
-  const duplicaOrdine = async (codice: string) => {
+  const duplicateOrder = async (codeOrder: string) => {
     setErroreDuplica(null)
     try {
-      await apiDuplicaOrdine(codice)
+      await apiduplicateOrder(codeOrder)
     } catch (e) {
       setErroreDuplica(e instanceof Error ? e.message : "Errore nella duplicazione dell'ordine") // RF-OB_106
     }
@@ -79,9 +79,9 @@ export function useHistoryViewModel() {
     errore,
     erroreDuplica,
     isAdmin,
-    caricaPagina,
-    apriDettaglio,
-    chiudiDettaglio,
-    duplicaOrdine,
+    loadPage,
+    openDetail,
+    closeDetail,
+    duplicateOrder,
   }
 }

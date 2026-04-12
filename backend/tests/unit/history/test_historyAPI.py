@@ -48,9 +48,9 @@ PAGINA_ADMIN = HistoryPageSchema(
 
 def mock_service(page: HistoryPageSchema = PAGINA_CON_ORDINI) -> MagicMock:
     service = MagicMock()
-    service.get_ordini_cliente.return_value = page
-    service.get_ordini_admin.return_value = PAGINA_ADMIN
-    service.duplica_ordine.return_value = None
+    service.get_orders_customer.return_value = page
+    service.get_orders_admin.return_value = PAGINA_ADMIN
+    service.duplicate_order.return_value = None
     return service
 
 
@@ -82,16 +82,16 @@ def clear_overrides():
 
 client = TestClient(app, raise_server_exceptions=False)
 
-# ─── GET /storico/miei ────────────────────────────────────────────────────────
+# ─── GET /history/miei ────────────────────────────────────────────────────────
 
-class TestGetStoricoCliente:
+class TestgetHistoryCustomer:
     #TU-B_245
     def test_restituisce_ordini(self):
         service = mock_service()
         override_user()
         override_service(service)
 
-        res = client.get("/storico/miei")
+        res = client.get("/history/miei")
 
         assert res.status_code == 200
         body = res.json()
@@ -106,18 +106,18 @@ class TestGetStoricoCliente:
         override_user("mario")
         override_service(service)
 
-        client.get("/storico/miei?pagina=2&per_pagina=5")
+        client.get("/history/miei?page=2&per_page=5")
 
-        service.get_ordini_cliente.assert_called_once_with("mario", 2, 5, None, None)
+        service.get_orders_customer.assert_called_once_with("mario", 2, 5, None, None)
 
     #TU-B_247
     def test_404_se_nessun_ordine(self):
         service = mock_service()
-        service.get_ordini_cliente.side_effect = UserOrdersNotFoundException("mario")
+        service.get_orders_customer.side_effect = UserOrdersNotFoundException("mario")
         override_user("mario")
         override_service(service)
 
-        res = client.get("/storico/miei")
+        res = client.get("/history/miei")
 
         assert res.status_code == 404
 
@@ -126,7 +126,7 @@ class TestGetStoricoCliente:
         override_user()
         override_service(mock_service())
 
-        res = client.get("/storico/miei?pagina=0")
+        res = client.get("/history/miei?page=0")
 
         assert res.status_code == 422
 
@@ -135,14 +135,14 @@ class TestGetStoricoCliente:
         override_user()
         override_service(mock_service())
 
-        res = client.get("/storico/miei?per_pagina=51")
+        res = client.get("/history/miei?per_page=51")
 
         assert res.status_code == 422
 
 
-# ─── GET /storico/tutti ───────────────────────────────────────────────────────
+# ─── GET /history/tutti ───────────────────────────────────────────────────────
 
-class TestGetStoricoAdmin:
+class TestgetHistoryAdmin:
 
     #TU-B_250
     def test_restituisce_tutti_gli_ordini(self):
@@ -150,7 +150,7 @@ class TestGetStoricoAdmin:
         override_admin(ok=True)
         override_service(service)
 
-        res = client.get("/storico/tutti")
+        res = client.get("/history/tutti")
 
         assert res.status_code == 200
         body = res.json()
@@ -162,16 +162,16 @@ class TestGetStoricoAdmin:
         override_admin(ok=True)
         override_service(service)
 
-        client.get("/storico/tutti?pagina=2&per_pagina=20")
+        client.get("/history/tutti?page=2&per_page=20")
 
-        service.get_ordini_admin.assert_called_once_with(2, 20, None, None)
+        service.get_orders_admin.assert_called_once_with(2, 20, None, None)
 
     #TU-B_252
     def test_403_se_non_admin(self):
         override_admin(ok=False)
         override_service(mock_service())
 
-        res = client.get("/storico/tutti")
+        res = client.get("/history/tutti")
 
         assert res.status_code == 403
 
@@ -180,14 +180,14 @@ class TestGetStoricoAdmin:
         override_admin(ok=True)
         override_service(mock_service())
 
-        res = client.get("/storico/tutti?pagina=0")
+        res = client.get("/history/tutti?page=0")
 
         assert res.status_code == 422
 
 
-# ─── POST /storico/duplica/{codice_ordine} ────────────────────────────────────
+# ─── POST /history/duplica/{codice_ordine} ────────────────────────────────────
 
-class TestDuplicaOrdine:
+class TestduplicateOrder:
 
     #TU-B_254
     def test_duplica_con_successo(self):
@@ -195,7 +195,7 @@ class TestDuplicaOrdine:
         override_user("mario")
         override_service(service)
 
-        res = client.post("/storico/duplica/42")
+        res = client.post("/history/duplicate_order/42")
 
         assert res.status_code == 201
         assert res.json() == {"detail": "Ordine duplicato con successo"}
@@ -206,17 +206,17 @@ class TestDuplicaOrdine:
         override_user("mario")
         override_service(service)
 
-        client.post("/storico/duplica/99")
+        client.post("/history/duplicate_order/99")
 
-        service.duplica_ordine.assert_called_once_with("99", "mario")
+        service.duplicate_order.assert_called_once_with("99", "mario")
 
     #TU-B_256
     def test_404_se_ordine_non_trovato(self):
         service = mock_service()
-        service.duplica_ordine.side_effect = OrderNotFoundException("99")
+        service.duplicate_order.side_effect = OrderNotFoundException("99")
         override_user("mario")
         override_service(service)
 
-        res = client.post("/storico/duplica/99")
+        res = client.post("/history/duplicate_order/99")
 
         assert res.status_code == 404

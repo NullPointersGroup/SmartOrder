@@ -8,9 +8,9 @@ import { useAuthStore } from '../../src/auth/authStore';
 // ─── Mock StoricoAPI ──────────────────────────────────────────────────────────
 
 vi.mock('../../src/history/HistoryModel', () => ({
-  getStoricoCliente: vi.fn(),
-  getStoricoAdmin:   vi.fn(),
-  duplicaOrdine:     vi.fn(),
+  getHistoryCustomer: vi.fn(),
+  getHistoryAdmin:   vi.fn(),
+  duplicateOrder:     vi.fn(),
 }));
 
 // ─── Mock authStore ───────────────────────────────────────────────────────────
@@ -62,9 +62,9 @@ function setupAdminRole() {
 
 beforeEach(() => {
   setupClienteRole();
-  vi.mocked(StoricoAPI.getStoricoCliente).mockResolvedValue(mockPageCliente);
-  vi.mocked(StoricoAPI.getStoricoAdmin).mockResolvedValue(mockPageAdmin);
-  vi.mocked(StoricoAPI.duplicaOrdine).mockResolvedValue(undefined);
+  vi.mocked(StoricoAPI.getHistoryCustomer).mockResolvedValue(mockPageCliente);
+  vi.mocked(StoricoAPI.getHistoryAdmin).mockResolvedValue(mockPageAdmin);
+  vi.mocked(StoricoAPI.duplicateOrder).mockResolvedValue(undefined);
 });
 
 afterEach(() => vi.clearAllMocks());
@@ -99,21 +99,21 @@ describe('useStoricoViewModel – stato iniziale', () => {
   });
 });
 
-// ─── caricaPagina – cliente ───────────────────────────────────────────────────
+// ─── loadPage – cliente ───────────────────────────────────────────────────
 
-describe('useStoricoViewModel – caricaPagina (cliente)', () => {
+describe('useStoricoViewModel – loadPage (cliente)', () => {
   //TU-F_484
-  it('chiama getStoricoCliente con pagina e perPagina=10', async () => {
+  it('chiama getHistoryCustomer con pagina e perPagina=10', async () => {
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.caricaPagina(1); });
-    expect(StoricoAPI.getStoricoCliente).toHaveBeenCalledWith(1, 10, expect.anything(), expect.anything());
-    expect(StoricoAPI.getStoricoAdmin).not.toHaveBeenCalled();
+    await act(async () => { await result.current.loadPage(1); });
+    expect(StoricoAPI.getHistoryCustomer).toHaveBeenCalledWith(1, 10, expect.anything(), expect.anything());
+    expect(StoricoAPI.getHistoryAdmin).not.toHaveBeenCalled();
   });
 
   //TU-F_485
   it('popola ordini, totalePagine e pagina dopo il caricamento', async () => {
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.caricaPagina(1); });
+    await act(async () => { await result.current.loadPage(1); });
     expect(result.current.ordini).toHaveLength(2);
     expect(result.current.totalePagine).toBe(3);
     expect(result.current.pagina).toBe(1);
@@ -122,12 +122,12 @@ describe('useStoricoViewModel – caricaPagina (cliente)', () => {
   //TU-F_486
   it('imposta loading=true durante il caricamento, poi false alla fine', async () => {
     let resolve!: (v: typeof mockPageCliente) => void;
-    vi.mocked(StoricoAPI.getStoricoCliente).mockReturnValue(
+    vi.mocked(StoricoAPI.getHistoryCustomer).mockReturnValue(
       new Promise<typeof mockPageCliente>(r => { resolve = r; })
     );
     const { result } = renderHook(() => useHistoryViewModel());
 
-    act(() => { result.current.caricaPagina(1); });
+    act(() => { result.current.loadPage(1); });
     expect(result.current.loading).toBe(true);
 
     await act(async () => { resolve(mockPageCliente); });
@@ -136,154 +136,154 @@ describe('useStoricoViewModel – caricaPagina (cliente)', () => {
 
   //TU-F_487
   it('azzera l\'errore prima di ogni caricamento', async () => {
-    vi.mocked(StoricoAPI.getStoricoCliente).mockRejectedValueOnce(new Error('fail1'));
+    vi.mocked(StoricoAPI.getHistoryCustomer).mockRejectedValueOnce(new Error('fail1'));
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.caricaPagina(1); });
+    await act(async () => { await result.current.loadPage(1); });
     expect(result.current.errore).not.toBeNull();
 
-    vi.mocked(StoricoAPI.getStoricoCliente).mockResolvedValueOnce(mockPageCliente);
-    await act(async () => { await result.current.caricaPagina(1); });
+    vi.mocked(StoricoAPI.getHistoryCustomer).mockResolvedValueOnce(mockPageCliente);
+    await act(async () => { await result.current.loadPage(1); });
     expect(result.current.errore).toBeNull();
   });
 
   //TU-F_488
-  it('imposta errore se getStoricoCliente lancia un Error', async () => {
-    vi.mocked(StoricoAPI.getStoricoCliente).mockRejectedValue(new Error('Connessione rifiutata'));
+  it('imposta errore se getHistoryCustomer lancia un Error', async () => {
+    vi.mocked(StoricoAPI.getHistoryCustomer).mockRejectedValue(new Error('Connessione rifiutata'));
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.caricaPagina(1); });
+    await act(async () => { await result.current.loadPage(1); });
     expect(result.current.errore).toBe('Connessione rifiutata');
   });
 
   //TU-F_489
   it('imposta messaggio generico se l\'errore non è un Error', async () => {
-    vi.mocked(StoricoAPI.getStoricoCliente).mockRejectedValue('stringa-errore');
+    vi.mocked(StoricoAPI.getHistoryCustomer).mockRejectedValue('stringa-errore');
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.caricaPagina(1); });
+    await act(async () => { await result.current.loadPage(1); });
     expect(result.current.errore).toMatch(/errore nel caricamento/i);
   });
 
   //TU-F_490
   it('carica pagine diverse passando il numero corretto', async () => {
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.caricaPagina(3); });
-    expect(StoricoAPI.getStoricoCliente).toHaveBeenCalledWith(3, 10, expect.anything(), expect.anything());
+    await act(async () => { await result.current.loadPage(3); });
+    expect(StoricoAPI.getHistoryCustomer).toHaveBeenCalledWith(3, 10, expect.anything(), expect.anything());
     expect(result.current.pagina).toBe(3);
   });
 });
 
-// ─── caricaPagina – admin ─────────────────────────────────────────────────────
+// ─── loadPage – admin ─────────────────────────────────────────────────────
 
-describe('useStoricoViewModel – caricaPagina (admin)', () => {
+describe('useStoricoViewModel – loadPage (admin)', () => {
   beforeEach(() => { setupAdminRole(); });
 
   //TU-F_491
-  it('chiama getStoricoAdmin invece di getStoricoCliente', async () => {
+  it('chiama getHistoryAdmin invece di getHistoryCustomer', async () => {
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.caricaPagina(2); });
-    expect(StoricoAPI.getStoricoAdmin).toHaveBeenCalledWith(2, 10, expect.anything(), expect.anything());
-    expect(StoricoAPI.getStoricoCliente).not.toHaveBeenCalled();
+    await act(async () => { await result.current.loadPage(2); });
+    expect(StoricoAPI.getHistoryAdmin).toHaveBeenCalledWith(2, 10, expect.anything(), expect.anything());
+    expect(StoricoAPI.getHistoryCustomer).not.toHaveBeenCalled();
   });
 
   //TU-F_492
   it('popola ordini, totalePagine e pagina con i dati admin', async () => {
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.caricaPagina(2); });
+    await act(async () => { await result.current.loadPage(2); });
     expect(result.current.ordini).toHaveLength(2);
     expect(result.current.totalePagine).toBe(5);
     expect(result.current.pagina).toBe(2);
   });
 
   //TU-F_493
-  it('imposta errore se getStoricoAdmin fallisce', async () => {
-    vi.mocked(StoricoAPI.getStoricoAdmin).mockRejectedValue(new Error('Permesso negato'));
+  it('imposta errore se getHistoryAdmin fallisce', async () => {
+    vi.mocked(StoricoAPI.getHistoryAdmin).mockRejectedValue(new Error('Permesso negato'));
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.caricaPagina(1); });
+    await act(async () => { await result.current.loadPage(1); });
     expect(result.current.errore).toBe('Permesso negato');
   });
 });
 
-// ─── apriDettaglio / chiudiDettaglio ─────────────────────────────────────────
+// ─── openDetail / closeDetail ─────────────────────────────────────────
 
-describe('useStoricoViewModel – apriDettaglio / chiudiDettaglio', () => {
+describe('useStoricoViewModel – openDetail / closeDetail', () => {
   //TU-F_494
-  it('apriDettaglio imposta ordineScelto', () => {
+  it('openDetail imposta ordineScelto', () => {
     const { result } = renderHook(() => useHistoryViewModel());
     const ordine = mockOrdini[0];
-    act(() => { result.current.apriDettaglio(ordine); });
+    act(() => { result.current.openDetail(ordine); });
     expect(result.current.ordineScelto).toEqual(ordine);
   });
 
   //TU-F_495
-  it('chiudiDettaglio azzera ordineScelto', () => {
+  it('closeDetail azzera ordineScelto', () => {
     const { result } = renderHook(() => useHistoryViewModel());
-    act(() => { result.current.apriDettaglio(mockOrdini[0]); });
-    act(() => { result.current.chiudiDettaglio(); });
+    act(() => { result.current.openDetail(mockOrdini[0]); });
+    act(() => { result.current.closeDetail(); });
     expect(result.current.ordineScelto).toBeNull();
   });
 
   //TU-F_496
-  it('apriDettaglio sostituisce un ordine precedentemente selezionato', () => {
+  it('openDetail sostituisce un ordine precedentemente selezionato', () => {
     const { result } = renderHook(() => useHistoryViewModel());
-    act(() => { result.current.apriDettaglio(mockOrdini[0]); });
-    act(() => { result.current.apriDettaglio(mockOrdini[1]); });
+    act(() => { result.current.openDetail(mockOrdini[0]); });
+    act(() => { result.current.openDetail(mockOrdini[1]); });
     expect(result.current.ordineScelto?.codice_ordine).toBe('ORD-002');
   });
 });
 
-// ─── duplicaOrdine ────────────────────────────────────────────────────────────
+// ─── duplicateOrder ────────────────────────────────────────────────────────────
 
-describe('useStoricoViewModel – duplicaOrdine', () => {
+describe('useStoricoViewModel – duplicateOrder', () => {
   //TU-F_497
-  it('chiama apiDuplicaOrdine con il codice corretto', async () => {
+  it('chiama apiduplicateOrder con il codice corretto', async () => {
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.duplicaOrdine('ORD-001'); });
-    expect(StoricoAPI.duplicaOrdine).toHaveBeenCalledWith('ORD-001');
+    await act(async () => { await result.current.duplicateOrder('ORD-001'); });
+    expect(StoricoAPI.duplicateOrder).toHaveBeenCalledWith('ORD-001');
   });
 
   //TU-F_498
   it('azzera erroreDuplica prima della chiamata', async () => {
-    vi.mocked(StoricoAPI.duplicaOrdine).mockRejectedValueOnce(new Error('fail1'));
+    vi.mocked(StoricoAPI.duplicateOrder).mockRejectedValueOnce(new Error('fail1'));
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.duplicaOrdine('ORD-001'); });
+    await act(async () => { await result.current.duplicateOrder('ORD-001'); });
     expect(result.current.erroreDuplica).not.toBeNull();
 
-    vi.mocked(StoricoAPI.duplicaOrdine).mockResolvedValueOnce(undefined);
-    await act(async () => { await result.current.duplicaOrdine('ORD-001'); });
+    vi.mocked(StoricoAPI.duplicateOrder).mockResolvedValueOnce(undefined);
+    await act(async () => { await result.current.duplicateOrder('ORD-001'); });
     expect(result.current.erroreDuplica).toBeNull();
   });
 
   //TU-F_499
-  it('non imposta erroreDuplica se duplicaOrdine ha successo', async () => {
+  it('non imposta erroreDuplica se duplicateOrder ha successo', async () => {
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.duplicaOrdine('ORD-001'); });
+    await act(async () => { await result.current.duplicateOrder('ORD-001'); });
     expect(result.current.erroreDuplica).toBeNull();
   });
 
   //TU-F_500
-  it('imposta erroreDuplica se duplicaOrdine lancia un Error', async () => {
-    vi.mocked(StoricoAPI.duplicaOrdine).mockRejectedValue(new Error('Ordine non trovato'));
+  it('imposta erroreDuplica se duplicateOrder lancia un Error', async () => {
+    vi.mocked(StoricoAPI.duplicateOrder).mockRejectedValue(new Error('Ordine non trovato'));
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.duplicaOrdine('ORD-999'); });
+    await act(async () => { await result.current.duplicateOrder('ORD-999'); });
     expect(result.current.erroreDuplica).toBe('Ordine non trovato');
   });
 
   //TU-F_501
   it('imposta messaggio generico se l\'errore non è un Error', async () => {
-    vi.mocked(StoricoAPI.duplicaOrdine).mockRejectedValue('unknown');
+    vi.mocked(StoricoAPI.duplicateOrder).mockRejectedValue('unknown');
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.duplicaOrdine('ORD-001'); });
+    await act(async () => { await result.current.duplicateOrder('ORD-001'); });
     expect(result.current.erroreDuplica).toMatch(/errore nella duplicazione/i);
   });
 });
 
-// ─── caricaPagina – loading=false nel finally ─────────────────────────────────
+// ─── loadPage – loading=false nel finally ─────────────────────────────────
 
 describe('useStoricoViewModel – loading sempre false dopo la chiamata', () => {
   //TU-F_502
   it('loading=false anche in caso di errore (branch finally)', async () => {
-    vi.mocked(StoricoAPI.getStoricoCliente).mockRejectedValue(new Error('fail'));
+    vi.mocked(StoricoAPI.getHistoryCustomer).mockRejectedValue(new Error('fail'));
     const { result } = renderHook(() => useHistoryViewModel());
-    await act(async () => { await result.current.caricaPagina(1); });
+    await act(async () => { await result.current.loadPage(1); });
     expect(result.current.loading).toBe(false);
   });
 });

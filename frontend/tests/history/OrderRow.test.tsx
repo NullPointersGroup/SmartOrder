@@ -50,7 +50,7 @@ const ordineConUnProdotto: Order = {
 function renderRow(
   ordine: Order,
   isAdmin = false,
-  onApriDettaglio = vi.fn()
+  onopenDetail = vi.fn()
 ) {
   return render(
     <table>
@@ -58,7 +58,7 @@ function renderRow(
         <OrderRow
           ordine={ordine}
           isAdmin={isAdmin}
-          onApriDettaglio={onApriDettaglio}
+          onopenDetail={onopenDetail}
         />
       </tbody>
     </table>
@@ -138,21 +138,21 @@ describe('OrdineRow – vista admin', () => {
 
 describe('OrdineRow – interazione', () => {
   //TU-F_396
-  it('chiama onApriDettaglio con l\'ordine corretto al click sul pulsante', () => {
-    const onApriDettaglio = vi.fn();
-    renderRow(ordineCliente, false, onApriDettaglio);
+  it('chiama onopenDetail con l\'ordine corretto al click sul pulsante', () => {
+    const onopenDetail = vi.fn();
+    renderRow(ordineCliente, false, onopenDetail);
 
     fireEvent.click(screen.getByRole('button', { name: /dettaglio/i }));
-    expect(onApriDettaglio).toHaveBeenCalledTimes(1);
-    expect(onApriDettaglio).toHaveBeenCalledWith(ordineCliente);
+    expect(onopenDetail).toHaveBeenCalledTimes(1);
+    expect(onopenDetail).toHaveBeenCalledWith(ordineCliente);
   });
 
   //TU-F_397
-  it('chiama onApriDettaglio anche per un ordine admin', () => {
-    const onApriDettaglio = vi.fn();
-    renderRow(ordineAdmin, true, onApriDettaglio);
+  it('chiama onopenDetail anche per un ordine admin', () => {
+    const onopenDetail = vi.fn();
+    renderRow(ordineAdmin, true, onopenDetail);
 
     fireEvent.click(screen.getByRole('button', { name: /dettaglio/i }));
-    expect(onApriDettaglio).toHaveBeenCalledWith(ordineAdmin);
+    expect(onopenDetail).toHaveBeenCalledWith(ordineAdmin);
   });
 });

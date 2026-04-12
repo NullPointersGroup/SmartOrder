@@ -39,10 +39,10 @@ def make_repo(
     totale = totale if totale is not None else len(ordini)
     prodotti = prodotti or []
 
-    repo.get_ordini_by_username.return_value = (ordini, totale)
-    repo.get_all_ordini.return_value = (ordini, totale)
-    repo.get_prodotti_by_ordine_ids.return_value = prodotti
-    repo.duplica_ordine.return_value = make_ordine(99)
+    repo.get_orders_by_username.return_value = (ordini, totale)
+    repo.get_all_orders.return_value = (ordini, totale)
+    repo.get_products_by_order_ids.return_value = prodotti
+    repo.duplicate_order.return_value = make_ordine(99)
     return repo
 
 
@@ -57,7 +57,7 @@ class TestBuildPage:
         repo = make_repo(ordini=[ordine], prodotti=[(det, art)])
         service = HistoryService(repo)
 
-        result = service.get_ordini_cliente("mario", 1, 10)
+        result = service.get_orders_customer("mario", 1, 10)
 
         o = result.ordini[0]
         assert o.codice_ordine == "1"
@@ -72,7 +72,7 @@ class TestBuildPage:
         repo = make_repo(ordini=[ordine], prodotti=[(det, art)])
         service = HistoryService(repo)
 
-        result = service.get_ordini_cliente("mario", 1, 10)
+        result = service.get_orders_customer("mario", 1, 10)
 
         p = result.ordini[0].prodotti[0]
         assert p.nome == "Farina"
@@ -88,7 +88,7 @@ class TestBuildPage:
         repo = make_repo(ordini=[o1, o2], totale=2, prodotti=[(det1a, art1a), (det1b, art1b), (det2, art2)])
         service = HistoryService(repo)
 
-        result = service.get_ordini_admin(1, 10)
+        result = service.get_orders_admin(1, 10)
 
         ordini = {o.codice_ordine: o for o in result.ordini}
         assert len(ordini["1"].prodotti) == 2
@@ -101,7 +101,7 @@ class TestBuildPage:
         repo = make_repo(ordini=[ordine])
         service = HistoryService(repo)
 
-        result = service.get_ordini_cliente("mario", 1, 10)
+        result = service.get_orders_customer("mario", 1, 10)
 
         assert result.ordini[0].data is None
 
@@ -111,7 +111,7 @@ class TestBuildPage:
         repo = make_repo(ordini=[ordine], prodotti=[])
         service = HistoryService(repo)
 
-        result = service.get_ordini_cliente("mario", 1, 10)
+        result = service.get_orders_customer("mario", 1, 10)
 
         assert result.ordini[0].prodotti == []
 
@@ -121,7 +121,7 @@ class TestBuildPage:
         repo = make_repo(ordini=ordini, totale=25)
         service = HistoryService(repo)
 
-        result = service.get_ordini_cliente("mario", 1, 5)
+        result = service.get_orders_customer("mario", 1, 5)
 
         assert result.totale_pagine == 5  # ceil(25/5)
 
@@ -130,7 +130,7 @@ class TestBuildPage:
         repo = make_repo(ordini=[make_ordine(1)], totale=1)
         service = HistoryService(repo)
 
-        result = service.get_ordini_cliente("mario", 1, 10)
+        result = service.get_orders_customer("mario", 1, 10)
 
         assert result.totale_pagine == 1
 
@@ -140,7 +140,7 @@ class TestBuildPage:
         repo = make_repo(ordini=ordini, totale=30)
         service = HistoryService(repo)
 
-        result = service.get_ordini_cliente("mario", 3, 10)
+        result = service.get_orders_customer("mario", 3, 10)
 
         assert result.pagina_corrente == 3
 
@@ -154,11 +154,11 @@ class TestGetOrdiniCliente:
         repo = make_repo(ordini=[make_ordine(1)])
         service = HistoryService(repo)
 
-        service.get_ordini_cliente("mario", 2, 5, None, None)
+        service.get_orders_customer("mario", 2, 5, None, None)
 
-        assert repo.get_ordini_by_username.call_count == 2
-        repo.get_ordini_by_username.assert_any_call("mario", 2, 5, None, None)
-        repo.get_ordini_by_username.assert_any_call("mario", 1, 1)
+        assert repo.get_orders_by_username.call_count == 2
+        repo.get_orders_by_username.assert_any_call("mario", 2, 5, None, None)
+        repo.get_orders_by_username.assert_any_call("mario", 1, 1)
 
     #TU-B_273
     def test_lancia_eccezione_se_totale_zero(self):
@@ -166,14 +166,14 @@ class TestGetOrdiniCliente:
         service = HistoryService(repo)
 
         with pytest.raises(UserOrdersNotFoundException):
-            service.get_ordini_cliente("mario", 1, 10, None, None)
+            service.get_orders_customer("mario", 1, 10, None, None)
 
     #TU-B_274
     def test_username_non_incluso(self):
         repo = make_repo(ordini=[make_ordine(1, username="mario")])
         service = HistoryService(repo)
 
-        result = service.get_ordini_cliente("mario", 1, 10, None, None)
+        result = service.get_orders_customer("mario", 1, 10, None, None)
 
         assert result.ordini[0].username is None
 
@@ -187,18 +187,18 @@ class TestGetOrdiniAdmin:
         repo = make_repo(ordini=[make_ordine(1)])
         service = HistoryService(repo)
 
-        service.get_ordini_admin(2, 20, None, None)
+        service.get_orders_admin(2, 20, None, None)
 
-        assert repo.get_all_ordini.call_count == 2
-        repo.get_all_ordini.assert_any_call(2, 20, None, None)
-        repo.get_all_ordini.assert_any_call(1, 1)
+        assert repo.get_all_orders.call_count == 2
+        repo.get_all_orders.assert_any_call(2, 20, None, None)
+        repo.get_all_orders.assert_any_call(1, 1)
 
     #TU-B_276
     def test_username_incluso(self):
         repo = make_repo(ordini=[make_ordine(1, username="luigi")])
         service = HistoryService(repo)
 
-        result = service.get_ordini_admin(1, 10, None, None)
+        result = service.get_orders_admin(1, 10, None, None)
 
         assert result.ordini[0].username == "luigi"
 
@@ -208,41 +208,41 @@ class TestGetOrdiniAdmin:
         service = HistoryService(repo)
 
         with pytest.raises(OrdersNotFoundException):
-            service.get_ordini_admin(1, 10, None, None)
+            service.get_orders_admin(1, 10, None, None)
 
 
-# ─── duplica_ordine ───────────────────────────────────────────────────────────
+# ─── duplicate_order ───────────────────────────────────────────────────────────
 
-class TestDuplicaOrdine:
+class TestduplicateOrder:
     #TU-B_278
     def test_chiama_repo_con_parametri_corretti(self):
         repo = make_repo()
         service = HistoryService(repo)
 
-        service.duplica_ordine("42", "mario")
+        service.duplicate_order("42", "mario")
 
-        repo.duplica_ordine.assert_called_once_with("42", "mario")
+        repo.duplicate_order.assert_called_once_with("42", "mario")
 
     #TU-B_279
     def test_lancia_eccezione_se_ordine_non_trovato(self):
         repo = make_repo()
-        repo.duplica_ordine.side_effect = ValueError("non trovato")
+        repo.duplicate_order.side_effect = ValueError("non trovato")
         service = HistoryService(repo)
 
         with pytest.raises(OrderNotFoundException):
-            service.duplica_ordine("99", "mario")
+            service.duplicate_order("99", "mario")
 
     #TU-B_280
     def test_non_rilancia_value_error_direttamente(self):
         repo = make_repo()
-        repo.duplica_ordine.side_effect = ValueError("non trovato")
+        repo.duplicate_order.side_effect = ValueError("non trovato")
         service = HistoryService(repo)
 
         with pytest.raises(OrderNotFoundException):
-            service.duplica_ordine("99", "mario")
+            service.duplicate_order("99", "mario")
 
         # verifica che sia OrdineNotFoundException e non ValueError
         try:
-            service.duplica_ordine("99", "mario")
+            service.duplicate_order("99", "mario")
         except OrderNotFoundException as e:
             assert isinstance(e.__cause__, ValueError)

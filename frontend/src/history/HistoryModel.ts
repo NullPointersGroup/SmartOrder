@@ -40,11 +40,11 @@ export interface HistoryPageSchema {
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 
-export async function getStoricoCliente(
-  pagina: number = 1,
-  perPagina: number = 10,
-  dataInizio?: string,
-  dataFine?: string,
+export async function getHistoryCustomer(
+  page: number = 1,
+  perPage: number = 10,
+  startDate?: string,
+  endDate?: string,
 ): Promise<HistoryPageSchema> {
   /**
    * @brief Recupera lo storico ordini dell'utente autenticato (cliente).
@@ -54,14 +54,14 @@ export async function getStoricoCliente(
    * @return HistoryPageSchema: lista degli ordini, pagina corrente e e totale pagine
    */
   const params = new URLSearchParams({
-    pagina: String(pagina),
-    per_pagina: String(perPagina)
+    page: String(page),
+    per_pagina: String(perPage)
   });
 
-  if (dataInizio) params.append('data_inizio', dataInizio);
-  if (dataFine) params.append('data_fine', dataFine);
+  if (startDate) params.append('data_inizio', startDate);
+  if (endDate) params.append('data_fine', endDate);
 
-  const res = await fetch(`/api/storico/miei?${params}`, {
+  const res = await fetch(`/api/history/miei?${params}`, {
     method: 'GET',
     credentials: 'include',
   });
@@ -74,11 +74,11 @@ export async function getStoricoCliente(
   return res.json() as Promise<HistoryPageSchema>;
 }
 
-export async function getStoricoAdmin(
-  pagina: number = 1,
-  perPagina: number = 10,
-  dataInizio?: string,
-  dataFine?: string,
+export async function getHistoryAdmin(
+  page: number = 1,
+  perPage: number = 10,
+  startDate?: string,
+  endDate?: string,
 ): Promise<HistoryPageSchema> {
   /**
    * @brief Recupera lo storico ordini di tutti gli utenti
@@ -88,14 +88,14 @@ export async function getStoricoAdmin(
    * @return HistoryPageSchema: lista degli ordini, pagina corrente e e totale pagine
    */
   const params = new URLSearchParams({
-    pagina: String(pagina),
-    per_pagina: String(perPagina)
+    page: String(page),
+    per_pagina: String(perPage)
   });
 
-  if (dataInizio) params.append('data_inizio', dataInizio);
-  if (dataFine) params.append('data_fine', dataFine);
+  if (startDate) params.append('data_inizio', startDate);
+  if (endDate) params.append('data_fine', endDate);
 
-  const res = await fetch(`/api/storico/tutti?${params}`, {
+  const res = await fetch(`/api/history/tutti?${params}`, {
     method: 'GET',
     credentials: 'include',
   });
@@ -108,12 +108,12 @@ export async function getStoricoAdmin(
   return res.json() as Promise<HistoryPageSchema>;
 }
 
-export async function duplicaOrdine(codiceOrdine: string): Promise<void> {
+export async function duplicateOrder(codeOrder: string): Promise<void> {
   /**
    * @brief Duplica un ordine esistente
    * @param codiceOrdine: string il codice dell'Ordine
    */
-  const res = await fetch(`/api/storico/duplica/${encodeURIComponent(codiceOrdine)}`, {
+  const res = await fetch(`/api/history/duplicate_order/${encodeURIComponent(codeOrder)}`, {
     method: 'POST',
     credentials: 'include',
   });

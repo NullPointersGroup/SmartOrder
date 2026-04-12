@@ -13,7 +13,7 @@ class HistoryRepository:
         """
         self.db = db
 
-    def get_ordini_by_username(self, username: str, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
+    def get_orders_by_username(self, username: str, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
     ) -> Tuple[List[Order], int]:
         """
         @brief Recupera gli ordini di un cliente specifico con paginazione.
@@ -40,7 +40,7 @@ class HistoryRepository:
         ).all())
         return ordini, totale
 
-    def get_all_ordini(self, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
+    def get_all_orders(self, pagina: int, per_pagina: int, data_inizio: date | None = None, data_fine: date | None = None
     ) -> Tuple[List[Order], int]:
         """
         @brief Recupera tutti gli ordini di tutti i clienti con paginazione.
@@ -62,7 +62,7 @@ class HistoryRepository:
         ).all())
         return ordini, totale
 
-    def get_prodotti_by_ordine_ids(self, ordine_ids: List[int]) -> List[Tuple[OrdCliDet, Anaart]]:
+    def get_products_by_order_ids(self, ordine_ids: List[int]) -> List[Tuple[OrdCliDet, Anaart]]:
         """
         @brief Recupera i prodotti associati a una lista di ordini.
         @param ordine_ids Lista di id_ord di cui recuperare i prodotti.
@@ -76,7 +76,7 @@ class HistoryRepository:
             .where(col(OrdCliDet.id_ord).in_(ordine_ids))
         ).all())
 
-    def duplica_ordine(self, codice_ordine: str, username: str) -> Order:
+    def duplicate_order(self, codice_ordine: str, username: str) -> Order:
         """
         @brief Duplica un ordine esistente assegnandolo all'utente indicato con la data odierna.
         @param codice_ordine Codice (id) dell'ordine da duplicare.

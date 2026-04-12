@@ -32,10 +32,10 @@ vi.mock('../../src/hooks/usePageTitle', () => ({
 
 // ─── Mock ViewModel ───────────────────────────────────────────────────────────
 
-const mockCaricaPagina   = vi.fn();
-const mockApriDettaglio  = vi.fn();
-const mockChiudiDettaglio = vi.fn();
-const mockDuplicaOrdine  = vi.fn();
+const mockloadPage   = vi.fn();
+const mockopenDetail  = vi.fn();
+const mockcloseDetail = vi.fn();
+const mockduplicateOrder  = vi.fn();
 
 type Ordine = {
   codice_ordine: string;
@@ -59,10 +59,10 @@ type StoricoVm = {
   errore: string | null;
   erroreDuplica: string | null;
   isAdmin: boolean;
-  caricaPagina: (pagina: number, dataInizio?: string, dataFine?: string) => void;
-  apriDettaglio: (ordine: Ordine) => void;
-  chiudiDettaglio: () => void;
-  duplicaOrdine: (codiceOrdine: string) => void;
+  loadPage: (pagina: number, startDate?: string, endDate?: string) => void;
+  openDetail: (ordine: Ordine) => void;
+  closeDetail: () => void;
+  duplicateOrder: (codiceOrdine: string) => void;
 };
 
 const baseVm: StoricoVm = {
@@ -74,10 +74,10 @@ const baseVm: StoricoVm = {
   errore: null,
   erroreDuplica: null,
   isAdmin: false,
-  caricaPagina: mockCaricaPagina,
-  apriDettaglio: mockApriDettaglio,
-  chiudiDettaglio: mockChiudiDettaglio,
-  duplicaOrdine: mockDuplicaOrdine,
+  loadPage: mockloadPage,
+  openDetail: mockopenDetail,
+  closeDetail: mockcloseDetail,
+  duplicateOrder: mockduplicateOrder,
 };
 
 let vmOverrides: Partial<StoricoVm> = {};
@@ -109,14 +109,14 @@ vi.mock('../../src/chat/Profile', () => ({
 vi.mock('../../src/history/OrderRow', () => ({
   OrderRow: ({
     ordine,
-    onApriDettaglio,
+    onopenDetail,
   }: {
     ordine: Ordine;
-    onApriDettaglio: (o: Ordine) => void;
+    onopenDetail: (o: Ordine) => void;
   }) => (
     <tr data-testid={`ordine-row-${ordine.codice_ordine}`}>
       <td>
-        <button onClick={() => onApriDettaglio(ordine)}>
+        <button onClick={() => onopenDetail(ordine)}>
           Dettaglio {ordine.codice_ordine}
         </button>
       </td>
@@ -178,10 +178,10 @@ function renderView() {
 beforeEach(() => {
   vi.mocked(globalThis.fetch).mockClear();
   vmOverrides = {};
-  mockCaricaPagina.mockReset();
-  mockApriDettaglio.mockReset();
-  mockChiudiDettaglio.mockReset();
-  mockDuplicaOrdine.mockReset();
+  mockloadPage.mockReset();
+  mockopenDetail.mockReset();
+  mockcloseDetail.mockReset();
+  mockduplicateOrder.mockReset();
   mockClearAuth.mockReset();
   mockNavigate.mockClear();
 });
@@ -198,9 +198,9 @@ describe('StoricoView – render base', () => {
   });
 
   //TU-F_431
-  it('chiama caricaPagina(1) all\'avvio (useEffect)', () => {
+  it('chiama loadPage(1) all\'avvio (useEffect)', () => {
     renderView();
-    expect(mockCaricaPagina).toHaveBeenCalledWith(1);
+    expect(mockloadPage).toHaveBeenCalledWith(1);
   });
 
   //TU-F_432
@@ -377,17 +377,17 @@ describe('StoricoView – tabella con ordini', () => {
   });
 
   //TU-F_452
-  it('la paginazione chiama caricaPagina con il numero corretto', () => {
+  it('la paginazione chiama loadPage con il numero corretto', () => {
     renderView();
     fireEvent.click(screen.getByText('pagina successiva'));
-    expect(mockCaricaPagina).toHaveBeenCalledWith(2); // pagina(1) + 1
+    expect(mockloadPage).toHaveBeenCalledWith(2); // pagina(1) + 1
   });
 
   //TU-F_453
-  it('click su "Dettaglio" chiama apriDettaglio con l\'ordine', () => {
+  it('click su "Dettaglio" chiama openDetail con l\'ordine', () => {
     renderView();
     fireEvent.click(screen.getByText('Dettaglio ORD-001'));
-    expect(mockApriDettaglio).toHaveBeenCalledWith(mockOrdini[0]);
+    expect(mockopenDetail).toHaveBeenCalledWith(mockOrdini[0]);
   });
 });
 
@@ -405,19 +405,19 @@ describe('StoricoView – DettaglioModal', () => {
   });
 
   //TU-F_455
-  it('chiama chiudiDettaglio al click su "chiudi modal"', () => {
+  it('chiama closeDetail al click su "chiudi modal"', () => {
     vmOverrides = { ordineScelto: ordine };
     renderView();
     fireEvent.click(screen.getByText('chiudi modal'));
-    expect(mockChiudiDettaglio).toHaveBeenCalledTimes(1);
+    expect(mockcloseDetail).toHaveBeenCalledTimes(1);
   });
 
   //TU-F_456
-  it('chiama duplicaOrdine al click su "duplica"', () => {
+  it('chiama duplicateOrder al click su "duplica"', () => {
     vmOverrides = { ordineScelto: ordine };
     renderView();
     fireEvent.click(screen.getByText('duplica'));
-    expect(mockDuplicaOrdine).toHaveBeenCalledWith('ORD-001');
+    expect(mockduplicateOrder).toHaveBeenCalledWith('ORD-001');
   });
 
   //TU-F_457
@@ -535,7 +535,7 @@ describe('StoricoView – filtro data', () => {
   // ── campo "Da" ────────────────────────────────────────────────────────────
 
   //TU-F_467
-  it('impostare la data "Da" chiama caricaPagina(1, dataInizio, "")', () => {
+  it('impostare la data "Da" chiama loadPage(1, startDate, "")', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
 
@@ -543,13 +543,13 @@ describe('StoricoView – filtro data', () => {
     const inputDa = inputs[0];
     fireEvent.change(inputDa, { target: { value: '2024-02-01' } });
 
-    expect(mockCaricaPagina).toHaveBeenCalledWith(1, '2024-02-01', '');
+    expect(mockloadPage).toHaveBeenCalledWith(1, '2024-02-01', '');
   });
 
   // ── campo "A" ─────────────────────────────────────────────────────────────
 
   //TU-F_468
-  it('impostare la data "A" chiama caricaPagina(1, "", dataFine)', () => {
+  it('impostare la data "A" chiama loadPage(1, "", endDate)', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
 
@@ -557,7 +557,7 @@ describe('StoricoView – filtro data', () => {
     const inputA = inputs[1]; 
     fireEvent.change(inputA, { target: { value: '2024-05-01' } });
 
-    expect(mockCaricaPagina).toHaveBeenCalledWith(1, '', '2024-05-01');
+    expect(mockloadPage).toHaveBeenCalledWith(1, '', '2024-05-01');
   });
 
   // ── filtro attivo: indicatore visuale ─────────────────────────────────────
@@ -577,7 +577,7 @@ describe('StoricoView – filtro data', () => {
   // ── filtraggio lato client ────────────────────────────────────────────────
 
   //TU-F_470
-  it('filtra gli ordini per dataInizio: esclude ordini precedenti', () => {
+  it('filtra gli ordini per startDate: esclude ordini precedenti', () => {
     vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -591,7 +591,7 @@ describe('StoricoView – filtro data', () => {
   });
 
   //TU-F_471
-  it('filtra gli ordini per dataFine: esclude ordini successivi', () => {
+  it('filtra gli ordini per endDate: esclude ordini successivi', () => {
     vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
@@ -652,18 +652,18 @@ describe('StoricoView – filtro data', () => {
   });
 
   //TU-F_476
-  it('cliccando "Azzera" reimposta entrambe le date e chiama caricaPagina(1,"","") (riga 80-82)', () => {
+  it('cliccando "Azzera" reimposta entrambe le date e chiama loadPage(1,"","") (riga 80-82)', () => {
     vmOverrides = { ordini: mockOrdini, loading: false, errore: null };
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
 
     const inputs = screen.getAllByDisplayValue('');
     fireEvent.change(inputs[0], { target: { value: '2024-01-01' } });
-    mockCaricaPagina.mockReset();
+    mockloadPage.mockReset();
 
     fireEvent.click(screen.getByText('Azzera'));
 
-    expect(mockCaricaPagina).toHaveBeenCalledWith(1, '', '');
+    expect(mockloadPage).toHaveBeenCalledWith(1, '', '');
     expect(screen.getByTestId('ordine-row-ORD-001')).toBeInTheDocument();
   });
 
@@ -692,7 +692,7 @@ describe('StoricoView – filtro data', () => {
   // ── constraint max/min sugli input ────────────────────────────────────────
 
   //TU-F_479
-  it('l\'input "Da" riceve l\'attributo max quando dataFine è impostata', () => {
+  it('l\'input "Da" riceve l\'attributo max quando endDate è impostata', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
 
@@ -703,7 +703,7 @@ describe('StoricoView – filtro data', () => {
   });
 
   //TU-F_480
-  it('l\'input "A" riceve l\'attributo min quando dataInizio è impostata', () => {
+  it('l\'input "A" riceve l\'attributo min quando startDate è impostata', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Filtra per data'));
 

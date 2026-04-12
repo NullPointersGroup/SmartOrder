@@ -127,57 +127,57 @@ def sample_data(session, clean_db):
 #TU-B_257
 def test_get_ordini_by_username(session, sample_data):
     repo = HistoryRepository(session)
-    ordini, totale = repo.get_ordini_by_username("user1", pagina=1, per_pagina=10)
+    ordini, totale = repo.get_orders_by_username("user1", pagina=1, per_pagina=10)
     assert totale == 2
     assert len(ordini) == 2
     assert ordini[0].id_ord == 2
     assert ordini[1].id_ord == 1
 
-    ordini, totale = repo.get_ordini_by_username("user1", pagina=1, per_pagina=1)
+    ordini, totale = repo.get_orders_by_username("user1", pagina=1, per_pagina=1)
     assert len(ordini) == 1
     assert ordini[0].id_ord == 2
 
-    ordini, totale = repo.get_ordini_by_username("unknown", pagina=1, per_pagina=10)
+    ordini, totale = repo.get_orders_by_username("unknown", pagina=1, per_pagina=10)
     assert totale == 0
     assert len(ordini) == 0
 
 #TU-B_258
 def test_get_all_ordini(session, sample_data):
     repo = HistoryRepository(session)
-    ordini, totale = repo.get_all_ordini(pagina=1, per_pagina=10)
+    ordini, totale = repo.get_all_orders(pagina=1, per_pagina=10)
     assert totale == 3
     assert len(ordini) == 3
     assert ordini[0].id_ord == 3
     assert ordini[1].id_ord == 2
     assert ordini[2].id_ord == 1
 
-    ordini, totale = repo.get_all_ordini(pagina=1, per_pagina=2)
+    ordini, totale = repo.get_all_orders(pagina=1, per_pagina=2)
     assert len(ordini) == 2
     assert ordini[0].id_ord == 3
     assert ordini[1].id_ord == 2
 
-    ordini, totale = repo.get_all_ordini(pagina=2, per_pagina=2)
+    ordini, totale = repo.get_all_orders(pagina=2, per_pagina=2)
     assert len(ordini) == 1
     assert ordini[0].id_ord == 1
 
 #TU-B_259
 def test_get_prodotti_by_ordine_ids(session, sample_data):
     repo = HistoryRepository(session)
-    result = repo.get_prodotti_by_ordine_ids([1, 2])
+    result = repo.get_products_by_order_ids([1, 2])
     assert len(result) == 3
     for det, prod in result:
         assert isinstance(det, OrdCliDet)
         assert isinstance(prod, Anaart)
         assert det.cod_art == prod.prod_id
 
-    assert repo.get_prodotti_by_ordine_ids([]) == []
-    assert repo.get_prodotti_by_ordine_ids([999]) == []
+    assert repo.get_products_by_order_ids([]) == []
+    assert repo.get_products_by_order_ids([999]) == []
 
 #TU-B_260
 def test_duplica_ordine_not_found(session, sample_data):
     repo = HistoryRepository(session)
     with pytest.raises(ValueError, match="Ordine '999' non trovato"):
-        repo.duplica_ordine("999", "user1")
+        repo.duplicate_order("999", "user1")
 
 #TU-B_261
 def test_duplica_ordine_crea_nuovo_ordine(session, sample_data):
@@ -187,7 +187,7 @@ def test_duplica_ordine_crea_nuovo_ordine(session, sample_data):
     originale = sample_data["orders"][0]
     username_nuovo = "newuser"
 
-    nuovo_ordine = repo.duplica_ordine(str(originale.id_ord), username_nuovo)
+    nuovo_ordine = repo.duplicate_order(str(originale.id_ord), username_nuovo)
 
     # Controlla che l'ordine originale non sia stato modificato
     assert originale.username == "user1"
@@ -214,15 +214,15 @@ def test_duplica_ordine_crea_nuovo_ordine(session, sample_data):
 def test_duplica_ordine_non_esiste(session, sample_data):
     repo = HistoryRepository(session)
     with pytest.raises(ValueError, match="Ordine '999' non trovato"):
-        repo.duplica_ordine("999", "newuser")
+        repo.duplicate_order("999", "newuser")
 
 #TU-B_263
 def test_duplica_ordine_piu_volte_crea_id_unici(session, sample_data):
     repo = HistoryRepository(session)
     ordine_originale = sample_data["orders"][0]
 
-    ordine1 = repo.duplica_ordine(str(ordine_originale.id_ord), "user1")
-    ordine2 = repo.duplica_ordine(str(ordine_originale.id_ord), "user1")
+    ordine1 = repo.duplicate_order(str(ordine_originale.id_ord), "user1")
+    ordine2 = repo.duplicate_order(str(ordine_originale.id_ord), "user1")
 
     assert ordine1.id_ord != ordine2.id_ord
     assert ordine1.username == ordine2.username == "user1"

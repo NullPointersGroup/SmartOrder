@@ -19,10 +19,10 @@ class ToolOrderService:
         data_inizio: date | None = None,
         data_fine: date | None = None,
     ) -> HistoryPageSchema:
-        return self.storico_service.get_ordini_cliente(
+        return self.storico_service.get_orders_customer(
             username=self.username,
-            pagina=pagina,
-            per_pagina=10,
-            data_inizio=data_inizio,
-            data_fine=data_fine,
+            page=pagina,
+            per_page=10,
+            start_date=data_inizio,
+            end_date=data_fine,
         )

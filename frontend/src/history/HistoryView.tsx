@@ -29,8 +29,8 @@ export const HistoryView: React.FC = () => {
 
   // ── Stato filtro data ──────────────────────────────────────────────────────
   const [filtroAperto, setFiltroAperto] = useState(false);
-  const [dataInizio, setDataInizio] = useState('');
-  const [dataFine, setDataFine] = useState('');
+  const [startDate, setstartDate] = useState('');
+  const [endDate, setendDate] = useState('');
   const filtroRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -46,15 +46,15 @@ export const HistoryView: React.FC = () => {
     errore,
     erroreDuplica,
     isAdmin,
-    caricaPagina,
-    apriDettaglio,
-    chiudiDettaglio,
-    duplicaOrdine,
+    loadPage,
+    openDetail,
+    closeDetail,
+    duplicateOrder,
   } = useHistoryViewModel();
 
   useEffect(() => {
-    caricaPagina(1);
-  }, [caricaPagina]);
+    loadPage(1);
+  }, [loadPage]);
 
   // Chiude il pannello filtro cliccando fuori
   useEffect(() => {
@@ -68,20 +68,20 @@ export const HistoryView: React.FC = () => {
   }, [filtroAperto]);
 
   // ── Filtraggio ordini per data ─────────────────────────────────────────────
-  const ordiniFiltrati = ordini.filter((ordine) => {
+  const filterOrders = ordini.filter((ordine) => {
     // ordine.data atteso come stringa ISO, es. "2024-03-15"
     const dataOrdine = ordine.data.slice(0, 10); // prende solo YYYY-MM-DD
-    if (dataInizio && dataOrdine < dataInizio) return false;
-    if (dataFine && dataOrdine > dataFine) return false;
+    if (startDate && dataOrdine < startDate) return false;
+    if (endDate && dataOrdine > endDate) return false;
     return true;
   });
 
-  const filtroAttivo = dataInizio !== '' || dataFine !== '';
+  const filtroAttivo = startDate !== '' || endDate !== '';
 
-  const resetFiltro = () => {
-    setDataInizio('');
-    setDataFine('');
-    caricaPagina(1, '', '');
+  const resetFilter = () => {
+    setstartDate('');
+    setendDate('');
+    loadPage(1, '', '');
   };
 
   const handleLogout = async () => {
@@ -113,7 +113,7 @@ export const HistoryView: React.FC = () => {
         <span className="text-sm text-(--error)">{errore}</span>
       </div>
     );
-  } else if (ordiniFiltrati.length === 0) {
+  } else if (filterOrders.length === 0) {
     contenutoTabella = (
       <div className="flex items-center justify-center py-24">
         <span className="text-sm text-(--text-1)">
@@ -146,12 +146,12 @@ export const HistoryView: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {ordiniFiltrati.map((ordine) => (
+              {filterOrders.map((ordine) => (
                 <OrderRow
                   key={ordine.codice_ordine}
                   ordine={ordine}
                   isAdmin={isAdmin}
-                  onApriDettaglio={apriDettaglio}
+                  onopenDetail={openDetail}
                 />
               ))}
             </tbody>
@@ -161,7 +161,7 @@ export const HistoryView: React.FC = () => {
         <Pagination
           pagina={pagina}
           totalePagine={totalePagine}
-          onCambia={caricaPagina}
+          onCambia={loadPage}
         />
       </>
     );
@@ -241,7 +241,7 @@ export const HistoryView: React.FC = () => {
                     </span>
                     {filtroAttivo && (
                       <button
-                        onClick={resetFiltro}
+                        onClick={resetFilter}
                         className="text-[10px] font-mono text-(--color-2) hover:underline"
                       >
                         Azzera
@@ -254,11 +254,11 @@ export const HistoryView: React.FC = () => {
                     <p className="block text-xs text-(--text-4) mb-1">Da</p>
                     <input
                       type="date"
-                      value={dataInizio}
-                      max={dataFine || undefined}
+                      value={startDate}
+                      max={endDate || undefined}
                       onChange={(e) => {
-                        setDataInizio(e.target.value);
-                        caricaPagina(1, e.target.value, dataFine);
+                        setstartDate(e.target.value);
+                        loadPage(1, e.target.value, endDate);
                       }}
                       className="w-full text-sm bg-(--bg-2) border border-(--border) rounded-lg px-3 py-1.5 text-(--text-1) focus:outline-none focus:border-(--color-2)"
                     />
@@ -269,11 +269,11 @@ export const HistoryView: React.FC = () => {
                     <p className="block text-xs text-(--text-4) mb-1">A</p>
                     <input
                       type="date"
-                      value={dataFine}
-                      min={dataInizio || undefined}
+                      value={endDate}
+                      min={startDate || undefined}
                       onChange={(e) => {
-                        setDataFine(e.target.value);
-                        caricaPagina(1, dataInizio, e.target.value);
+                        setendDate(e.target.value);
+                        loadPage(1, startDate, e.target.value);
                       }}
                       className="w-full text-sm bg-(--bg-2) border border-(--border) rounded-lg px-3 py-1.5 text-(--text-1) focus:outline-none focus:border-(--color-2)"
                     />
@@ -298,10 +298,10 @@ export const HistoryView: React.FC = () => {
         <OrderDetailsModal
           ordine={ordineScelto}
           isAdmin={isAdmin}
-          onChiudi={chiudiDettaglio}
-          onDuplica={duplicaOrdine}
+          onChiudi={closeDetail}
+          onDuplica={duplicateOrder}
           erroreDuplica={erroreDuplica}
-          onRefresh={() => caricaPagina(pagina)}
+          onRefresh={() => loadPage(pagina)}
         />
       )}
     </div>
