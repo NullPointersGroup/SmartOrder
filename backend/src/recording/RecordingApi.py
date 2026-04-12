@@ -1,7 +1,7 @@
 from typing import Annotated, Dict
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from .RecordingService import RecordingService
-from .RecordingRepoAdapter import RecordingRepoAdapter
+from .RecordingAdapter import RecordingAdapter
 from .RecordingRepository import RecordingRepository
 import os
 from openai import AsyncOpenAI
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/recording", tags=["recording"])
 def get_service() -> RecordingService:
     client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     repo = RecordingRepository(client)
-    adapter = RecordingRepoAdapter(repo)
+    adapter = RecordingAdapter(repo)
     return RecordingService(adapter)
 
 ServiceDep = Annotated[RecordingService, Depends(get_service)]

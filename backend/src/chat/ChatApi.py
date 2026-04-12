@@ -3,123 +3,98 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from langchain.tools import BaseTool
 from sqlmodel import Session
+from src import dependencies
 from src.auth.api import get_current_user
 from src.cart.adapters.CartRepoAdapter import CartRepoAdapter
 from src.cart.adapters.CartRepository import CartRepository
 from src.cart.CartService import CartService
+from src.cart.ports.CartRepoPort import CartRepoPort
 from src.catalog.adapters.CatalogRepoAdapter import CatalogRepoAdapter
-from src.catalog.CatalogRepository import CatalogRepository
 from src.chat.adapters.ChatRepoAdapter import ChatRepoAdapter
 from src.chat.adapters.ChatRepository import ChatRepository
 from src.chat.adapters.LLMAdapter import LLMAdapter
-from src.chat.adapters.ToolAdapter import ToolAdapter
+from src.chat.adapters.ToolCartAdapter import ToolCartAdapter
+from src.chat.adapters.ToolCatalogAdapter import ToolCatalogAdapter
+from src.chat.adapters.ToolOrderAdapter import ToolOrderAdapter
 from src.chat.ChatSchemas import ChatResponse, MessageRequest, MessageResponse
 from src.chat.ChatService import ChatService
 from src.chat.exceptions import ConversationNotFoundException, ToolNotFoundException
 from src.chat.LLMAgent import LLMAgent
 from src.chat.tools.AddToCart import AddToCartTool
 from src.chat.tools.GetCartItems import GetCartItemsTool
+from src.chat.tools.GetOrders import GetOrdersTool
 from src.chat.tools.RemoveFromCart import RemoveFromCartTool
 from src.chat.tools.SearchCart import SearchCartTool
 from src.chat.tools.SearchCatalog import SearchCatalogTool
-from src.chat.tools.ToolService import ToolService
+from src.chat.tools.ToolCartService import ToolCartService
+from src.chat.tools.ToolCatalogService import ToolCatalogService
+from src.chat.tools.ToolOrderService import ToolOrderService
 from src.chat.tools.UpdateCartItemQty import UpdateCartItemQty
 from src.db.dbConnection import get_conn
-from src.vec.adapters.CatalogVecDbAdapter import CatalogVecDbAdapter
+from src.history.adapters.GetOrdersAdapter import GetOrdersAdapter
+from src.history.HistoryService import HistoryService
+from src.vec.adapters.CartVecDbAdapter import CartVecDbAdapter
 from src.vec.adapters.EmbedderAdapter import EmbedderAdapter
-from src.vec.adapters.FaissCatalogDb import FaissCatalogDb
-from src.vec.adapters.VecDbAdapter import VecDbAdapter
-from src.vec.ports.VecDbPortIn import VecDbPortIn
-from src.vec.VecDbService import VecDbService
+from src.vec.adapters.FaissCartDb import FaissCartDb
+from src.vec.EmbeddedCartService import EmbeddedCartService
+from src.vec.SentenceTransformerEmbedder import SentenceTransformerEmbedder
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
-cart_service: CartService | None = None
-catalog_repo: CatalogRepoAdapter | None = None
-vecDb_service: VecDbService | None = None
-_vec_init_failed = False
+embedded_cart_service: EmbeddedCartService | None = None
 
 
-class NoopVecDbAdapter(VecDbPortIn):
-    def get_cart(self, username: str) -> None:
-        return None
+def get_cart_services() -> tuple[CartService, CartRepoPort]:
 
-    def get_catalog(self) -> None:
-        return None
+    cart_service = CartService(
+        adapter=CartRepoAdapter(repo=CartRepository(next(get_conn())))
+    )
 
-    def search_catalog(self, query: str, threshold: float) -> list[str]:
-        return []
+    cart_repo_port = CartRepoAdapter(repo=CartRepository(next(get_conn())))
 
-    def search_cart(self, username: str, query: str, threshold: float) -> list[str]:
-        return []
-
-
-def get_shared_services() -> tuple[CartService, CatalogRepoAdapter]:
-    global cart_service, catalog_repo
-    if cart_service is None:
-        cart_service = CartService(
-            adapter=CartRepoAdapter(repo=CartRepository(next(get_conn())))
-        )
-    if catalog_repo is None:
-        catalog_repo = CatalogRepoAdapter(CatalogRepository(next(get_conn())))
-    return cart_service, catalog_repo
-
-
-def get_vec_db_service() -> VecDbService:
-    global vecDb_service, _vec_init_failed
-    if vecDb_service is not None:
-        return vecDb_service
-    if _vec_init_failed:
-        raise ModuleNotFoundError("sentence_transformers")
-
-    try:
-        shared_cart_service, shared_catalog_repo = get_shared_services()
-        vecDb_service = VecDbService(
-            catalog_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
-            cart_vect=CatalogVecDbAdapter(faiss_db=FaissCatalogDb()),
-            cart_service=shared_cart_service,
-            catalog_repo=shared_catalog_repo,
-            embedder=EmbedderAdapter(),
-        )
-        vecDb_service.load_catalog()
-        return vecDb_service
-    except ModuleNotFoundError:
-        _vec_init_failed = True
-        raise
+    return cart_service, cart_repo_port
 
 
 def build_tools(username: str, db: Session) -> list[BaseTool]:
-    shared_cart_service, shared_catalog_repo = get_shared_services()
 
-    try:
-        vec_db: VecDbPortIn = VecDbAdapter(get_vec_db_service())
-        vector_tools_available = True
-    except ModuleNotFoundError:
-        vec_db = NoopVecDbAdapter()
-        vector_tools_available = False
-
-    tool_service = ToolService(
-        username=username,
-        cart_service=shared_cart_service,
-        catalog_repo=shared_catalog_repo,
-        vec_db=vec_db,
+    _, cart_repo = get_cart_services()
+    embedded_cart_service: EmbeddedCartService = EmbeddedCartService(
+        CartVecDbAdapter(faiss_db=FaissCartDb(), username=username),
+        cart_repo=cart_repo,
+        embedder=EmbedderAdapter(
+            sentence_transformer_embedder=SentenceTransformerEmbedder()
+        ),
     )
-    tool_adapter = ToolAdapter(tool_service=tool_service)
-    get_cart_items = GetCartItemsTool(tool_service=tool_adapter)
-    add_to_cart_tool = AddToCartTool(tool_service=tool_adapter)
-    remove_from_cart = RemoveFromCartTool(tool_service=tool_adapter)
-    update_cart_item_qty = UpdateCartItemQty(tool_service=tool_adapter)
-    tools: list[BaseTool] = [
-        get_cart_items,
-        add_to_cart_tool,
-        remove_from_cart,
-        update_cart_item_qty,
-    ]
+    shared_catalog_repo = dependencies.catalog_repo
+    shared_embedded_catalog = dependencies.embedded_catalog_service
+    storico_service = HistoryService(GetOrdersAdapter(db))
+    preferred_product_frequency = {
+        prod_id: frequency
+        for prod_id, _, frequency in storico_service.get_user_product_preferences(
+            username
+        )
+    }
 
-    if vector_tools_available:
-        search_cart = SearchCartTool(tool_service=tool_adapter)
-        search_catalog = SearchCatalogTool(tool_service=tool_adapter)
-        tools.extend([search_cart, search_catalog])
+    if shared_embedded_catalog is not None and shared_catalog_repo is not None:
+        tool_catalog_service = ToolCatalogService(
+            shared_embedded_catalog, shared_catalog_repo, preferred_product_frequency
+        )
+    tool_cart_service = ToolCartService(username, cart_repo, embedded_cart_service)
+    tool_order_service = ToolOrderService(username, storico_service)
+
+    tool_cart_adapter = ToolCartAdapter(tool_cart_service)
+    tool_catalog_adapter = ToolCatalogAdapter(tool_catalog_service)
+    tool_order_adapter = ToolOrderAdapter(tool_order_service)
+
+    tools: list[BaseTool] = [
+        GetCartItemsTool(tool_adapter=tool_cart_adapter),
+        AddToCartTool(tool_adapter=tool_cart_adapter),
+        RemoveFromCartTool(tool_adapter=tool_cart_adapter),
+        UpdateCartItemQty(tool_adapter=tool_cart_adapter),
+        GetOrdersTool(tool_adapter=tool_order_adapter),
+        SearchCartTool(tool_adapter=tool_cart_adapter),
+        SearchCatalogTool(tool_adapter=tool_catalog_adapter),
+    ]
 
     return tools
 
@@ -130,10 +105,11 @@ def get_chat_service(
     from src.chat.ToolExecutor import ToolExecutor
 
     repo = ChatRepoAdapter(ChatRepository(db))
+    storico_service = HistoryService(GetOrdersAdapter(db))
     tool_executor = ToolExecutor(tools=build_tools(username, db))
     agent = LLMAgent(tool_executor=tool_executor)
     llm = LLMAdapter(agent=agent)
-    return ChatService(repo=repo, llm=llm)
+    return ChatService(repo=repo, llm=llm, storico_service=storico_service)
 
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]

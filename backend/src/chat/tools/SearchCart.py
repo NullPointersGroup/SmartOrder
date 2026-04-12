@@ -1,6 +1,6 @@
 from langchain.tools import BaseTool
-from pydantic import BaseModel, Field
-from src.chat.ports.ToolPort import ToolPortIn
+from pydantic import BaseModel, Field, ConfigDict
+from src.chat.ports.ToolCartPortIn import ToolCartPortIn
 
 
 class SearchCartInput(BaseModel):
@@ -14,17 +14,18 @@ class SearchCartInput(BaseModel):
 
 class SearchCartTool(BaseTool):
     name: str = "cerca_in_carrello"
-    description: str = "Cerca prodotti nel carrello dell'utente per nome o descrizione. Restituisce i prodotti trovati con id, nome e quantità."
+    description: str = (
+        "Cerca prodotti nel carrello dell'utente per nome o descrizione. Restituisce i prodotti trovati con id, nome e quantità."
+    )
     args_schema: type[BaseModel] = SearchCartInput
-    tool_service: ToolPortIn
+    tool_adapter: ToolCartPortIn
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def _run(self, query: str, threshold: float) -> str:
         msg = f"[DEBUG] L'AI usa il threshold: {threshold} per cercare il prodotto: {query} nel carrello"
         print(f"\033[30;43m  {msg}  \033[0m")
-        products = self.tool_service.search_cart(query, threshold)
+        products = self.tool_adapter.search_cart(query, threshold)
         if not products:
             return "Nessun prodotto trovato nel carrello."
         return "\n".join(

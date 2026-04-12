@@ -1,4 +1,4 @@
-from .IRecordingRepoPort import IRecordingRepoPort
+from .RecordingPort import RecordingPort
 from mutagen import File #type: ignore
 import tempfile
 import os
@@ -13,12 +13,12 @@ class RecordingService:
     @brief Service per la gestione della trascrizione audio.
     """
 
-    def __init__(self, repo: IRecordingRepoPort):
+    def __init__(self, adapter: RecordingPort):
         """
         @brief Inizializza il service con la porta di trascrizione.
         @param repo Implementazione di IRecordingRepoPort.
         """
-        self._repo = repo
+        self.adapter = adapter
 
     async def trascrivi_audio(self, audio_bytes: bytes, filename: str) -> str:
         """
@@ -46,16 +46,16 @@ class RecordingService:
             audio = File(tmp_path)
 
             if audio is None or not hasattr(audio, "info") or not hasattr(audio.info, "length"):
-                raise ValueError("Formato audio non supportato.")
-
-            durata = float(audio.info.length)
-
-            print(f"Durata rilevata: {durata}s")
-            
-            if durata > MAX_DURATION_SEC:
-                raise ValueError(f"Il file audio non può superare i {MAX_DURATION_SEC} secondi.")
+                # mutagen non riesce a leggere il formato (es. webm/opus)
+                # salta la validazione della durata e procedi
+                durata = None
+            else:
+                durata = float(audio.info.length)
+                print(f"Durata rilevata: {durata}s")
+                if durata > MAX_DURATION_SEC:
+                    raise ValueError(f"Il file audio non può superare i {MAX_DURATION_SEC} secondi.")
         finally:
             os.unlink(tmp_path)
 
-        testo = await self._repo.trascrivi(audio_bytes, filename)
+        testo = await self.adapter.trascrivi(audio_bytes, filename)
         return testo

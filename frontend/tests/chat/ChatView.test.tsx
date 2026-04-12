@@ -139,31 +139,37 @@ afterEach(() => {
 // ─── Render base ──────────────────────────────────────────────────────────────
 
 describe('ChatView – render base', () => {
+  //TU-F_178
   it('renderizza la navbar', () => {
     renderView();
     expect(screen.getByTestId('navbar')).toBeInTheDocument();
   });
 
+  //TU-F_179
   it('renderizza la sidebar sinistra', () => {
     renderView();
     expect(screen.getByTestId('conv-sidebar')).toBeInTheDocument();
   });
 
+  //TU-F_180
   it('renderizza la ChatArea', () => {
     renderView();
     expect(screen.getByTestId('chat-area')).toBeInTheDocument();
   });
 
+  //TU-F_181
   it('renderizza la sidebar destra (carrello)', () => {
     renderView();
     expect(screen.getByTestId('cart-sidebar')).toBeInTheDocument();
   });
 
+  //TU-F_182
   it('NON mostra il pannello profilo di default', () => {
     renderView();
     expect(screen.queryByTestId('profile-panel')).not.toBeInTheDocument();
   });
 
+  //TU-F_183
   it('NON mostra il toast di errore di default', () => {
     renderView();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
@@ -173,12 +179,14 @@ describe('ChatView – render base', () => {
 // ─── Profile panel ────────────────────────────────────────────────────────────
 
 describe('ChatView – profilo', () => {
+  //TU-F_184
   it('apre il pannello profilo al click su "Apri profilo"', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Apri profilo'));
     expect(screen.getByTestId('profile-panel')).toBeInTheDocument();
   });
 
+  //TU-F_185
   it('chiude il pannello profilo al click su "Chiudi profilo"', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Apri profilo'));
@@ -190,6 +198,7 @@ describe('ChatView – profilo', () => {
 // ─── Sidebar sinistra ─────────────────────────────────────────────────────────
 
 describe('ChatView – sidebar sinistra', () => {
+  //TU-F_186
   it('di default la sidebar sinistra è aperta (ConversationSidebar visibile)', () => {
     renderView();
     expect(screen.getByTestId('conv-sidebar')).toBeInTheDocument();
@@ -197,12 +206,14 @@ describe('ChatView – sidebar sinistra', () => {
     expect(screen.queryByTitle('Apri conversazioni')).not.toBeInTheDocument();
   });
 
+  //TU-F_187
   it('chiude la sidebar sinistra al click su "chiudi sx"', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Chiudi conversazioni'));
     expect(screen.getByTitle('Apri conversazioni')).toBeInTheDocument();
   });
 
+  //TU-F_188
   it('riapre la sidebar sinistra al click su "Apri conversazioni"', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Chiudi conversazioni'));
@@ -214,18 +225,21 @@ describe('ChatView – sidebar sinistra', () => {
 // ─── Sidebar destra ───────────────────────────────────────────────────────────
 
 describe('ChatView – sidebar destra (carrello)', () => {
+  //TU-F_189
   it('di default la sidebar destra è aperta (CartSidebar visibile)', () => {
     renderView();
     expect(screen.getByTestId('cart-sidebar')).toBeInTheDocument();
     expect(screen.queryByTitle('Apri carrello')).not.toBeInTheDocument();
   });
-
+  
+  //TU-F_190
   it('chiude la sidebar destra al click su "chiudi dx"', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Chiudi carrello'));
     expect(screen.getByTitle('Apri carrello')).toBeInTheDocument();
   });
 
+  //TU-F_191
   it('riapre la sidebar destra al click su "Apri carrello"', () => {
     renderView();
     fireEvent.click(screen.getByTitle('Chiudi carrello'));
@@ -237,18 +251,21 @@ describe('ChatView – sidebar destra (carrello)', () => {
 // ─── Error toast ──────────────────────────────────────────────────────────────
 
 describe('ChatView – error toast', () => {
+  //TU-F_192
   it('mostra il toast quando vm.error è valorizzato', () => {
     vmOverrides = { error: 'Qualcosa è andato storto' };
     renderView();
     expect(screen.getByText('Qualcosa è andato storto')).toBeInTheDocument();
   });
 
+  //TU-F_193
   it('NON mostra il toast quando vm.error è null', () => {
     vmOverrides = { error: null };
     renderView();
     expect(screen.queryByText(/qualcosa/i)).not.toBeInTheDocument();
   });
 
+  //TU-F_194
   it('chiama setError(null) dopo 4000ms quando error è presente', () => {
     vmOverrides = { error: 'Errore temporaneo' };
     renderView();
@@ -257,6 +274,7 @@ describe('ChatView – error toast', () => {
     expect(mockSetError).toHaveBeenCalledWith(null);
   });
 
+  //TU-F_195
   it('il cleanup del useEffect cancella il timer se error cambia prima dei 4000ms', () => {
     vmOverrides = { error: 'Errore temporaneo' };
     const { rerender } = renderView();
@@ -268,6 +286,7 @@ describe('ChatView – error toast', () => {
     expect(mockSetError).not.toHaveBeenCalled();
   });
 
+  //TU-F_196
   it('NON avvia il timer se error è null (branch !error → return)', () => {
     vmOverrides = { error: null };
     renderView();
@@ -276,6 +295,7 @@ describe('ChatView – error toast', () => {
   });
 });
 
+//TU-F_197
 it('in modalità narrow chiude entrambe le sidebar all’avvio', () => {
   mockMatchMedia(true);
   renderView();
@@ -284,6 +304,7 @@ it('in modalità narrow chiude entrambe le sidebar all’avvio', () => {
   expect(screen.getByTitle('Apri carrello')).toBeInTheDocument();
 });
 
+//TU-F_198
 it('apre overlay sinistro in modalità narrow', () => {
   mockMatchMedia(true);
   renderView();
@@ -293,6 +314,7 @@ it('apre overlay sinistro in modalità narrow', () => {
   expect(screen.getByTestId('conv-sidebar')).toBeInTheDocument();
 });
 
+//TU-F_199
 it('chiude overlay sinistro cliccando backdrop', () => {
   mockMatchMedia(true);
   renderView();
@@ -305,6 +327,7 @@ it('chiude overlay sinistro cliccando backdrop', () => {
   expect(screen.queryByTestId('conv-sidebar')).not.toBeInTheDocument();
 });
 
+//TU-F_200
 it('in modalità narrow apre una sidebar e chiude l’altra', () => {
   mockMatchMedia(true);
   renderView();
@@ -318,6 +341,7 @@ it('in modalità narrow apre una sidebar e chiude l’altra', () => {
   expect(screen.queryByTestId('conv-sidebar')).not.toBeInTheDocument();
 });
 
+//TU-F_201
 it('apre overlay carrello in modalità narrow', () => {
   mockMatchMedia(true);
   renderView();
@@ -327,6 +351,7 @@ it('apre overlay carrello in modalità narrow', () => {
   expect(screen.getByTestId('cart-sidebar')).toBeInTheDocument();
 });
 
+//TU-F_202
 it('selectConversation chiude overlay e chiama VM', () => {
   mockMatchMedia(true);
   renderView();
@@ -338,6 +363,7 @@ it('selectConversation chiude overlay e chiama VM', () => {
   expect(screen.queryByTestId('conv-sidebar')).not.toBeInTheDocument();
 });
 
+//TU-F_203
 it('onToggleSelf chiude overlay sinistro', () => {
   mockMatchMedia(true);
   renderView();
@@ -348,6 +374,7 @@ it('onToggleSelf chiude overlay sinistro', () => {
   expect(screen.queryByTestId('conv-sidebar')).not.toBeInTheDocument();
 });
 
+//TU-F_204
 it('renderizza overlay carrello in modalità narrow quando aperto', () => {
   mockMatchMedia(true);
   renderView();
@@ -357,6 +384,7 @@ it('renderizza overlay carrello in modalità narrow quando aperto', () => {
   expect(screen.getByTestId('cart-sidebar')).toBeInTheDocument();
 });
 
+//TU-F_205
 it('click sul backdrop chiude overlay carrello', () => {
   mockMatchMedia(true);
   renderView();
@@ -369,6 +397,7 @@ it('click sul backdrop chiude overlay carrello', () => {
   expect(screen.queryByTestId('cart-sidebar')).not.toBeInTheDocument();
 });
 
+//TU-F_206
 it('onToggleSelf chiude overlay carrello', () => {
   mockMatchMedia(true);
   renderView();
@@ -379,6 +408,7 @@ it('onToggleSelf chiude overlay carrello', () => {
   expect(screen.queryByTestId('cart-sidebar')).not.toBeInTheDocument();
 });
 
+//TU-F_207
 it('apre carrello e chiude sidebar sinistra in modalità narrow', () => {
   mockMatchMedia(true);
   renderView();

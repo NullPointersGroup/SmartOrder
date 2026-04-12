@@ -8,47 +8,45 @@ message2 = Message(id_message=2, content="Test message 2", sender=SenderEnum.Cha
 
 class ConcreteChatRepo(ChatRepoPort):
     def get_messages(self, conv_id: int) -> list[Message]:
-        messages = [message1, message2]
-        return messages
+        return [message1, message2]
+
+    def get_chat_history(self, conv_id: int, max_messages: int = 20) -> list[Message]:
+        return [message1, message2]
 
     def add_message(self, conv_id: int, text: str, sender: SenderEnum) -> Message:
         return Message(id_message=1, content=text, sender=sender)
 
-    ## TODO create_conversation deve ritornare Conversation (tipo di dominio)
     def create_conversation(self, username: str):
         pass
 
     def conversation_exist(self, conv_id: int) -> bool:
         return True
 
-
+#TU-B_196
 def test_get_messages_can_be_implemented():
     chat_repo = ConcreteChatRepo()
-    message_list = [message1, message2]
     result = chat_repo.get_messages(1)
-    assert result == message_list
+    assert result == [message1, message2]
 
-
+#TU-B_197
 def test_add_message_can_be_implemented():
     chat_repo = ConcreteChatRepo()
-    message = message1
     result = chat_repo.add_message(
-        conv_id=1, text=message.content, sender=SenderEnum.Utente
+        conv_id=1, text=message1.content, sender=SenderEnum.Utente
     )
-    assert result == message
+    assert result == message1
 
-
+#TU-B_198
 def test_get_messages_returns_message_list():
     chat_repo = ConcreteChatRepo()
     result = chat_repo.get_messages(1)
     assert isinstance(result, list)
     assert all(isinstance(m, Message) for m in result)
 
-
+#TU-B_199
 def test_add_message_returns_message():
     chat_repo = ConcreteChatRepo()
-    message = message1
     result = chat_repo.add_message(
-        conv_id=1, text=message.content, sender=SenderEnum.Utente
+        conv_id=1, text=message1.content, sender=SenderEnum.Utente
     )
     assert isinstance(result, Message)

@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 pytest.importorskip("langchain")
@@ -14,17 +14,18 @@ from src.chat.ChatApi import (
 )
 from src.chat.ChatSchemas import ChatResponse, Message, MessageRequest, MessageResponse
 from src.enums import SenderEnum
-from src.db.models import Utentiweb
+from src.db.models import WebUser
 
-
+#TU-B_205
 def test_get_chat_service_unit():
     mock_db = MagicMock(spec=Session)
 
-    service = get_chat_service(db=mock_db)
+    with patch("src.chat.ChatApi.build_tools", return_value=[]):
+        service = get_chat_service(username="test", db=mock_db)
 
     assert isinstance(service, ChatService)
 
-
+#TU-B_206
 def test_get_all_messages_unit():
     test_message = Message(id_message=1, content="Test message", sender=SenderEnum.Utente)
     message_list = [test_message]
@@ -34,7 +35,7 @@ def test_get_all_messages_unit():
     assert isinstance(result, ChatResponse)
     mock_service.get_all_messages.assert_called_once_with(1)
 
-
+#TU-B_207
 def test_send_message_unit():
     test_message = Message(
         id_message=1,
@@ -62,7 +63,7 @@ def test_send_message_unit():
         content="Test message",
     )
 
-
+#TU-B_208
 def test_get_all_messages_from_inexistent_conv():
     mock_service = MagicMock()
     mock_service.get_all_messages.side_effect = ConversationNotFoundException(1)
@@ -72,7 +73,7 @@ def test_get_all_messages_from_inexistent_conv():
     assert info.value.status_code == 404
     assert "1" in info.value.detail
 
-
+#TU-B_209
 def test_send_message_returns_500_when_tool_is_missing():
     mock_service = MagicMock()
     mock_service.send_message.side_effect = ToolNotFoundException("search")

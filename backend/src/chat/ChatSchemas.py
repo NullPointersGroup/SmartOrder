@@ -2,6 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
+
 class Message(BaseModel):
     id_message: int | None = None
     content: str
@@ -25,7 +26,9 @@ class MessageResponse(BaseModel):
     id_conv: int
     message: Message
 
+
 class Conversation(BaseModel):
     id_conv: int
     username: str
     titolo: str
+

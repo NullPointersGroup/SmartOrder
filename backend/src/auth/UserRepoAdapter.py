@@ -1,12 +1,12 @@
 from sqlmodel import Session
 
-from src.auth.IUserRepoPort import IUserRepoPort
+from src.auth.UserRepoPort import UserRepoPort
 from src.auth.UserRepository import UserRepository
 from src.auth.models import UserRegistration, UserReset
-from src.db.models import Utentiweb
+from src.db.models import WebUser
 
 
-class UserRepoAdapter(IUserRepoPort):
+class UserRepoAdapter(UserRepoPort):
     """
     @brief Adapter verso la persistenza (DB)
     """
@@ -14,32 +14,22 @@ class UserRepoAdapter(IUserRepoPort):
     def __init__(self, db: Session) -> None:
         self.repo = UserRepository(db)
 
-    def find_by_username(self, username: str) -> Utentiweb | None:
+    def find_by_username(self, username: str) -> WebUser | None:
         """
         @req RF-OB_24
         @req RF-OB_26
         """
         return self.repo.find_by_username(username)
 
-    def username_exists(self, username: str) -> bool:
-        """
-        @req RF-OB_03
-        @req RF-OB_04
-        """
-        return self.repo.find_by_username(username) is not None
-
     def email_exists(self, email: str) -> bool:
         """
-        @req RF-OB_19
-        @req RF-OB_21
+        @brief controlla che la mail esiste
         """
         return self.repo.find_by_email(email) is not None
 
     def add_user(self, u: UserRegistration) -> bool:
         """
-        @req RF-OB_02
-        @req RF-OB_08
-        @req RF-OB_18
+        @brief aggiunge l'utente
         """
         return self.repo.save(u)
     

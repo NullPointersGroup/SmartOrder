@@ -2,7 +2,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select, col
 from pydantic import BaseModel
-from src.db.models import Conversazioni
+from src.db.models import Conversations
 
 from src.db.dbConnection import get_conn
 from src.auth.api import get_current_user
@@ -44,9 +44,9 @@ def get_conversations(
     @brief Restituisce tutte le conversazioni di un utente
     """
     rows = db.exec(
-        select(Conversazioni)
-        .where(Conversazioni.username == username)
-        .order_by(col(Conversazioni.id_conv).desc())
+        select(Conversations)
+        .where(Conversations.username == username)
+        .order_by(col(Conversations.id_conv).desc())
     ).all()
     return [
         ConversationOut(id_conv=r.id_conv, username=r.username, titolo=r.titolo)
@@ -64,7 +64,7 @@ def create_conversation(
     """
     @brief Crea una nuova Conversazioni per l'utente
     """
-    conv = Conversazioni(username=username, titolo=body.titolo)
+    conv = Conversations(username=username, titolo=body.titolo)
     db.add(conv)
     db.commit()
     db.refresh(conv)
@@ -81,7 +81,7 @@ def rename_conversation(
     """
     @brief Rinomina una Conversazioni esistente
     """
-    conv = db.get(Conversazioni, conv_id)
+    conv = db.get(Conversations, conv_id)
     if not conv:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -103,7 +103,7 @@ def delete_conversation(
     """
     @brief Elimina una Conversazioni e tutti i suoi messaggi (CASCADE)
     """
-    conv = db.get(Conversazioni, conv_id)
+    conv = db.get(Conversations, conv_id)
     if not conv:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

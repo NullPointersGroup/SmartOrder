@@ -5,7 +5,7 @@ from src.cart.exceptions import (
     ProductNotFoundException,
     ProductNotInCartException,
 )
-from src.db.models import Carrello, Anaart
+from src.db.models import Cart, Anaart
 from src.enums import CartUpdateOperation, MeasureUnitEnum
 
 
@@ -19,9 +19,10 @@ def make_catalog(prod_id="ABC2", prod_des="Prodotto 2", price=2.0):
 
 
 def make_cart(username="Tom", cod_art="ABC2", quantita=1):
-    return Carrello(username=username, cod_art=cod_art, quantita=quantita)
+    return Cart(username=username, cod_art=cod_art, quantita=quantita)
 
 
+#TU-B_164
 def test_get_products_calls_db(cart_repository, mock_db):
     mock_db.exec.return_value.all.return_value = []
     result = cart_repository.get_products(username="Tom")
@@ -29,8 +30,9 @@ def test_get_products_calls_db(cart_repository, mock_db):
     mock_db.exec.assert_called_once()
 
 
+#TU-B_165
 def test_get_products_returns_list(cart_repository, mock_db):
-    cart1 = Carrello(username="Tom", cod_art="ABC1", quantita=1)
+    cart1 = Cart(username="Tom", cod_art="ABC1", quantita=1)
     catalog1 = Anaart(
         prod_id="ABC1",
         prod_des="Prodotto 1",
@@ -38,7 +40,7 @@ def test_get_products_returns_list(cart_repository, mock_db):
         measure_unit_type=MeasureUnitEnum.C,
     )
 
-    cart2 = Carrello(username="Tom", cod_art="ABC2", quantita=1)
+    cart2 = Cart(username="Tom", cod_art="ABC2", quantita=1)
     catalog2 = Anaart(
         prod_id="ABC2",
         prod_des="Prodotto 2",
@@ -58,6 +60,7 @@ def test_get_products_returns_list(cart_repository, mock_db):
     assert result[1].id_prod == "ABC2"
 
 
+#TU-B_166
 def test_add_product_calls_and_commit_refresh(cart_repository, mock_db):
     mock_db.exec.return_value.first.side_effect = [
         make_catalog(prod_id="ABC3", prod_des="Prodotto 3", price=3.0),
@@ -70,6 +73,7 @@ def test_add_product_calls_and_commit_refresh(cart_repository, mock_db):
     mock_db.commit.assert_called_once()
 
 
+#TU-B_167
 def test_add_product_returns_product_repository(cart_repository, mock_db):
     mock_db.exec.return_value.first.side_effect = [make_catalog(), None]
 
@@ -78,6 +82,7 @@ def test_add_product_returns_product_repository(cart_repository, mock_db):
     assert isinstance(result, CartProductRepository)
 
 
+#TU-B_168
 def test_add_product_correct_fields(cart_repository, mock_db):
     mock_db.exec.return_value.first.side_effect = [
         make_catalog(prod_id="ABC2", prod_des="Prodotto 2", price=2.0),
@@ -92,12 +97,14 @@ def test_add_product_correct_fields(cart_repository, mock_db):
     assert result.price == 2
 
 
+#TU-B_169
 def test_add_product_not_existing(cart_repository, mock_db):
     mock_db.exec.return_value.first.return_value = None
     with pytest.raises(ProductNotFoundException):
         cart_repository.add_product(prod_id="ABC99", username="Tom", qty=2)
 
 
+#TU-B_170
 def test_remove_product_calls_and_commit(cart_repository, mock_db):
     mock_db.exec.return_value.first.return_value = (make_cart(), make_catalog())
 
@@ -106,6 +113,7 @@ def test_remove_product_calls_and_commit(cart_repository, mock_db):
     mock_db.commit.assert_called_once()
 
 
+#TU-B_171
 def test_remove_product_returns_product_repository(cart_repository, mock_db):
     mock_db.exec.return_value.first.return_value = (make_cart(), make_catalog())
 
@@ -114,6 +122,7 @@ def test_remove_product_returns_product_repository(cart_repository, mock_db):
     assert isinstance(result, CartProductRepository)
 
 
+#TU-B_172
 def test_remove_product_correct_fields(cart_repository, mock_db):
     mock_db.exec.return_value.first.return_value = (
         make_cart(cod_art="ABC2"),
@@ -125,12 +134,14 @@ def test_remove_product_correct_fields(cart_repository, mock_db):
     assert result.id_prod == "ABC2"
 
 
+#TU-B_173
 def test_remove_product_not_in_cart(cart_repository, mock_db):
     mock_db.exec.return_value.first.return_value = None
     with pytest.raises(ProductNotInCartException):
         cart_repository.remove_product(username="Tom", prod_id="ABC50")
 
 
+#TU-B_174
 def test_update_quantity_calls_and_commit_refresh(cart_repository, mock_db):
     mock_db.exec.return_value.first.return_value = (make_cart(), make_catalog())
 
@@ -141,6 +152,7 @@ def test_update_quantity_calls_and_commit_refresh(cart_repository, mock_db):
     mock_db.commit.assert_called_once()
 
 
+#TU-B_175
 def test_update_quantit_returns_product_repository(cart_repository, mock_db):
     mock_db.exec.return_value.first.return_value = (make_cart(), make_catalog())
 
@@ -151,6 +163,7 @@ def test_update_quantit_returns_product_repository(cart_repository, mock_db):
     assert isinstance(result, CartProductRepository)
 
 
+#TU-B_176
 def test_update_quantity_correct_fields(cart_repository, mock_db):
     before_qty = 1
     mock_db.exec.return_value.first.return_value = (
@@ -170,6 +183,7 @@ def test_update_quantity_correct_fields(cart_repository, mock_db):
     assert result.qty == before_qty + qty_to_add
 
 
+#TU-B_177
 def test_update_quantity_product_not_in_cart(cart_repository, mock_db):
     mock_db.exec.return_value.first.return_value = None
 

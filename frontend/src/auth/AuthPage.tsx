@@ -14,12 +14,14 @@ export default function AuthPage() {
   @req RF-OB_06
   @req RF-OB_07
   @req RF-OB_08
+  @req RF-OB_11
   @req RF-OB_12
   @req RF-OB_13
   @req RF-OB_14
   @req RF-OB_15
   @req RF-OB_17
   @req RF-OB_18
+  @req RF-OB_22
   @req RF-OB_23
   @req RF-OB_24
   @req RF-OB_25
@@ -28,7 +30,7 @@ export default function AuthPage() {
    */
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
+  const { initAuth } = useAuthStore();
 
   usePageTitle(isLogin ? 'Autenticazione' : 'Registrazione');
 
@@ -37,8 +39,18 @@ export default function AuthPage() {
 
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8">
-        <span className="auth-brand-icon text-4xl">🛒</span>
-        <span className="font-serif text-2xl font-bold tracking-[0.05em]" style={{ color: 'var(--text-1)' }}>SmartOrder</span>
+        <img
+          src="./../../logoSmartOrder.jpeg"
+          alt="Logo SmartOrder"
+          className="w-20 h-15"
+        />
+
+        <span
+          className="font-serif text-2xl font-bold tracking-[0.05em]"
+          style={{ color: 'var(--text-1)' }}
+        >
+          SmartOrder
+        </span>
       </div>
 
       <div className="w-full max-w-md rounded-full mb-3 p-3" style={{ backgroundColor: 'var(--bg-2)', border: '1px solid var(--border)' }}>
@@ -74,10 +86,9 @@ export default function AuthPage() {
         <div className="p-8 px-9">
           {isLogin ? (
             <Login onLogin={async () => {
-              const res = await fetch(`/auth/me`, { credentials: 'include' });
-              const data = await res.json();
-              setAuth(data.username, data.admin);
-              navigate(data.admin? '/history' : '/home')
+              await initAuth();
+              const { admin } = useAuthStore.getState();
+              navigate(admin ? '/history' : '/home');
             }} />
           ) : (
             <Register onRegister={() => setIsLogin(true)} />

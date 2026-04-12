@@ -1,7 +1,7 @@
 from langchain.tools import BaseTool
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from src.cart.exceptions import ProductNotFoundException
-from src.chat.ports.ToolPort import ToolPortIn
+from src.chat.ports.ToolCartPortIn import ToolCartPortIn
 
 
 class AddToCartInput(BaseModel):
@@ -13,14 +13,15 @@ class AddToCartTool(BaseTool):
     name: str = "aggiungi_al_carrello"
     description: str = "Aggiunge un prodotto al carrello dell'utente dato il suo prod_id e la quantità."
     args_schema: type[BaseModel] = AddToCartInput
-    tool_service: ToolPortIn
+    tool_adapter: ToolCartPortIn
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def _run(self, prod_id: str, qty: int) -> str:
+        msg = f"[DEBUG] Aggiunta di {prod_id}"
+        print(f"\033[30;43m  {msg}  \033[0m")
         try:
-            product = self.tool_service.add_to_cart(prod_id, qty)
+            product = self.tool_adapter.add_to_cart(prod_id, qty)
         except ProductNotFoundException:
             return "Prodotto non trovato nel catalogo."
         return f"Prodotto '{product.name}' aggiunto al carrello (quantità: {qty})."

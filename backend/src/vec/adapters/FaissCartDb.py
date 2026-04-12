@@ -25,6 +25,8 @@ class FaissCartDb:
     def search(
         self, vector: np.ndarray, n: int, threshold: float, username: str
     ) -> list[str]:
+        msg = f"[DEBUG] FAISSDB: L'AI usa il threshold: {threshold} per cercare il prodotto nel carrello"
+        print(f"\033[30;43m  {msg}  \033[0m")
         vector_f32 = np.array(vector, dtype=np.float32).reshape(1, -1)
         user_positions = set(self.user_map.get(username, []))
         distances, labels = self.index.search(vector_f32, n)  # pyright: ignore

@@ -1,14 +1,14 @@
-from src.auth.IEmailValidationPort import IEmailValidationPort
+from src.auth.EmailValidationPort import EmailValidationPort
 import dns.resolver
 
-class EmailValidationAdapter(IEmailValidationPort):
+class EmailValidationAdapter(EmailValidationPort):
     """
     @brief Adapter verso la validazione DNS del dominio email
     """
 
     def domain_exists(self, email: str) -> bool:
         """
-        @req RF-OB_20
+        @brief controlla che il dominio della mail esiste
         """
         try:
             domain = email.split("@")[1]

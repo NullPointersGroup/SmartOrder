@@ -20,13 +20,13 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
   @req RF-OB_29
   @req RF-OB_30
   @req RF-OB_31
+  @req RF-DE_06
   @req RF-DE_07
   @req RF-DE_08
-  @req RF-DE_09
+  @req RF-DE_11
   @req RF-DE_12
   @req RF-DE_13
   @req RF-DE_14
-  @req RF-DE_15
    */
   const [info, setInfo] = useState<UserInfo | null>(null)
   const [loading, setLoading] = useState(true)
@@ -36,7 +36,7 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
 
   useEffect(() => {
     if (!username) return
-    fetch('/auth/retrieve', { credentials: 'include' })
+    fetch('/api/auth/retrieve', { credentials: 'include' })
       .then(r => r.text())
       .then(text => {
         const data = JSON.parse(text)
@@ -47,12 +47,12 @@ export const Profile: React.FC<Props> = ({ onClose, username, onLogout }) => {
   }, [username])
 
   const handleDelete = async () => {
-    await fetch('/auth/delete', { method: 'DELETE', credentials: 'include' })
+    await fetch('/api/auth/delete', { method: 'DELETE', credentials: 'include' })
     onLogout()
   }
 
   const handleReset = async (oldPassword: string, newPassword: string): Promise<string | null> => {
-    const res = await fetch('/auth/reset', {
+    const res = await fetch('/api/auth/reset', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },

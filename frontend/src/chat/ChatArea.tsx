@@ -12,7 +12,6 @@ interface Props {
   onSend: () => void;
   onAudioAttach?: (file: File) => void;
   onAudioRecord?: (blob: Blob) => void;
-  /** When true (narrow screen + sidebar open) the input bar stays fixed at the bottom */
   sidebarOpen?: boolean;
   isTranscribing?: boolean;
 }
@@ -47,9 +46,9 @@ function MessageBubble({ msg }: { readonly msg: Message }) {
   /**
   @brief Renderizza un singolo messaggio nella chat, distinguendo tra utente e AI.
   @param msg Messaggio da visualizzare.
+  @req RF-DE_130
   @req RF-DE_131
   @req RF-DE_132
-  @req RF-DE_133
    */
   return (
     <div className={`flex items-end gap-2 mb-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -65,7 +64,7 @@ function MessageBubble({ msg }: { readonly msg: Message }) {
       </div>
       <article
         className={`
-          max-w-[65%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
+          max-w-[75%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
           ${isUser
             ? 'bg-(--color-3) text-(--bg-3) rounded-2xl rounded-br-sm'
             : 'bg-(--bg-3) border border-(--border) text-(--text-1) rounded-2xl rounded-bl-sm shadow-sm'}
@@ -116,9 +115,9 @@ export const ChatArea: React.FC<Props> = ({
   @req RF-OB_51
   @req RF-OB_52
   @req RF-OB_53
-  @req RF-DE_26
+  @req RF-DE_25
+  @req RF-DE_128
   @req RF-DE_129
-  @req RF-DE_130
   @req RF-OP_15
    */
   const MAX_CHARS = 4096;
@@ -136,10 +135,10 @@ export const ChatArea: React.FC<Props> = ({
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    if (!isTranscribing && inputText) {
+    if (!isTranscribing && !isSending && inputText.length > 0) {
       textareaRef.current?.focus()
     }
-  }, [isTranscribing, inputText])
+  }, [isTranscribing, isSending, inputText.length])
 
   const counterColorClass = isOverLimit
     ? 'text-(--oth-1) font-semibold'
@@ -220,8 +219,8 @@ export const ChatArea: React.FC<Props> = ({
     const audio = new Audio(url)
 
     audio.onloadedmetadata = () => {
-      if (audio.duration > 120 * 60) {
-        alert('La durata non può superare 120 minuti')
+      if (audio.duration > 120) {
+        alert('La durata non può superare 120 secondi')
         URL.revokeObjectURL(url)
         e.target.value = ''
         return
@@ -272,6 +271,7 @@ export const ChatArea: React.FC<Props> = ({
         aria-live="polite"
         aria-label="Messaggi della conversazione"
       >
+        <div className="max-w-4xl mx-auto w-full">
 
         {isLoading && (
           <output className="flex justify-center py-12" aria-label="Caricamento messaggi">
@@ -291,14 +291,16 @@ export const ChatArea: React.FC<Props> = ({
 
         {isSending && <TypingIndicator />}
         <div ref={messagesEndRef} aria-hidden="true" />
+        </div>
       </div>
 
       {/* Input bar */}
       <div className={`border-t border-(--border) bg-(--bg-3) px-4 py-3 ${sidebarOpen ? 'sticky bottom-0 z-10' : ''}`}>
-        {/* Indicatore registrazione attiva */}
-        {isRecording && (
+        <div className="max-w-4xl mx-auto w-full">
+          {/* Indicatore registrazione attiva */}
+          {isRecording && (
           <output className="flex items-center gap-2 mb-2 px-1" aria-live="assertive">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" aria-hidden="true" />
+            <span className="w-2 h-2 rounded-full bg-(--error) animate-pulse" aria-hidden="true" />
             <span className="text-xs text-(--error) font-medium">
               Registrazione in corso… {recordingSeconds}s / 120s
             </span>
@@ -395,7 +397,6 @@ export const ChatArea: React.FC<Props> = ({
           </button>
         </div>
 
-        {/* Per apertura di selezione file, normale che non abbia il focus */}
         <input
           ref={fileInputRef}
           type="file"
@@ -416,6 +417,7 @@ export const ChatArea: React.FC<Props> = ({
           <p className={`text-xs tabular-nums transition-colors ${counterColorClass}`}>
             {formattedCharCount}
           </p>
+        </div>
         </div>
       </div>
     </main>

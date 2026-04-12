@@ -23,6 +23,7 @@ def mock_session():
 # ---------------------------------------------------------------------------
 
 class TestGetConn:
+    #TU-B_338
     def test_yields_session(self, mock_session):
         with patch("src.db.dbConnection.Session", return_value=mock_session), patch(
             "src.db.dbConnection.get_engine", return_value=object()
@@ -32,6 +33,7 @@ class TestGetConn:
             session = next(gen)
             assert session is mock_session
 
+    #TU-B_339
     def test_closes_session_after_use(self, mock_session):
         with patch("src.db.dbConnection.Session", return_value=mock_session), patch(
             "src.db.dbConnection.get_engine", return_value=object()
@@ -49,6 +51,7 @@ class TestGetConn:
 # ---------------------------------------------------------------------------
 
 class TestGetEngine:
+    #TU-B_340
     def test_raises_runtime_error_if_missing(self):
         import src.db.dbConnection as db_module
         importlib.reload(db_module)
@@ -58,6 +61,7 @@ class TestGetEngine:
             with pytest.raises(RuntimeError, match="DATABASE_URL non impostata"):
                 db_module.get_engine()
 
+    #TU-B_341
     def test_returns_engine_if_present(self):
         import src.db.dbConnection as db_module
         importlib.reload(db_module)

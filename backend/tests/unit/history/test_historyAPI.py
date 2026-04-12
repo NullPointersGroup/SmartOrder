@@ -1,0 +1,222 @@
+import pytest
+from unittest.mock import MagicMock
+from fastapi.testclient import TestClient
+from fastapi import FastAPI
+
+from src.history.HistoryApi import router, get_service, require_admin
+from src.auth.api import get_current_user
+from src.history.HistorySchemas import HistoryPageSchema, OrderSchema, ProductSchema
+from src.history.exceptions import UserOrdersNotFoundException, OrderNotFoundException
+
+# ─── App di test ─────────────────────────────────────────────────────────────
+
+app = FastAPI()
+app.include_router(router)
+
+# ─── Fixtures ────────────────────────────────────────────────────────────────
+
+PAGINA_VUOTA = HistoryPageSchema(ordini=[], pagina_corrente=1, totale_pagine=1)
+
+PRODOTTO = ProductSchema(nome="Prodotto A", quantita=2)
+
+PAGINA_CON_ORDINI = HistoryPageSchema(
+    ordini=[
+        OrderSchema(
+            codice_ordine="1",
+            data="2024-01-01",
+            username=None,
+            prodotti=[PRODOTTO],
+        )
+    ],
+    pagina_corrente=1,
+    totale_pagine=3,
+)
+
+PAGINA_ADMIN = HistoryPageSchema(
+    ordini=[
+        OrderSchema(
+            codice_ordine="2",
+            data="2024-02-01",
+            username="cliente1",
+            prodotti=[PRODOTTO],
+        )
+    ],
+    pagina_corrente=1,
+    totale_pagine=2,
+)
+
+
+def mock_service(page: HistoryPageSchema = PAGINA_CON_ORDINI) -> MagicMock:
+    service = MagicMock()
+    service.get_orders_customer.return_value = page
+    service.get_orders_admin.return_value = PAGINA_ADMIN
+    service.duplicate_order.return_value = None
+    return service
+
+
+# ─── Helper per override ──────────────────────────────────────────────────────
+
+def override_user(username: str = "utente1"):
+    app.dependency_overrides[get_current_user] = lambda: username
+
+
+def override_service(service: MagicMock):
+    app.dependency_overrides[get_service] = lambda: service
+
+
+def override_admin(ok: bool = True, username: str = "admin1"):
+    if ok:
+        app.dependency_overrides[require_admin] = lambda: username
+    else:
+        from fastapi import HTTPException, status
+        def deny():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Accesso riservato agli amministratori")
+        app.dependency_overrides[require_admin] = deny
+
+
+@pytest.fixture(autouse=True)
+def clear_overrides():
+    yield
+    app.dependency_overrides.clear()
+
+
+client = TestClient(app, raise_server_exceptions=False)
+
+# ─── GET /history/miei ────────────────────────────────────────────────────────
+
+class TestgetHistoryCustomer:
+    #TU-B_245
+    def test_restituisce_ordini(self):
+        service = mock_service()
+        override_user()
+        override_service(service)
+
+        res = client.get("/history/miei")
+
+        assert res.status_code == 200
+        body = res.json()
+        assert body["pagina_corrente"] == 1
+        assert body["totale_pagine"] == 3
+        assert len(body["ordini"]) == 1
+        assert body["ordini"][0]["codice_ordine"] == "1"
+    
+    #TU-B_246
+    def test_chiama_service_con_username_corretto(self):
+        service = mock_service()
+        override_user("mario")
+        override_service(service)
+
+        client.get("/history/miei?page=2&per_page=5")
+
+        service.get_orders_customer.assert_called_once_with("mario", 2, 5, None, None)
+
+    #TU-B_247
+    def test_404_se_nessun_ordine(self):
+        service = mock_service()
+        service.get_orders_customer.side_effect = UserOrdersNotFoundException("mario")
+        override_user("mario")
+        override_service(service)
+
+        res = client.get("/history/miei")
+
+        assert res.status_code == 404
+
+    #TU-B_248
+    def test_pagina_minima_1(self):
+        override_user()
+        override_service(mock_service())
+
+        res = client.get("/history/miei?page=0")
+
+        assert res.status_code == 422
+
+    #TU-B_249
+    def test_per_pagina_massimo_50(self):
+        override_user()
+        override_service(mock_service())
+
+        res = client.get("/history/miei?per_page=51")
+
+        assert res.status_code == 422
+
+
+# ─── GET /history/tutti ───────────────────────────────────────────────────────
+
+class TestgetHistoryAdmin:
+
+    #TU-B_250
+    def test_restituisce_tutti_gli_ordini(self):
+        service = mock_service()
+        override_admin(ok=True)
+        override_service(service)
+
+        res = client.get("/history/tutti")
+
+        assert res.status_code == 200
+        body = res.json()
+        assert body["ordini"][0]["username"] == "cliente1"
+
+    #TU-B_251
+    def test_chiama_service_con_paginazione(self):
+        service = mock_service()
+        override_admin(ok=True)
+        override_service(service)
+
+        client.get("/history/tutti?page=2&per_page=20")
+
+        service.get_orders_admin.assert_called_once_with(2, 20, None, None)
+
+    #TU-B_252
+    def test_403_se_non_admin(self):
+        override_admin(ok=False)
+        override_service(mock_service())
+
+        res = client.get("/history/tutti")
+
+        assert res.status_code == 403
+
+    #TU-B_253
+    def test_pagina_minima_1(self):
+        override_admin(ok=True)
+        override_service(mock_service())
+
+        res = client.get("/history/tutti?page=0")
+
+        assert res.status_code == 422
+
+
+# ─── POST /history/duplica/{codice_ordine} ────────────────────────────────────
+
+class TestduplicateOrder:
+
+    #TU-B_254
+    def test_duplica_con_successo(self):
+        service = mock_service()
+        override_user("mario")
+        override_service(service)
+
+        res = client.post("/history/duplicate_order/42")
+
+        assert res.status_code == 201
+        assert res.json() == {"detail": "Ordine duplicato con successo"}
+
+    #TU-B_255
+    def test_chiama_service_con_parametri_corretti(self):
+        service = mock_service()
+        override_user("mario")
+        override_service(service)
+
+        client.post("/history/duplicate_order/99")
+
+        service.duplicate_order.assert_called_once_with("99", "mario")
+
+    #TU-B_256
+    def test_404_se_ordine_non_trovato(self):
+        service = mock_service()
+        service.duplicate_order.side_effect = OrderNotFoundException("99")
+        override_user("mario")
+        override_service(service)
+
+        res = client.post("/history/duplicate_order/99")
+
+        assert res.status_code == 404

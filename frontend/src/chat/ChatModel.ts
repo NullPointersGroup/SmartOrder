@@ -1,4 +1,5 @@
 // ── Tipi di dominio (nomi italiani, usati nel resto dell'app) ─────────────────
+import { useAuthStore } from '../auth/authStore';
 
 export type Mittente = 'Utente' | 'Chatbot';
 
@@ -95,26 +96,32 @@ async function handleResponse<T>(res: Response): Promise<T> {
 // ── ChatModel — layer di accesso ai dati ──────────────────────────────────────
 
 export const ChatModel = {
-  // Auth
+  async initAuth(): Promise<void> {
+    const authStore = useAuthStore.getState();
 
-  async getMe(): Promise<{ username: string }> {
-    /**
-     * @brief Ottiene le informazioni dell'utente autenticato
-     * @return Promise con username dell'utente
-     * @throws Error in caso di fallimento autenticazione
-     * @req RF-OB_1
-     */
-    const res = await fetch(`/auth/me`, { credentials: 'include' });
-    return handleResponse(res);
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok) throw new Error("Errore autenticazione");
+
+      authStore.setAuth(data.username, data.admin);
+    } catch {
+      authStore.clearAuth();
+    }
+  },
+
+  async getMe(): Promise<{ username: string | null; admin: boolean | null }> {
+    await this.initAuth();
+    const { username, admin } = useAuthStore.getState();
+    return { username, admin };
   },
 
   async logout(): Promise<void> {
     /**
      * @brief Effettua il logout dell'utente corrente
      * @throws Error in caso di errore nella richiesta di logout
-     * @req RF-OB_2
      */
-    const res = await fetch(`/auth/logout`, {
+    const res = await fetch(`/api/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -129,9 +136,8 @@ export const ChatModel = {
      * @param username Nome dell'utente
      * @return Promise con array di conversazioni
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_3
      */
-    const res = await fetch(`/conversations/${username}`, {
+    const res = await fetch(`/api/conversations/${username}`, {
       credentials: 'include',
     });
     return handleResponse(res);
@@ -144,9 +150,8 @@ export const ChatModel = {
      * @param titolo Titolo della nuova conversazione
      * @return Promise con la conversazione creata
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_4
      */
-    const res = await fetch(`/conversations/${username}`, {
+    const res = await fetch(`/api/conversations/${username}`, {
       method: 'POST',
       credentials: 'include',
       ...json({ titolo }),
@@ -161,9 +166,8 @@ export const ChatModel = {
      * @param titolo Nuovo titolo
      * @return Promise con la conversazione aggiornata
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_5
      */
-    const res = await fetch(`/conversations/${conv_id}`, {
+    const res = await fetch(`/api/conversations/${conv_id}`, {
       method: 'PATCH',
       credentials: 'include',
       ...json({ titolo }),
@@ -176,9 +180,8 @@ export const ChatModel = {
      * @brief Elimina una conversazione
      * @param conv_id ID della conversazione da eliminare
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_6
      */
-    const res = await fetch(`/conversations/${conv_id}`, {
+    const res = await fetch(`/api/conversations/${conv_id}`, {
       method: 'DELETE',
       credentials: 'include',
     });
@@ -193,9 +196,8 @@ export const ChatModel = {
      * @param conv_id ID della conversazione
      * @return Promise con id conversazione e array di messaggi
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_7
      */
-    const res = await fetch(`/chat/${conv_id}/all`, { credentials: 'include' });
+    const res = await fetch(`/api/chat/${conv_id}/all`, { credentials: 'include' });
     const data = await handleResponse<RawChatApiResponse>(res);
 
     return {
@@ -211,9 +213,8 @@ export const ChatModel = {
      * @param content Contenuto del messaggio
      * @return Promise con id conversazione e messaggio inviato
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_8
      */
-    const res = await fetch(`/chat/${conv_id}`, {
+    const res = await fetch(`/api/chat/${conv_id}`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -235,9 +236,8 @@ export const ChatModel = {
      * @param username Nome dell'utente
      * @return Promise con username e lista prodotti nel carrello
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_9
      */
-    const res = await fetch(`/cart/${username}`, { credentials: 'include' });
+    const res = await fetch(`/api/cart/${username}`, { credentials: 'include' });
     return handleResponse(res);
   },
 
@@ -247,9 +247,8 @@ export const ChatModel = {
      * @param username Nome dell'utente
      * @param prod_id ID del prodotto da rimuovere
      * @throws Error se la richiesta fallisce
-     * @req RF-OB_10
      */
-    const res = await fetch(`/cart/${username}`, {
+    const res = await fetch(`/api/cart/${username}`, {
       method: 'DELETE',
       credentials: 'include',
       ...json({ prod_id }),
@@ -263,7 +262,7 @@ export const ChatModel = {
      * @param username Nome dell'utente
      * @throws Error se la richiesta fallisce
      */
-    const res = await fetch(`/cart/${username}/sendOrder`, {
+    const res = await fetch(`/api/cart/${username}/sendOrder`, {
       method: 'POST',
       credentials: 'include',
     });

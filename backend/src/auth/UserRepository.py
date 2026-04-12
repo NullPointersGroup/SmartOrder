@@ -2,8 +2,7 @@ from sqlmodel import Session, select, col
 from sqlalchemy import insert, delete
 
 from src.auth.models import UserRegistration, UserReset
-from src.auth.PasswordUtility import PasswordUtility
-from src.db.models import Utentiweb
+from src.db.models import WebUser
 from src.db.queryExecutor import QueryExecutor
 
 
@@ -16,55 +15,57 @@ class UserRepository:
     def __init__(self, db: Session) -> None:
         self.executor = QueryExecutor(db)
 
-    def find_by_username(self, username: str) -> Utentiweb | None:
+    def find_by_username(self, username: str) -> WebUser | None:
         """
         @brief Recupera un utente dal DB per username
         @return l'Utente se esiste
         """
         return self.executor.execute_one_raw(
-            select(Utentiweb).where(Utentiweb.username == username)
+            select(WebUser).where(WebUser.username == username)
         )
 
-    def find_by_email(self, email: str) -> Utentiweb | None:
+    def find_by_email(self, email: str) -> WebUser | None:
         """
         @brief Recupera un utente dal DB per email
         @return l'Utente se esiste
         """
         return self.executor.execute_one_raw(
-            select(Utentiweb).where(Utentiweb.email == email)
+            select(WebUser).where(WebUser.email == email)
         )
 
     def save(self, u: UserRegistration) -> bool:
         """
-        @brief Inserisce un nuovo utente nel DB con password hashata
-        @return restituisce true se l'operazione ha successo
+        @brief Inserisce un nuovo utente nel DB
+        @param u: utente con password già hashata
+        @return True se l'operazione ha successo
         """
         return self.executor.mutate_raw(
-            insert(Utentiweb).values(
+            insert(WebUser).values(
                 username=u.username,
-                password=PasswordUtility.hash_password(u.password),
+                password=u.password,
                 email=u.email,
-                admin=False
+                admin=False,
             )
         )
-        
+
     def delete(self, username: str) -> bool:
         """
         @brief Elimina un utente dal DB per username
         @return Il risultato dell'operazione
         """
         return self.executor.mutate_raw(
-            delete(Utentiweb).where(col(Utentiweb.username) == username)
+            delete(WebUser).where(col(WebUser.username) == username)
         )
-        
+
     def reset_password(self, u: UserReset) -> bool:
         """
         @brief Reimposta la password di un utente
+        @param u: oggetto con new_pwd già hashata
         @return Il risultato dell'operazione
         """
         from sqlalchemy import update
         return self.executor.mutate_raw(
-            update(Utentiweb)
-            .where(col(Utentiweb.username) == u.username)
-            .values(password=PasswordUtility.hash_password(u.new_pwd))
-        )    
+            update(WebUser)
+            .where(col(WebUser.username) == u.username)
+            .values(password=u.new_pwd)
+        )

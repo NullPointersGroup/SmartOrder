@@ -1,6 +1,7 @@
-import { FormModel, type FieldConfig, type SubmitResult } from './FormModel'
-import { register, type RegisterDto } from './AuthAPI';
+import { FormModel, type FieldConfig, type SubmitResult, register, type RegisterDto } from './FormModel'
 
+const USERNAME_REGEX: RegExp = /^\w{4,24}$/;
+const PASSWORD_REGEX: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~])[A-Za-z\d!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~]{8,24}$/;
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export class RegisterModel extends FormModel {
@@ -19,13 +20,13 @@ export class RegisterModel extends FormModel {
      */
     const fieldErrors = super.validate(values);
 
-    if (!fieldErrors.username && !RegisterModel.USERNAME_REGEX.test(values.username)) {
+    if (!fieldErrors.username && !USERNAME_REGEX.test(values.username)) {
       fieldErrors.username = 'Username deve essere tra 4 e 24 caratteri';
     }
     if (!fieldErrors.email && !EMAIL_REGEX.test(values.email)) {
       fieldErrors.email = 'Email non valida';
     }
-    if (!fieldErrors.password && !RegisterModel.PASSWORD_REGEX.test(values.password)) {
+    if (!fieldErrors.password && !PASSWORD_REGEX.test(values.password)) {
       fieldErrors.password = 'La password deve essere tra 8 e 24 caratteri e deve contenere almeno 1 lettera maiuscola, 1 lettera minuscola, 1 numero e 1 carattere speciale'; //NOSONAR
     }
     if (!fieldErrors.confirmPwd && values.password !== values.confirmPwd) {

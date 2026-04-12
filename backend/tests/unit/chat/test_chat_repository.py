@@ -1,9 +1,9 @@
-from src.db.models import Messaggi
+from src.db.models import Messages
 from src.enums import SenderEnum
 
 
 def make_chat_message(id_conv: int, id_mess: int, content: str, sender: SenderEnum):
-    msg = Messaggi(
+    msg = Messages(
             id_conv=id_conv,
             id_messaggio=id_mess,
             contenuto=content, 
@@ -11,6 +11,7 @@ def make_chat_message(id_conv: int, id_mess: int, content: str, sender: SenderEn
             )
     return msg
 
+#TU-B_200
 def test_get_messages_calls_db(chat_repository, mock_db):
     mock_db.exec.return_value.all.return_value = []
 
@@ -19,6 +20,7 @@ def test_get_messages_calls_db(chat_repository, mock_db):
     assert result == []
     mock_db.exec.assert_called_once()
 
+#TU-B_201
 def test_get_messages_returns_list(chat_repository, mock_db):
     rows = [
             make_chat_message(1, 1, "Hello", SenderEnum.Utente),
@@ -34,6 +36,7 @@ def test_get_messages_returns_list(chat_repository, mock_db):
     assert result[0].contenuto == "Hello"
     assert result[1].mittente ==  SenderEnum.Chatbot
 
+#TU-B_202
 def test_add_message_calls_and_commit_refresh(chat_repository, mock_db):
     chat_repository.add_message(conv_id=1, text="Hello", sender=SenderEnum.Utente)
 
@@ -41,11 +44,13 @@ def test_add_message_calls_and_commit_refresh(chat_repository, mock_db):
     mock_db.commit.assert_called_once()
     mock_db.refresh.assert_called_once()
 
+#TU-B_203
 def test_add_message_returns_chat_message_repository(chat_repository, mock_db):
     result = chat_repository.add_message(conv_id=1, text="Hello", sender=SenderEnum.Utente)
 
-    assert isinstance(result, Messaggi)
+    assert isinstance(result, Messages)
 
+#TU-B_204
 def test_add_message_correct_fields(chat_repository, mock_db):
     result = chat_repository.add_message(conv_id=1, text="Hello", sender=SenderEnum.Utente)
 

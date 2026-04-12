@@ -3,7 +3,7 @@ import io
 
 class RecordingRepository:
     def __init__(self, client: AsyncOpenAI):
-        self._client = client
+        self.client = client
 
     async def trascrivi(self, audio_bytes: bytes, filename: str) -> str:
         """
@@ -15,7 +15,7 @@ class RecordingRepository:
         """
         file_like = io.BytesIO(audio_bytes)
         file_like.name = filename
-        response = await self._client.audio.transcriptions.create(
+        response = await self.client.audio.transcriptions.create(
             model="whisper-1",
             file=file_like,
             language="it",
