@@ -477,21 +477,20 @@ describe('ChatArea – handleMicClick: avvio registrazione', () => {
   });
 
   //TU-F_129
-  it('mostra alert se getUserMedia fallisce', async () => {
-    const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
+  it('mostra popup se getUserMedia fallisce', async () => {
     const { Ctor } = makeMediaRecorderMock();
     globalThis.MediaRecorder = Ctor as unknown as typeof MediaRecorder;
     Object.defineProperty(navigator, 'mediaDevices', {
       value: { getUserMedia: vi.fn().mockRejectedValue(new Error('denied')) },
       configurable: true,
     });
-    renderChat({  });
+    renderChat({});
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /registra messaggio vocale/i }));
     });
-    expect(alertSpy).toHaveBeenCalledWith(
-      expect.stringMatching(/impossibile accedere al microfono/i),
-    );
+    expect(
+      screen.getByText(/impossibile accedere al microfono/i)
+    ).toBeInTheDocument();
   });
 
   //TU-F_130
@@ -587,13 +586,14 @@ describe('ChatArea – handleFileChange', () => {
   });
 
   //TU-F_134
-  it('mostra alert e non chiama onAudioAttach se il file supera 10 MB', () => {
-    const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
+  it('mostra popup se non chiama onAudioAttach se il file supera 10 MB', () => {
     const onAudioAttach = vi.fn();
     const { container } = renderChat({ onAudioAttach });
     const bigFile = makeFile(11 * 1024 * 1024);
     triggerFileInput(container, bigFile);
-    expect(alertSpy).toHaveBeenCalledWith(expect.stringMatching(/non può superare/i));
+    expect(
+      screen.getByText(/Il file non può superare/i)
+    ).toBeInTheDocument();
     expect(onAudioAttach).not.toHaveBeenCalled();
   });
 
@@ -620,8 +620,7 @@ describe('ChatArea – handleFileChange', () => {
   });
 
   //TU-F_136
-  it('mostra alert se la durata supera 120 minuti', () => {
-    const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
+  it('mostra pop up se la durata supera 120 minuti', () => {
     const onAudioAttach = vi.fn();
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
@@ -637,13 +636,14 @@ describe('ChatArea – handleFileChange', () => {
     triggerFileInput(container, makeFile(1 * 1024 * 1024));
     act(() => { mockAudio.onloadedmetadata?.(); });
 
-    expect(alertSpy).toHaveBeenCalledWith(expect.stringMatching(/non può superare/i));
+    expect(
+      screen.getByText(/non può superare/i)
+    ).toBeInTheDocument();
     expect(onAudioAttach).not.toHaveBeenCalled();
   });
 
   //TU-F_137
-  it('mostra alert se il file audio è corrotto (onerror)', () => {
-    const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
+  it('mostra pop up se il file audio è corrotto (onerror)', () => {
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
     const mockAudio = {
@@ -651,13 +651,15 @@ describe('ChatArea – handleFileChange', () => {
       onerror: null as (() => void) | null,
       duration: 0,
     };
-    globalThis.Audio = vi.fn().mockImplementation(function () { return mockAudio; }) as any;
+    globalThis.Audio = vi.fn().mockImplementation(function () { return mockAudio; });
 
     const { container } = renderChat({  });
     triggerFileInput(container, makeFile(1 * 1024 * 1024));
     act(() => { mockAudio.onerror?.(); });
 
-    expect(alertSpy).toHaveBeenCalledWith(expect.stringMatching(/impossibile leggere il file/i));
+    expect(
+      screen.getByText(/impossibile leggere il file/i)
+    ).toBeInTheDocument();
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock');
   });
 });
