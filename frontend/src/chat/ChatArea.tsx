@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import type { Message } from './ChatModel';
 
@@ -190,7 +190,7 @@ export const ChatArea: React.FC<Props> = ({
         })
       }, 1000)
     } catch {
-      alert('Impossibile accedere al microfono. Controlla i permessi del browser.');
+      setErrorMessage('Impossibile accedere al microfono. Controlla i permessi del browser.');
     }
   }
 
@@ -204,13 +204,13 @@ export const ChatArea: React.FC<Props> = ({
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     /**
-    @brief gestisce il controllo del file
-     */
+     @brief gestisce il controllo del file
+    */
     const file = e.target.files?.[0]
     if (!file) return
 
     if (file.size > MAX_FILE_MB * 1024 * 1024) {
-      alert(`Il file non può superare i ${MAX_FILE_MB} MB.`)
+      setErrorMessage(`Il file non può superare i ${MAX_FILE_MB} MB.`)
       e.target.value = ''
       return
     }
@@ -220,7 +220,7 @@ export const ChatArea: React.FC<Props> = ({
 
     audio.onloadedmetadata = () => {
       if (audio.duration > 120) {
-        alert('La durata non può superare 120 secondi')
+        setErrorMessage('La durata non può superare 120 secondi')
         URL.revokeObjectURL(url)
         e.target.value = ''
         return
@@ -232,7 +232,7 @@ export const ChatArea: React.FC<Props> = ({
     }
 
     audio.onerror = () => {
-      alert('Impossibile leggere il file audio')
+      setErrorMessage('Impossibile leggere il file audio')
       URL.revokeObjectURL(url)
       e.target.value = ''
     }
@@ -262,6 +262,8 @@ export const ChatArea: React.FC<Props> = ({
     disabled:opacity-40 disabled:cursor-not-allowed
   `;
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
   return (
     <main className="flex flex-col flex-1 min-w-0 h-full bg-(--bg-1)" aria-label="Area chat">
       {/* Messaggi */}
@@ -288,6 +290,25 @@ export const ChatArea: React.FC<Props> = ({
         {messages.map(msg => (
           <MessageBubble key={msg.id_messaggio} msg={msg} />
         ))}
+        {errorMessage && (
+          <button
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+            onClick={() => setErrorMessage(null)}
+          >
+            <button
+              className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="text-gray-800 text-base mb-4">{errorMessage}</p>
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                onClick={() => setErrorMessage(null)}
+              >
+                OK
+              </button>
+            </button>
+          </button>
+        )}
 
         {isSending && <TypingIndicator />}
         <div ref={messagesEndRef} aria-hidden="true" />
