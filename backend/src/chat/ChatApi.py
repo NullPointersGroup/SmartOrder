@@ -134,6 +134,26 @@ def send_message(
     chat_service: ChatServiceDep,
     current_user: UserServiceCurrentUser,
 ) -> MessageResponse:
+    """
+    @brief restituisce il messaggio di risposta
+    @param conv_id: id della conversazione
+    @param message: il messaggio dell'utente
+    @param chat_service: dependency injection della chat service
+    @param current_user: dependency injection dell'utente corrente
+    @raise 500 se c'è un errore di rete
+    @return il messaggio di risposta
+    @req RF-OB_54
+    @req RF-OB_55
+    @req RF-OB_56
+    @req RF-OB_57
+    @req RF-OB_58
+    @req RF-OB_59
+    @req RF-OB_60
+    @req RF-OB_61
+    @req RF-OB_71
+    @req RF-OB_72
+    @req RF-OB_73
+    """
     try:
         msg = chat_service.send_message(
             conv_id=conv_id,
