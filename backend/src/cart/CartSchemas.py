@@ -4,8 +4,6 @@ from pydantic import BaseModel
 
 from src.enums import CartUpdateOperation, MeasureUnitEnum
 
-
-## TODO spostare Product in file schemas condiviso tra cart e catalog
 class Product(BaseModel):
     prod_id: str
     name: str
