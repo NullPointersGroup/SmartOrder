@@ -28,7 +28,6 @@ class CartService:
         @param username: il cliente che sta inviando l'ordine
         @raise CartEmptyException se il carrello è vuoto
         @return None
-        @req TODO
         """
         try:
             self.adapter.send_order(username)

@@ -91,6 +91,5 @@ class CartRepoAdapter(CartRepoPort):
         @param username: il cliente che sta inviando l'ordine
         @raise CartEmptyException se il carrello è vuoto
         @return None
-        @req TODO
         """
         self.repo.send_order(username)
