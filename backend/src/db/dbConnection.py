@@ -8,8 +8,9 @@ from sqlalchemy.engine import Engine
 @lru_cache(maxsize=1)
 def get_engine() -> Engine:
     """
-    @brief collegamento al database
-    @return il database collegato
+    @brief Crea e restituisce il motore di connessione al database.
+    @return Engine SQLAlchemy configurato con l'URL del database.
+    @raises RuntimeError se la variabile d'ambiente DATABASE_URL non è impostata.
     """
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
@@ -18,5 +19,11 @@ def get_engine() -> Engine:
 
 
 def get_conn() -> Generator[Session, Any, None]:
+    """
+    @brief Genera una sessione di database 
+           per la dependency injection di FastAPI.
+    @return Generator che produce una
+            sessione SQLModel attiva.
+    """
     with Session(get_engine()) as session:
         yield session

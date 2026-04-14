@@ -20,7 +20,6 @@ class CartRepository:
         """
         self.db = db
 
-    ## TODO spostare Anaart in cartella condivisa tra Cart e Catalog, e rinominarlo in ProductRepository
     def get_products(self, username: str) -> list[CartProductRepository]:
         """
         @brief Recupera tutti i prodotti nel carrello di un utente
