@@ -79,10 +79,10 @@ docker compose up --build
 
 ### 6. Accedi al sistema
 
-### 6. Accedi al sistema
-
 Una volta avviati i container (`postgres_test`, `postgres_db`, `react_frontend`, `fastapi_backend`), apri il browser e vai su:
 http://localhost:5173
+
+A questo punto, per capire come utilizzare il prodotto, suggeriamo di leggere il nostro [Manuale Utente](https://nullpointersgroup.github.io/Documentazione/output/PB/Documenti%20Esterni/Manuale_Utente.pdf)
 
 ---
 
